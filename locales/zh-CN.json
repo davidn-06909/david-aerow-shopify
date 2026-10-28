@@ -121,6 +121,7 @@
     "button_label": "订阅"
   },
   "accessibility": {
+    "pause_video": "Pause video",
     "skip_to_text": "忽略内容",
     "skip_to_product_info": "忽略产品信息",
     "close": "关闭",

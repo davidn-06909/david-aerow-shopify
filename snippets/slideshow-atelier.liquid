@@ -1,0 +1,132 @@
+{% comment %}
+  Optional single-slide atelier layout for the existing slideshow section.
+  Reuses its slide content, Shopify video/image pickers, and button settings.
+{% endcomment %}
+{%- liquid
+  assign slide = section.blocks | first
+  assign heading_font = section.settings.atelier_heading_font
+  assign body_font = section.settings.atelier_body_font
+  assign desktop_source = slide.settings.atelier_video_url
+  assign mobile_source = slide.settings.atelier_mobile_video_url
+  for source in slide.settings.video.sources
+    if source.mime_type == 'video/mp4'
+      assign desktop_source = source.url
+      break
+    endif
+  endfor
+  for source in slide.settings.mobile_video.sources
+    if source.mime_type == 'video/mp4'
+      assign mobile_source = source.url
+      break
+    endif
+  endfor
+  assign mobile_source = mobile_source | default: desktop_source
+  assign desktop_poster = slide.settings.image | default: slide.settings.video.preview_image
+  assign mobile_poster = slide.settings.image_mobile | default: slide.settings.mobile_video.preview_image | default: desktop_poster
+  assign desktop_poster_url = 'atelier-hero-desktop.jpg' | asset_url
+  assign mobile_poster_url = 'atelier-hero-mobile.jpg' | asset_url
+  if desktop_poster != blank
+    assign desktop_poster_url = desktop_poster | image_url: width: 1920
+  endif
+  if mobile_poster != blank
+    assign mobile_poster_url = mobile_poster | image_url: width: 900
+  endif
+  assign heading_lines = slide.settings.heading | escape | newline_to_br | split: '<br />'
+  assign heading_tag = slide.settings.heading_tag | default: 'h1'
+-%}
+{% style %}
+  {{ heading_font | font_face: font_display: 'swap' }}
+  {{ body_font | font_face: font_display: 'swap' }}
+  #atelier-hero-{{ section.id }} {
+    --atelier-heading-font: {{ heading_font.family }}, {{ heading_font.fallback_families }};
+    --atelier-heading-weight: {{ heading_font.weight }};
+    --atelier-body-font: {{ body_font.family }}, {{ body_font.fallback_families }};
+    --atelier-body-weight: {{ body_font.weight }};
+    --atelier-overlay: {{ section.settings.atelier_overlay | times: 0.01 }};
+    --atelier-heading-scale: {{ slide.settings.heading_size | default: 100 | times: 0.01 }};
+  }
+{% endstyle %}
+<div
+  id="atelier-hero-{{ section.id }}"
+  class="atelier-hero"
+  role="region"
+  x-data="xAtelierHero"
+  data-desktop-src="{{ desktop_source | escape }}"
+  data-mobile-src="{{ mobile_source | escape }}"
+  data-desktop-poster="{{ desktop_poster_url | escape }}"
+  data-mobile-poster="{{ mobile_poster_url | escape }}"
+  data-autoplay="{{ slide.settings.enable_video_autoplay }}"
+  aria-labelledby="atelier-heading-{{ section.id }}"
+  {{ slide.shopify_attributes }}
+>
+  <div class="atelier-hero__media" aria-hidden="true">
+    <picture>
+      <source media="(max-width: 749px)" srcset="{{ mobile_poster_url | escape }}">
+      {% # theme-check-disable RemoteAsset %}
+      <img src="{{ desktop_poster_url | escape }}" alt="" width="1920" height="1080" loading="eager" fetchpriority="high">
+      {% # theme-check-enable RemoteAsset %}
+    </picture>
+    {%- if desktop_source != blank or mobile_source != blank -%}
+      <video
+        x-ref="video"
+        muted playsinline loop preload="metadata"
+        @playing="playing = true"
+        @pause="playing = false"
+        @error="playing = false"
+        tabindex="-1"
+      ></video>
+    {%- endif -%}
+    <span class="atelier-hero__scrim"></span>
+    <span class="atelier-hero__gradient"></span>
+  </div>
+  <div class="atelier-hero__content atelier-hero__page">
+    <div class="atelier-hero__body">
+      {%- if slide.settings.subheading != blank -%}
+        <p class="atelier-hero__eyebrow">{{ slide.settings.subheading | escape }}</p>
+      {%- endif -%}
+      {%- if slide.settings.heading != blank -%}
+        <{{ heading_tag }} id="atelier-heading-{{ section.id }}" class="atelier-hero__heading" x-ref="heading">
+          {%- for line in heading_lines -%}
+            <span class="atelier-hero__line"><span style="--line-delay: {{ forloop.index0 | times: 160 }}ms">{{ line | strip }}</span></span>
+          {%- endfor -%}
+        </{{ heading_tag }}>
+      {%- endif -%}
+      {%- if slide.settings.text != blank -%}
+        <div class="atelier-hero__text rte">{{ slide.settings.text }}</div>
+      {%- endif -%}
+      {%- if slide.settings.button_label_1 != blank or slide.settings.button_label_2 != blank -%}
+        <div class="atelier-hero__buttons">
+          {%- if slide.settings.button_label_1 != blank -%}
+            <a class="atelier-hero__button" {% if slide.settings.button_link_1 != blank %}href="{{ slide.settings.button_link_1 }}"{% else %}role="link" aria-disabled="true"{% endif %}{% if slide.settings.open_new_window_button %} target="_blank" rel="noopener noreferrer"{% endif %}>{{ slide.settings.button_label_1 | escape }}</a>
+          {%- endif -%}
+          {%- if slide.settings.button_label_2 != blank -%}
+            <a class="atelier-hero__button atelier-hero__button--glass" {% if slide.settings.button_link_2 != blank %}href="{{ slide.settings.button_link_2 }}"{% else %}role="link" aria-disabled="true"{% endif %}{% if slide.settings.open_new_window_button_2 %} target="_blank" rel="noopener noreferrer"{% endif %}>{{ slide.settings.button_label_2 | escape }}</a>
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+    </div>
+  </div>
+  {%- if section.settings.atelier_stamp_start != blank or section.settings.atelier_stamp_center != blank or section.settings.atelier_stamp_end != blank -%}
+    <div class="atelier-hero__stamp atelier-hero__page">
+      {%- if section.settings.atelier_stamp_start != blank -%}<span>{{ section.settings.atelier_stamp_start | escape }}</span>{%- endif -%}
+      {%- if section.settings.atelier_stamp_center != blank -%}<span>{{ section.settings.atelier_stamp_center | escape }}</span>{%- endif -%}
+      {%- if section.settings.atelier_stamp_end != blank -%}<span>{{ section.settings.atelier_stamp_end | escape }}</span>{%- endif -%}
+    </div>
+  {%- endif -%}
+  <div class="atelier-hero__cue" aria-hidden="true"><span></span></div>
+  {%- if desktop_source != blank or mobile_source != blank -%}
+    <button
+      type="button"
+      class="atelier-hero__toggle"
+      @click="toggleVideo()"
+      :aria-label="playing ? $el.dataset.pauseLabel : $el.dataset.playLabel"
+      :aria-pressed="playing.toString()"
+      aria-label="{{ 'accessibility.play_video' | t }}"
+      data-play-label="{{ 'accessibility.play_video' | t }}"
+      data-pause-label="{{ 'accessibility.pause_video' | t }}"
+    >
+      <svg x-show="!playing" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true"><path d="M8 5.4v13.2L19 12Z" stroke-linejoin="round"/></svg>
+      <svg x-show="playing" x-cloak width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true"><path d="M9 5v14M15 5v14" stroke-linecap="round"/></svg>
+    </button>
+  {%- endif -%}
+</div>

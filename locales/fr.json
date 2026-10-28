@@ -121,6 +121,7 @@
     "button_label": "S'abonner"
   },
   "accessibility": {
+    "pause_video": "Pause video",
     "skip_to_text": "Aller au contenu",
     "skip_to_product_info": "Passer aux informations sur le produit",
     "close": "Fermer",

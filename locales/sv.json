@@ -121,6 +121,7 @@
     "button_label": "Prenumerera"
   },
   "accessibility": {
+    "pause_video": "Pause video",
     "skip_to_text": "Hoppa till innehåll",
     "skip_to_product_info": "Hoppa till produktinformation",
     "close": "Stäng",

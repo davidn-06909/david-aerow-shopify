@@ -4864,6 +4864,18 @@
       }
     },
     "slideshow": {
+      "atelier": {
+        "enable": "Use atelier hero layout",
+        "info": "Uses the first slide as a full-screen hero with responsive video, a display heading, and a footer stamp. Other slideshow layouts are unchanged. Add a line break in the heading to set each display line.",
+        "heading_font": "Atelier heading font",
+        "body_font": "Atelier label and button font",
+        "stamp_start": "Footer stamp: start",
+        "stamp_center": "Footer stamp: center",
+        "stamp_end": "Footer stamp: end",
+        "video_url": "Atelier desktop MP4 URL",
+        "mobile_video_url": "Atelier mobile MP4 URL",
+        "video_info": "Use a direct MP4 URL. A video selected above takes priority. Choose matching cover images using the desktop and mobile image settings."
+      },
       "name": "Prezentare de diapozitive",
       "settings": {
         "enable_adapt": "Adaptează-te la stilul marginilor în setările temei",

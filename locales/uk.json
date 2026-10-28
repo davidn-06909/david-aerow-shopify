@@ -121,6 +121,7 @@
     "button_label": "Підписатися"
   },
   "accessibility": {
+    "pause_video": "Pause video",
     "skip_to_text": "Перейти до вмісту",
     "skip_to_product_info": "Перейти до інформації про продукт",
     "close": "Закрити",
