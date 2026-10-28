@@ -415,6 +415,9 @@
     }
   },
   "sections": {
+    "atelier_story_index": {
+      "pieces": "{{ count }} parça"
+    },
     "fast-order": {
       "search_placeholder": "SKU veya ürün adına göre ara",
       "search_results_heading": "Arama sonuçları",

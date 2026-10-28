@@ -415,6 +415,9 @@
     }
   },
   "sections": {
+    "atelier_story_index": {
+      "pieces": "{{ count }}개"
+    },
     "fast-order": {
       "search_placeholder": "SKU 또는 제품명으로 검색",
       "search_results_heading": "검색 결과",

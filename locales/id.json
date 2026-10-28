@@ -415,6 +415,9 @@
     }
   },
   "sections": {
+    "atelier_story_index": {
+      "pieces": "{{ count }} perhiasan"
+    },
     "fast-order": {
       "search_placeholder": "Cari berdasarkan SKU atau nama produk",
       "search_results_heading": "Hasil pencarian",

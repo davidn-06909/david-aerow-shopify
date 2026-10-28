@@ -1,0 +1,148 @@
+{%- liquid
+  assign heading_font = section.settings.heading_font
+  assign body_font = section.settings.body_font
+-%}
+{% style %}
+  {{ heading_font | font_face: font_display: 'swap' }}
+  {{ body_font | font_face: font_display: 'swap' }}
+  #atelier-story-{{ section.id }} {
+    --story-heading-font: {{ heading_font.family }}, {{ heading_font.fallback_families }};
+    --story-heading-weight: {{ heading_font.weight }};
+    --story-body-font: {{ body_font.family }}, {{ body_font.fallback_families }};
+    --story-body-weight: {{ body_font.weight }};
+    --story-background: {{ section.settings.background_color }};
+    --story-text: {{ section.settings.text_color }};
+    --story-soft: {{ section.settings.soft_color }};
+    --story-accent: {{ section.settings.accent_color }};
+    --story-top: {{ section.settings.padding_top }}px;
+    --story-bottom: {{ section.settings.padding_bottom }}px;
+    --story-gap: {{ section.settings.index_spacing }}px;
+  }
+{% endstyle %}
+<div id="atelier-story-{{ section.id }}" class="atelier-story">
+  <div class="atelier-story__manifesto">
+    <div class="atelier-story__page">
+      {%- if section.settings.eyebrow != blank -%}
+        <p class="atelier-story__eyebrow atelier-story__caption">{{ section.settings.eyebrow | escape }}</p>
+      {%- endif -%}
+      <h2 class="atelier-story__heading">
+        <span class="atelier-story__line">{{ section.settings.heading_first | escape }}</span>
+        <span class="atelier-story__line atelier-story__line--outline">{{ section.settings.heading_second | escape }}</span>
+        <span class="atelier-story__line atelier-story__line--last">{{ section.settings.heading_third | escape }}</span>
+      </h2>
+      <div class="atelier-story__foot">
+        {%- if section.settings.text != blank -%}
+          <div class="atelier-story__support">{{ section.settings.text }}</div>
+        {%- endif -%}
+        {%- if section.settings.story_label != blank and section.settings.story_link != blank -%}
+          <a class="atelier-story__link" href="{{ section.settings.story_link }}">{{ section.settings.story_label | escape }}</a>
+        {%- endif -%}
+      </div>
+    </div>
+  </div>
+  {%- if section.blocks.size > 0 -%}
+    <nav class="atelier-story__index" aria-label="{{ section.settings.index_label | escape }}">
+      <div class="atelier-story__page">
+        <div class="atelier-story__index-head">
+          <p class="atelier-story__eyebrow">{{ section.settings.index_label | escape }}</p>
+          <span class="atelier-story__tally" aria-hidden="true">{% if section.blocks.size < 10 %}0{% endif %}{{ section.blocks.size }}</span>
+        </div>
+        <ul class="atelier-story__list" role="list">
+          {%- for block in section.blocks -%}
+            {%- liquid
+              assign collection = block.settings.collection
+              assign title = block.settings.title | default: collection.title
+              assign link = block.settings.link | default: collection.url
+              assign image = block.settings.image | default: collection.image
+              assign count = block.settings.piece_count | default: collection.all_products_count
+              assign fallback_image = blank
+              case block.settings.link
+                when '/collections/engagement-rings'
+                  assign fallback_image = 'atelier-index-engagement.jpg'
+                when '/collections/diamonds'
+                  assign fallback_image = 'atelier-index-diamonds.jpg'
+                when '/collections/wedding-bands'
+                  assign fallback_image = 'atelier-index-wedding.jpg'
+              endcase
+            -%}
+            <li class="atelier-story__item" {{ block.shopify_attributes }}>
+              <a class="atelier-story__row" {% if link != blank %}href="{{ link }}"{% else %}role="link" aria-disabled="true"{% endif %}>
+                <span class="atelier-story__number" aria-hidden="true">{% if forloop.index < 10 %}0{% endif %}{{ forloop.index }}</span>
+                <span class="atelier-story__title">{{ title | escape }}</span>
+                <span class="atelier-story__end">
+                  {%- if count != blank -%}
+                    <span class="atelier-story__count">{{ 'sections.atelier_story_index.pieces' | t: count: count }}</span>
+                  {%- endif -%}
+                  <span class="atelier-story__arrow" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 12h15M13 5.5 19.5 12 13 18.5"/></svg>
+                  </span>
+                </span>
+                {%- if image != blank or fallback_image != blank -%}
+                  <span class="atelier-story__media" aria-hidden="true">
+                    {%- if image != blank -%}
+                      {{ image | image_url: width: 660 | image_tag: widths: '220, 330, 440, 660', sizes: '(min-width: 1500px) 330px, 22vw', loading: 'lazy', alt: '' }}
+                    {%- else -%}
+                      <img src="{{ fallback_image | asset_url }}" width="660" height="825" alt="" loading="lazy">
+                    {%- endif -%}
+                  </span>
+                {%- endif -%}
+              </a>
+            </li>
+          {%- endfor -%}
+        </ul>
+      </div>
+    </nav>
+  {%- endif -%}
+</div>
+
+{% schema %}
+{
+  "name": "t:sections.atelier_story_index.name",
+  "tag": "section",
+  "class": "section-atelier-story-index",
+  "disabled_on": { "groups": ["header", "footer", "aside"] },
+  "settings": [
+    { "type": "font_picker", "id": "heading_font", "default": "oswald_n7", "label": "t:sections.atelier_story_index.heading_font" },
+    { "type": "font_picker", "id": "body_font", "default": "archivo_n4", "label": "t:sections.atelier_story_index.body_font" },
+    { "type": "text", "id": "eyebrow", "default": "t:sections.atelier_story_index.defaults.eyebrow", "label": "t:sections.atelier_story_index.eyebrow" },
+    { "type": "text", "id": "heading_first", "default": "t:sections.atelier_story_index.defaults.heading_first", "label": "t:sections.atelier_story_index.heading_first" },
+    { "type": "text", "id": "heading_second", "default": "t:sections.atelier_story_index.defaults.heading_second", "label": "t:sections.atelier_story_index.heading_second" },
+    { "type": "text", "id": "heading_third", "default": "t:sections.atelier_story_index.defaults.heading_third", "label": "t:sections.atelier_story_index.heading_third" },
+    { "type": "richtext", "id": "text", "default": "t:sections.atelier_story_index.defaults.text", "label": "t:sections.atelier_story_index.text" },
+    { "type": "text", "id": "story_label", "default": "t:sections.atelier_story_index.defaults.story_label", "label": "t:sections.atelier_story_index.story_label" },
+    { "type": "url", "id": "story_link", "label": "t:sections.atelier_story_index.story_link" },
+    { "type": "text", "id": "index_label", "default": "t:sections.atelier_story_index.defaults.index_label", "label": "t:sections.atelier_story_index.index_label" },
+    { "type": "color", "id": "background_color", "default": "#0B0E28", "label": "t:sections.atelier_story_index.background_color" },
+    { "type": "color", "id": "text_color", "default": "#F2F6FB", "label": "t:sections.atelier_story_index.text_color" },
+    { "type": "color", "id": "soft_color", "default": "#A9C3E2", "label": "t:sections.atelier_story_index.soft_color" },
+    { "type": "color", "id": "accent_color", "default": "#6E9BFF", "label": "t:sections.atelier_story_index.accent_color" },
+    { "type": "range", "id": "padding_top", "min": 0, "max": 200, "step": 4, "unit": "px", "default": 116, "label": "t:sections.atelier_story_index.padding_top" },
+    { "type": "range", "id": "index_spacing", "min": 0, "max": 200, "step": 4, "unit": "px", "default": 184, "label": "t:sections.atelier_story_index.index_spacing" },
+    { "type": "range", "id": "padding_bottom", "min": 0, "max": 200, "step": 4, "unit": "px", "default": 116, "label": "t:sections.atelier_story_index.padding_bottom" }
+  ],
+  "blocks": [
+    {
+      "type": "collection",
+      "name": "t:sections.atelier_story_index.collection",
+      "settings": [
+        { "type": "collection", "id": "collection", "label": "t:sections.atelier_story_index.collection" },
+        { "type": "text", "id": "title", "label": "t:sections.atelier_story_index.title" },
+        { "type": "url", "id": "link", "label": "t:sections.atelier_story_index.link" },
+        { "type": "image_picker", "id": "image", "label": "t:sections.atelier_story_index.image" },
+        { "type": "text", "id": "piece_count", "label": "t:sections.atelier_story_index.piece_count", "info": "t:sections.atelier_story_index.piece_count_info" }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.atelier_story_index.name",
+      "settings": { "story_link": "/pages/about" },
+      "blocks": [
+        { "type": "collection", "settings": { "title": "t:sections.atelier_story_index.defaults.engagement", "link": "/collections/engagement-rings", "piece_count": "13" } },
+        { "type": "collection", "settings": { "title": "t:sections.atelier_story_index.defaults.diamonds", "link": "/collections/diamonds", "piece_count": "40" } },
+        { "type": "collection", "settings": { "title": "t:sections.atelier_story_index.defaults.wedding", "link": "/collections/wedding-bands", "piece_count": "2" } }
+      ]
+    }
+  ]
+}
+{% endschema %}

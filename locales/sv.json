@@ -415,6 +415,9 @@
     }
   },
   "sections": {
+    "atelier_story_index": {
+      "pieces": "{{ count }} smycken"
+    },
     "fast-order": {
       "search_placeholder": "Sök på SKU eller produktnamn",
       "search_results_heading": "Sökresultat",

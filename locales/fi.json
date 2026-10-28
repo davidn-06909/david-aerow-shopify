@@ -415,6 +415,9 @@
     }
   },
   "sections": {
+    "atelier_story_index": {
+      "pieces": "{{ count }} tuotetta"
+    },
     "fast-order": {
       "search_placeholder": "Hae SKU-koodilla tai tuotenimellä",
       "search_results_heading": "Hakutulokset",

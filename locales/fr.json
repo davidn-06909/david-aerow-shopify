@@ -415,6 +415,9 @@
     }
   },
   "sections": {
+    "atelier_story_index": {
+      "pieces": "{{ count }} pièces"
+    },
     "fast-order": {
       "search_placeholder": "Rechercher par SKU ou nom de produit",
       "search_results_heading": "Résultats de recherche",

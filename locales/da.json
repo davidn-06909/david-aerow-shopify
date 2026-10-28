@@ -415,6 +415,9 @@
     }
   },
   "sections": {
+    "atelier_story_index": {
+      "pieces": "{{ count }} smykker"
+    },
     "fast-order": {
       "search_placeholder": "Søg efter SKU eller produktnavn",
       "search_results_heading": "Søgeresultater",

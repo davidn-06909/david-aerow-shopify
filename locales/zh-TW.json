@@ -415,6 +415,9 @@
     }
   },
   "sections": {
+    "atelier_story_index": {
+      "pieces": "{{ count }} 件"
+    },
     "fast-order": {
       "search_placeholder": "以 SKU 或商品名稱搜尋",
       "search_results_heading": "搜尋結果",

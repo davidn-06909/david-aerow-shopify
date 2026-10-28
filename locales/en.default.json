@@ -415,6 +415,9 @@
     }
   },
   "sections": {
+    "atelier_story_index": {
+      "pieces": "{{ count }} pieces"
+    },
     "mobile-navigation": {
       "my_cart": "My cart"
     },

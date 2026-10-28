@@ -415,6 +415,9 @@
     }
   },
   "sections": {
+    "atelier_story_index": {
+      "pieces": "{{ count }} piese"
+    },
     "fast-order": {
       "search_placeholder": "Căutați după SKU sau numele produsului",
       "search_results_heading": "Rezultatele căutării",

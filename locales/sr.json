@@ -415,6 +415,9 @@
     }
   },
   "sections": {
+    "atelier_story_index": {
+      "pieces": "{{ count }} комада"
+    },
     "fast-order": {
       "search_placeholder": "Pretraga po SKU ili nazivu proizvoda",
       "search_results_heading": "Rezultati pretrage",

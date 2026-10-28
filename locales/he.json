@@ -415,6 +415,9 @@
     }
   },
   "sections": {
+    "atelier_story_index": {
+      "pieces": "{{ count }} פריטים"
+    },
     "fast-order": {
       "search_placeholder": "חיפוש לפי מק\"ט או שם מוצר",
       "search_results_heading": "תוצאות חיפוש",

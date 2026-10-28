@@ -415,6 +415,9 @@
     }
   },
   "sections": {
+    "atelier_story_index": {
+      "pieces": "{{ count }} आभूषण"
+    },
     "fast-order": {
       "search_placeholder": "SKU या उत्पाद नाम से खोजें",
       "search_results_heading": "खोज परिणाम",

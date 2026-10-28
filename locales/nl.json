@@ -415,6 +415,9 @@
     }
   },
   "sections": {
+    "atelier_story_index": {
+      "pieces": "{{ count }} stuks"
+    },
     "fast-order": {
       "search_placeholder": "Zoeken op SKU of productnaam",
       "search_results_heading": "Zoekresultaten",

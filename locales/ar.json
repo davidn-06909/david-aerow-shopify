@@ -415,6 +415,9 @@
     }
   },
   "sections": {
+    "atelier_story_index": {
+      "pieces": "{{ count }} قطعة"
+    },
     "fast-order": {
       "search_placeholder": "ابحث برمز SKU أو اسم المنتج",
       "search_results_heading": "نتائج البحث",

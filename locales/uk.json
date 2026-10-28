@@ -415,6 +415,9 @@
     }
   },
   "sections": {
+    "atelier_story_index": {
+      "pieces": "{{ count }} виробів"
+    },
     "fast-order": {
       "search_placeholder": "Пошук за SKU або назвою товару",
       "search_results_heading": "Результати пошуку",

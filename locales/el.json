@@ -415,6 +415,9 @@
     }
   },
   "sections": {
+    "atelier_story_index": {
+      "pieces": "{{ count }} κομμάτια"
+    },
     "fast-order": {
       "search_placeholder": "Αναζήτηση με SKU ή όνομα προϊόντος",
       "search_results_heading": "Αποτελέσματα αναζήτησης",

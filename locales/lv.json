@@ -415,6 +415,9 @@
     }
   },
   "sections": {
+    "atelier_story_index": {
+      "pieces": "{{ count }} izstrādājumi"
+    },
     "fast-order": {
       "search_placeholder": "Meklēt pēc SKU vai produkta nosaukuma",
       "search_results_heading": "Meklēšanas rezultāti",

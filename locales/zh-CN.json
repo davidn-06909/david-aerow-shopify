@@ -415,6 +415,9 @@
     }
   },
   "sections": {
+    "atelier_story_index": {
+      "pieces": "{{ count }} 件"
+    },
     "fast-order": {
       "search_placeholder": "按 SKU 或商品名称搜索",
       "search_results_heading": "搜索结果",

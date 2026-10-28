@@ -415,6 +415,9 @@
     }
   },
   "sections": {
+    "atelier_story_index": {
+      "pieces": "{{ count }} darab"
+    },
     "fast-order": {
       "search_placeholder": "Keresés SKU vagy terméknév alapján",
       "search_results_heading": "Keresési eredmények",

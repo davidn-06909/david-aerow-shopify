@@ -415,6 +415,9 @@
     }
   },
   "sections": {
+    "atelier_story_index": {
+      "pieces": "{{ count }} kusů"
+    },
     "fast-order": {
       "search_placeholder": "Hledat podle SKU nebo názvu produktu",
       "search_results_heading": "Výsledky hledání",

@@ -1027,6 +1027,44 @@
     }
   },
   "sections": {
+    "atelier_story_index": {
+      "name": "Atelier story and index",
+      "heading_font": "Heading font",
+      "body_font": "Body font",
+      "eyebrow": "Story caption",
+      "heading_first": "First heading line",
+      "heading_second": "Outlined heading line",
+      "heading_third": "Last heading line",
+      "text": "Story text",
+      "story_label": "Story link label",
+      "story_link": "Story link",
+      "index_label": "Index caption",
+      "background_color": "Background",
+      "text_color": "Text",
+      "soft_color": "Secondary text",
+      "accent_color": "Hover accent",
+      "padding_top": "Top spacing",
+      "index_spacing": "Space before index",
+      "padding_bottom": "Bottom spacing",
+      "collection": "Collection",
+      "title": "Title override",
+      "link": "Link override",
+      "image": "Hover image",
+      "piece_count": "Piece count override",
+      "piece_count_info": "Leave blank to use the selected collection's product count.",
+      "defaults": {
+        "eyebrow": "The house",
+        "heading_first": "Every stone",
+        "heading_second": "carries a story",
+        "heading_third": "told in light.",
+        "text": "<p>Aevow sets lab-grown and natural diamonds in pieces built at one bench, by the hands that will resize them decades from now. No vaulted showroom, no middle men — an atelier, a certificate, and a stone that outlasts both of us.</p>",
+        "story_label": "Our story",
+        "index_label": "The index",
+        "engagement": "Engagement rings",
+        "diamonds": "Diamonds",
+        "wedding": "Wedding bands"
+      }
+    },
     "fast-order": {
       "name": "Szybkie zamówienie",
       "settings": {
