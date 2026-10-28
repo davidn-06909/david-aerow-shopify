@@ -121,6 +121,7 @@
     "button_label": "Přihlásit se k odběru"
   },
   "accessibility": {
+    "pause_video": "Pause video",
     "skip_to_text": "Přeskočit na obsah",
     "skip_to_product_info": "Přeskočit na informace o produktu",
     "close": "Zavřít",

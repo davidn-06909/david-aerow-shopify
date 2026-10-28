@@ -1,3 +1,6 @@
+{%- if section.settings.atelier_hero -%}
+  {% render 'slideshow-atelier', section: section %}
+{%- else -%}
 {%- liquid 
   assign enable_slider = false
   if section.blocks.size > 1
@@ -1272,6 +1275,7 @@
     </div>
   {%- endif -%}
 </div>
+{%- endif -%}
 {% schema %}
 {
   "name": "t:sections.slideshow.name",
@@ -1286,6 +1290,56 @@
     ]
   },
   "settings": [
+    {
+      "type": "checkbox",
+      "id": "atelier_hero",
+      "default": false,
+      "label": "t:sections.slideshow.atelier.enable",
+      "info": "t:sections.slideshow.atelier.info"
+    },
+    {
+      "type": "font_picker",
+      "id": "atelier_heading_font",
+      "default": "oswald_n7",
+      "label": "t:sections.slideshow.atelier.heading_font",
+      "visible_if": "{{ section.settings.atelier_hero }}"
+    },
+    {
+      "type": "font_picker",
+      "id": "atelier_body_font",
+      "default": "archivo_n4",
+      "label": "t:sections.slideshow.atelier.body_font",
+      "visible_if": "{{ section.settings.atelier_hero }}"
+    },
+    {
+      "type": "range",
+      "id": "atelier_overlay",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "default": 25,
+      "label": "t:sections.all.overlay_opacity.label",
+      "visible_if": "{{ section.settings.atelier_hero }}"
+    },
+    {
+      "type": "text",
+      "id": "atelier_stamp_start",
+      "label": "t:sections.slideshow.atelier.stamp_start",
+      "visible_if": "{{ section.settings.atelier_hero }}"
+    },
+    {
+      "type": "text",
+      "id": "atelier_stamp_center",
+      "label": "t:sections.slideshow.atelier.stamp_center",
+      "visible_if": "{{ section.settings.atelier_hero }}"
+    },
+    {
+      "type": "text",
+      "id": "atelier_stamp_end",
+      "label": "t:sections.slideshow.atelier.stamp_end",
+      "visible_if": "{{ section.settings.atelier_hero }}"
+    },
     {
       "type": "paragraph",
       "content": "t:sections.user_guide_link.section_and_blocks.slideshow"
@@ -1657,6 +1711,19 @@
           "type": "video",
           "id": "video",
           "label": "t:sections.video.name"
+        },
+        {
+          "type": "url",
+          "id": "atelier_video_url",
+          "label": "t:sections.slideshow.atelier.video_url",
+          "info": "t:sections.slideshow.atelier.video_info",
+          "visible_if": "{{ section.settings.atelier_hero }}"
+        },
+        {
+          "type": "url",
+          "id": "atelier_mobile_video_url",
+          "label": "t:sections.slideshow.atelier.mobile_video_url",
+          "visible_if": "{{ section.settings.atelier_hero }}"
         },
         {
           "type": "video_url",

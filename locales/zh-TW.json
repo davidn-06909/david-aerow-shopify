@@ -121,6 +121,7 @@
     "button_label": "訂閱"
   },
   "accessibility": {
+    "pause_video": "Pause video",
     "skip_to_text": "跳到內容",
     "skip_to_product_info": "跳到產品資訊",
     "close": "關閉",

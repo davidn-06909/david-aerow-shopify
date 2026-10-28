@@ -121,6 +121,7 @@
     "button_label": "Feliratkozás"
   },
   "accessibility": {
+    "pause_video": "Pause video",
     "skip_to_text": "Ugrás a tartalomra",
     "skip_to_product_info": "Ugrás a termékinformációra",
     "close": "Bezárás",

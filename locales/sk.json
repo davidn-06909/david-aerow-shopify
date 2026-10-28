@@ -121,6 +121,7 @@
     "button_label": "Prihlásiť sa"
   },
   "accessibility": {
+    "pause_video": "Pause video",
     "skip_to_text": "Preskočiť na obsah",
     "skip_to_product_info": "Preskočiť na informácie o produkte",
     "close": "Zatvoriť",

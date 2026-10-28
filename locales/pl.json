@@ -121,6 +121,7 @@
     "button_label": "Subskrybuj"
   },
   "accessibility": {
+    "pause_video": "Pause video",
     "skip_to_text": "Przejdź do treści",
     "skip_to_product_info": "Przejdź do informacji o produkcie",
     "close": "Zamknij",

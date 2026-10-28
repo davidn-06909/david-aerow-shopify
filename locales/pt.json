@@ -121,6 +121,7 @@
     "button_label": "Assinar"
   },
   "accessibility": {
+    "pause_video": "Pause video",
     "skip_to_text": "Pular para o conteúdo",
     "skip_to_product_info": "Pular para informações do produto",
     "close": "Fechar",

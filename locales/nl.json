@@ -121,6 +121,7 @@
     "button_label": "Abonneren"
   },
   "accessibility": {
+    "pause_video": "Pause video",
     "skip_to_text": "Naar inhoud springen",
     "skip_to_product_info": "Naar productinformatie springen",
     "close": "Sluiten",

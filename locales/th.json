@@ -121,6 +121,7 @@
     "button_label": "สมัครรับข้อมูล"
   },
   "accessibility": {
+    "pause_video": "Pause video",
     "skip_to_text": "ข้ามไปยังเนื้อหา",
     "skip_to_product_info": "ข้ามไปยังข้อมูลสินค้า",
     "close": "ปิด",

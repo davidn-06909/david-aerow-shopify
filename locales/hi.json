@@ -121,6 +121,7 @@
     "button_label": "सदस्यता लें"
   },
   "accessibility": {
+    "pause_video": "Pause video",
     "skip_to_text": "सामग्री पर जाएं",
     "skip_to_product_info": "उत्पाद जानकारी पर जाएं",
     "close": "बंद करें",
