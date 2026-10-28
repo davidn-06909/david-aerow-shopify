@@ -1,0 +1,423 @@
+{% comment %}
+    Accepts:
+    - card_product: {Object} Product Liquid object to render. When blank, an onboarding placeholder
+        card is rendered instead — same layout, no link / variant selector / product form.
+    - section_id: {String} The ID of the section that contains this card.
+    - variant: {Object} Merchant-pinned variant. Default: selected_or_first_available_variant (optional)
+    - variant_selected: {Boolean} True when the block's variant_id resolved to a real variant.
+        When false on a multi-variant product, a variant selector is rendered instead (optional)
+    - qty: {Number} Line quantity. Default: 1. A ×N badge shows when > 1 (optional)
+    - image: {Object} Media to show. Default: variant/product featured media (optional)
+    - show_vendor: {Boolean} Show the product vendor. Default: false (optional)
+    - disable_badges: {Boolean} Don't load labels and badges (optional)
+    - block: {Object} The section block, used for block.shopify_attributes (optional)
+    - block_id: {String} The block ID for scoping the variant selector (optional)
+    - list_name: {String} Collection/list title for customer-event data (optional)
+    - description: {String} Step/story copy shown under the title. Used by mixed/storytelling layouts (optional)
+    - category_label: {String} Merchant-entered label shown above the title, in place of the product vendor (optional)
+    - badge: {String} Merchant-entered label overlaid on the top of the media box (optional).
+        Its colours come from the block's badge_color / badge_text_color settings, scoped by block_id.
+    - layout: {String} Parent section layout: 'conversion' | 'mixed' | 'storytelling'. Only the variant
+        selector reads it: conversion stacks full-width selects, the row layouts keep them inline (optional)
+
+    Usage:
+    {% render 'card-product-fixed-bundle',
+      card_product: product, variant: variant, section_id: section.id, block_id: block.id,
+      qty: qty, image: image, block: block %}
+{% endcomment %}
+{%- if badge != blank -%}
+  {% style %}
+    .fixed-bundle-{{ section_id }} .fb-card-badge-{{ block_id }} {
+      {% if block.settings.badge_color_light.alpha != 0.0 %}
+        background: rgb({{ block.settings.badge_color_light.red }}, {{ block.settings.badge_color_light.green }}, {{ block.settings.badge_color_light.blue }});
+      {% else %}
+        background: rgb(var(--colors-button));
+      {% endif %}
+      {% if block.settings.badge_text_color_light.alpha != 0.0 %}
+        color: rgb({{ block.settings.badge_text_color_light.red }}, {{ block.settings.badge_text_color_light.green }}, {{ block.settings.badge_text_color_light.blue }});
+      {% else %}
+        color: rgb(var(--colors-button-text));
+      {% endif %}
+    }
+    .dark .fixed-bundle-{{ section_id }} .fb-card-badge-{{ block_id }} {
+      {% if block.settings.badge_color_dark.alpha != 0.0 %}
+        background: rgb({{ block.settings.badge_color_dark.red }}, {{ block.settings.badge_color_dark.green }}, {{ block.settings.badge_color_dark.blue }});
+      {% else %}
+        background: rgb(var(--colors-button));
+      {% endif %}
+      {% if block.settings.badge_text_color_dark.alpha != 0.0 %}
+        color: rgb({{ block.settings.badge_text_color_dark.red }}, {{ block.settings.badge_text_color_dark.green }}, {{ block.settings.badge_text_color_dark.blue }});
+      {% else %}
+        color: rgb(var(--colors-button-text));
+      {% endif %}
+    }
+  {% endstyle %}
+{%- endif -%}
+{%- if card_product == blank -%}
+{%- liquid
+  assign qty = qty | default: 1
+  if qty < 1
+    assign qty = 1
+  endif
+  assign ratio = ratio | default: '1/1'
+
+  assign is_conversion = false
+  if layout == 'conversion'
+    assign is_conversion = true
+  endif
+
+  assign unit_price = 3000
+  assign line_total = unit_price | times: qty
+  if settings.currency_code_enable
+    assign unit_price_money = unit_price | money_with_currency
+    assign line_total_money = line_total | money_with_currency
+  else
+    assign unit_price_money = unit_price | money
+    assign line_total_money = line_total | money
+  endif
+
+  assign show_line_price = false
+  if qty > 1
+    assign show_line_price = true
+  endif
+-%}
+<div class="card-product mini-card w-full md:max-w-[200px] flex flex-row gap-3 text-left{% if is_conversion %} md:flex-col{% else %} md:items-start md:max-w-none{% endif %}{% if settings.edges_type == 'rounded_corners' %} rounded-md{% endif %} pt-4 pb-4 pr-4 pl-4"{% if block %} {{ block.shopify_attributes }}{% endif %}>
+  <div class="fb-card-media min-w-[45px] w-[45px] aspect-{{ ratio }} md:w-full h-fit relative flex items-center justify-center{% if settings.edges_type == 'rounded_corners' %} rounded-md{% endif %} bg-[rgba(var(--colors-background-secondary))]">
+    {% render 'icon-placeholder', icon: 'icon-product', class: 'w-full h-full' %}
+    {%- if badge != blank -%}
+      <span class="fb-card-badge fb-card-badge-{{ block_id }} hidden md:block absolute pt-1 pb-1 pl-2 pr-2 text-small leading-tight truncate">{{ badge | escape }}</span>
+    {%- endif -%}
+    <span class="fb-qty-badge absolute flex items-center justify-center w-6 h-6 rounded-full font-medium bg-[rgba(var(--colors-button))] text-[rgba(var(--colors-button-text))]" aria-hidden="true">{{ qty }}</span>
+  </div>
+  <div class="card-product-content min-w-0 flex-1{% unless is_conversion %} md:flex md:flex-wrap md:items-start md:flex-1 md:gap-x-8{% endunless %}">
+    <div class="card-product-info min-w-0{% unless is_conversion %} md:flex md:flex-col md:flex-1{% endunless %}">
+      {%- if category_label != blank -%}
+        <div class="fb-card-category mb-2.5 uppercase p-break-words">{{ category_label | escape }}</div>
+      {%- endif -%}
+      {%- if badge != blank -%}
+        <div class="fb-card-badge fb-card-badge-{{ block_id }} w-fit relative md:hidden pt-1 pb-1 pl-2 pr-2 mb-2.5 text-small leading-tight truncate">{{ badge | escape }}</div>
+      {%- endif -%}
+      <div class="mb-2.5">
+        <p class="x-card-title text-[rgba(var(--colors-heading))] p-break-words line-clamp-2">
+          {{ 'sections.featured_collection.product_title' | t }}
+        </p>
+      </div>
+      {%- if description != blank -%}
+        <div class="text-[rgba(var(--colors-text))] mb-2.5 rte">
+          <span class="{% if layout == 'storytelling' %}line-clamp-2{% else %}line-clamp-1{% endif %} p-break-words">{{ description }}</span>
+        </div>
+      {%- endif -%}
+    </div>
+    <div class="card-product-pricing">
+      <div class="fb-line-price flex flex-wrap items-baseline gap-1.5{% unless is_conversion %} md:flex-col md:items-end md:gap-1{% endunless %}">
+        {%- if show_line_price -%}
+          <span class="fb-line-total price text-[rgba(var(--colors-price))] font-semibold">{{ line_total_money }}</span>
+        {%- endif -%}
+        <div class="{% if show_line_price %}fb-line-unit {% endif %}flex flex-wrap items-baseline gap-1.5 text-[rgba(var(--colors-text))]">
+          <div class="x-card-price price">{{ unit_price_money }}</div>
+          {%- if show_line_price -%}
+            <span class="fb-line-multiplier">&times; <span class="fb-line-qty">{{ qty }}</span></span>
+          {%- endif -%}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{%- else -%}
+{%- liquid
+  assign qty = qty | default: 1
+  if qty < 1
+    assign qty = 1
+  endif
+  assign product_card_id = card_product.id
+  assign uid = section_id | append: '-' | append: product_card_id
+
+  assign is_conversion = false
+  if layout == 'conversion'
+    assign is_conversion = true
+  endif
+
+  assign first_variant = variant | default: card_product.selected_or_first_available_variant
+  assign variant_available = first_variant.available
+  assign only_default_variant = card_product.has_only_default_variant
+
+  assign show_selector = false
+  if only_default_variant == false and variant_selected == false
+    assign show_selector = true
+  endif
+  assign image = image | default: first_variant.featured_media | default: card_product.featured_media
+  assign product_form_id = 'product-form-' | append: uid
+
+  case layout
+    when 'mixed'
+      assign image_sizes = '(min-width: 768px) 150px, 50px'
+    when 'storytelling'
+      assign image_sizes = '(min-width: 768px) 150px, 50px'
+    else
+      assign image_sizes = '(min-width: 768px) 200px, 50px'
+  endcase
+
+  assign show_line_price = false
+  if qty > 1
+    assign show_line_price = true
+    assign line_total = first_variant.price | times: qty
+    if settings.currency_code_enable
+      assign line_total_money = line_total | money_with_currency
+    else
+      assign line_total_money = line_total | money
+    endif
+  endif
+
+  assign can_show_preorder = false
+  if settings.preorder_show == 'yes' or settings.preorder_show == 'on_backordered' and first_variant.inventory_policy == 'continue' and first_variant.inventory_quantity < 1 and first_variant.inventory_management != nil
+    if settings.applied_products_preorder == blank and settings.applied_collections_preorder == blank
+      assign can_show_preorder = true
+    else
+      assign list_product = settings.applied_products_preorder | map: 'id'
+      if list_product contains card_product.id
+        assign can_show_preorder = true
+      endif
+      unless can_show_preorder
+        assign list_collection = settings.applied_collections_preorder | map: 'id'
+        for collection in card_product.collections
+          if list_collection contains collection.id
+            assign can_show_preorder = true
+            break
+          endif
+        endfor
+      endunless
+    endif
+  endif
+  if can_show_preorder
+    assign message_preorder = 'general.preorder.message_preorder' | t
+    if settings.message_preorder != blank
+      assign message_preorder = settings.message_preorder
+    endif
+  endif
+
+  assign disable_cart_edt = false
+  if card_product.gift_card? or can_show_preorder and settings.hide_when_pre_order
+    assign disable_cart_edt = true
+  endif
+-%}
+{%- capture data_for_customer_event -%}
+  {
+    "product": {
+      "title": "{{ card_product.title | escape }}",
+      "listName": "{{ collection.title | default: list_name | escape }}",
+      "sku": "{{ card_product.id }}",
+      "currencyCode": "{{ cart.currency.iso_code }}",
+      "price": {{ card_product.price }},
+      "vendor": "{{ card_product.vendor | escape }}"
+    }
+  }
+{%- endcapture -%}
+{%- capture b2b_price_hidden -%}
+  {%- render 'b2b-price-hidden', product: card_product -%}
+{%- endcapture -%}
+<div
+  x-data="{
+    oos: {% if variant_available %}false{% else %}true{% endif %},
+    variantExists: {% if first_variant == blank %}false{% else %}true{% endif %}
+  }"
+  {% unless is_conversion %}
+    :class="oos && 'opacity-50'"
+  {% endunless %}
+  class="card-product mini-card w-full md:max-w-[200px] flex flex-row gap-3 text-left{% if is_conversion %} md:flex-col{% else %} md:items-start md:max-w-none{% endif %}{% if settings.edges_type == 'rounded_corners' %} rounded-md{% endif %} pt-4 pb-4 pr-4 pl-4 {% if is_conversion %} {% unless variant_available %} opacity-50{% endunless %} {% endif %}"
+  data-variant-available="{% if variant_available %}true{% else %}false{% endif %}"
+  {% if b2b_price_hidden contains 'true' %} data-b2b-price-hidden="true"{% endif %}
+  {% if block %} {{ block.shopify_attributes }}{% endif %}
+>
+  {%- if card_product != blank -%}
+    {%- assign card_view_context = standard_event_context | default: 'page' -%}
+    <s-view-event
+      data-view-on-intersect
+      view-event-trigger="manual"
+      view-event-payload='{{ card_product | standard_event_data: "view", context: card_view_context | escape }}'></s-view-event>
+  {%- endif -%}
+  <a
+    href="{{ card_product.url | within: collection }}"
+    aria-label="{{ card_product.title | escape }}"
+    class="fb-card-media group min-w-[50px] w-[50px] aspect-{{ ratio }} md:w-full h-fit relative flex items-center justify-center{% if settings.edges_type == 'rounded_corners' %} rounded-md{% endif %} bg-[rgba(var(--colors-background-secondary))]"
+    @click='$store.xCustomerEvent.fire("product_selected", $el)'
+    x-customer-event-data="{{ data_for_customer_event | escape }}"
+  >
+    {%- if image != blank -%}
+      {% # theme-check-disable ImgLazyLoading %}
+      <img
+        srcset="
+          {{ image | image_url: width: 90 }} 90w,
+          {{ image | image_url: width: 135 }} 135w,
+          {{ image | image_url: width: 200 }} 200w,
+          {{ image | image_url: width: 300 }} 300w,
+          {{ image | image_url: width: 400 }} 400w,
+          {{ image | image_url: width: 600 }} 600w
+          {%- if image.width %},{{ image | image_url }} {{ image.width }}w{% endif %}"
+        src="{{ image | image_url: width: 200 }}"
+        sizes="{{ image_sizes }}"
+        alt="{{ image.alt | split: '#' | first | default: card_product.title | escape }}"
+        class="w-full h-full object-cover{% if settings.edges_type == 'rounded_corners' %} rounded-md{% endif %}"
+        {% if settings.enable_lazy_loading_image %}loading="lazy"{% else %}loading="eager"{% endif %}
+        width="{{ image.width }}"
+        height="{{ image.height }}"
+      >
+      {% # theme-check-enable ImgLazyLoading %}
+    {%- else -%}
+      {% render 'icon-placeholder', icon: 'icon-product', class: 'w-full h-full' %}
+    {%- endif -%}
+    <div class="below-image ltr flex flex-wrap gap-1 empty:hidden"></div>
+    {%- if badge != blank -%}
+      <span class="fb-card-badge fb-card-badge-{{ block_id }} hidden md:block absolute pt-1 pb-1 pl-2 pr-2 text-small leading-tight truncate">{{ badge | escape }}</span>
+    {%- endif -%}
+    <span class="fb-qty-badge absolute flex items-center justify-center w-6 h-6 rounded-full font-medium bg-[rgba(var(--colors-button))] text-[rgba(var(--colors-button-text))]" aria-hidden="true">{{ qty }}</span>
+  </a>
+  <div class="card-product-content min-w-0 flex-1{% unless is_conversion %} md:flex md:flex-wrap md:items-start md:flex-1 md:gap-x-8{% endunless %}">
+    <div class="card-product-info min-w-0{% unless is_conversion %} md:flex md:flex-col md:flex-1{% endunless %}">
+      {%- if category_label != blank -%}
+        <div class="fb-card-category mb-2.5 uppercase p-break-words text-left rtl:text-right md:text-{{ heading_alignment }} rtl:md:text-{{ rtl_alignment }}">{{ category_label | escape }}</div>
+      {%- endif -%}
+      {%- if badge != blank -%}
+        <div class="fb-card-badge fb-card-badge-{{ block_id }} w-fit relative md:hidden pt-1 pb-1 pl-2 pr-2 mb-2.5 text-small leading-tight truncate">{{ badge | escape }}</div>
+      {%- endif -%}
+      <div class="mb-2.5">
+        <a
+          href="{{ card_product.url | within: collection }}"
+          class="x-card-title full-unstyled-link text-[rgba(var(--colors-heading))] text-left rtl:text-right md:text-{{ heading_alignment }} rtl:md:text-{{ rtl_alignment }} hover:text-[rgba(var(--colors-text-link))] cursor-pointer duration-200 p-break-words line-clamp-2"
+          @click='$store.xCustomerEvent.fire("product_selected", $el)'
+          x-customer-event-data="{{ data_for_customer_event | escape }}"
+        >
+          {{ card_product.title | escape }}{%- if qty > 1 %} <span class="sr-only">&times; <span class="x-card-qty">{{ qty }}</span></span>{% endif -%}
+        </a>
+      </div>
+      {%- if only_default_variant == false and show_selector == false -%}
+        <div class="fb-variant-chips block items-center mb-2.5 text-[rgba(var(--colors-text))] text-left rtl:text-right md:text-{{ heading_alignment }} rtl:md:text-{{ rtl_alignment }}">
+          {%- assign variant_option_values = first_variant.title | split: ' / ' -%}
+          {%- for option_value in variant_option_values -%}
+            <span class="fb-variant">{{ option_value | escape }}</span>
+          {%- endfor -%}
+        </div>
+      {%- endif -%}
+      {%- if description != blank -%}
+        <div class="text-[rgba(var(--colors-text))] mb-2.5 rte text-left rtl:text-right">
+          <span class="{% if layout == 'storytelling' %}line-clamp-2{% else %}line-clamp-1{% endif %} p-break-words">{{ description }}</span>
+        </div>
+      {%- endif -%}
+    </div>
+    <div class="card-product-pricing">
+      <div
+        :class="oos && 'hidden'"
+        class="fb-line-price flex flex-wrap items-baseline gap-1.5{% unless is_conversion %} md:flex-col md:items-end md:gap-1{% else %} md:justify-{{ heading_alignment }}{% endunless %}{% unless variant_available %} hidden{% endunless %}"
+      >
+        {% if b2b_price_hidden contains 'true' %}
+          <div class="x-card-price">
+            {% render 'price', product: card_product, use_variant: true, variant: first_variant, mini_card: true %}
+          </div>
+        {% else %}
+          {%- if show_line_price -%}
+            <span class="fb-line-total price text-[rgba(var(--colors-price))] font-semibold">{{ line_total_money }}</span>
+          {%- endif -%}
+          <div class="{% if show_line_price %}fb-line-unit {% endif %}flex flex-wrap items-baseline gap-1.5 text-[rgba(var(--colors-text))]">
+            <div class="x-card-price">
+              {% render 'price', product: card_product, use_variant: true, variant: first_variant, mini_card: true %}
+            </div>
+            {%- if show_line_price -%}
+              <span class="fb-line-multiplier">&times; <span class="fb-line-qty">{{ qty }}</span></span>
+            {%- endif -%}
+          </div>
+        {% endif %}
+      </div>
+      <div
+        :class="oos && '!block'"
+        class="fb-oos-label hidden uppercase text-[rgba(var(--color-error))]{% unless is_conversion %} md:text-end{% else %} md:text-{{ heading_alignment }}{% endunless %}{% unless variant_available %} !block{% endunless %}"
+      >
+        <span x-show="variantExists"{% if first_variant == blank %} style="display: none;"{% endif %}>
+          {{- 'products.product.inventory_out_of_stock' | t -}}
+        </span>
+        <span x-show="!variantExists"{% if first_variant != blank %} style="display: none;"{% endif %}>
+          {{- 'products.product.unavailable' | t -}}
+        </span>
+      </div>
+    </div>
+
+    {%- if show_selector == false -%}
+      <div id="current-variant-{{ uid }}" class="current-variant hidden">{{ first_variant.id }}</div>
+    {%- else -%}
+      {% style %}
+        .x-variants-separator.x-variants-separator-{{ uid }}::before {
+          border-top-width: 1px;
+        }
+      {% endstyle %}
+      <div
+        class="card-product-actions x-variants-data hover-option-value x-variants-data-js variant-selects mt-3 relative ltr{% unless is_conversion %} md:max-w-[200px]{% endunless %}"
+        x-data='xVariantSelectCard($el,"{{ uid }}", "{{ card_product.id }}", "{{ card_product.url }}", false, false, true, "0", "", "", "{{ block_id }}", "{{ section_id }}")'
+        data-url="{{ card_product.url }}"
+      >
+        <div id="current-variant-{{ uid }}" class="current-variant hidden">{{ first_variant | json }}</div>
+        <div id="variant-update-{{ uid }}" class="variant-update-{{ uid }} flex flex-col gap-2">
+          {%- for option in card_product.options_with_values -%}
+            {% liquid
+              assign option_index = forloop.index0
+            %}
+            <div
+              data-option-name="{{ option.name | handle }}"
+              data-option-index="{{ forloop.index0 }}"
+              data-option-title="{{ option.name | escape }}"
+              class="w-full"
+            >
+              <div class="select relative outline-none eurus w-full">
+                <select
+                  id="Option-{{ uid }}-{{ forloop.index0 }}"
+                  class="product-form__input w-full capitalize pt-2.5 pb-2.5 pl-5 pr-8 rtl:pr-5 rtl:pl-8 bg-transparent focus:border-current border appearance-none outline-none border-solid focus-visible:outline-none cursor-pointer{% if settings.edges_type == 'rounded_corners' %} !rounded-md{% endif %}"
+                  name="{{ option.name }}"
+                  form="{{ product_form_id }}"
+                  @change="setTimeout(() => {
+                    Array.from($el.options).forEach(option => { option.removeAttribute('selected') });
+                    $el.options[$el.selectedIndex].setAttribute('selected', 'selected');
+                    updateProductCard('{{ card_product.options_with_values.size }}', '{{ card_product.url }}', false, true);
+                    loadingEls = 'Option-{{ uid }}-{{ forloop.index0 }}';
+                  }, 0)"
+                >
+                  {%- liquid
+                    assign enable_color_swatches = false
+                    if settings.products_color_swatches_enable_on_collection_page and settings.swatches_type == 'color' and settings.color_option_name contains option.name
+                      assign enable_color_swatches = true
+                    endif
+                  -%}
+                  {% render 'product-variant-options',
+                    product: card_product,
+                    option: option,
+                    option_index: option_index,
+                    product_form_id: product_form_id,
+                    input_type: 'select',
+                    enable_color_swatches: enable_color_swatches
+                  %}
+                </select>
+                <div x-cloak x-show="loadingEls === 'Option-{{ uid }}-{{ forloop.index0 }}'" class="w-4 h-4 absolute top-1/2 right-3 rtl:right-auto rtl:left-3 -translate-y-1/2">
+                  <div class="animate-spin w-4 h-4 border-loading"></div>
+                </div>
+                <span x-cloak x-show="loadingEls !== 'Option-{{ uid }}-{{ forloop.index0 }}'" class="absolute top-1/2 right-4 rtl:right-auto rtl:left-4 -translate-y-1/2 w-2.5 inline-block pointer-events-none">
+                  {% render 'icon-alls', icon: 'icon-caret' %}
+                </span>
+              </div>
+            </div>
+          {%- endfor -%}
+        </div>
+      </div>
+    {%- endif -%}
+
+    {% capture form_class -%}
+      form product-form hidden{% if b2b_price_hidden contains 'true' %} oos{% elsif oos_behavior == 'partial' and variant.available == false %} oos{% endif -%}
+    {%- endcapture %}
+    {%- form 'product', card_product, id: product_form_id, class: form_class, novalidate: 'novalidate', data-type: 'add-to-cart-form', x-ref: 'product_form' -%}
+      <input type="hidden" aria-hidden="true" name="id" class="product-id" value="{{ first_variant.id }}">
+      <input type="hidden" aria-hidden="true" name="quantity" class="product-qty" value="{{ qty }}">
+      {% if settings.show_in_cart_items != 'none' %}
+        {% render 'estimate-shipping-cart', product: card_product, message: settings.message_estimate_cart, disable_cart_edt: disable_cart_edt %}
+      {% endif %}
+      {% if can_show_preorder %}
+        <input name="properties[{{ 'general.preorder.name' | t }}]" aria-label="{{ 'general.preorder.name' | t }}" class="hidden" value="{{ message_preorder }}">
+      {% endif %}
+    {%- endform -%}
+  </div>
+</div>
+{%- endif -%}

@@ -1,0 +1,60 @@
+{% for product in predictive_search.resources.products %}
+  <script class="product" type="application/json">{{ product | json }}</script>
+  <span class="has-only-default-variant">{{ product.has_only_default_variant }}</span>
+  <span class="variants_count">{{ product.variants_count }}</span>
+  <div class="image-data">
+    {%- if product.featured_image -%}
+      {{
+        product.featured_image
+        | image_url: width: 200
+        | image_tag: width: 200, height: 200, widths: '80, 120, 160, 200', sizes: '80px', loading: 'lazy', class: 'w-full h-full object-cover'
+      }}
+    {%- endif -%}
+  </div>
+  {% unless product.selected_variant %}
+    {% for variant in product.variants %}
+      <div class="inventory-data">
+        <span class="inventory-management">{{ variant.inventory_management }}</span>
+        <span class="inventory-policy">{{ variant.inventory_policy }}</span>
+        <span class="inventory-quantity">{{ variant.inventory_quantity }}</span>
+      </div>
+      <div class="quantity-price-data">
+        {% for price_break in variant.quantity_price_breaks %}
+          <span class="minimum_quantity">{{ price_break.minimum_quantity }}</span>
+          <span class="price">{{ price_break.price }}</span>
+        {% endfor %}
+      </div>
+      <div class="image-data">
+        {%- if variant.featured_image -%}
+          {{
+            variant.featured_image
+            | image_url: width: 200
+            | image_tag: width: 200, height: 200, widths: '80, 120, 160, 200', sizes: '80px', loading: 'lazy', class: 'w-full h-full object-cover'
+          }}
+        {%- endif -%}
+      </div>
+    {% endfor %}
+  {% else %}
+    <script class="selected-variant" type="application/json">{{ product.selected_variant | json }}</script>
+    <div class="inventory-data">
+      <span class="inventory-management">{{ product.selected_variant.inventory_management }}</span>
+      <span class="inventory-policy">{{ product.selected_variant.inventory_policy }}</span>
+      <span class="inventory-quantity">{{ product.selected_variant.inventory_quantity }}</span>
+    </div>
+    <div class="quantity-price-data">
+      {% for price_break in product.selected_variant.quantity_price_breaks %}
+        <span class="minimum_quantity">{{ price_break.minimum_quantity }}</span>
+        <span class="price">{{ price_break.price }}</span>
+      {% endfor %}
+    </div>
+    <div class="image-data">
+      {%- if product.selected_variant.featured_image -%}
+        {{
+          product.selected_variant.featured_image
+          | image_url: width: 200
+          | image_tag: width: 200, height: 200, widths: '80, 120, 160, 200', sizes: '80px', loading: 'lazy', class: 'w-full h-full object-cover'
+        }}
+      {%- endif -%}
+    </div>
+  {% endunless %}
+{% endfor %}

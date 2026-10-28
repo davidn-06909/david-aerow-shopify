@@ -1,0 +1,19 @@
+{
+  "name": "romanics",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "tw:watch": "tailwindcss -i src/tailwind/index.css -o assets/theme.css --watch",
+    "tw:build": "tailwindcss -i src/tailwind/index.css -o assets/theme.css",
+    "dev": "shopify theme dev -e dev --theme-editor-sync",
+    "push:dev": "shopify theme push -e dev",
+    "pull:dev": "shopify theme pull -e dev",
+    "push:main": "shopify theme push -e main",
+    "pull:main": "shopify theme pull -e main"
+  },
+  "license": "ISC",
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.2.0",
+    "tailwindcss": "^4.2.0"
+  }
+}

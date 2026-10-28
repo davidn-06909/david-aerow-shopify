@@ -1,0 +1,8 @@
+@layer components {
+    a[href="/account/login#recover"] {
+      @apply underline underline-offset-4;
+    }
+    a[href="/account/login#recover"]:not(.button):not(.disable-effect):hover {
+      @apply bg-none text-[rgba(var(--colors-text-link))];
+    }
+}

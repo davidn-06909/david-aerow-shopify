@@ -1,0 +1,67 @@
+@layer components {
+    .dynamic-checkout__content undefined .shopify-cleanslate {
+        @apply w-full; 
+    }
+    .dynamic-checkout__content div[role="button"] {
+        border-radius: var(--border-radius) !important;
+    }
+    .dynamic-checkout__content .shopify-cleanslate li {
+        @apply !h-12;
+    }
+    .dynamic-checkout__content li div[role="button"] {
+        @apply !h-12
+    }
+
+    .dynamic-checkout__content .shopify-cleanslate ul {
+        display: block !important;
+    }
+    .dynamic-checkout__content .shopify-cleanslate li, .dynamic-checkout__content li div[role=button], #dynamic-checkout-cart li iframe {
+        height: 48px!important;
+        border-radius: var(--border-radius)!important;
+        @apply overflow-hidden;
+    }
+}
+
+.dynamic-checkout__content undefined .shopify-cleanslate * {
+    font-family: var(--font-body-family);
+    font-style: var(--font-body-style);
+    font-weight: var(--font-body-weight);
+    background: rgba(var(--colors-background));
+    color: rgb(var(--colors-text));
+    font-size: var(--base-font-size-mobile)!important;
+}
+
+.shopify-payment-button .shopify-cleanslate [type="submit"],
+.dynamic-checkout__content .shopify-cleanslate [type="submit"] {
+    border-radius: var(--border-radius)!important;
+    font-family: var(--font-button);
+    font-weight: var(--font-button-weight);
+    height: auto!important;
+    line-height: 1.5!important;
+    padding: 0.75rem 0!important;
+    display: initial!important;
+    font-size: var(--base-font-size-mobile)!important;
+}
+
+@media (min-width: 768px) {
+    .shopify-cleanslate {
+        width: 100%;
+        
+    }
+    .button-full .shopify-cleanslate {
+        width: 100%;
+    }
+    .shopify-payment-button .shopify-cleanslate [type="submit"],
+    .dynamic-checkout__content .shopify-cleanslate [type="submit"],
+    .dynamic-checkout__content undefined .shopify-cleanslate * {
+        font-size: var(--base-font-size)!important;
+    }
+}
+
+@media (min-width: 1024px) {
+    .shopify-payment-button .shopify-cleanslate [type="submit"],
+    .dynamic-checkout__content .shopify-cleanslate [type="submit"],
+    .dynamic-checkout__content undefined .shopify-cleanslate * {
+        font-size: var(--base-font-size)!important;
+    }
+}

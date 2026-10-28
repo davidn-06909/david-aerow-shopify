@@ -1,0 +1,139 @@
+{% doc %}
+  Renders the subscription block on the product page.
+
+  Reads selling plan data from the selected variant's selling_plan_allocations
+  (Shopify Subscriptions), so only plans available for the current variant are shown.
+  Outputs a hidden input with name="selling_plan" linked to the main product form
+  via the form attribute, so the chosen plan submits with add-to-cart.
+
+  @param {object} block - The current section block.
+  @param {object} product - The product to render selling plans for.
+  @param {string} product_form_id - The id of the buy_buttons product form.
+{% enddoc %}
+
+{%- liquid
+  assign current_variant = product.selected_or_first_available_variant
+  assign has_selling_plan = false
+  if current_variant.selling_plan_allocations.size > 0
+    assign has_selling_plan = true
+  endif
+-%}
+<div class="w-full" id="subscription-{{ section_id }}" {{ block.shopify_attributes }}>
+  {%- if has_selling_plan -%}
+    {% style %}  
+    .label-heading-{{ block.id }} {
+      background-color: var(--colors-button-hover);
+      color: rgb(var(--colors-button-text-hover));
+    }
+    .subscription-radio-button {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 18px;
+      height: 18px;
+      box-sizing: border-box;
+      border: 1px solid rgb(var(--colors-text));
+      border-radius: 50%;
+      background: transparent;
+      cursor: pointer;
+      transition: background 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    }
+    .subscription-radio-button:checked {
+      background: rgb(var(--colors-text));
+      box-shadow: inset 0 0 0 2px rgba(var(--colors-background));
+    }
+    {% endstyle %}
+    <div
+      class="x-block-subscription w-full mb-4 md:mb-6{% if settings.edges_type == 'rounded_corners' %} corners-app{% endif %}"
+      x-data="{ selectedPlanId: '' }"
+    >
+      <div class="border{% if settings.edges_type == 'rounded_corners' %} rounded-xl overflow-hidden{% endif %}">
+        {% if block.settings.label != blank %}
+          <div class="label-heading-{{ block.id }} pl-5 pr-5 pt-2 pb-2 font-semibold">{{ block.settings.label }}</div>
+        {% endif %}
+        <div class="pl-5 pr-5 pt-5 pb-5">
+          {%- for group in product.selling_plan_groups -%}
+            {%- assign group_plan_count = 0 -%}
+            {%- for allocation in current_variant.selling_plan_allocations -%}
+              {%- if allocation.selling_plan.group_id == group.id -%}
+                {%- assign group_plan_count = group_plan_count | plus: 1 -%}
+              {%- endif -%}
+            {%- endfor -%}
+            {%- if group_plan_count == 0 -%}
+              {%- continue -%}
+            {%- endif -%}
+            <div class="mb-3">
+              {%- if group.name != blank -%}
+                <div class="mb-3 font-medium">
+                  {{ group.name | escape }}
+                </div>
+              {%- endif -%}
+              {%- for allocation in current_variant.selling_plan_allocations -%}
+                {%- if allocation.selling_plan.group_id != group.id -%}
+                  {%- continue -%}
+                {%- endif -%}
+                {%- assign plan = allocation.selling_plan -%}
+                {%- assign plan_price = allocation.price -%}
+                <label class="subscription-{{ block.id }}__option flex items-center justify-between gap-3 pb-3 cursor-pointer">
+                  <span class="flex items-center gap-2.5">
+                    <input
+                      type="radio"
+                      name="subscription-{{ block.id }}"
+                      value="{{ plan.id }}"
+                      class="subscription-radio-button shrink-0"
+                      x-model="selectedPlanId"
+                    >
+                    <span>{{ plan.name | escape }}</span>
+                  </span>
+                  {%- if settings.currency_code_enable -%}
+                    {%- assign formatted_variant_price = current_variant.price | money_with_currency -%}
+                    {%- assign formatted_plan_price = plan_price | money_with_currency -%}
+                  {%- else -%}
+                    {%- assign formatted_variant_price = current_variant.price | money -%}
+                    {%- assign formatted_plan_price = plan_price | money -%}
+                  {%- endif -%}
+                  <span class="text-right rtl:text-left">
+                    {%- if plan_price < current_variant.price -%}
+                      <s class="mr-1 inline-block rtl:ml-1 rtl:mr-0">{{ formatted_variant_price }}</s>
+                      <span class="price-sale text-[110%]">{{ formatted_plan_price }}</span>
+                    {%- else -%}
+                      {{ formatted_plan_price }}
+                    {%- endif -%}
+                  </span>
+                </label>
+              {%- endfor -%}
+            </div>
+          {%- endfor -%}
+          <div class="rte">
+            {{ block.settings.text }}
+          </div>
+        </div>
+        
+      </div>
+      <div class="subscription-{{ block.id }}__group border pl-5 pr-5 pb-5 pt-5 mb-3 mt-5{% if settings.edges_type == 'rounded_corners' %} rounded-xl{% endif %}">
+        <label class="subscription-{{ block.id }}__option flex items-center justify-between gap-3 cursor-pointer">
+          <span class="flex items-center gap-2.5">
+            <input
+              type="radio"
+              name="subscription-{{ block.id }}"
+              value=""
+              class="subscription-radio-button shrink-0"
+              x-model="selectedPlanId"
+            >
+            <span>{{ 'products.product.subscription.one_time_purchase' | t }}</span>
+          </span>
+          {% if settings.currency_code_enable %}
+            <span class="font-medium">{{ current_variant.price | money_with_currency }}</span>
+          {% else %}
+            <span class="font-medium">{{ current_variant.price | money }}</span>
+          {% endif %}
+        </label>
+      </div>
+      <input
+        type="hidden"
+        name="selling_plan"
+        form="{{ product_form_id }}"
+        :value="selectedPlanId"
+      >
+    </div>
+  {%- endif -%}
+</div>

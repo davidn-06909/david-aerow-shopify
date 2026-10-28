@@ -1,0 +1,73 @@
+@layer components {
+    .image-position-mobile-left {
+        @apply flex flex-col;
+    }
+    .image-position-mobile-right {
+        @apply flex flex-col-reverse;
+    }
+    .image-position-right {
+        @apply flex md:flex-row-reverse;
+    }
+    .image-position-left {
+        @apply flex md:flex-row
+    }
+    .iwt-content {
+        @apply pr-5 pl-5 md:pl-12 md:pr-12 md:pt-10 md:pb-10 pb-3;
+    }
+    .image-position-mobile-right .iwt-overlap {
+        @apply -mb-10 md:mb-0
+    }
+    .image-position-mobile-left .iwt-overlap {
+        @apply -mt-10 md:mt-0 
+    }
+    .image-position-right .iwt-overlap {
+        @apply md:-mr-10 z-10 pt-3 md:pt-10;
+    }
+    .image-position-left .iwt-overlap {
+        @apply md:-ml-10 z-10 pt-3 md:pt-10;
+    }
+    .image-position-right .iwt-no-overlap {
+        @apply lg:pr-24 lg:pl-11 pt-3 md:pt-10;
+    }
+    .image-position-left.stacked .iwt-no-overlap {
+        @apply pt-8 md:pt-10;
+    }
+    .image-position-left .iwt-no-overlap {
+        @apply pt-3 lg:pl-24 lg:pr-11 md:pt-10;
+    }
+    .image-position-mobile-left.image-with-text-overlap .button-sound-control {
+        @apply top-2 right-2 rtl:left-2 rtl:right-auto;
+    }
+    .image-position-left.image-with-text-overlap .button-sound-control {
+        @apply md:left-2 md:top-auto md:bottom-2 rtl:md:left-2 rtl:md:right-auto;
+    }
+    .image-position-right.image-with-text-overlap .button-sound-control {
+        @apply md:top-auto md:right-2 md:bottom-2 md:left-auto rtl:md:right-2 rtl:md:left-auto;
+    } 
+    
+    .iwt-content-overlap {
+        @apply md:pt-10 md:pb-10;
+    }
+    .truncate-text {
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        max-height: var(--truncate-height, auto);
+        margin: 0 auto;
+        overflow: hidden;
+        transition: max-height 0.3s ease;
+        text-overflow: ellipsis;
+      }
+    .truncate-text.truncate-expanded {
+        max-height: var(--truncate-height-expanded, auto);
+        box-shadow: none;
+        transition: all 0.3s ease;
+    }
+    .truncate-text .gradient {
+        position: absolute;
+        bottom: 0px;
+        left: 0px;
+        width: 100%;
+        height: 65%;
+        background-image: linear-gradient(rgba(var(--colors-text), 0), rgb(var(--background-color)));
+    }
+}

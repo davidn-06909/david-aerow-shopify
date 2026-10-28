@@ -1,0 +1,12 @@
+package.json
+package-lock.json
+yarn-lock.json
+pnpm-lock.yaml
+CLAUDE.md
+node_modules/*
+.claude/*
+.gpt/*
+.cursor/*
+src/*
+.gitignore
+.shopifyignore

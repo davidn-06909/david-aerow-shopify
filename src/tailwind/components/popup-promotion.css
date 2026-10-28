@@ -1,0 +1,9 @@
+.minimal-left {
+    @apply pl-4 md:pl-0 w-fit md:absolute md:bottom-2.5 left-0 md:left-5 top-auto pointer-events-auto;
+}
+.minimal-right {
+    @apply pr-4 md:pr-0 w-fit absolute flex flex-col items-end md:bottom-2.5 right-0 md:right-5 top-auto pointer-events-auto;
+}
+#popup-minimal-right {
+    @apply flex w-full flex-col items-end;
+}

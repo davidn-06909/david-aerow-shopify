@@ -1,0 +1,687 @@
+{% liquid
+  assign cart_amount = 0
+  assign cart_qty = 0
+
+  if block.settings.calculation_method == 'product'
+    for item in cart.items
+      if item.product_id == product.id
+        assign cart_amount = cart_amount | plus: item.original_line_price
+        assign cart_qty = cart_qty | plus: item.quantity
+      endif
+    endfor
+  else
+    if block.settings.applied_products != blank
+      assign applied_product_ids = block.settings.applied_products | map: 'id' | join: ','
+      for item in cart.items
+        if applied_product_ids contains item.product_id
+          assign cart_amount = cart_amount | plus: item.original_line_price
+          assign cart_qty = cart_qty | plus: item.quantity
+        endif
+      endfor
+    elsif block.settings.applied_collections != blank
+      assign applied_collection_ids = block.settings.applied_collections | map: 'id' | join: ','
+      for item in cart.items
+        for collection in item.product.collections
+          if applied_collection_ids contains collection.id
+            assign cart_amount = cart_amount | plus: item.original_line_price
+            assign cart_qty = cart_qty | plus: item.quantity
+            break
+          endif
+        endfor
+      endfor
+    else
+      for item in cart.items
+        assign cart_amount = cart_amount | plus: item.original_line_price
+        assign cart_qty = cart_qty | plus: item.quantity
+      endfor
+    endif
+  endif
+  assign is_rtl = false
+  if settings.lang_direction contains request.locale.iso_code
+    assign is_rtl = true
+  endif
+%}
+{% liquid
+  assign goal_value_str = ''
+  assign goal_num = 0
+  
+  for i in (1..5)
+    assign goal_config = 'goal_' | append: i
+    assign goal_raw = block.settings[goal_config]
+    assign goal_resolved = ''
+    assign label = 'goal_' | append: i | append: '_label'
+
+    if block.settings.discount_type == 'amount' and goal_raw != blank
+      assign goal_lines = goal_raw | newline_to_br | strip_newlines | split: '<br />'
+      assign goal_all = ''
+      assign goal_currency = ''
+      assign goal_country = ''
+
+      for gl in goal_lines
+        assign glt = gl | strip
+        if glt == blank
+          continue
+        endif
+        unless glt contains ':'
+          assign goal_all = glt
+        else
+          assign goal_part = glt | split: ':'
+          assign goal_part0 = goal_part[0] | strip
+          if goal_part.size == 2
+            if goal_part0 == cart.currency.iso_code
+              assign goal_currency = goal_part[1] | strip
+            endif
+          elsif goal_part.size == 3
+            assign goal_part1 = goal_part[1] | strip
+            if goal_part0 == localization.country.iso_code and goal_part1 == cart.currency.iso_code
+              assign goal_country = goal_part[2] | strip
+            endif
+          endif
+        endunless
+      endfor
+
+      if goal_country != blank
+        assign goal_resolved = goal_country | plus: 0 | times: 100
+      elsif goal_currency != blank
+        assign goal_resolved = goal_currency | plus: 0 | times: 100
+      elsif goal_all != blank
+        assign goal_resolved = goal_all | plus: 0 | times: 100
+      endif
+    elsif block.settings.discount_type != 'amount' and goal_raw != blank
+      assign goal_resolved = goal_raw | plus: 0
+    endif
+
+    if goal_resolved != blank
+      assign goal_num = goal_num | plus: 1
+    endif
+    assign goal_value_str = goal_value_str | append: goal_resolved
+
+    unless forloop.last
+      assign goal_value_str = goal_value_str | append: '|'
+    endunless    
+  endfor
+  assign goal_values = goal_value_str | split: '|'
+%}
+{% style %}
+  #discount-progress-bar-{{ section.id }} {
+    {% if block.settings.color_marker.alpha != 0.0 %}
+      --color-highlight: {{ block.settings.color_marker.red }}, {{ block.settings.color_marker.green }}, {{ block.settings.color_marker.blue }};
+    {% else %}
+      --color-highlight: {{ settings.colors_heading_highlight.red }}, {{ settings.colors_heading_highlight.green }}, {{ settings.colors_heading_highlight.blue }};
+    {% endif %}
+  }
+  .dark #discount-progress-bar-{{ section.id }} {
+    {% if block.settings.color_marker_dark.alpha != 0.0 %}
+      --color-highlight: {{ block.settings.color_marker_dark.red }}, {{ block.settings.color_marker_dark.green }}, {{ block.settings.color_marker_dark.blue }};
+    {% else %}
+      --color-highlight: {{ settings.colors_dark_heading_highlight.red }}, {{ settings.colors_dark_heading_highlight.green }}, {{ settings.colors_dark_heading_highlight.blue }};
+    {% endif %}
+  }
+  .size-icon-{{ block.id }} {
+    width: calc({{ block.settings.icon_size }} * 0.9px);
+    height: calc({{ block.settings.icon_size }} * 0.9px);
+  }
+  @media (min-width: 768px) {
+    .size-icon-{{ block.id }} {
+      width: {{ block.settings.icon_size }}px;
+      height: {{ block.settings.icon_size }}px;
+    }
+  }
+  #discount-progress-bar-{{ section.id }}:after {
+    width: calc((var(--quantity) / var(--max-goal) * 100)%);
+    max-width: 100%;
+  }
+  .progress-bar-item-container-{{ section.id }}:before {
+    content: var(--tw-content);
+    position: absolute;
+    width: 100%;
+    z-index: 0;
+    top: calc(50% - 4px);
+    border-top-width: 8px;
+    border-radius: 1rem;
+    {% if block.settings.color_line_and_border.alpha != 0.0 %}
+      --colors-line-and-border: {{ block.settings.color_line_and_border.red }}, {{ block.settings.color_line_and_border.green }}, {{ block.settings.color_line_and_border.blue }};
+    {% else %}
+      --colors-line-and-border: {{ settings.colors_line_and_borders.red }}, {{ settings.colors_line_and_borders.green }}, {{ settings.colors_line_and_borders.blue }};
+    {% endif %}
+    border-color: rgba(var(--colors-line-and-border));
+    --tw-translate-x: 0;
+    transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+  }
+  .dark .progress-bar-item-container-{{ section.id }}:before {
+    {% if block.settings.color_line_and_border_dark.alpha != 0.0 %}
+      --colors-line-and-border: {{ block.settings.color_line_and_border_dark.red }}, {{ block.settings.color_line_and_border_dark.green }}, {{ block.settings.color_line_and_border_dark.blue }};
+    {% else %}
+      --colors-line-and-border: {{ settings.colors_dark_line_and_borders.red }}, {{ settings.colors_dark_line_and_borders.green }}, {{ settings.colors_dark_line_and_borders.blue }};
+    {% endif %}
+  }
+  .progress-bar-item-container-{{ section.id }}.full:after {
+    content: var(--tw-content);
+    position: absolute;
+    width: 100%;
+    z-index: 10;
+    top: calc(50% - 4px);
+    border-top-width: 8px;
+    border-radius: 1rem;
+    border-color: rgba(var(--color-highlight));
+    --tw-translate-x: 0;
+    transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+  }
+  .discount-progress-bar-item-{{ block.id }}:before {
+    content: var(--tw-content);
+    position: absolute;
+    width: var(--before-width);
+    z-index: 0;
+    {% if is_rtl %}
+      right: 50%;
+    {% else %}
+      left: 50%;
+    {% endif %}
+    top: calc(50% - 4px);
+    border-top-width: 8px;
+    border-radius: 1rem;
+    {% if block.settings.color_line_and_border.alpha != 0.0 %}
+      --colors-line-and-border: {{ block.settings.color_line_and_border.red }}, {{ block.settings.color_line_and_border.green }}, {{ block.settings.color_line_and_border.blue }};
+    {% else %}
+      --colors-line-and-border: {{ settings.colors_line_and_borders.red }}, {{ settings.colors_line_and_borders.green }}, {{ settings.colors_line_and_borders.blue }};
+    {% endif %}
+    border-color: rgba(var(--colors-line-and-border));
+    {% if is_rtl %}
+      --tw-translate-x: 100%;
+    {% else %}
+      --tw-translate-x: -100%;
+    {% endif %}
+    transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+  }
+  .dark .discount-progress-bar-item-{{ block.id }}:before {
+    {% if block.settings.color_line_and_border_dark.alpha != 0.0 %}
+      --colors-line-and-border: {{ block.settings.color_line_and_border_dark.red }}, {{ block.settings.color_line_and_border_dark.green }}, {{ block.settings.color_line_and_border_dark.blue }};
+    {% else %}
+      --colors-line-and-border: {{ settings.colors_dark_line_and_borders.red }}, {{ settings.colors_dark_line_and_borders.green }}, {{ settings.colors_dark_line_and_borders.blue }};
+    {% endif %}
+  }
+  .discount-progress-bar-item-{{ block.id }}:after {
+    content: var(--tw-content);
+    position: absolute;
+    width: var(--after-width);
+    z-index: 10;
+    {% if is_rtl %}
+      right: 50%;
+    {% else %}
+      left: 50%;
+    {% endif %}
+    top: calc(50% - 4px);
+    border-top-width: 8px;
+    border-radius: 1rem;
+    border-color: rgba(var(--color-highlight));
+    {% if is_rtl %}
+      --tw-translate-x: 100%;
+    {% else %}
+      --tw-translate-x: -100%;
+    {% endif %}
+    transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+  }
+  .discount-progress-bar-item-{{ block.id }}.partial:after {
+    {% if is_rtl %}
+      right: var(--after-left);
+    {% else %}
+      left: var(--after-left);
+    {% endif %}
+  }
+  .discount-progress-bar-item-{{ block.id }} .icon-progress {
+    display: flex;
+  }
+  .discount-progress-bar-item-{{ block.id }} .icon-reached {
+    display: none;
+  }
+  .discount-progress-bar-item-{{ block.id }}.passed-goal .icon-progress {
+    display: none;
+  }
+  .discount-progress-bar-item-{{ block.id }}.passed-goal .icon-reached {
+    display: flex;
+  }
+  .bg-active-{{ block.id }} {
+    background-color: rgba(var(--color-highlight),0.2)
+  }
+  .bg-label-active-{{ block.id }} {
+    background-color: rgba(var(--color-highlight))
+  }
+  .text-active-{{ block.id }} {
+    color: rgba(var(--color-highlight))
+  }
+  .border-active-{{ block.id }} {
+    border-color: rgba(var(--color-highlight));
+  }
+{% endstyle %}
+{% if block.settings.heading != blank %}
+  <div class="h2 x-block-heading leading-normal font-medium rte">{{ block.settings.heading }}</div>
+  <p class= "leading-tight rte">{{ block.settings.subheading }}</p>
+  {% if block.settings.show_table %}
+    <div class="pb-4">({{ 'discount_progress_bar.click_to_apply_qty' | t }})</div>
+  {% endif %}
+{% endif %}
+{% liquid
+  assign variant_picker_blocks = section.blocks | where: 'type', 'variant_picker' 
+  assign quantity_selector_blocks = section.blocks | where: 'type', 'quantity_selector'
+%}
+{% if variant_picker_blocks.size == 0 and quantity_selector_blocks.size == 0 %}
+  <div 
+    x-init="document.addEventListener('eurus:cart:items-changed', () => {
+      Alpine.store('xUpdateVariantQuanity').cachedResults = [];
+      Alpine.store('xUpdateVariantQuanity').updateQuantity('{{ section.id }}', '{{ product.url }}', '{{ product.selected_or_first_available_variant.id }}');
+    });"
+  ></div>
+{% endif %}
+<div
+  id="discount-progress-bar-{{ section.id }}"
+  class="mt-4"
+  x-data="xDiscountBar([{% for i in (1..5) %}{{ goal_values[forloop.index0] | plus: 0 }}{% unless forloop.last %},{% endunless %}{% endfor %}])"
+  x-init="(() => {
+    setOrder();
+  })
+  " 
+>
+  <div x-init="setGoal({% if block.settings.discount_type == 'amount'  %}{{ cart_amount }}{% else %}{{ cart_qty }}{% endif %})" class="progress-bar-item-container-{{ section.id }}{% if block.settings.show_table %} mt-4{% else %} mt-1{% endif %} relative grid grid-cols-{{ goal_num }} overflow-hidden">
+    {%- for i in (1..5) -%}
+      {% liquid
+        assign goal_index = forloop.index0
+        assign goal_value = goal_values[goal_index]
+        assign goal_value_num = goal_value | plus: 0
+        assign goal_config = "goal_" | append: i
+        assign label = "goal_" | append: i | append: "_label"
+        assign icon = "icon_" | append: i
+        assign another_icon = "another_icon_" | append: i
+        assign custom_image = "custom_image_" | append: i
+        assign custom_icon = "custom_icon_" | append: i
+        assign icon_reached = "icon_" | append: i | append: '_reached'
+        assign another_icon_reached = "another_icon_" | append: i | append: '_reached'
+        assign custom_image_reached = "custom_image_" | append: i | append: '_reached'
+        assign custom_icon_reached = "custom_icon_" | append: i | append: '_reached'
+        assign label_goal = block.settings[label] | remove: '[' | remove: ']'
+        if block.settings[label] contains '[' and block.settings[label] contains ']'
+          if settings.currency_code_enable
+            assign label_passed = block.settings[label] | split: '[' | last | split: ']' | first | times: 100 | money_with_currency | prepend: '-'
+          else
+            assign label_passed = block.settings[label] | split: '[' | last | split: ']' | first | times: 100 | money | prepend: '-'
+          endif  
+        else
+          assign label_passed = label_goal
+        endif
+        assign is_passed = false
+        if block.settings.discount_type == 'amount'
+          if settings.currency_code_enable
+            assign goal_display = goal_value_num | money_with_currency
+          else
+            assign goal_display = goal_value_num | money
+          endif
+          if cart_amount >= goal_value_num
+            assign is_passed = true
+          endif
+        else
+          assign goal_display = goal_value
+          if cart_qty >= goal_value_num
+            assign is_passed = true
+          endif
+        endif
+      %}
+      {% if goal_value != blank %}
+        <div 
+          x-init="$nextTick(() => { 
+            calculateWidth($el, {% if block.settings.discount_type == 'amount' %}{{ cart_amount }}, {{ goal_value_num }}{% else %}{{ cart_qty }}, {{ goal_value_num }}{% endif %}, index[{{ i }}]{% if is_rtl %}, true{% endif %});
+            if (!window[`_dpbResize_{{ block.id }}_{{ i }}`]) {
+              window[`_dpbResize_{{ block.id }}_{{ i }}`] = true;
+              window.addEventListener('resize', () => {
+                calculateWidth($el, {% if block.settings.discount_type == 'amount' %}{{ cart_amount }}, {{ goal_value_num }}{% else %}{{ cart_qty }}, {{ goal_value_num }}{% endif %}, index[{{ i }}]{% if is_rtl %}, true{% endif %});
+              });
+            }
+          });"
+          :class="`order-${index[{{ i }}]} bar-item-${index[{{ i }}]}`" 
+          class="discount-progress-bar-item-{{ block.id }} flex flex-col items-center gap-y-1.5 grow justify-between relative"
+        >
+          <div class="flex items-center w-full h-full shrink whitespace-nowrap overflow-hidden text-ellipsis">
+            {% if is_passed == false %}
+              <span class="line-clamp-2 text-center w-full h-full text-[rgb(var(--colors-text),0.7)] text-[80%]">
+                {{- label_goal -}}
+              </span>
+            {% else %}
+              <span class="line-clamp-2 text-center w-full h-full text-[rgb(var(--colors-text),0.7)] text-[80%]">
+                {{- label_passed -}}
+              </span>
+            {% endif %}
+          </div>
+          {% if block.settings.show_progress_bar_icons and block.settings[icon] != 'none' %}
+            {% unless block.settings[custom_image] == blank
+              and block.settings[custom_icon] == blank
+              and block.settings[another_icon] == blank
+              and block.settings[icon] == 'another_icon'
+            %}
+              <div class="icon-progress flex justify-center w-full{% if block.settings.show_table %} h-full items-center{% endif %}">
+                <span class="z-20 inline-block relative size-icon-{{ block.id }} pt-1 pb-1 pl-1 pr-1 rounded-full text-[rgba(var(--color-highlight))] border border-[rgba(var(--color-highlight))] bg-[rgba(var(--colors-background-secondary))]">
+                  {% if block.settings[custom_image] != blank %}
+                    {% # theme-check-disable ImgLazyLoading %}
+                    <img 
+                      src="{{ block.settings[custom_image] | image_url: width: block.settings.icon_size }}"
+                      alt="{{ block.settings[custom_image].alt | escape }}"
+                      {% if settings.enable_lazy_loading_image %}
+                        loading="lazy"
+                      {% else %}
+                        loading="eager"
+                      {% endif %}
+                      width="{{ block.settings[custom_image].width }}"
+                      height="{{ block.settings[custom_image].height }}"
+                      style="object-position: {{ block.settings[custom_image].presentation.focal_point }}"
+                      class="object-cover absolute top-0 left-0 pt-1 pb-1 pl-1 pr-1 w-full h-full rounded-full"
+                    >
+                    {% # theme-check-enable ImgLazyLoading %}
+                  {% else %}
+                    {% if block.settings[custom_icon] == blank %}
+                      {% if block.settings[another_icon] != blank and block.settings[icon] == 'another_icon' %}
+                        {% render 'icon-new-alls', icon: block.settings[another_icon] %}
+                      {% else %}
+                        {% render 'icon-labels-bags', icon: block.settings[icon] %}
+                      {% endif %}
+                    {% else %}
+                      {{ block.settings[custom_icon] }}
+                    {% endif %}
+                  {% endif %}
+                </span>
+              </div>
+            {% endunless %}
+          {% else %}
+            <div class="icon-progress flex w-full justify-center {% if block.settings.show_table %} h-full items-center{% endif %}">
+              <span class="z-20 inline-block relative h-0 w-0 pt-2 pb-2 pl-2 pr-2 rounded-full border-2 bg-[#acacac] border-[rgba(var(--background-color))]">
+              </span>
+            </div>
+          {% endif %}
+          {% if block.settings.show_progress_bar_icons and block.settings[icon_reached] != 'none' %}
+            {% unless block.settings[custom_image_reached] == blank
+              and block.settings[custom_icon_reached] == blank
+              and block.settings[another_icon_reached] == blank
+              and block.settings[icon_reached] == 'another_icon'
+            %}
+              <div class="icon-reached flex justify-center w-full{% if block.settings.show_table %} h-full items-center{% endif %}">
+                <span class="z-20 inline-block relative size-icon-{{ block.id }} pt-1 pb-1 pl-1 pr-1 rounded-full text-[rgba(var(--background-color))] border border-[rgba(var(--color-highlight))] bg-[rgba(var(--color-highlight))]">
+                  {% if block.settings[custom_image_reached] != blank %}
+                    {% # theme-check-disable ImgLazyLoading %}
+                    <img 
+                      src="{{ block.settings[custom_image_reached] | image_url: width: block.settings.icon_size }}"
+                      alt="{{ block.settings[custom_image_reached].alt | escape }}"
+                      {% if settings.enable_lazy_loading_image %}
+                        loading="lazy"
+                      {% else %}
+                        loading="eager"
+                      {% endif %}
+                      width="{{ block.settings[custom_image_reached].width }}"
+                      height="{{ block.settings[custom_image_reached].height }}"
+                      style="object-position: {{ block.settings[custom_image_reached].presentation.focal_point }}"
+                      class="object-cover absolute top-0 left-0 pt-1 pb-1 pl-1 pr-1 w-full h-full rounded-full"
+                    >
+                    {% # theme-check-enable ImgLazyLoading %}
+                  {% else %}
+                    {% if block.settings[custom_icon_reached] == blank %}
+                      {% if block.settings[another_icon_reached] != blank
+                        and block.settings[icon_reached] == 'another_icon'
+                      %}
+                        {% render 'icon-new-alls', icon: block.settings[another_icon_reached] %}
+                      {% else %}
+                        {% render 'icon-labels-bags', icon: block.settings[icon_reached] %}
+                      {% endif %}
+                    {% else %}
+                      {{ block.settings[custom_icon_reached] }}
+                    {% endif %}
+                  {% endif %}
+                </span>
+              </div>
+            {% endunless %}
+          {% else %}
+            <div class="icon-reached flex w-full justify-center{% if block.settings.show_table %} h-full items-center{% endif %}">
+              <span class="z-20 inline-block relative h-0 w-0 pt-2 pb-2 pl-2 pr-2 rounded-full border-2 bg-[rgba(var(--color-highlight))] border-[rgba(var(--background-color))]">
+              </span>
+            </div>
+          {% endif %}          
+          <div class="{% if is_passed %} text-[rgba(var(--color-highlight))] {% else %} text-[rgb(var(--colors-text),0.7)] {% endif %} text-[80%] max-w-[90%]">
+            <div class="overflow-x-auto whitespace-nowrap hide-scrollbar">
+              {{ goal_display }}
+            </div>
+          </div>
+        </div>
+      {% endif %}
+    {% endfor %}
+  </div>
+  <div>
+    {%- for i in (1..5) -%}
+      {% liquid 
+        assign goal_index = forloop.index0
+        assign goal_value = goal_values[goal_index]
+        assign goal_value_num = goal_value | plus: 0
+        assign pregoal_message = "goal_" | append: i | append: "_pregoal_message"
+        assign postgoal_message = "goal_" | append: i | append: "_postgoal_message"
+        assign label = "goal_" | append: i | append: "_label"
+        assign icon = 'icon_' | append: i
+        assign custom_image = 'custom_image_' | append: i
+        assign custom_icon = 'custom_icon_' | append: i
+        assign icon_reached = 'icon_' | append: i | append: '_reached'
+        assign another_icon_reached = 'another_icon_' | append: i | append: '_reached'
+        assign custom_image_reached = 'custom_image_' | append: i | append: '_reached'
+        assign custom_icon_reached = 'custom_icon_' | append: i | append: '_reached'
+        assign label_goal = block.settings[label] | remove: '[' | remove: ']'
+
+        if block.settings.discount_type == 'amount'
+          assign to_next_goal = goal_value_num | minus: cart_amount
+          if settings.currency_code_enable
+            assign to_next_goal_display = to_next_goal | money_with_currency
+          else
+            assign to_next_goal_display = to_next_goal | money
+          endif       
+        else
+          assign to_next_goal = goal_value_num | minus: cart_qty
+          assign to_next_goal_display = to_next_goal
+        endif
+      %}
+      {% if goal_value == blank %}{% continue %}{% endif %}
+      {% if to_next_goal < 0 and forloop.last == false %}
+        {% continue %}
+      {% endif %}
+      {% if to_next_goal <= 0 %}
+        {% if block.settings[postgoal_message] != blank  %}
+          <div class="bg-[rgba(var(--colors-background-secondary))] pl-2 pr-2 rounded-lg w-full mt-3 mb-3 flex flex-row items-center gap-3">
+            <div class="inline-block w-3.5 h-3.5 flex-shrink-0">
+              {% if block.settings[custom_image_reached] != blank %}
+                {% # theme-check-disable ImgLazyLoading %}
+                <img
+                  src="{{ block.settings[custom_image_reached] | image_url: width: block.settings.icon_size }}"
+                  alt="{{ block.settings[custom_image_reached].alt | escape }}"
+                  {% if settings.enable_lazy_loading_image %}
+                    loading="lazy"
+                  {% else %}
+                    loading="eager"
+                  {% endif %}
+                  width="{{ block.settings[custom_image_reached].width }}"
+                  height="{{ block.settings[custom_image_reached].height }}"
+                  style="object-position: {{ block.settings[custom_image_reached].presentation.focal_point }}"
+                  class="object-cover top-0 left-0 w-full h-full "
+                >
+                {% # theme-check-enable ImgLazyLoading %}
+              {% else %}
+                {% if block.settings[custom_icon_reached] == blank %}
+                  {% if block.settings[another_icon_reached] != blank and block.settings[icon] == 'another_icon' %}
+                    {% render 'icon-new-alls', icon: block.settings[another_icon_reached] %}
+                  {% else %}
+                    {% render 'icon-labels-bags', icon: block.settings[icon_reached] %}
+                  {% endif %}
+                {% else %}
+                  {{ block.settings[custom_icon_reached] }}
+                {% endif %}
+              {% endif %}
+            </div>
+            <div class="postgoal-message pt-3 pb-3">{{ block.settings[postgoal_message] | replace: '[x]', to_next_goal_display | replace: '[goal_label]', label_goal }}</div>
+          </div>
+        {% endif %}
+      {% else %}
+        {% if block.settings[pregoal_message] != blank %}
+          <div class="bg-[rgba(var(--colors-background-secondary))] pl-2 pr-2 rounded-lg w-full mt-3 mb-3 flex flex-row items-center gap-3">
+            <div class="inline-block w-3.5 h-3.5 flex-shrink-0">
+              {% if block.settings[custom_image] != blank %}
+                {% # theme-check-disable ImgLazyLoading %}
+                <img
+                  src="{{ block.settings[custom_image] | image_url: width: block.settings.icon_size }}"
+                  alt="{{ block.settings[custom_image].alt | escape }}"
+                  {% if settings.enable_lazy_loading_image %}
+                    loading="lazy"
+                  {% else %}
+                    loading="eager"
+                  {% endif %}
+                  width="{{ block.settings[custom_image].width }}"
+                  height="{{ block.settings[custom_image].height }}"
+                  style="object-position: {{ block.settings[custom_image].presentation.focal_point }}"
+                  class="object-cover top-0 left-0 w-full h-full "
+                >
+                {% # theme-check-enable ImgLazyLoading %}
+              {% else %}
+                {% if block.settings[custom_icon] == blank %}
+                  {% if block.settings[another_icon] != blank and block.settings[icon] == 'another_icon' %}
+                    {% render 'icon-new-alls', icon: block.settings[another_icon] %}
+                  {% else %}
+                    {% render 'icon-labels-bags', icon: block.settings[icon] %}
+                  {% endif %}
+                {% else %}
+                  {{ block.settings[custom_icon] }}
+                {% endif %}
+              {% endif %}
+            </div>
+            <div class="pregoal-message pt-3 pb-3">{{ block.settings[pregoal_message] | replace: '[x]', to_next_goal_display | replace: '[goal_label]', label_goal }}</div>
+          </div>
+        {% endif %}
+      {% endif %}
+      {% if to_next_goal >= 0 %}
+        {% break %}
+      {% endif %}
+    {% endfor %}
+  </div>
+  {% if block.settings.show_table %}
+    <div class="x-block-table w-full flex flex-col mt-0.5">
+      <div class="w-full">
+        <div class="w-full flex justify-between gap-4 pl-2 pr-2 pt-2.5 pb-2.5">
+          <div class="empty:hidden font-normal text-left max-w-[50%] rte">{{ block.settings.left_col_label }}</div>
+          <div class="empty:hidden font-normal text-right max-w-[50%] rte">{{ block.settings.right_col_label }}</div>
+        </div>
+      </div>
+      <div x-init="setGoal({% if block.settings.discount_type == 'amount'  %}{{ cart_amount }}{% else %}{{ cart_qty }}{% endif %})" class="progress-bar-table-{{ block.id }} w-full grid grid-cols-1 gap-x-10 gap-y-2">
+        {%- for i in (1..5) -%}
+          {% liquid
+            assign goal_index = forloop.index0
+            assign goal_value = goal_values[goal_index]
+            assign goal_value_num = goal_value | plus: 0
+
+            assign goal_config = 'goal_' | append: i
+            assign label = 'goal_' | append: i | append: '_label'
+            assign icon = 'icon_' | append: i
+            assign icon_reached = 'icon_' | append: i | append: '_reached'
+            assign another_icon_reached = 'another_icon_' | append: i | append: '_reached'
+            assign custom_image_reached = 'custom_image_' | append: i | append: '_reached'
+            assign custom_icon_reached = 'custom_icon_' | append: i | append: '_reached'
+
+            assign label_goal = block.settings[label] | remove: '[' | remove: ']'
+            assign goal_display = ''
+            assign total_save = ''
+            assign goal_qty = 0
+
+            if block.settings.discount_type == 'amount'
+              if goal_value != blank
+                if settings.currency_code_enable
+                  assign goal_display = goal_value_num | money_with_currency | append: '+'
+                else
+                  assign goal_display = goal_value_num | money | append: '+'
+                endif
+              endif
+            else
+              assign goal_qty = goal_value | plus: 0
+              assign goal_display = goal_qty | append: '+ items'
+              if block.settings[label] contains '[' and block.settings[label] contains ']'
+                if settings.currency_code_enable
+                  assign total_save = block.settings[label] | split: '[' | last | split: ']' | first | times: block.settings[goal_config] | times: 100 | money_with_currency | append: '+'
+                else
+                  assign total_save = block.settings[label] | split: '[' | last | split: ']' | first | times: block.settings[goal_config] | times: 100 | money | append: '+'
+                endif
+              endif
+            endif
+          %}
+          {% if goal_value != blank and goal_display != blank %}
+            <div 
+              x-init="$nextTick(() => { 
+                checkOptionActive($el, {{ goal_value_num }}, index[{{ i }}], '{{ block.id }}');
+              });"
+              :class="`order-${index[{{ i }}]}`" class="flex justify-between pl-2 pr-2 pt-2.5 pb-2.5 border-transparent rounded-lg">
+              <div class="flex max-w-[50%] items-center gap-1">
+                <span :class="`icon-active-${index[{{ i }}]}`" class="hidden w-3.5 h-3.5 text-[rgba(var(--color-highlight))]">
+                  {% if block.settings[custom_image_reached] != blank %}
+                    {% # theme-check-disable ImgLazyLoading %}
+                    <img
+                      src="{{ block.settings[custom_image_reached] | image_url: width: block.settings.icon_size }}"
+                      alt="{{ block.settings[custom_image_reached].alt | escape }}"
+                      {% if settings.enable_lazy_loading_image %}
+                        loading="lazy"
+                      {% else %}
+                        loading="eager"
+                      {% endif %}
+                      width="{{ block.settings[custom_image_reached].width }}"
+                      height="{{ block.settings[custom_image_reached].height }}"
+                      style="object-position: {{ block.settings[custom_image_reached].presentation.focal_point }}"
+                      class="object-cover top-0 left-0 w-full h-full rounded-full"
+                    >
+                    {% # theme-check-enable ImgLazyLoading %}
+                  {% else %}
+                    {% if block.settings[custom_icon_reached] == blank %}
+                      {% if block.settings[another_icon_reached] != blank
+                        and block.settings[icon_reached] == 'another_icon'
+                      %}
+                        {% render 'icon-new-alls', icon: block.settings[another_icon_reached] %}
+                      {% else %}
+                        {% render 'icon-labels-bags', icon: block.settings[icon_reached] %}
+                      {% endif %}
+                    {% else %}
+                      {{ block.settings[custom_icon_reached] }}
+                    {% endif %}
+                  {% endif %}
+                </span>
+                <div
+                  :class="`goal-display-${index[{{ i }}]}`"
+                  class="text-center {% if block.settings.discount_type == 'quantity' %} cursor-pointer {% endif %}"
+                  {% if block.settings.discount_type == 'quantity' %}
+                    role="button"
+                    tabindex="0"
+                    @click="
+                      document.dispatchEvent(new CustomEvent(`eurus:product:quantity-changed-{{ section.id }}`, {
+                        detail: {
+                          quantity: {{ goal_qty }}
+                        }
+                      }));
+                    "
+                    @keydown.enter.prevent="$el.click()"
+                    @keydown.space.prevent="$el.click()"
+                  {% endif %}
+                >
+                  {{ goal_display }}
+                </div>
+              </div>
+              <div class="flex max-w-[50%] items-center justify-end gap-3 justify-items-end">
+                {% if total_save != blank %}
+                  <span class="text-[90%] text-end text-[rgb(var(--colors-text),0.7)]">
+                    {{ 'products.product.price.total_save' | t | append: ': ' | append: total_save }}
+                  </span>
+                {%- endif %}
+                <span :class="`label-goal-${index[{{ i }}]}`" class=" text-end">
+                  {{ label_goal }}
+                </span>
+                <span :class="`active-label-${index[{{ i }}]}`" class="hidden self-center justify-center border border-transparent rounded-xl bg-[rgba(var(--color-highlight),0.8)] text-white pl-3 pr-3 pt-1 pb-1 text-center text-[80%] shrink">
+                  {{- 'products.product.price.active' | t -}}
+                </span>
+              </div>
+            </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+    </div>
+  {% endif %}
+</div>
+<script src="{{ 'discount-progress-bar.js' | asset_url }}" defer></script>

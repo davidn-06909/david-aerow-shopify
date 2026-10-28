@@ -1,0 +1,80 @@
+{%- case icon -%}
+  {%- when 'icon-transition-arrow' -%}
+    <svg width="100%" height="100%" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M8 1.3L19 12L8 22.7" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  {%- when 'icon-home-mobile-dock' -%}
+    <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24" fill="none">
+      <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-miterlimit="10" d="M22.833 10.959 12.516 2 2.199 10.959 M20.932 13.795V20.19A1.81 1.81 0 0 1 19.122 22H5.91A1.81 1.81 0 0 1 4.1 20.19v-6.395"/>
+    </svg>
+  {%- when 'icon-tick-table' -%}
+    <svg width="100%" height="100%" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path fill="currentColor" fill-rule="evenodd" clip-rule="evenodd" d="M20.6136 5.64876C21.0335 6.01618 21.0716 6.65627 20.6981 7.07079L10.1842 18.7406C9.80878 19.1573 9.16416 19.1838 8.75579 18.7994L2.67176 13.0718C2.29234 12.7146 2.25602 12.1194 2.58155 11.7125C2.94075 11.2635 3.60966 11.2017 4.03715 11.5862L8.75754 15.8321C9.16776 16.2011 9.79933 16.1681 10.1689 15.7584L19.2124 5.73148C19.5783 5.32572 20.2024 5.28894 20.6136 5.64876Z"/>
+    </svg>
+  {% when 'icon-account' %}
+    <svg class="{{ animation_class }}" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24" fill="none">
+      <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M21.776 23v-2.444a4.889 4.889 0 0 0-4.889-4.889H7.109a4.889 4.889 0 0 0-4.889 4.889V23 M11.998 10.778a4.889 4.889 0 1 0 0-9.778 4.889 4.889 0 0 0 0 9.778"/>
+    </svg>
+  {% when 'icon-arrow' %}
+    <svg width="100%" height="100%" class="{% if enable_email_footer or enable_blog_detail %} h-[var(--base-font-size)] w-[var(--base-font-size)]{% else %} w-full h-full{% endif %}" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path fill="none" d="M15.7122 20L23 12.5L15.7122 5M1 12.5001H21.5834" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  {% when 'icon-close' %}
+    <svg class="{{ animation_class }}" width="100%" height="100%" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M1 1L23 23M23 1L1 23" stroke="currentColor" stroke-width="2" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  {%- when 'icon-copy' -%}
+    <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24" fill="none">
+      <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M16.615 2H3.538A1.538 1.538 0 0 0 2 3.538v13.077a1.538 1.538 0 0 0 1.538 1.538h13.077a1.538 1.538 0 0 0 1.538-1.538V3.538A1.538 1.538 0 0 0 16.615 2 M22 6.615v13.846A1.538 1.538 0 0 1 20.462 22H6.615"/>
+    </svg>
+  {%- when 'icon-dark' -%}
+    <svg width="100%" height="100%" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M11.8684 11.9014C11.8661 7.20737 14.8383 3.29531 18.9075 1.72987C17.6564 1.10431 16.2481 0.947156 14.6834 0.947919C13.2022 0.941846 11.7345 1.22911 10.3648 1.79314C8.9952 2.35717 7.75081 3.18681 6.70343 4.23419C5.65605 5.28157 4.82641 6.52596 4.26238 7.89559C3.69835 9.26521 3.41109 10.733 3.41716 12.2142C3.41716 18.4729 8.42396 23.1669 14.6827 23.1669C16.2481 23.1669 17.6556 23.0105 18.9075 22.3842C14.8398 20.5075 11.8668 16.5946 11.8661 11.9006" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  {%- when 'icon-filter' -%}
+    <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24" fill="currentColor">
+      <path d=" M16.895 13.753a3.142 3.142 0 1 0 0 6.284 3.142 3.142 0 0 0 0-6.284 M11.753 16.895a5.142 5.142 0 1 1 10.284 0 5.142 5.142 0 0 1-10.284 0 M7.105 3.963a3.142 3.142 0 1 0 0 6.284 3.142 3.142 0 0 0 0-6.284 M1.963 7.105a5.142 5.142 0 1 1 10.284 0 5.142 5.142 0 0 1-10.284 0 M20.038 16.895a1 1 0 0 1 1-1h2.259a1 1 0 1 1 0 2h-2.259a1 1 0 0 1-1-1 M-.297 7.105a1 1 0 0 1 1-1h2.259a1 1 0 1 1 0 2H.703a1 1 0 0 1-1-1 M-.297 16.895a1 1 0 0 1 1-1h12.05a1 1 0 1 1 0 2H.703a1 1 0 0 1-1-1 M10.247 7.105a1 1 0 0 1 1-1h12.05a1 1 0 1 1 0 2h-12.05a1 1 0 0 1-1-1"/>
+    </svg>
+  {% when 'icon-hamburger' %}
+    <svg width="100%" height="100%" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M1 7H23 M1 17H23" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+  {% when 'icon-light' %}
+    <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24" fill="none">
+      <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M12 15.074a3.074 3.074 0 1 0 0-6.148 3.074 3.074 0 0 0 0 6.148 M12 2v1.538 M12 20.462V22 M22 12h-1.538 M3.538 12H2 M19.077 4.923l-1.092 1.092 M6.015 17.985l-1.092 1.092 M19.077 19.077l-1.092-1.092 M6.015 6.015 4.923 4.923"/>
+    </svg>
+  {% when 'icon-minus' %}
+    <svg width="100%" height="100%" {% if class %}class="{{ class }}"{% endif %} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M1 12H23" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  {% when 'icon-plus' %}
+    <svg width="100%" height="100%" {% if class %}class="{{ class }}"{% endif %} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M1 12H23M12 1V23" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  {% when 'icon-search' %}
+    <svg class="{{ animation_class }} icon-animation" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24" fill="none">
+      <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M11.192 20.223C16.5 20.223 20.803 15.92 20.803 10.612S16.5 1 11.192 1 1.58 5.303 1.58 10.612s4.304 9.611 9.612 9.611 M17.706 18.301 22.405 23"/>
+    </svg>
+  {% when 'icon-grid' %}
+    <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24" fill="none">
+      <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M3 1h5.087a2 2 0 0 1 2 2v5.087a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2 M15.913 1H21a2 2 0 0 1 2 2v5.087a2 2 0 0 1-2 2h-5.087a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2 M15.913 13.913H21a2 2 0 0 1 2 2V21a2 2 0 0 1-2 2h-5.087a2 2 0 0 1-2-2v-5.087a2 2 0 0 1 2-2 M3 13.913h5.087a2 2 0 0 1 2 2V21a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2v-5.087a2 2 0 0 1 2-2"/>
+    </svg>
+  {% when 'icon-list' %}
+    <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24" fill="none">
+      <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" d="M7 4H22M7 12H22M7 20H22" stroke-width="2"/>
+      <path stroke="currentColor" stroke-linecap="round" d="M2.125 4.082h0M2 12h0M2 20h0" stroke-width="2.8"/>
+    </svg>
+  {% when 'icon-up-right' %}
+    <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24" fill="none">
+      <path stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" d="M1 22.94 22.88 1.06M5.065 1.06H23v17.935"/>
+    </svg>
+  {%- when 'icon-discount' -%}
+    <svg class="{{ animation_class }}" width="100%" height="100%" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="fill: none;">
+      <path d="M19.01 3.61902L14.7436 3.573C12.9041 3.55315 11.1308 4.25818 9.80708 5.53562L4.45232 10.7033C1.99337 13.0763 1.92372 16.9934 4.29674 19.4523C6.66977 21.9113 10.5869 21.9809 13.0458 19.6079L18.2998 14.5375C19.6829 13.2027 20.4563 11.3579 20.4385 9.43588L20.3976 5.00883C20.3943 4.64991 20.2535 4.3059 20.0043 4.04762C19.7435 3.77745 19.3854 3.62307 19.01 3.61902Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+      <path d="M16 8H16.0001" stroke="currentColor" stroke-width="2.8" stroke-miterlimit="10" stroke-linecap="round"/>
+    </svg>
+  {% when 'icon-caret' %}
+    <svg width="100%" height="100%" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path fill="none" d="M23 7L12 18L0.999999 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+{%- endcase -%}

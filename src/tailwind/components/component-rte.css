@@ -1,0 +1,69 @@
+@layer components {
+  .rte {
+    @apply after:clear-both after:block
+  }
+  .rte p {
+    @apply mt-2 last:mb-2 leading-normal;
+    font-weight: initial;
+  }
+  .rte.shipping-insurance-text p {
+    @apply mt-0 last:mb-0;
+  }
+  .rte table {
+    @apply mt-2 table-fixed;
+    font-weight: initial;
+    word-break: break-word;
+  }
+  .rte table td {
+    @apply md:pl-5 md:pr-5 border pt-2 pb-2 pl-2 pr-2
+  }
+  .rte img {
+    @apply h-auto max-w-full mb-2 inline
+  }
+  .rte iframe {
+    @apply inline max-w-full
+  }
+  .rte li {
+    @apply mt-2 mb-2;
+    font-weight: initial;
+    list-style: inherit;
+  }
+  .rte li:last-child {
+    @apply mb-0
+  }
+
+  .rte blockquote > * {
+    @apply -ml-2 mt-0 -mr-2 mb-0
+  }
+
+  .rte a {
+    @apply relative text-[rgba(var(--colors-text-link))] decoration-1 mt-2 mb-2;
+  }
+  .rte ul {
+    @apply list-disc list-outside pl-5 rtl:pr-5 rtl:pl-0 mt-4 mb-4;
+    list-style-position: inside;
+  }
+  .rte li > :first-child {
+    @apply inline;
+  }
+  .pl0-ul.rte ul {
+    @apply pl-0
+  }
+  .rte ol {
+    @apply list-decimal list-outside pl-5 rtl:pr-5 rtl:pl-0 mt-4 mb-4;
+    list-style-position: inside;
+  }
+
+  .rte blockquote {
+    @apply inline-flex;
+  }
+  .rte h1,
+  .rte h2,
+  .rte h3,
+  .rte h4,
+  .rte h2,
+  .rte h6 {
+    margin-block-start: 1em;
+    margin-block-end: 0.5em;
+  }
+}

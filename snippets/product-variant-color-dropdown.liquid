@@ -1,0 +1,219 @@
+{% doc %}
+  Renders a custom dropdown (combobox) for a colour option: every choice shows its option value
+  next to a colour circle. A hidden native `select` still holds the value for the product form
+  and drives `xVariantSelect`, so the behaviour matches the standard dropdown picker.
+
+  The circle background is resolved, in order, from the custom mapping in
+  `settings.color_option_values` (single colour, 2/3-colour gradient or uploaded image), the
+  Shopify swatch of the option value, then the option value itself used as a CSS colour name.
+
+  @param {object} product - Product object.
+  @param {object} option - Current product_option object.
+  @param {number} option_index - Zero-based index of the option.
+  @param {string} product_form_id - Product add to cart form id.
+  @param {string} section_id - Section id, used to scope element ids.
+  @param {object} [block] - Variant picker block. Used to tell whether the option label is
+    rendered, so the trigger only points `aria-labelledby` at a label that exists.
+
+@example
+{% render 'product-variant-color-dropdown',
+  product: product,
+  option: option,
+  option_index: option_index,
+  product_form_id: product_form_id,
+  section_id: section.id
+%}
+{% enddoc %}
+{%- liquid
+  assign select_id = 'Option-' | append: section_id | append: '-' | append: option_index
+  assign list_id = 'ColorDropdown-' | append: section_id | append: '-' | append: option_index
+
+  assign has_blank_option = false
+  unless settings.default_select_available_variant or product.selected_variant
+    assign has_blank_option = true
+  endunless
+
+  assign color_option_values = settings.color_option_values | newline_to_br | strip_newlines | split: '<br />'
+  assign swatch_backgrounds = ''
+
+  for value in option.values
+    assign color_custom = ''
+    assign color_value = ''
+    assign multi_colors = blank
+    assign swatch_image = false
+
+    if settings.color_option_values contains value
+      for color_option_value in color_option_values reversed
+        if color_option_value contains value
+          assign color_option_key_value = color_option_value | split: ':'
+          assign color_option_key = color_option_key_value | first
+
+          if value == color_option_key
+            assign color_custom = color_option_key
+            assign color_value = color_option_key_value | last | strip
+
+            if color_value contains '.'
+              assign swatch_image = true
+            endif
+
+            assign multi_colors = color_value | remove_first: '#' | split: '#'
+            break
+          endif
+        endif
+      endfor
+    endif
+
+    assign swatch_bg = ''
+    if color_custom != '' and swatch_image
+      assign swatch_bg = color_value | file_img_url: '100x100' | prepend: 'url(' | append: ') center / cover no-repeat'
+    elsif color_custom != '' and multi_colors.size == 3
+      assign color_1 = multi_colors[0] | prepend: '#'
+      assign color_2 = multi_colors[1] | prepend: '#'
+      assign color_3 = multi_colors[2] | prepend: '#'
+      assign swatch_bg = 'linear-gradient(45deg, ' | append: color_1 | append: ', ' | append: color_1 | append: ' 33.3%, ' | append: color_2 | append: ' 33.3%, ' | append: color_2 | append: ' 66.6%, ' | append: color_3 | append: ' 66.6%, ' | append: color_3 | append: ')'
+    elsif color_custom != '' and multi_colors.size == 2
+      assign color_1 = multi_colors[0] | prepend: '#'
+      assign color_2 = multi_colors[1] | prepend: '#'
+      assign swatch_bg = 'linear-gradient(45deg, ' | append: color_1 | append: ', ' | append: color_1 | append: ' 50%, ' | append: color_2 | append: ' 50%, ' | append: color_2 | append: ')'
+    elsif color_custom != ''
+      assign swatch_bg = color_value
+    elsif value.swatch.image
+      assign swatch_bg = value.swatch.image | image_url: width: 100 | prepend: 'url(' | append: ') center / cover no-repeat'
+    elsif value.swatch.color
+      assign swatch_bg = value.swatch.color.rgb | prepend: 'rgb(' | append: ')'
+    else
+      assign swatch_bg = value | split: ' ' | last | handle
+    endif
+
+    assign swatch_backgrounds = swatch_backgrounds | append: swatch_bg | append: '||'
+  endfor
+
+  assign swatch_backgrounds = swatch_backgrounds | split: '||'
+-%}
+<div
+  class="select relative outline-none eurus"
+  x-data="xVariantColorDropdown('{{ select_id }}')"
+  @keydown.escape="close()"
+  @scroll.window="close(false)"
+>
+  <select id="{{ select_id }}" class="hidden" name="{{ option.name }}" form="{{ product_form_id }}">
+    {% render 'product-variant-options', product: product, option: option, input_type: 'select' %}
+  </select>
+  <div
+    id="ColorDropdownTrigger-{{ section_id }}-{{ option_index }}"
+    x-ref="trigger"
+    role="combobox"
+    tabindex="0"
+    aria-haspopup="listbox"
+    aria-controls="{{ list_id }}"
+    {%- if block.settings.show_variant_option %}
+      aria-labelledby="ColorDropdownLabel-{{ section_id }}-{{ option_index }}"
+    {%- endif %}
+    aria-label="{{ option.name | escape }}"
+    :aria-expanded="open ? 'true' : 'false'"
+    class="product-form__input w-full flex items-center gap-x-2.5 pt-2.5 pb-2.5 pl-5 pr-8 rtl:pr-5 rtl:pl-8 mt-2 mb-2 bg-transparent border border-solid outline-none focus:border-current focus-visible:outline-none cursor-pointer text-left rtl:text-right{% if settings.edges_type == 'rounded_corners' %} rounded-md{% endif %}"
+    :class="open && 'border-current'"
+    @click="toggle()"
+    @keydown.arrow-down.prevent="open ? move(1) : toggle()"
+    @keydown.arrow-up.prevent="open ? move(-1) : toggle()"
+    @keydown.enter.prevent="open ? select(activeIndex) : toggle()"
+    @keydown.space.prevent="open ? select(activeIndex) : toggle()"
+  >
+    {%- if has_blank_option -%}
+      <span x-show="selectedIndex === 0" class="p-break-words">
+        {{- 'products.product.choose_options' | t -}}
+      </span>
+    {%- endif -%}
+    {%- for value in option.values -%}
+      {%- liquid
+        assign item_index = forloop.index0
+        if has_blank_option
+          assign item_index = forloop.index
+        endif
+      -%}
+      <span {% if has_blank_option or value.selected == false %}x-cloak {% endif %}x-show="selectedIndex === {{ item_index }}" class="relative flex items-center gap-x-2.5">
+        <span class="w-5 shrink-0"></span>
+        <span class="w-5 h-5 absolute left-0 rtl:left-auto rtl:right-0 top-1/2 -translate-y-1/2 border rounded-full" style="background: {{ swatch_backgrounds[forloop.index0] }};"></span>
+        <span class="p-break-words text-[rgba(var(--colors-text))]">
+          {%- unless value.available -%}
+            {{- 'products.product.value_unavailable' | t: value: value -}}
+          {%- else -%}
+            {{- value | escape -}}
+          {%- endunless -%}
+        </span>
+      </span>
+    {%- endfor -%}
+  </div>
+  <div x-cloak x-show="open" @click="close(false)" class="fixed inset-0 z-10 cursor-default"></div>
+  <ul
+    id="{{ list_id }}"
+    x-ref="list"
+    x-cloak
+    x-show="open"
+    role="listbox"
+    aria-label="{{ option.name | escape }}"
+    class="absolute left-0 rtl:left-auto rtl:right-0 w-full z-20 max-h-[50vh] overflow-y-auto border border-solid border-current shadow-md bg-[rgba(var(--background-color),1)]{% if settings.edges_type == 'rounded_corners' %} rounded-md{% endif %}"
+    :class="(dropUp ? 'bottom-full mb-1' : 'top-full mt-1') + (placed ? '' : ' invisible')"
+    style="overscroll-behavior: contain;"
+  >
+    {%- if has_blank_option -%}
+      <li
+        id="{{ list_id }}-0"
+        role="option"
+        :aria-selected="selectedIndex === 0 ? 'true' : 'false'"
+        class="flex items-center pt-2 pb-2 pl-5 pr-5 cursor-pointer select-none"
+        :class="activeIndex === 0 && 'bg-[rgba(var(--colors-text),0.2)]'"
+        @click="select(0)"
+        @mouseenter="activeIndex = 0"
+      >
+        <span class="p-break-words text-[rgba(var(--colors-text))]">
+          {{- 'products.product.choose_options' | t -}}
+        </span>
+      </li>
+    {%- endif -%}
+    {%- for value in option.values -%}
+      {%- liquid
+        assign item_index = forloop.index0
+        if has_blank_option
+          assign item_index = forloop.index
+        endif
+      -%}
+      <li
+        id="{{ list_id }}-{{ item_index }}"
+        role="option"
+        :aria-selected="selectedIndex === {{ item_index }} ? 'true' : 'false'"
+        class="flex items-center gap-x-2.5 pt-2 pb-2 pl-5 pr-5 cursor-pointer select-none{% unless value.available %} opacity-50{% endunless %}"
+        :class="activeIndex === {{ item_index }} && 'bg-[rgba(var(--colors-text),0.2)]'"
+        @click="select({{ item_index }})"
+        @mouseenter="activeIndex = {{ item_index }}"
+      >
+        <span
+          class="w-5 h-5 shrink-0 border rounded-full"
+          style="background: {{ swatch_backgrounds[forloop.index0] }};"
+        ></span>
+        <span class="p-break-words text-[rgba(var(--colors-text))]">
+          {%- unless value.available -%}
+            {{- 'products.product.value_unavailable' | t: value: value -}}
+          {%- else -%}
+            {{- value | escape -}}
+          {%- endunless -%}
+        </span>
+      </li>
+    {%- endfor -%}
+  </ul>
+  <div
+    x-cloak
+    x-show="loadingEls === '{{ select_id }}'"
+    class="w-4 h-4 absolute top-1/2 right-3 rtl:right-auto rtl:left-3 -translate-y-1/2"
+  >
+    <div class="animate-spin w-4 h-4 border-loading border-[rgba(var(--colors-text))]"></div>
+  </div>
+  <span
+    x-cloak
+    x-show="loadingEls !== '{{ select_id }}'"
+    class="absolute top-1/2 right-4 rtl:right-auto rtl:left-4 -translate-y-1/2 w-2.5 inline-block pointer-events-none duration-300"
+  >
+    {% render 'icon-alls', icon: 'icon-caret' %}
+  </span>
+</div>
+<script src="{{ 'variant-color-dropdown.js' | asset_url }}" defer></script>

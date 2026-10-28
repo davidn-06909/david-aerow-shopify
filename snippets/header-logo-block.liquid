@@ -1,0 +1,95 @@
+{% comment %}
+    Renders a block logo
+
+    Accepts:
+    - logo_above: {Boolean} Logo above
+    Usage:
+    {% render 'header-logo-block' %}
+{% endcomment %}
+{%- liquid 
+  assign logo_pos = 'left'
+  if section.settings.logo_position == 'center-left'
+    assign logo_pos = 'center'
+  endif
+
+  assign enable_compact_menu = false
+  if section.settings.enable_hamburger_menu or section.settings.enable_hamburger_menu == false and section.settings.enable_drawer_menu
+    assign enable_compact_menu = true
+  endif
+
+  if section.settings.logo_position == 'left-left' or enable_compact_menu and logo_pos == 'left'
+    if section.blocks.size > 0
+      assign show_border = true
+    elsif section.settings.menu != blank
+      assign show_border = true
+    endif
+  endif
+
+  assign logo_modes = 'default' | split: ','
+  if section.settings.logo_mobile != blank or section.settings.logo_mobile_dark != blank
+    assign logo_modes = 'mobile,desktop' | split: ','
+  endif
+-%}
+<div class="flex{% if logo_above %} lg:pt-2 lg:pb-2 items-center{% endif %}{% if show_border %}{% if settings.lang_direction contains request.locale.iso_code %} lg:ml-3 {% if enable_compact_menu %}lg:pl-5 lg:border-l {% else %}lg:pl-110{% endif %}{% else %} lg:mr-3 {% if enable_hamburger %}lg:pr-5 lg:border-r{% else %}lg:pr-11{% endif %}{% endif %}{% endif %}">
+  <a href="{{ routes.root_url }}" class="w-logo-header h-auto disable-effect inline-block">
+    {%- for mode in logo_modes -%}
+      {%- liquid
+        if mode == 'mobile'
+          assign logo_light_image = section.settings.logo_mobile | default: section.settings.logo
+          assign logo_dark_image = section.settings.logo_mobile_dark | default: section.settings.logo_dark
+        else
+          assign logo_light_image = section.settings.logo
+          assign logo_dark_image = section.settings.logo_dark
+        endif
+      -%}
+      <span class="{% if mode == 'mobile' %}block md:hidden{% elsif mode == 'desktop' %}hidden md:block{% else %}block{% endif %}">
+        {%- if logo_dark_image != blank -%}
+          {%- assign logo_alt = logo_dark_image.alt | default: shop.name | escape -%}
+          <img
+            src="{{ logo_dark_image | image_url: width: logo_dark_image.width }}"
+            alt="{{ logo_alt }}"
+            sizes="(min-width: 768px) {{ section.settings.logo_width }}px, {{ section.settings.logo_width_mobile }}px"
+            srcset="{{ logo_dark_image | image_url: width: 50 }} 50w,
+              {{ logo_dark_image | image_url: width: 100 }} 100w,
+              {{ logo_dark_image | image_url: width: 150 }} 150w,
+              {{ logo_dark_image | image_url: width: 200 }} 200w,
+              {{ logo_dark_image | image_url: width: 250 }} 250w,
+              {{ logo_dark_image | image_url: width: 300 }} 300w,
+              {{ logo_dark_image | image_url: width: 400 }} 400w,
+              {{ logo_dark_image | image_url: width: 500 }} 500w,
+              {{ logo_dark_image | image_url: width: 600 }} 600w"
+            width="{{ logo_dark_image.width }}"
+            height="{{ logo_dark_image.height }}"
+            class="header-logo w-full hidden absolute dark:block dark:relative mr-auto ml-auto{% if logo_above %} md:mr-auto md:ml-auto{% else %} md:ml-0{% endif %}"
+            loading="lazy"
+          />
+        {%- else -%}
+          <span class="hidden dark:block h-0 dark:h-auto mr-auto ml-auto{% if logo_above %} md:mr-auto md:ml-auto{% else %} md:ml-0{% endif %}">{{ shop.name }}</span>
+        {%- endif -%}
+        {%- if logo_light_image != blank -%}
+          {%- assign logo_alt = logo_light_image.alt | default: shop.name | escape -%}
+          <img
+            src="{{ logo_light_image | image_url: width: logo_light_image.width }}"
+            alt="{{ logo_alt }}"
+            sizes="(min-width: 768px) {{ section.settings.logo_width }}px, {{ section.settings.logo_width_mobile }}px"
+            srcset="{{ logo_light_image | image_url: width: 50 }} 50w,
+              {{ logo_light_image | image_url: width: 100 }} 100w,
+              {{ logo_light_image | image_url: width: 150 }} 150w,
+              {{ logo_light_image | image_url: width: 200 }} 200w,
+              {{ logo_light_image | image_url: width: 250 }} 250w,
+              {{ logo_light_image | image_url: width: 300 }} 300w,
+              {{ logo_light_image | image_url: width: 400 }} 400w,
+              {{ logo_light_image | image_url: width: 500 }} 500w,
+              {{ logo_light_image | image_url: width: 600 }} 600w"
+            width="{{ logo_light_image.width }}"
+            height="{{ logo_light_image.height }}"
+            class="header-logo w-full block dark:hidden dark:absolute mr-auto ml-auto{% if logo_above %} md:mr-auto md:ml-auto{% else %} md:ml-0{% endif %}"
+            loading="lazy"
+          />
+        {%- else -%}
+          <span class="block dark:hidden dark:max-h-0 mr-auto ml-auto{% if logo_above %} md:mr-auto md:ml-auto{% else %} md:ml-0{% endif %}">{{ shop.name }}</span>
+        {%- endif -%}
+      </span>
+    {%- endfor -%}
+  </a>
+</div>

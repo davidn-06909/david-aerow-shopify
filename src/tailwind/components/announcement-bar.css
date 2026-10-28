@@ -1,0 +1,41 @@
+@layer components {
+  .announcement-bar-toolbar #localization_form button {
+    @apply lg:pb-1.5 lg:pt-1.5;
+  }
+  .announcement-bar-toolbar #localization_form ul {
+    @apply lg:z-[100];
+  } 
+  .announcement-bar-toolbar #localization_form>div {
+    width: max-content;
+  }
+  .announcement-bar-toolbar .social-list a {
+    @apply pt-0.5 h-6 pr-1.5 pl-1.5 pb-0.5;
+    width: 30px;
+  }
+
+  .announcement-bar-toolbar.toolbar-align-left #selector-social {
+    @apply flex-row-reverse;
+  }
+  
+  .announcement-bar-none{
+    @apply pl-5 pr-5
+  }
+  .announcement-bar-right .menu-position-left,
+  .announcement-bar-left .menu-position-left{
+    @apply lg:pl-5
+  }
+  .announcement-bar-right .menu-position-right,
+  .announcement-bar-left .menu-position-right{
+    @apply lg:pr-5
+  }
+  .announcement-bar-toolbar .social-list{
+    @apply max-w-[200px]
+  }
+}
+
+
+@media (max-width: 767px) {
+  .announcement-bar-toolbar .social-list{
+    max-width: unset;
+  }
+}

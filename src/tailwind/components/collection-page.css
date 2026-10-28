@@ -1,0 +1,52 @@
+@layer components {
+    .filter-advanced-1 {
+        @apply mt-5;
+    }
+    .filter-advanced-1 .image-filter {
+        @apply p-4;
+    }
+
+    .filter-advanced-2 .image-filter {
+        @apply p-[15px] md:p-0
+    }
+    .filter-advanced-2 {
+        @apply bg-theme-secondary mt-2.5 md:pl-5 md:pr-5;
+    }
+    .filter-advanced-2.contain-image {
+        @apply md:pt-5 md:pb-5
+    }
+
+    .input-image-filter:checked+.image-filter {
+        @apply bg-theme-secondary;
+    }
+
+    .input-image-filter:checked+.image-filter .filter-label,
+    .input-image-filter:checked+.image-filter img {
+        @apply opacity-40;
+    }
+
+    .input-image-filter:checked+.image-filter .icon-checkbox {
+        @apply opacity-100 bg-[rgba(var(--colors-text-link))];
+    }
+
+    .input-image-filter:checked+.image-filter .icon-tick {
+        @apply inline-block;
+    }
+
+    .input-image-filter:checked{
+        @apply bg-theme-secondary;
+    }
+    .filter-advanced-1 .input-image-filter:checked+.image-filter {
+        @apply w-full;
+    }
+
+    .filter-advanced-1 .filter-not-image .input-image-filter:checked ~ .filter-label::after {
+        content: "";
+        @apply w-full absolute top-0 left-0 right-0 bottom-0 bg-theme-secondary -z-10;
+    }
+
+    .filter-advanced .filter-not-image input[type="checkbox"]:checked ~ span {
+        @apply text-[rgba(var(--colors-heading-secondary))];
+        z-index: 1;
+    }
+  }

@@ -1,0 +1,15 @@
+{% case icon %}
+  {% when 'icon-cart' %}
+    <svg class="{{ animation_class }}" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linejoin="round" stroke-linecap="round" stroke-miterlimit="10">
+      <path fill="none" stroke-width="2" d="M1.67639 7.41499L3.0514 17.04H17.4999L23 7.41499H1.67639Z M1 1.91499H6.72919"/>
+      <path fill="none" stroke-width="2.8" stroke-linecap="round" d="M5.125 22.0817H5.137 M13.1459 22.0817H13.158"/>
+    </svg>
+  {% when 'icon-hand-bag' %}
+    <svg class="{{ animation_class }}" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24" fill="none">
+      <path fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M21.912 21.122a2.2 2.2 0 0 1-.423 1.32 2.16 2.16 0 0 1-1.269.558H3.703a2.16 2.16 0 0 1-1.269-.558 2.2 2.2 0 0 1-.423-1.32L3.5 7.77h16.923l1.489 13.353ZM7.731 7.769V5.231a4.23 4.23 0 1 1 8.462 0v2.538"/>
+    </svg>
+  {% when 'icon-basket' %}
+    <svg class="{{ animation_class }}" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24" fill="none">
+      <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="M23 12.685H1V9.946h22v2.739 M10.631 3.1 6.523 9.946 M13.369 3.1l4.108 6.846 M21.631 12.685l-.988 5.928a2.9 2.9 0 0 1-2.747 2.288H6.059a2.9 2.9 0 0 1-2.702-2.288l-.988-5.928 M9.611 18.162l-.228-2.739 M14.617 15.424l-.228 2.738"/>
+    </svg>
+{% endcase %}

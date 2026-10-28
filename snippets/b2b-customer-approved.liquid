@@ -1,0 +1,62 @@
+{% doc %}
+  Outputs `true` when the logged in customer is allowed to see B2B prices, and nothing otherwise, so
+  callers can capture the output and test it.
+
+  A customer is approved when any of these matches:
+  - the customer is a Shopify B2B customer that is approved to order for at least one company
+    location
+  - one of the tags in `b2b_approved_customer_tags` is applied to the customer
+  - `b2b_approved_metafield` is enabled and the `custom.b2b_approved` customer metafield holds a
+    truthy value
+
+  @example
+  {%- capture b2b_approved -%}
+    {%- render 'b2b-customer-approved' -%}
+  {%- endcapture -%}
+  {%- if b2b_approved contains 'true' -%}
+    {%- comment -%} customer may see B2B prices {%- endcomment -%}
+  {%- endif -%}
+{% enddoc %}
+{%- liquid
+  assign is_approved = false
+
+  if customer
+    if customer.b2b? and customer.company_available_locations_count > 0
+      assign is_approved = true
+    endif
+
+    unless is_approved
+      assign customer_tag_list = customer.tags | join: ',' | downcase | prepend: ',' | append: ','
+      assign approved_tags = settings.b2b_approved_customer_tags | split: ','
+      for approved_tag in approved_tags
+        assign approved_tag_name = approved_tag | strip | downcase
+        if approved_tag_name == blank
+          continue
+        endif
+        assign approved_tag_needle = approved_tag_name | prepend: ',' | append: ','
+        if customer_tag_list contains approved_tag_needle
+          assign is_approved = true
+          break
+        endif
+      endfor
+    endunless
+
+    unless is_approved
+      if settings.b2b_approved_metafield
+        assign approved_metafield = customer.metafields.custom.b2b_approved.value
+        if approved_metafield == true
+          assign is_approved = true
+        else
+          assign approved_metafield_text = approved_metafield | downcase | strip
+          if approved_metafield_text == 'true' or approved_metafield_text == 'yes' or approved_metafield_text == '1' or approved_metafield_text == 'approved'
+            assign is_approved = true
+          endif
+        endif
+      endif
+    endunless
+  endif
+
+  if is_approved
+    echo 'true'
+  endif
+-%}

@@ -1,0 +1,61 @@
+{% doc %}
+  Renders the B2B price visibility call to action button in place of the price when the current
+  visitor is not allowed to see the price of a product. Outputs nothing when the price may be shown,
+  so callers can capture the output and fall back to the regular price markup while it is blank.
+
+  Whether the price has to be hidden is resolved by the `b2b-price-hidden` snippet. The button label
+  and link come from the CTA theme settings, and the button renders disabled while its link is empty.
+
+  @param {object} product - The product whose price is gated
+  @param {string} [class] - Extra classes added to the call to action wrapper
+
+  @example
+  {%- capture b2b_price_cta -%}
+    {%- render 'b2b-price-visibility', product: product -%}
+  {%- endcapture -%}
+  {%- if b2b_price_cta != blank -%}
+    {{ b2b_price_cta }}
+  {%- else -%}
+    {%- comment -%} regular price markup {%- endcomment -%}
+  {%- endif -%}
+{% enddoc %}
+{%- capture b2b_price_hidden -%}
+  {%- render 'b2b-price-hidden', product: product -%}
+{%- endcapture -%}
+{%- liquid
+  if b2b_price_hidden contains 'true'
+    if customer
+      assign cta_text = settings.b2b_cta_guest_not_approved
+      assign cta_url = settings.b2b_contact_link
+    else
+      assign cta_text = settings.b2b_cta_guest
+      assign cta_url = settings.b2b_registration_page
+    endif
+  endif
+-%}
+{%- if b2b_price_hidden contains 'true' -%}
+  <div class="b2b-price-visibility price leading-none{% if class != blank %} {{ class }}{% endif %}">
+    {%- if cta_text != blank -%}
+      {%- if cta_url != blank -%}
+        <div
+          class="button button-solid b2b-price inline-block pl-4 pr-4 pt-1.5 pb-1.5 lg:pt-2 lg:pb-2 text-sm leading-normal p-break-words"
+          role="button"
+          tabindex="0"
+          aria-label="{{ cta_text | escape }}"
+          @click.prevent.stop="window.location.href = '{{ cta_url }}'"
+          @keydown.enter.prevent.stop="window.location.href = '{{ cta_url }}'"
+          @keydown.space.prevent.stop="window.location.href = '{{ cta_url }}'"
+        >
+          {%- render 'button-label', button_label: cta_text, show_button_style: 'primary' -%}
+        </div>
+      {%- else -%}
+        <span
+          class="button button-solid b2b-price inline-block pl-4 pr-4 pt-1.5 pb-1.5 lg:pt-2 lg:pb-2 text-sm leading-normal opacity-60 pointer-events-none p-break-words"
+          aria-disabled="true"
+        >
+          {%- render 'button-label', button_label: cta_text, show_button_style: 'primary' -%}
+        </span>
+      {%- endif -%}
+    {%- endif -%}
+  </div>
+{%- endif -%}

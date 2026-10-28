@@ -1,0 +1,301 @@
+@layer components {
+  #shopify-product-reviews .spr-container {
+    border-color: rgba(var(--colors-line-and-border),1);
+    @apply pl-0 pr-0 xl:pb-4 border-0 border-b
+  }
+  .card-product-slideshow .collection-icon-list.vstar-star {
+    text-align: left;
+  }
+  .rtl .card-product-slideshow .collection-icon-list.vstar-star {
+    text-align: right;
+  }
+  .spr-container .spr-header {
+    @apply flex flex-col justify-center items-center
+  }
+  .spr-header .spr-summary-caption {
+    @apply flex col-span-2 justify-center
+  }
+  .spr-header .spr-summary-actions-togglereviews {
+    @apply md:mt-1 mt-[2px]
+  }
+  .spr-header .spr-icon {
+    @apply text-[100%] md:text-[120%]
+  }
+  .spr-container .spr-summary {
+    @apply grid grid-cols-2 before:hidden gap-y-5 mb-4
+  }
+  .spr-container .spr-summary-actions {
+    @apply col-span-2 flex justify-center
+  } 
+  .spr-container .spr-icon {
+    @apply text-[#ffa422]
+  } 
+  .spr-container .spr-summary-actions-newreview {
+    @apply pl-6 pr-6 md:pt-3 md:pb-3 pt-2.5 pb-2.5 border border-solid 
+  }
+  .spr-container .spr-form {
+    @apply mt-0 pt-10 
+  }
+  .spr-container .spr-form-contact {
+    @apply flex justify-between flex-wrap before:hidden after:hidden
+  }
+  .spr-container .spr-form-title {
+    @apply hidden 
+  }
+  .spr-container .spr-reviews {
+    @apply mt-0 
+  }
+  .spr-container .spr-review {
+    @apply first:mt-0 pt-5 pb-5
+  }
+  .spr-container .spr-form-input-text, .spr-container .spr-form-input-email, .spr-container .spr-form-input-textarea {
+    @apply border border-solid !mt-1.5 pt-2.5 pb-2.5 pl-2 pr-2 focus:outline-none focus-visible:outline-none
+  }
+  .spr-container .spr-form-contact-name, .spr-container .spr-form-contact-email {
+    @apply md:w-[48%] w-full
+  }
+  .spr-container .spr-form-input {
+    @apply bg-[rgba(var(--background-color),1)]
+  }
+  .spr-container .spr-form-input.spr-starrating {
+    @apply !mt-1.5 
+  }
+  .spr-container .spr-icon-star-empty:hover, .spr-container .spr-icon-star:hover {
+    background-size: 0;
+    background-position: 0;
+    background-repeat: no-repeat;
+    background: none;
+  }.spr-container .spr-button-primary.btn-primary {
+    background: var(--colors-button-hover);
+    border-color: var(--colors-button-hover);
+    @apply float-left pt-3 pb-3 pl-7 pr-7 mb-10 cursor-pointer text-[rgb(var(--colors-button-text-hover))] border-0
+  }
+  .spr-container .spr-form-label {
+    font-size: unset;
+  }
+  .spr-container .spr-form-review-body {
+    @apply mb-2
+  }
+  .spr-reviews .spr-icon {
+    @apply text-[100%] mr-1
+  }
+  .spr-reviews strong {
+    @apply font-normal not-italic text-[rgb(var(--colors-text),1)]
+  }
+  .spr-reviews .spr-review-header-byline {
+    @apply italic text-[rgb(var(--colors-text),1)] text-[100%]
+  }
+  .spr-reviews .spr-review-header-title {
+    font-size: var(--h6-font-size-mobile);
+    @apply font-semibold text-[100%] leading-snug text-[rgb(var(--colors-heading),1)]
+  }
+  .spr-reviews .spr-review-content-body {
+    font-size: unset;
+    @apply leading-snug text-[rgb(var(--colors-text),1)]
+  }
+  .spr-reviews .spr-review-content {
+    @apply mb-4
+  }
+  .spr-reviews .spr-review-reportreview {
+    @apply text-[100%] italic underline underline-offset-2 text-[rgb(var(--colors-text),1)] float-left md:float-right hover:bg-auto
+  }
+  .spr-reviews .spr-review-reportreview:not(.button):not(.disable-effect):hover {
+    background-size: 0;
+  }
+  .spr-summary-starrating .spr-stars span {
+    @apply flex gap-1
+  }
+  .spr-summary-starrating {
+    @apply mt-10 mb-10
+  }
+  .spr-container .spr-summary-starrating {
+    @apply mt-0 mb-0
+  }
+  .spr-pagination .spr-pagination-page.is-active {
+    background: var(--colors-button-hover);
+    border-color: var(--colors-button-hover);
+    @apply text-[rgb(var(--colors-button-text-hover))] md:h-14 md:w-14 h-11 w-11 rounded-full flex justify-center items-center font-normal 
+  }
+  .main-product .spr-pagination .is-active {
+    @apply h-11 w-11
+  }
+  .spr-pagination>div {
+    @apply flex justify-center items-center gap-x-4 flex-wrap gap-y-4
+  }
+  .spr-pagination a {
+    @apply pt-2 pl-2 pr-2 pb-2
+  }
+  .spr-pagination .spr-pagination-page a {
+    @apply text-[rgb(var(--colors-text))] bg-[rgb(var(--colors-text),0.2)] md:h-14 md:w-14 h-11 w-11 rounded-full flex justify-center items-center font-normal
+  }
+  .main-product .spr-pagination-page a {
+    @apply h-11 w-11
+  }
+  .spr-pagination a:not(.button):not(.disable-effect):hover {
+    background-size: 0;
+    @apply text-[rgb(var(--colors-text))]
+  }
+  .spr-pagination .spr-pagination-next, .spr-pagination .spr-pagination-prev{
+    @apply relative
+  }
+  .spr-container .spr-pagination {
+    border-color: rgba(var(--colors-line-and-border),0.8);
+    @apply border-t border-solid
+  }
+  .spr-header .spr-summary-starrating + .spr-summary-caption {
+    @apply col-span-1
+  }
+  .main-product #shopify-product-reviews .spr-container {
+    @apply pl-0 pr-0
+  }
+  .spr-container .spr-form-label {
+    @apply after:content-['*'] pl-1
+  }
+  .spr-container .spr-form-input-error .spr-icon {
+    @apply text-[#ffa422]
+  }
+  .spr-container .spr-form-input-error, .spr-container .spr-form-input-error[type="text"], .spr-container .spr-form-input-error[type="email"] {
+    border-color: rgba(var(--colors-line-and-border),1);
+  }
+  .spr-container .spr-form-review .spr-icon {
+    @apply mr-3 
+  }
+  .spr-container .spr-form-message-success {
+    @apply mb-5 pt-3 pb-3 pl-3 pr-3 bg-[rgba(var(--color-success),0.2)] text-[rgba(var(--colors-text),1)] w-fit
+  }
+  .spr-container .spr-form-message-error {
+    @apply bg-[rgba(var(--color-error),0.2)] text-[rgba(var(--colors-text),1)] w-fit
+  }
+  .spr-container .spr-form {
+    border-color: rgba(var(--colors-line-and-border),1);
+  }
+  .spr-container .spr-review {
+    border-color: rgba(var(--colors-line-and-border),0.8);
+  }
+  .spr-container .spr-icon.spr-icon-star:not(.disable-effect)  {
+    @apply hover:text-[#ffa422]
+  }
+}
+.spr-container .spr-header-title {
+  font-size: var(--h2-font-size-mobile);
+}
+.main-product .spr-header-title {
+  font-size: calc(var(--h2-font-size-mobile) * 0.7);
+}
+
+.spr-container .spr-summary-actions-newreview:not(.button):not(.disable-effect) {
+  border-radius: var(--border-radius);
+  background: var(--colors-button-hover);
+  border-color: var(--colors-button-hover);
+  color: rgba(var(--colors-button-text-hover));
+}   
+/* app loox */
+#shopify-block-loox-rating {
+  @apply mb-3
+}
+.shopify-block-loox-product-reviews #looxReviews .lx-btn {
+ border-color: rgba(var(--colors-line-and-border),1);
+}
+.shopify-block-loox-product-reviews #looxReviews .header-btn {
+  color: rgba(var(--colors-heading));
+}
+.shopify-block-loox-product-reviews #looxReviews .summary-text {
+  color: rgba(var(--colors-heading));
+}
+/* end app loox */
+#am-reviews-carousel-shadow-container-production {
+  max-width: var(--page-width);
+  margin: auto;
+}
+/* Fera Product Reviews App */
+.fera-productReviews-reviews {
+  @apply mt-5
+}
+.fera-productReviewsSummary {
+  @apply px-5 xl:px-0
+}
+.fera-productReviews-review-body,
+.fera-allReviews-review-body {
+  word-break: break-word;
+}
+#MainContent>.fera-productReviews {
+  @apply !px-5;
+}
+#MainContent .fera-allReviews {
+  width: 100%;
+}
+#MainContent .fera-storeReviewsSummary {
+  @apply mx-5 xl:mx-auto;
+}
+/* End Fera Product Reviews App */
+/* Judge.me */
+#judgeme_product_reviews .jdgm-rev-widg {
+  @apply pl-0 pr-0 pt-0 pb-0;
+}
+.jdgm-rev-widg__header .jdgm-write-rev-link {
+  @apply my-5
+}
+.jdgm-rev-widg__header .jdgm-rev-widg__sort-wrapper {
+  @apply my-5
+}
+.jdgm-form-wrapper .jdgm-form__title {
+  @apply font-medium
+}
+.jdgm-widget .jdgm-write-rev-link,
+.jdgm-widget .jdgm-btn.jdgm-btn,
+.jdgm-widget input[type=submit].jdgm-btn {
+  border-width: 1px;
+  font-family: var(--font-button);
+  font-weight: var(--font-button-weight);
+  font-style: var(--font-button-style);
+}
+.jdgm-paginate .jdgm-paginate__page {
+  padding: 12px;
+}
+.jdgm-widget .jdgm-btn--solid, input[type=submit].jdgm-btn--solid {
+  padding: 14px 20px;
+}
+.fera-testimonialCarousel-testimonial-body {
+  word-break: break-word;
+  @apply pl-5 pr-5;
+}
+/* end Judge.me */
+@media (min-width: 1024px) {
+  .spr-reviews .spr-review-reportreview:not(.button):not(.disable-effect):hover {
+    background-size: 0;
+  }
+  .spr-container .spr-header-title {
+    font-size: var(--h2-font-size);
+  }
+  .main-product .spr-header-title {
+    font-size: calc(var(--h2-font-size) * 0.7);
+  }
+  .spr-container .spr-summary-actions-newreview:not(.button):not(.disable-effect) {
+    border: 1px solid rgba(var(--colors-button));
+    color: rgb(var(--colors-button-text));
+    background: rgba(var(--colors-button));
+    overflow: hidden;
+    background-origin: border-box;
+    position: relative;
+  }      
+  .spr-container .spr-summary-actions-newreview:not(.button):not(.disable-effect):hover {
+    transition: box-shadow 1s;
+    background-image: linear-gradient(rgba(var(--colors-button),0), rgba(var(--colors-button),0)), var(--colors-button-hover); 
+    border-color: var(--colors-button-hover);
+    color: rgba(var(--colors-button-text-hover));
+    background: var(--colors-button-hover);
+  } 
+  .spr-container .spr-summary-actions-newreview:not(.button):not(.disable-effect):before {
+    content: "";
+    position: absolute;
+    transition: all .25s ease;          
+    background: var(--colors-button-hover);
+    @apply h-full w-0 -z-10 top-0 right-0 absolute;
+  }   
+  .spr-container .spr-summary-actions-newreview:not(.button):not(.disable-effect):hover:before {
+    @apply left-0 w-full;
+  }     
+  .spr-reviews .spr-review-header-title {
+    font-size: var(--h6-font-size);
+  }
+}

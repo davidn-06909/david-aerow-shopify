@@ -1,0 +1,486 @@
+{% liquid
+  assign desktop_width = block.settings.desktop_width | times: 1
+  assign mobile_width = block.settings.mobile_width | times: 1
+
+  assign is_vertical = false
+  if block.settings.layout == 'vertical'
+    assign is_vertical = true
+  endif
+
+  assign is_natural = false
+  if block.settings.image_ratio == 'none'
+    assign is_natural = true
+  endif
+
+  assign scroll_position = block.settings.default_scroll_position
+  if is_vertical
+    assign scroll_position = 100 | minus: scroll_position
+  endif
+
+  if settings.enable_lazy_loading_image
+    assign loading = 'lazy'
+  else
+    assign loading = 'eager'
+  endif
+
+  assign natural_ratio = '3 / 2'
+  if block.settings.image != blank
+    assign natural_ratio = block.settings.image.aspect_ratio
+  endif
+  assign natural_ratio_mobile = natural_ratio
+  if block.settings.image_mobile != blank
+    assign natural_ratio_mobile = block.settings.image_mobile.aspect_ratio
+  endif
+%}
+{% style %}
+  .splide__list > .flexible-area-image-comparison:has(.width-{{ block.id }}) {
+    max-width: unset;
+    width: 100%;
+  }
+  .flexible-area-image-comparison:has(.width-{{ block.id }}) {
+    {% if mobile_width < 100 %}
+      width: calc({{ mobile_width }}% - 100px);
+      flex-grow: 1;
+      max-width: {{ mobile_width }}%;
+    {% else %}
+      width: 100%;
+      max-width: 100%;
+    {% endif %}
+  }
+  @media (min-width: 768px) {
+    .flexible-area-image-comparison:has(.width-{{ block.id }}) {
+      {% if desktop_width < 100 %}
+        width: calc({{ desktop_width }}% - 100px);
+        flex-grow: 1;
+        max-width: {{ desktop_width }}%;
+      {% else %}
+        width: 100%;
+        max-width: 100%;
+      {% endif %}
+    }
+  }
+  .image-comparison-{{ block.id }} {
+    {% if is_vertical %}
+      --compare_{{ block.id }}: 0px;
+      --compare_vertical_{{ block.id }}: 100%;
+    {% else %}
+      --compare_{{ block.id }}: 100%;
+      --compare_vertical_{{ block.id }}: 0px;
+    {% endif %}
+  }
+  .after-img-{{ block.id }} {
+    clip-path: inset(var(--compare_vertical_{{ block.id }}) 0px 0px var(--compare_{{ block.id }}));
+  }
+  {% if is_natural %}
+    .image-comparison-{{ block.id }} {
+      aspect-ratio: {{ natural_ratio_mobile }};
+    }
+    @media (min-width: 768px) {
+      .image-comparison-{{ block.id }} {
+        aspect-ratio: {{ natural_ratio }};
+      }
+    }
+  {% endif %}
+  .slider-{{ block.id }} {
+    cursor: {% if is_vertical %}row-resize{% else %}col-resize{% endif %};
+  }
+  .slider-{{ block.id }}::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    background: none;
+    border: none;
+    box-shadow: none;
+    pointer-events: all;
+    opacity: 0;
+    cursor: {% if is_vertical %}row-resize{% else %}col-resize{% endif %};
+    {% if is_vertical %}
+      width: 100vw;
+      height: 2.5rem;
+    {% else %}
+      width: 2.5rem;
+      height: 100vh;
+    {% endif %}
+  }
+  {% if is_vertical %}
+    .slider-{{ block.id }} {
+      -webkit-appearance: slider-vertical;
+      -moz-appearance: slider-vertical;
+      appearance: slider-vertical;
+      writing-mode: lr;
+    }
+  {% endif %}
+  .flexible-area-group .flexible-area-block:has(.content-alignment-{{ block.id }}) {
+    {% if block.settings.mobile_content_alignment == 'center' %}
+      margin-left: auto;
+      margin-right: auto;
+    {% elsif block.settings.mobile_content_alignment == 'right' %}
+      margin-left: auto;
+      margin-right: unset;
+    {% endif %}
+  }
+  @media screen and (min-width: 768px) {
+    .flexible-area-group .flexible-area-block:has(.content-alignment-{{ block.id }}) {
+      {% if block.settings.content_alignment == 'center' %}
+        margin-left: auto;
+        margin-right: auto;
+      {% elsif block.settings.content_alignment == 'right' %}
+        margin-left: auto;
+        margin-right: unset;
+      {% endif %}
+    }
+  }
+{% endstyle %}
+{% liquid
+  assign wrapper_class = 'relative w-full overflow-hidden'
+  if block.settings.edges_type == 'rounded_corners'
+    assign wrapper_class = wrapper_class | append: ' rounded-[10px]'
+  endif
+  unless is_natural
+    assign wrapper_class = wrapper_class | append: ' ' | append: block.settings.image_ratio
+  endunless
+
+  assign image_widths = '450, 750, 900, 1100, 1500, 1780, 2000'
+  assign mobile_image_widths = '375, 450, 750, 900, 1100, 1500'
+  assign mobile_sizes = mobile_width | append: 'vw'
+  assign image_class = 'w-full h-full object-cover'
+  assign mobile_image_class = image_class | append: ' block md:hidden'
+  assign placeholder_class = 'absolute top-0 left-0 w-full h-full bg-[#c9c9c9] text-[#acacac]'
+
+  assign before_image_class = image_class
+  assign before_placeholder_class = placeholder_class
+  if block.settings.image_mobile != blank
+    assign before_image_class = image_class | append: ' hidden md:block'
+    assign before_placeholder_class = placeholder_class | append: ' hidden md:block'
+  endif
+
+  assign after_image_class = image_class
+  assign after_placeholder_class = placeholder_class
+  if block.settings.image_mobile_after != blank
+    assign after_image_class = image_class | append: ' hidden md:block'
+    assign after_placeholder_class = placeholder_class | append: ' hidden md:block'
+  endif
+
+  assign alignment_class = 'content-alignment-' | append: block.id
+  if block.settings.content_alignment == 'adapt'
+    assign alignment_class = alignment_class | append: ' item-group-content-alignment'
+  endif
+  if block.settings.mobile_content_alignment == 'adapt'
+    assign alignment_class = alignment_class | append: ' item-group-content-alignment-mobile'
+  endif
+%}
+{%- capture sizes -%}
+  (min-width: {{ settings.page_width }}px) {{ settings.page_width | times: desktop_width | divided_by: 100 }}px, (min-width: 768px) {{ desktop_width }}vw, {{ mobile_width }}vw
+{%- endcapture -%}
+<div
+  data-width="{{ desktop_width }}"
+  data-width-mobile="{{ mobile_width }}"
+  class="x-theme-block-image-comparison item-block width-{{ block.id }} {{ alignment_class }} flex w-full align-middle"
+  x-data="xFlexibleAreaImageComparison('{{ block.id }}', '{{ block.settings.layout }}')"
+>
+  <div x-ref="image" class="image-comparison-{{ block.id }} {{ wrapper_class }}">
+    <div class="absolute top-0 left-0 w-full h-full pointer-events-none select-none">
+      {%- if block.settings.image != blank -%}
+        {{
+          block.settings.image
+          | image_url: width: 2000
+          | image_tag: loading: loading, widths: image_widths, sizes: sizes, class: before_image_class
+        }}
+      {%- else -%}
+        {{ 'image' | placeholder_svg_tag: before_placeholder_class }}
+      {%- endif -%}
+      {%- if block.settings.image_mobile != blank -%}
+        {{
+          block.settings.image_mobile
+          | image_url: width: 1500
+          | image_tag: loading: loading, widths: mobile_image_widths, sizes: mobile_sizes, class: mobile_image_class
+        }}
+      {%- endif -%}
+    </div>
+    <div class="after-img-{{ block.id }} absolute top-0 left-0 w-full h-full z-10 pointer-events-none select-none">
+      {%- if block.settings.image_after != blank -%}
+        {{
+          block.settings.image_after
+          | image_url: width: 2000
+          | image_tag: loading: loading, widths: image_widths, sizes: sizes, class: after_image_class
+        }}
+      {%- else -%}
+        {{ 'image' | placeholder_svg_tag: after_placeholder_class }}
+      {%- endif -%}
+      {%- if block.settings.image_mobile_after != blank -%}
+        {{
+          block.settings.image_mobile_after
+          | image_url: width: 1500
+          | image_tag: loading: loading, widths: mobile_image_widths, sizes: mobile_sizes, class: mobile_image_class
+        }}
+      {%- endif -%}
+    </div>
+    <input
+      type="range"
+      min="0"
+      max="100"
+      step="0.1"
+      value="{{ scroll_position }}"
+      orient="{{ block.settings.layout }}"
+      class="slider-{{ block.id }} absolute z-20 top-0 left-0 w-full h-full appearance-none bg-transparent outline-none border-0 mt-0 mb-0 ml-0 mr-0 pt-0 pb-0 pl-0 pr-0 overflow-hidden opacity-0 transition-none"
+      aria-label="{{ 'accessibility.image_comparison_slider' | t }}"
+      x-on:focus="disableScroll($el)"
+      x-on:input="load($event)"
+      x-intersect.once.margin.-50%.0.-50%.0="animateValue($el)"
+    >
+    <div
+      class="absolute z-30 select-none pointer-events-none{% if is_vertical %} left-0 w-full h-px -translate-y-1/2{% else %} top-0 h-full -translate-x-1/2{% endif %}"
+      style="top: var(--compare_vertical_{{ block.id }}); left: var(--compare_{{ block.id }});"
+    >
+      <span class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pt-1 pb-1 pl-1 pr-1 rounded-full bg-transparent{% if is_vertical %} rotate-90{% endif %}">
+        {% render 'icon-alls', icon: 'icon-comparison' %}
+      </span>
+      <span class="absolute top-0 left-1/2 -translate-x-1/2 h-full block bg-white{% if is_vertical %} w-full{% else %} w-px{% endif %}"></span>
+    </div>
+    <div
+      class="absolute z-40 top-0 left-0 w-full h-full"
+      style="{% if is_vertical %}height: calc(var(--compare_vertical_{{ block.id }}) - 50px);{% else %}width: calc(var(--compare_{{ block.id }}) - 50px);{% endif %}"
+    ></div>
+    <div
+      class="absolute z-40 bottom-0 right-0 w-full h-full"
+      style="{% if is_vertical %}height: calc(100% - var(--compare_vertical_{{ block.id }}) - 50px);{% else %}width: calc(100% - var(--compare_{{ block.id }}) - 50px);{% endif %}"
+    ></div>
+  </div>
+</div>
+<script src="{{ 'flexible-area-image-comparison.js' | asset_url }}" defer></script>
+{% schema %}
+{
+  "name": "t:sections.image-comparison.name",
+  "class": "flexible-area-image-comparison flexible-area-block splide__slide x-splide-slide",
+  "settings": [
+    {
+      "type": "select",
+      "id": "layout",
+      "label": "t:sections.promotion-grid.blocks.promotion.settings.header.content",
+      "options": [
+        {
+          "value": "horizontal",
+          "label": "t:sections.featured-collection.settings.slider_style.options__1"
+        },
+        {
+          "value": "vertical",
+          "label": "t:sections.featured-collection.settings.slider_style.options__2"
+        }
+      ],
+      "default": "horizontal"
+    },
+    {
+      "type": "select",
+      "id": "desktop_width",
+      "label": "t:sections.flexible-area.blocks.item-group.settings.desktop_width",
+      "options": [
+        {
+          "label": "16%",
+          "value": "16"
+        },
+        {
+          "label": "20%",
+          "value": "20"
+        },
+        {
+          "label": "25%",
+          "value": "25"
+        },
+        {
+          "label": "30%",
+          "value": "30"
+        },
+        {
+          "label": "50%",
+          "value": "50"
+        },
+        {
+          "label": "66%",
+          "value": "66"
+        },
+        {
+          "label": "70%",
+          "value": "70"
+        },
+        {
+          "label": "75%",
+          "value": "75"
+        },
+        {
+          "label": "80%",
+          "value": "80"
+        },
+        {
+          "label": "83%",
+          "value": "83"
+        },
+        {
+          "label": "100%",
+          "value": "100"
+        }
+      ],
+      "default": "50"
+    },
+    {
+      "type": "select",
+      "id": "mobile_width",
+      "label": "t:sections.flexible-area.blocks.item-group.settings.mobile_width",
+      "options": [
+        {
+          "label": "50%",
+          "value": "50"
+        },
+        {
+          "label": "100%",
+          "value": "100"
+        }
+      ],
+      "default": "100"
+    },
+    {
+      "type": "select",
+      "id": "edges_type",
+      "label": "t:settings_schema.design.edges",
+      "options": [
+        {
+          "value": "rounded_corners",
+          "label": "t:settings_schema.buttons.rounded_corners"
+        },
+        {
+          "value": "square",
+          "label": "t:settings_schema.products.square"
+        }
+      ],
+      "default": "rounded_corners"
+    },
+    {
+      "type": "select",
+      "id": "image_ratio",
+      "label": "t:sections.all.image_ratio.label",
+      "options": [
+        {
+          "value": "none",
+          "label": "t:sections.all.image_ratio.options__1.label"
+        },
+        {
+          "value": "aspect-square",
+          "label": "t:sections.all.image_ratio.options__2.label"
+        },
+        {
+          "value": "aspect-[3/2]",
+          "label": "t:sections.highlight-text-with-image.settings.image_ratio.option__2.label"
+        },
+        {
+          "value": "aspect-4/3",
+          "label": "t:sections.all.image_ratio.options__3.label"
+        },
+        {
+          "value": "aspect-16/9",
+          "label": "t:sections.all.image_ratio.options__5.label"
+        }
+      ],
+      "default": "none"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.image-comparison.settings.before_image"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "t:sections.image-comparison.settings.image.img_desktop.label",
+      "info": "t:sections.all.image.note_image_size"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_mobile",
+      "label": "t:sections.promotion-banner.settings.image_mobile.label",
+      "info": "t:sections.all.image.note_image_size"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.image-comparison.settings.after_image"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_after",
+      "label": "t:sections.image-comparison.settings.image.img_desktop.label",
+      "info": "t:sections.all.image.note_image_size"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_mobile_after",
+      "label": "t:sections.promotion-banner.settings.image_mobile.label",
+      "info": "t:sections.all.image.note_image_size"
+    },
+    {
+      "type": "range",
+      "id": "default_scroll_position",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "%",
+      "label": "t:sections.image-comparison.settings.default_scroll_position.label",
+      "default": 50
+    },
+    {
+      "type": "header",
+      "content": "t:sections.flexible-area.blocks.item-group.settings.alignment_item_group",
+      "info": "t:sections.flexible-area.blocks.item-group.settings.adapt_item_group_alignment_info_1"
+    },
+    {
+      "type": "select",
+      "id": "content_alignment",
+      "label": "t:sections.quick-links.settings.alignment.label",
+      "options": [
+        {
+          "value": "adapt",
+          "label": "t:sections.flexible-area.blocks.item-group.settings.adapt_item_group_alignment"
+        },
+        {
+          "value": "left",
+          "label": "t:sections.all.content_alignment.options__1.label"
+        },
+        {
+          "value": "center",
+          "label": "t:sections.all.content_alignment.options__2.label"
+        },
+        {
+          "value": "right",
+          "label": "t:sections.all.content_alignment.options__3.label"
+        }
+      ],
+      "default": "adapt"
+    },
+    {
+      "type": "select",
+      "id": "mobile_content_alignment",
+      "label": "t:sections.quick-links.settings.mobile_alignment.label",
+      "options": [
+        {
+          "value": "adapt",
+          "label": "t:sections.flexible-area.blocks.item-group.settings.adapt_item_group_alignment"
+        },
+        {
+          "value": "left",
+          "label": "t:sections.all.content_alignment.options__1.label"
+        },
+        {
+          "value": "center",
+          "label": "t:sections.all.content_alignment.options__2.label"
+        },
+        {
+          "value": "right",
+          "label": "t:sections.all.content_alignment.options__3.label"
+        }
+      ],
+      "default": "adapt"
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.image-comparison.name",
+      "category": "t:categories.basics"
+    }
+  ]
+}
+{% endschema %}

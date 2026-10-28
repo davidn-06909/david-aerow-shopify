@@ -1,0 +1,32 @@
+{% doc %}
+  Dispatches shopify:page:view on document, once per page load, on every page.
+
+  Render after standard-events-load.
+
+  Payload: page.template (template.name), page.title (document.title), page.url.
+
+  @example
+  {% render 'standard-events-page-view' %}
+{% enddoc %}
+<script>
+  (() => {
+    const documentReady = document.readyState === 'loading'
+      ? new Promise((resolve) => document.addEventListener('DOMContentLoaded', resolve, { once: true }))
+      : Promise.resolve();
+
+    Promise.all([window.StandardEventsReady, documentReady]).then(([library]) => {
+      if (!library || !library.PageViewEvent) return;
+      try {
+        document.dispatchEvent(new library.PageViewEvent({
+          page: {
+            template: {{ template.name | json }},
+            title: document.title,
+            url: window.location.href
+          }
+        }));
+      } catch (error) {
+        console.warn('[Eurus] Could not dispatch shopify:page:view.', error);
+      }
+    });
+  })();
+</script>

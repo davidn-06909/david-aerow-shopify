@@ -1,0 +1,59 @@
+{% doc %}
+  Renders the disclosure payload and trigger button for one cart line item.
+  The payload is a JSON script tag read by the xProductDisclosure store when the trigger is clicked.
+
+  @param {object} item - Cart line item
+
+  @example
+  {% render 'cart-item-disclosures', item: item %}
+{% enddoc %}
+
+{%- if item.product.metafields.shopify.disclosure.value != blank -%}
+  {%- assign disclosure_count = 0 -%}
+  {%- assign data_id = 'CartDisclosureData-' | append: item.key -%}
+  <script type="application/json" id="{{ data_id }}">[
+    {%- for disclosure in item.product.metafields.shopify.disclosure.value -%}
+      {%- assign display_preferences = disclosure.display_preferences.value | join: ',' -%}
+      {%- if display_preferences contains 'cart' -%}
+        {%- assign disclosure_count = disclosure_count | plus: 1 -%}
+        {%- unless disclosure_count == 1 -%}
+          ,
+        {%- endunless -%}
+        {%- capture disclosure_content -%}{{ disclosure.content | metafield_tag }}{%- endcapture -%}
+        {"title": {{ disclosure.title.value | json }},"content": {{ disclosure_content | strip | json }},"symbol": {% if disclosure.symbol != blank %}{{ disclosure.symbol.value | image_url: width: 40 | json }}{% else %}null{% endif %},"symbol_alt": {{ disclosure.symbol.value.alt | default: disclosure.internal_label.value | default: '' | json }}}
+      {%- endif -%}
+    {%- endfor -%}
+  ]</script>
+  {%- if disclosure_count > 0 -%}
+    {%- for disclosure in item.product.metafields.shopify.disclosure.value -%}
+      {%- assign display_preferences = disclosure.display_preferences.value | join: ',' -%}
+      {%- if display_preferences contains 'cart' -%}
+        <div class="flex gap-1 items-center">
+          {%- if disclosure.symbol != blank -%}
+            <img
+              src="{{ disclosure.symbol.value | image_url: width: 40 }}"
+              alt="{{ disclosure.symbol.value.alt | default: disclosure.internal_label.value | escape }}"
+              loading="lazy"
+              width="20"
+              height="20"
+              class="inline-block w-5 h-5 min-w-5 min-h-5"
+            >
+          {%- endif -%}
+          <button
+            id="Open{{ data_id }}"
+            class="button-link effect-inline relative inline text-left pb-0.5 pt-0.5 cursor-pointer hover:text-[rgba(var(--colors-text-link))]"
+            @click.prevent="$store.xProductDisclosure.open($el.id, '{{ data_id }}')"
+          >
+            <div class="flex gap-1 items-center">
+              <span class="p-break-words text-normal leading-none">{{ disclosure.title.value }}</span>
+              {%- if disclosure_count > 1 -%}
+                <span class="inline-block pt-0.5 pb-0.5 pl-1.5 pr-1.5 text-small leading-none rounded-full bg-[rgba(var(--colors-text),0.1)]">+{{ disclosure_count }}</span>
+              {%- endif -%}
+            </div>
+          </button>
+        </div>
+        {%- break -%}
+      {%- endif -%}
+    {%- endfor -%}
+  {%- endif -%}
+{%- endif -%}

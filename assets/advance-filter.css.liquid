@@ -1,0 +1,118 @@
+.filter-advanced-1 {
+  margin-top: 1.25rem;
+}
+.filter-advanced-1 .image-filter {
+  padding: 1rem;
+}
+.filter-advanced-2 {
+  margin-top: 0.625rem;
+  color: rgb(var(--colors-text-secondary));
+  background: rgba(var(--colors-background-secondary));
+}
+.filter-advanced-2 .image-filter {
+  padding: 15px;
+}
+.input-image-filter:checked+.image-filter {
+  color: rgb(var(--colors-text-secondary));
+  background: rgba(var(--colors-background-secondary));
+}
+.input-image-filter:checked+.image-filter .filter-label, 
+.input-image-filter:checked+.image-filter img {
+  opacity: 0.4;
+}
+.input-image-filter:checked+.image-filter .icon-checkbox {
+  background-color: rgba(var(--colors-text-link));
+  opacity: 1;
+}
+.input-image-filter:checked+.image-filter .icon-tick {
+  display: inline-block;
+}
+.input-image-filter:checked {
+  color: rgb(var(--colors-text-secondary));
+  background: rgba(var(--colors-background-secondary));
+}
+.filter-advanced-1 .input-image-filter:checked+.image-filter {
+  width: 100%;
+}
+.filter-advanced-1 .filter-not-image .input-image-filter:checked ~ .filter-label::after {
+  content: "";
+  color: rgb(var(--colors-text-secondary));
+  background: rgba(var(--colors-background-secondary));
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  right: 0px;
+  bottom: 0px;
+  z-index: -10;
+  width: 100%;
+}
+.filter-advanced .filter-not-image input[type="checkbox"]:checked ~ span {
+  color: rgba(var(--colors-heading-secondary));
+  z-index: 1;
+}
+.filter-advanced-2 h1, 
+.filter-advanced-2 .h1, 
+.filter-advanced-2 h2, 
+.filter-advanced-2 .h2, 
+.filter-advanced-2 h3, 
+.filter-advanced-2 .h3, 
+.filter-advanced-2 h4, 
+.filter-advanced-2 .h4, 
+.filter-advanced-2 h5,  
+.filter-advanced-2 .h5,  
+.filter-advanced-2 h6, 
+.filter-advanced-2 .h6,
+.input-image-filter:checked+.image-filter h1, 
+.input-image-filter:checked+.image-filter .h1, 
+.input-image-filter:checked+.image-filter h2, 
+.input-image-filter:checked+.image-filter .h2, 
+.input-image-filter:checked+.image-filter h3, 
+.input-image-filter:checked+.image-filter .h3, 
+.input-image-filter:checked+.image-filter h4, 
+.input-image-filter:checked+.image-filter .h4, 
+.input-image-filter:checked+.image-filter h5,  
+.input-image-filter:checked+.image-filter .h5,  
+.input-image-filter:checked+.image-filter h6, 
+.input-image-filter:checked+.image-filter .h6,
+.input-image-filter:checked h1, 
+.input-image-filter:checked .h1, 
+.input-image-filter:checked h2, 
+.input-image-filter:checked .h2, 
+.input-image-filter:checked h3, 
+.input-image-filter:checked .h3, 
+.input-image-filter:checked h4, 
+.input-image-filter:checked .h4, 
+.input-image-filter:checked h5,  
+.input-image-filter:checked .h5,  
+.input-image-filter:checked h6, 
+.input-image-filter:checked .h6,
+.filter-advanced-1 .filter-not-image .input-image-filter:checked ~ .filter-label::after h1, 
+.filter-advanced-1 .filter-not-image .input-image-filter:checked ~ .filter-label::after .h1, 
+.filter-advanced-1 .filter-not-image .input-image-filter:checked ~ .filter-label::after h2, 
+.filter-advanced-1 .filter-not-image .input-image-filter:checked ~ .filter-label::after .h2, 
+.filter-advanced-1 .filter-not-image .input-image-filter:checked ~ .filter-label::after h3, 
+.filter-advanced-1 .filter-not-image .input-image-filter:checked ~ .filter-label::after .h3, 
+.filter-advanced-1 .filter-not-image .input-image-filter:checked ~ .filter-label::after h4, 
+.filter-advanced-1 .filter-not-image .input-image-filter:checked ~ .filter-label::after .h4, 
+.filter-advanced-1 .filter-not-image .input-image-filter:checked ~ .filter-label::after h5,  
+.filter-advanced-1 .filter-not-image .input-image-filter:checked ~ .filter-label::after .h5,  
+.filter-advanced-1 .filter-not-image .input-image-filter:checked ~ .filter-label::after h6, 
+.filter-advanced-1 .filter-not-image .input-image-filter:checked ~ .filter-label::after .h6 {
+  color: rgba(var(--colors-heading-secondary));
+}
+.choose-options-mobile button.filter-advanced-1 .filter-not-image .input-image-filter:checked ~ .filter-label::after {
+  display: none;
+}
+@media (min-width: 768px) {
+  .filter-advanced-2 .image-filter {
+    padding: 0px;
+  }
+  .filter-advanced-2 { 
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+  }
+  .filter-advanced-2.contain-image {
+    padding-top: 1.25rem;
+    padding-bottom: 1.25rem;
+  }
+}

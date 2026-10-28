@@ -1,0 +1,29 @@
+@layer components {
+    .position--top-left {
+        @apply items-start justify-start;
+    }
+    .position--top-center {
+        @apply items-start justify-center;
+    }
+    .position--top-right {
+        @apply items-start justify-end;
+    }
+    .position--center-left {
+        @apply items-center justify-start;
+    }
+    .position--center {
+        @apply items-center justify-center;
+    }
+    .position--center-right {
+        @apply items-center justify-end;
+    }
+    .position--bottom-left {
+        @apply items-end justify-start;
+    }
+    .position--bottom-center {
+        @apply items-end justify-center;
+    }
+    .position--bottom-right {
+        @apply items-end justify-end;
+    }
+}

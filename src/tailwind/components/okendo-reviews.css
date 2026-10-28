@@ -1,0 +1,72 @@
+div[id^="shopify-block-okendo"] {
+    @apply w-full
+}
+div[id^="shopify-block-okendo_reviews"] .oke-largeBadge-count {
+    @apply left-0
+}
+.oke-largeBadge-stars, .oke-smallBadge-stars,
+.oke-minimalBadge-stars, .oke-w-ratingAverageModule-rating-stars {
+    @apply ltr
+}
+.oke-w-recommendsModule {
+    @apply flex items-center
+}
+.rtl .oke-w-header-content-block {
+    @apply mr-0 ml-12
+}
+.rtl .okeReviews[data-oke-container].oke-w .oke-is-large .oke-w-controls-nav .oke-poweredBy,
+.rtl .okeReviews[data-oke-container].oke-w .oke-is-medium .oke-w-controls-nav .oke-poweredBy,
+.rtl div.okeReviews.oke-w .oke-is-large .oke-w-controls-nav .oke-poweredBy,
+.rtl div.okeReviews.oke-w .oke-is-medium .oke-w-controls-nav .oke-poweredBy {
+    @apply mx-auto mb-3
+}
+.rtl .okeReviews[data-oke-container] .oke-w-reviews-writeReview,
+.rtl div.okeReviews .oke-w-reviews-writeReview {
+    @apply mr-auto ml-0;
+}
+.rtl .oke-sortSelect-label {
+    @apply mr-0 ml-4;
+}
+.rtl .okeReviews[data-oke-container] .oke-select,
+.rtl div.okeReviews .oke-select {
+    @apply bg-left pr-3 pl-6
+}
+.rtl .okeReviews[data-oke-container] .oke-is-large .oke-w-review-side,
+.rtl .okeReviews[data-oke-container] .oke-is-medium .oke-w-review-side,
+.rtl div.okeReviews .oke-is-large .oke-w-review-side,
+.rtl div.okeReviews .oke-is-medium .oke-w-review-side {
+    @apply mr-0 ml-6;
+}
+.rtl .okeReviews[data-oke-container] .oke-w-reviews-list,
+.rtl div.okeReviews .oke-w-reviews-list {
+    @apply text-right;
+}
+.rtl .okeReviews[data-oke-container] .oke-helpful-vote,
+.rtl div.okeReviews .oke-helpful-vote {
+    @apply mr-4 ml-0;
+}
+.rtl .oke-product-thumbnail {
+    @apply ml-4 mr-0
+}
+.rtl .okeReviews[data-oke-container] .oke-w-reviewerRecommendation--yes:before,
+.rtl div.okeReviews .oke-w-reviewerRecommendation--yes:before {
+    @apply ml-1 mr-0
+}
+.rtl .okeReviews[data-oke-container] .oke-w-reviewer-avatar,
+.rtl div.okeReviews .oke-w-reviewer-avatar {
+    @apply mr-0 ml-2 lg:ml-4
+}
+.rtl .oke-w-recommendsModule-text,
+.rtl .oke-w-recommendsModule-value {
+    @apply mr-0 ml-2
+}
+.rtl .oke-w-ratingAverageModule-rating-average {
+    @apply mr-0 ml-2
+}
+.rtl .oke-w-header-content {
+    @apply mr-0 -ml-12;
+}
+.rtl .okeReviews[data-oke-container] .oke-w-breakdownModule-distribution-label-number,
+.rtl div.okeReviews .oke-w-breakdownModule-distribution-label-number {
+    @apply mr-0 ml-1
+}

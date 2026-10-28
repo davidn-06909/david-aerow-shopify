@@ -1,0 +1,12 @@
+@layer components {
+    .scrollbar::-webkit-scrollbar {
+        @apply border-0 w-1 md:w-2 rounded-xl h-1 md:h-2;
+    }
+    .scrollbar::-webkit-scrollbar-thumb {
+        @apply bg-[rgba(var(--colors-text))] rounded-xl;
+    }
+    .scrollbar {
+        scrollbar-color: rgba(var(--colors-text)) transparent;
+        scrollbar-width: thin;
+    }
+}

@@ -1,0 +1,447 @@
+{%- liquid
+  assign heading_size = block.settings.heading_size | times: settings.heading_base_size | times: 0.000225
+
+  if block.settings.layout_mobile == 'flex'
+    assign options_classes_mobile = 'flex flex-wrap'
+  else
+    assign options_classes_mobile = 'grid grid-cols-' | append: block.settings.layout_mobile
+  endif
+
+  if block.settings.layout_desktop == 'flex'
+    assign options_classes_desktop = 'md:flex md:flex-wrap'
+  else
+    assign options_classes_desktop = 'md:grid md:grid-cols-' | append: block.settings.layout_desktop
+  endif
+
+  assign text_alignment = block.settings.text_alignment
+
+  if text_alignment == 'left'
+    assign item_alignment = 'start'
+    assign rtl_alignment = 'right'
+  elsif text_alignment == 'right'
+    assign item_alignment = 'end'
+    assign rtl_alignment = 'left'
+  else
+    assign rtl_alignment = 'center'
+    assign item_alignment = 'center'
+  endif
+-%}
+{%- style -%}
+  .quiz-question-{{ block.id }} {
+    {% if block.settings.heading_color_light.alpha != 0.0 %}
+      --colors-heading: {{ block.settings.heading_color_light.red }},{{ block.settings.heading_color_light.green }},{{ block.settings.heading_color_light.blue }};
+    {% else %}
+      --colors-heading: {{ settings.colors_heading.red }},{{ settings.colors_heading.green }},{{ settings.colors_heading.blue }};
+    {% endif %}
+    {% if block.settings.text_color_light.alpha != 0.0 %}
+      --colors-text: {{ block.settings.text_color_light.red }},{{ block.settings.text_color_light.green }},{{ block.settings.text_color_light.blue }};
+    {% else %}
+      --colors-text: {{ settings.colors_text.red }}, {{ settings.colors_text.green }}, {{ settings.colors_text.blue }};
+    {% endif %}
+    {% if block.settings.border_color_light.alpha != 0.0 %}
+      --colors-line-and-border: {{ block.settings.border_color_light.red }},{{ block.settings.border_color_light.green }},{{ block.settings.border_color_light.blue }};
+    {% endif %}
+  }
+  .dark .quiz-question-{{ block.id }} {
+    {% if block.settings.heading_color_dark.alpha != 0.0 %}
+      --colors-heading: {{ block.settings.heading_color_dark.red }},{{ block.settings.heading_color_dark.green }},{{ block.settings.heading_color_dark.blue }};
+    {% else %}
+      --colors-heading: {{ settings.colors_dark_heading.red }},{{ settings.colors_dark_heading.green }},{{ settings.colors_dark_heading.blue }};
+    {% endif %}
+    {% if block.settings.text_color_dark.alpha != 0.0 %}
+      --colors-text: {{ block.settings.text_color_dark.red }},{{ block.settings.text_color_dark.green }},{{ block.settings.text_color_dark.blue }};
+    {% else %}
+      --colors-text: {{ settings.colors_dark_text.red }}, {{ settings.colors_dark_text.green }}, {{ settings.colors_dark_text.blue }};
+    {% endif %}
+    {% if block.settings.border_color_dark.alpha != 0.0 %}
+      --colors-line-and-border: {{ block.settings.border_color_dark.red }},{{ block.settings.border_color_dark.green }},{{ block.settings.border_color_dark.blue }};
+    {% else %}
+      --colors-line-and-border: {{ settings.colors_dark_line_and_borders.red }}, {{ settings.colors_dark_line_and_borders.green }}, {{ settings.colors_dark_line_and_borders.blue }};
+    {% endif %}
+  }
+  .quiz-question-{{ block.id }} .quiz-option__inner:not(.selected) {
+    {% if block.settings.option_color_light.alpha != 0.0 %}
+      background: {{ block.settings.option_color_light }};
+    {% else %}
+      background: transparent;
+    {% endif %}
+  }
+  .dark .quiz-question-{{ block.id }} .quiz-option__inner:not(.selected) {
+    {% if block.settings.option_color_dark.alpha != 0.0 %}
+      background: {{ block.settings.option_color_dark }};
+    {% else %}
+      background: transparent;
+    {% endif %}
+  }
+  .heading-{{ block.id }} {
+    font-size: {{ heading_size | times: 0.6 }}rem;
+  }
+  .quiz-question__header-{{ block.id }} {
+    text-align: {{ text_alignment }};
+  }
+  [dir="rtl"] .quiz-question__header-{{ block.id }} {
+    text-align: {{ rtl_alignment }};
+  }
+  .options-grid-{{ block.id }} .quiz-option__inner {
+    align-items: {{ item_alignment }};
+    text-align: {{ text_alignment }};
+  }
+  [dir="rtl"] .options-grid-{{ block.id }} .quiz-option__inner {
+    text-align: {{ rtl_alignment }};
+  }
+  .options-grid-{{ block.id }} {
+    row-gap: {{ block.settings.row_gap_mobile }}px;
+    column-gap: {{ block.settings.col_gap_mobile }}px;
+    {% if block.settings.heading_highlight_color_light.alpha != 0.0 %}
+      --color-highlight: {{ block.settings.heading_highlight_color_light }};
+    {% else %}
+      --color-highlight: rgb({{ settings.colors_heading_highlight.red }}, {{ settings.colors_heading_highlight.green }}, {{ settings.colors_heading_highlight.blue }});
+    {% endif %}
+  }
+  .dark .options-grid-{{ block.id }} {
+    {% if block.settings.heading_highlight_color_dark.alpha != 0.0 %}
+      --color-highlight: {{ block.settings.heading_highlight_color_dark }};
+    {% else %}
+      --color-highlight: rgb({{ settings.colors_dark_heading_highlight.red }}, {{ settings.colors_dark_heading_highlight.green }}, {{ settings.colors_dark_heading_highlight.blue }});
+    {% endif %}
+  }
+  {% if block.settings.layout_mobile == 'flex' %}
+    .options-grid-{{ block.id }} > .quiz-option {
+      width: fit-content;
+    }
+  {% endif %}
+  @media screen and (min-width: 768px) {
+    .heading-{{ block.id }} {
+      font-size: {{ heading_size }}rem;
+    }
+    .options-grid-{{ block.id }} {
+      row-gap: {{ block.settings.row_gap }}px;
+      column-gap: {{ block.settings.col_gap }}px;
+    }
+    {% if block.settings.layout_desktop == 'flex' %}
+      .options-grid-{{ block.id }} > .quiz-option {
+        width: fit-content;
+      }
+    {% else %}
+      .options-grid-{{ block.id }} > .quiz-option {
+        width: 100%;
+      }
+    {% endif %}
+  }
+{%- endstyle -%}
+<div
+  x-data="{ qId: '{{ block.id }}' }"
+  x-cloak
+  x-show="qId === currentQuestionId"
+  x-transition:enter="transition-opacity duration-500 ease-in-out delay-200"
+  x-transition:enter-start="opacity-0"
+  x-transition:enter-end="opacity-100"
+  x-transition:leave="!absolute inset-0 transition-opacity duration-200 ease-in-out"
+  x-transition:leave-start="opacity-100"
+  x-transition:leave-end="opacity-0"
+  data-block-id="{{ block.id }}"
+  data-block-type="question"
+  data-question-id="{{ block.settings.question_id | default: block.id }}"
+  data-question-type="{{ block.settings.question_type }}"
+  class="relative quiz-question quiz-question-{{ block.id }} flex flex-col w-full grow border-[rgb(var(--colors-line-and-border))]{% if section.settings.full_width_mobile %} pl-5 pr-5{% else %} pl-0 pr-0{% endif %}{% if section.settings.full_width %} md:pl-10 md:pr-10{% endif %} x-pgw page-width"
+  {{ block.shopify_attributes }}
+>
+  <div x-show="loading" :class="loading && 'anim-answer-loading'" class="absolute w-full h-full top-0 left-0 bg-[#c9c9c9] z-10"></div>
+  <div class="quiz-question__header quiz-question__header-{{ block.id }} mt-5 mb-5">
+    {%- if block.settings.title != blank -%}
+      <span id="question-heading-{{ block.id }}" class="hidden">{{ block.settings.title }}</span>
+      <div class="heading-{{ block.id }} text-[rgba(var(--colors-heading))]">
+        {% render 'heading-highlight',
+          headingId: block.id,
+          heading: block.settings.title,
+          highlight_type: block.settings.highlight_type,
+          color_heading_highlight_light: block.settings.heading_highlight_color_light,
+          color_heading_highlight_dark: block.settings.heading_highlight_color_dark,
+          class: 'h2 block leading-tight',
+          heading_tag: 'h3',
+          animation_heading: true,
+          run_on_intersect: true
+        %}
+      </div>
+    {%- endif -%}
+    {%- if block.settings.text != blank -%}
+      <div id="question-description-{{ block.id }}" class="rte mt-2 text-[rgb(var(--colors-text))]">
+        {{ block.settings.text }}
+      </div>
+    {%- endif -%}
+  </div>
+  <div class="flex h-0 grow items-center">
+    <div class="options-grid-{{ block.id }} w-full h-fit max-h-full overflow-y-auto scrollbar-body {{ options_classes_mobile }} {{ options_classes_desktop }} pl-1 pr-1">
+      {% content_for 'blocks' %}
+    </div>
+  </div>
+</div>
+{% schema %}
+{
+  "name": "t:sections.question_and_answer.blocks.frequently_asked_question.settings.heading.label",
+  "class": "quiz-block",
+  "tag": null,
+  "blocks": [
+    {
+      "type": "_option"
+    }
+  ],
+  "settings": [
+    {
+      "type": "text",
+      "id": "question_id",
+      "label": "t:sections.quiz.blocks.question.settings.question_id.label",
+      "info": "t:sections.quiz.blocks.question.settings.question_id.info"
+    },
+    {
+      "type": "select",
+      "id": "question_type",
+      "label": "t:sections.featured-product.blocks.variant_picker.settings.picker_type.label",
+      "options": [
+        {
+          "label": "t:sections.quiz.blocks.question.settings.question_type.options.single",
+          "value": "single"
+        },
+        {
+          "label": "t:sections.quiz.blocks.question.settings.question_type.options.multi",
+          "value": "multi"
+        }
+      ],
+      "default": "single"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "default": "Question?",
+      "label": "t:sections.all.text.heading",
+      "info": "t:settings_schema.typography.settings.heading_highlight_type.info"
+    },
+    {
+      "type": "select",
+      "id": "highlight_type",
+      "default": "underline",
+      "label": "t:settings_schema.typography.settings.heading_highlight_type.label",
+      "options": [
+        {
+          "value": "underline",
+          "label": "t:settings_schema.typography.settings.heading_highlight_type.option__1.label"
+        },
+        {
+          "value": "font_highlight",
+          "label": "t:settings_schema.typography.settings.heading_highlight_type.option__3.label"
+        }
+      ]
+    },
+    {
+      "type": "range",
+      "id": "heading_size",
+      "min": 50,
+      "max": 200,
+      "step": 10,
+      "unit": "%",
+      "label": "t:sections.all.text.heading_size",
+      "default": 100
+    },
+    {
+      "type": "select",
+      "id": "text_alignment",
+      "default": "left",
+      "label": "t:sections.testimonials.text_alignment.label",
+      "options": [
+        {
+          "value": "left",
+          "label": "t:sections.all.content_alignment.options__1.label"
+        },
+        {
+          "value": "center",
+          "label": "t:sections.all.content_alignment.options__2.label"
+        },
+        {
+          "value": "right",
+          "label": "t:sections.all.content_alignment.options__3.label"
+        }
+      ]
+    },
+    {
+      "type": "richtext",
+      "id": "text",
+      "label": "t:settings_schema.seo.business_description.label",
+      "default": "<p>Describe the question or provide instructions for answering it.</p>"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.all.padding.section_padding_heading"
+    },
+    {
+      "type": "select",
+      "id": "layout_desktop",
+      "label": "t:sections.promotion-grid.blocks.promotion.settings.header.content",
+      "default": "2",
+      "options": [
+        {
+          "label": "t:sections.collection-list-banner.settings.flex_layout.label",
+          "value": "flex"
+        },
+        {
+          "label": "t:sections.collection-list.settings.columns_desktop.options__1.label",
+          "value": "1"
+        },
+        {
+          "label": "t:settings_schema.search_navigation.settings.search_style.options__2",
+          "value": "2"
+        },
+        {
+          "label": "t:sections.collection-list.settings.columns_desktop.options__3.label",
+          "value": "3"
+        },
+        {
+          "label": "t:sections.collection-list.settings.columns_desktop.options__4.label",
+          "value": "4"
+        }
+      ]
+    },
+    {
+      "type": "range",
+      "id": "row_gap",
+      "min": 0,
+      "max": 100,
+      "unit": "px",
+      "step": 1,
+      "default": 28,
+      "label": "t:sections.quiz.blocks.question.settings.row_gap.label"
+    },
+    {
+      "type": "range",
+      "id": "col_gap",
+      "min": 0,
+      "max": 100,
+      "unit": "px",
+      "step": 1,
+      "default": 28,
+      "label": "t:sections.quiz.blocks.question.settings.col_gap.label"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.all.padding.section_layout_mobile"
+    },
+    {
+      "type": "select",
+      "id": "layout_mobile",
+      "label": "t:sections.promotion-grid.blocks.promotion.settings.header.content",
+      "default": "1",
+      "options": [
+        {
+          "label": "t:sections.collection-list-banner.settings.flex_layout.label",
+          "value": "flex"
+        },
+        {
+          "label": "t:sections.multicolumn.settings.line_border.options__2.label",
+          "value": "1"
+        }
+      ]
+    },
+    {
+      "type": "range",
+      "id": "row_gap_mobile",
+      "min": 0,
+      "max": 100,
+      "unit": "px",
+      "step": 1,
+      "default": 16,
+      "label": "t:sections.quiz.blocks.question.settings.row_gap.label"
+    },
+    {
+      "type": "range",
+      "id": "col_gap_mobile",
+      "min": 0,
+      "max": 100,
+      "unit": "px",
+      "step": 1,
+      "default": 16,
+      "label": "t:sections.quiz.blocks.question.settings.col_gap.label"
+    },
+    {
+      "type": "header",
+      "content": "t:settings_schema.colors.name"
+    },
+    {
+      "type": "color",
+      "id": "heading_color_light",
+      "default": "rgba(0,0,0,0)",
+      "label": "t:sections.all.text.color_heading_light"
+    },
+    {
+      "type": "color",
+      "id": "heading_highlight_color_light",
+      "default": "rgba(0,0,0,0)",
+      "label": "t:sections.all.text.color_heading_highlight_light"
+    },
+    {
+      "type": "color",
+      "id": "text_color_light",
+      "default": "rgba(0,0,0,0)",
+      "label": "t:sections.all.text.color"
+    },
+    {
+      "type": "color",
+      "id": "border_color_light",
+      "default": "rgba(0,0,0,0)",
+      "label": "t:sections.all.text.line_border"
+    },
+    {
+      "type": "color",
+      "id": "option_color_light",
+      "default": "rgba(0,0,0,0)",
+      "label": "t:sections.quiz.blocks.question.settings.option_color_light.label"
+    },
+    {
+      "type": "color",
+      "id": "heading_color_dark",
+      "default": "rgba(0,0,0,0)",
+      "label": "t:sections.all.text.color_heading_dark",
+      "visible_if": "{{ settings.theme_mode_enabled }}"
+    },
+    {
+      "type": "color",
+      "id": "heading_highlight_color_dark",
+      "default": "rgba(0,0,0,0)",
+      "label": "t:sections.all.text.color_heading_highlight_dark",
+      "visible_if": "{{ settings.theme_mode_enabled }}"
+    },
+    {
+      "type": "color",
+      "id": "text_color_dark",
+      "default": "rgba(0,0,0,0)",
+      "label": "t:sections.all.text.color_dark",
+      "visible_if": "{{ settings.theme_mode_enabled }}"
+    },
+    {
+      "type": "color",
+      "id": "border_color_dark",
+      "default": "rgba(0,0,0,0)",
+      "label": "t:sections.all.text.line_border_dark",
+      "visible_if": "{{ settings.theme_mode_enabled }}"
+    },
+    {
+      "type": "color",
+      "id": "option_color_dark",
+      "default": "rgba(0,0,0,0)",
+      "label": "t:sections.quiz.blocks.question.settings.option_color_dark.label",
+      "visible_if": "{{ settings.theme_mode_enabled }}"
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.question_and_answer.blocks.frequently_asked_question.settings.heading.label",
+      "blocks": [
+        {
+          "type": "_option"
+        },
+        {
+          "type": "_option"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

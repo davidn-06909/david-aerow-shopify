@@ -1,0 +1,195 @@
+{% doc %}
+  Renders a custom dropdown (combobox) for the product sibling option: every choice shows its
+  option value next to a colour circle. A hidden native `select` still holds the value and carries
+  the sibling product urls, so `xProductSibling.changeSelectOption` keeps driving the swap.
+
+  The circle background is resolved, in order, from the sibling product featured image (when
+  `settings.replace_color_with_variant_images` is on), the custom mapping in
+  `settings.color_option_values` (single colour, 2/3-colour gradient or uploaded image), then the
+  option value itself used as a CSS colour name — the same priority as the sibling swatch buttons.
+
+  @param {object} product - Current product object, used to mark the selected sibling.
+  @param {object} block - Product sibling block.
+  @param {object} collection - Sibling collection holding the related products.
+  @param {string} option_metafield_key - Metafield key (`namespace.key`) holding the option value.
+  @param {string} option_name - Label of the sibling option, used for the accessible name.
+
+@example
+{% render 'product-sibling-color-dropdown',
+  product: product,
+  block: block,
+  collection: collection,
+  option_metafield_key: option_metafield_key,
+  option_name: option_name
+%}
+{% enddoc %}
+{%- liquid
+  assign select_id = 'Option-' | append: block.id
+  assign list_id = 'SiblingColorDropdown-' | append: block.id
+
+  assign option_value_metafield = option_metafield_key | split: '.'
+  assign color_option_values = settings.color_option_values | newline_to_br | strip_newlines | split: '<br />'
+
+  assign sibling_values = ''
+  assign sibling_urls = ''
+  assign swatch_backgrounds = ''
+  assign selected_index = 0
+  assign value_index = 0
+
+  paginate collection.products by 250
+    for prod in collection.products
+      assign value = blank
+      if prod.metafields[option_value_metafield.first][option_value_metafield.last] != blank
+        assign value = prod.metafields[option_value_metafield.first][option_value_metafield.last].value
+      endif
+
+      if value == blank
+        continue
+      endif
+
+      assign color_custom = ''
+      assign color_value = ''
+      assign multi_colors = blank
+      assign swatch_image = false
+
+      if settings.color_option_values contains value
+        for color_option_value in color_option_values reversed
+          if color_option_value contains value
+            assign color_option_key_value = color_option_value | split: ':'
+            assign color_option_key = color_option_key_value | first
+
+            if value == color_option_key
+              assign color_custom = color_option_key
+              assign color_value = color_option_key_value | last | strip
+
+              if color_value contains '.'
+                assign swatch_image = true
+              endif
+
+              assign multi_colors = color_value | remove_first: '#' | split: '#'
+              break
+            endif
+          endif
+        endfor
+      endif
+
+      assign swatch_bg = ''
+      if settings.replace_color_with_variant_images and prod.featured_media
+        assign preview_image = prod.featured_media | image_url: width: 100, height: 100
+        assign swatch_bg = preview_image | prepend: 'url(' | append: ') center / cover no-repeat'
+      elsif color_custom != '' and swatch_image
+        assign swatch_bg = color_value | file_img_url: '100x100' | prepend: 'url(' | append: ') center / cover no-repeat'
+      elsif color_custom != '' and multi_colors.size == 3
+        assign color_1 = multi_colors[0] | prepend: '#'
+        assign color_2 = multi_colors[1] | prepend: '#'
+        assign color_3 = multi_colors[2] | prepend: '#'
+        assign swatch_bg = 'linear-gradient(45deg, ' | append: color_1 | append: ', ' | append: color_1 | append: ' 33.3%, ' | append: color_2 | append: ' 33.3%, ' | append: color_2 | append: ' 66.6%, ' | append: color_3 | append: ' 66.6%, ' | append: color_3 | append: ')'
+      elsif color_custom != '' and multi_colors.size == 2
+        assign color_1 = multi_colors[0] | prepend: '#'
+        assign color_2 = multi_colors[1] | prepend: '#'
+        assign swatch_bg = 'linear-gradient(45deg, ' | append: color_1 | append: ', ' | append: color_1 | append: ' 50%, ' | append: color_2 | append: ' 50%, ' | append: color_2 | append: ')'
+      elsif color_custom != ''
+        assign swatch_bg = color_value
+      else
+        assign swatch_bg = value | split: ' ' | last | handle
+      endif
+
+      assign sibling_values = sibling_values | append: value | append: '||'
+      assign sibling_urls = sibling_urls | append: prod.url | append: '||'
+      assign swatch_backgrounds = swatch_backgrounds | append: swatch_bg | append: '||'
+
+      if product.id == prod.id
+        assign selected_index = value_index
+      endif
+
+      assign value_index = value_index | plus: 1
+    endfor
+  endpaginate
+
+  assign sibling_values = sibling_values | split: '||'
+  assign sibling_urls = sibling_urls | split: '||'
+  assign swatch_backgrounds = swatch_backgrounds | split: '||'
+-%}
+<div
+  class="select relative outline-none eurus w-full text-left rtl:text-right"
+  x-data="xVariantColorDropdown('{{ select_id }}')"
+  @keydown.escape="close()"
+  @scroll.window="close(false)"
+>
+  <select
+    id="{{ select_id }}"
+    class="hidden"
+    name="{{ block.id }}-{{ option_name }}"
+    aria-label="{{ option_name }}"
+    @change="changeSelectOption($event)"
+  >
+    {%- for value in sibling_values -%}
+      <option
+        value="{{ value | escape | replace: '&lt;', '\u003c' | replace: '&gt;', '\u003e' }}"
+        data-product-url="{{ sibling_urls[forloop.index0] }}"
+        {%- if forloop.index0 == selected_index %} selected="selected"{% endif %}
+      >
+        {{- value | escape -}}
+      </option>
+    {%- endfor -%}
+  </select>
+  <div
+    id="SiblingColorDropdownTrigger-{{ block.id }}"
+    x-ref="trigger"
+    role="combobox"
+    tabindex="0"
+    aria-haspopup="listbox"
+    aria-controls="{{ list_id }}"
+    aria-label="{{ option_name }}"
+    :aria-expanded="open ? 'true' : 'false'"
+    class="product-form__input w-full flex items-center gap-x-2.5 pt-2.5 pb-2.5 pl-5 pr-8 rtl:pr-5 rtl:pl-8 mt-2 mb-2 bg-transparent border border-solid outline-none focus:border-current focus-visible:outline-none cursor-pointer{% if settings.edges_type == 'rounded_corners' %} rounded-md{% endif %}"
+    :class="open && 'border-current'"
+    @click="toggle()"
+    @keydown.arrow-down.prevent="open ? move(1) : toggle()"
+    @keydown.arrow-up.prevent="open ? move(-1) : toggle()"
+    @keydown.enter.prevent="open ? select(activeIndex) : toggle()"
+    @keydown.space.prevent="open ? select(activeIndex) : toggle()"
+  >
+    {%- for value in sibling_values -%}
+      <span {% unless forloop.index0 == selected_index %}x-cloak {% endunless %}x-show="selectedIndex === {{ forloop.index0 }}" class="relative flex items-center gap-x-2.5">
+        <span class="w-5 shrink-0"></span>
+        <span class="w-5 h-5 absolute left-0 rtl:left-auto rtl:right-0 top-1/2 -translate-y-1/2 border rounded-full" style="background: {{ swatch_backgrounds[forloop.index0] }};"></span>
+        <span class="p-break-words text-[rgba(var(--colors-text))]">{{ value | escape }}</span>
+      </span>
+    {%- endfor -%}
+  </div>
+  <div x-cloak x-show="open" @click="close(false)" class="fixed inset-0 z-10 cursor-default"></div>
+  <ul
+    id="{{ list_id }}"
+    x-ref="list"
+    x-cloak
+    x-show="open"
+    role="listbox"
+    aria-label="{{ option_name }}"
+    class="absolute left-0 rtl:left-auto rtl:right-0 w-full z-20 max-h-[50vh] overflow-y-auto border border-solid border-current shadow-md bg-[rgba(var(--background-color),1)]{% if settings.edges_type == 'rounded_corners' %} rounded-md{% endif %}"
+    :class="(dropUp ? 'bottom-full mb-1' : 'top-full mt-1') + (placed ? '' : ' invisible')"
+    style="overscroll-behavior: contain;"
+  >
+    {%- for value in sibling_values -%}
+      <li
+        id="{{ list_id }}-{{ forloop.index0 }}"
+        role="option"
+        :aria-selected="selectedIndex === {{ forloop.index0 }} ? 'true' : 'false'"
+        class="flex items-center gap-x-2.5 pt-2 pb-2 pl-5 pr-5 cursor-pointer select-none"
+        :class="activeIndex === {{ forloop.index0 }} && 'bg-[rgba(var(--colors-text),0.2)]'"
+        @click="select({{ forloop.index0 }})"
+        @mouseenter="activeIndex = {{ forloop.index0 }}"
+      >
+        <span
+          class="w-5 h-5 shrink-0 border rounded-full"
+          style="background: {{ swatch_backgrounds[forloop.index0] }};"
+        ></span>
+        <span class="p-break-words text-[rgba(var(--colors-text))]">{{ value | escape }}</span>
+      </li>
+    {%- endfor -%}
+  </ul>
+  <span class="absolute top-1/2 right-4 rtl:right-auto rtl:left-4 -translate-y-1/2 w-2.5 inline-block pointer-events-none duration-300">
+    {% render 'icon-alls', icon: 'icon-caret' %}
+  </span>
+</div>
+<script src="{{ 'variant-color-dropdown.js' | asset_url }}" defer></script>

@@ -1,0 +1,34 @@
+{% doc %}
+  Loads Shopify's standard storefront events library and registers <s-view-event>.
+
+  Render once in <head>, after standard-actions-configure.
+
+  Publishes: window.StandardEventsReady (Promise<library|null>), window.StandardEvents,
+  eurus:standard-events:ready (document event, same value in detail).
+
+  @example
+  {% render 'standard-events-load' %}
+{% enddoc %}
+<link rel="modulepreload" href="https://cdn.shopify.com/storefront/standard-events.js" crossorigin>
+<style>
+  s-view-event { display: none; }
+</style>
+<script>
+  window.StandardEventsReady = import('https://cdn.shopify.com/storefront/standard-events.js')
+    .catch((error) => {
+      console.warn('[Eurus] Standard storefront events library failed to load.', error);
+      return null;
+    })
+    .then((library) => {
+      window.StandardEvents = library;
+      if (library && library.createViewEventElement && !customElements.get('s-view-event')) {
+        try {
+          customElements.define('s-view-event', library.createViewEventElement());
+        } catch (error) {
+          console.warn('[Eurus] Could not register <s-view-event>.', error);
+        }
+      }
+      document.dispatchEvent(new CustomEvent('eurus:standard-events:ready', { detail: library }));
+      return library;
+    });
+</script>

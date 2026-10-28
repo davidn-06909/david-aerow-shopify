@@ -1,0 +1,162 @@
+{% if request.design_mode %}
+  {% style %}
+    #eurus-new-update-popup .icon-close-animation {
+      width: 12px;
+      height: 12px;
+    }
+
+    #eurus-new-update-popup .icon-close-container {
+      padding: 10px;
+      background-color: rgba(69, 70, 69, 0.3);
+      color: rgba(69, 70, 69, 1);
+    }
+    #eurus-new-update-popup {
+      background-color: #F3F6EF;
+      color: #454645;
+      --color-success: 96, 107, 87;
+    }
+    .dark #eurus-new-update-popup .icon-close-container {
+      background-color: rgba(225, 227, 225, 0.3);
+      color: rgba(225, 227, 225, 1);
+    }
+    .dark #eurus-new-update-popup {
+      background-color: #2F302F;
+      color: #E1E3E1;
+      --color-success: 145, 180, 116;
+    }
+  {% endstyle %}
+  <div
+    id="eurus-new-update-popup"
+    x-data="{show: false, isTrial: true}"
+    x-init="() => {
+      const savedVersion = localStorage.getItem('eurusCurrentVersion');
+      if (savedVersion === null || savedVersion !== Shopify.theme.schema_version) {
+        document.querySelectorAll('.section-promotion-popup, .popup-minimal, .promo-popup').forEach(el => {
+          el.style.display = 'none';
+        });
+        const agePopups = document.getElementsByClassName('section-age-verification-popup');
+        if (agePopups.length > 0) {
+          window.requestAnimationFrame(() => {
+            document.body.classList.remove('overflow-hidden');
+          })
+          agePopups.forEach(el => {
+            el.style.display = 'none';
+          });
+        }
+        setTimeout(() => { show = true; }, 500);
+      }   
+      if (Shopify.theme.role !== 'demo') {
+        isTrial = false;
+        if (localStorage.getItem('timesLimitPopupAppear') === null) {
+          localStorage.setItem('timesLimitPopupAppear', 2);
+        }
+      } else {
+        localStorage.removeItem('timesLimitPopupAppear');
+      } 
+      const timesLimit= localStorage.getItem('timesLimitPopupAppear');
+      if( timesLimit=== null || Number(timesLimit) > 0) {
+        const closedAt = Number(localStorage.getItem('eurusPopupClosedAt'));
+        const now = Date.now();
+        const timeDelay = 7 * 24 * 60 * 60 * 1000;
+        if (!closedAt || (now - closedAt) > timeDelay) {
+          show = true
+        }
+      }
+    }"
+
+    x-cloak
+    x-show="show"
+    x-transition:enter="transition-all ease-in-out duration-500"
+    x-transition:enter-start="opacity-0 transform translate-y-1/3 md:translate-y-0 md:translate-x-1/3"
+    x-transition:enter-end="opacity-100 transform translate-y-0 md:translate-x-0"
+    x-transition:leave="transition-all ease-in-out duration-500"
+    x-transition:leave-end="opacity-0 transform translate-y-1/3 md:translate-y-0 md:translate-x-1/3"
+    class="z-[9999] md:promotion-alignment--bottom-right w-fit h-fit rounded-[10px] hidden md:block fixed"
+  >
+    <div>
+      <button
+        aria-label="{{ 'accessibility.close' | t }}"
+        class="icon-close-container w-fit rounded-full group-close-btn absolute right-2 rtl:left-2 rtl:right-auto top-2 cursor-pointer"
+        @click.prevent="
+          () => {
+            localStorage.setItem('eurusCurrentVersion', Shopify.theme.schema_version);
+            localStorage.setItem('eurusPopupClosedAt', Date.now());
+            if (!isTrial) {
+              localStorage.setItem('timesLimitPopupAppear', localStorage.getItem('timesLimitPopupAppear') - 1);
+            };
+            document.querySelectorAll('.section-promotion-popup, .popup-minimal').forEach(el => {
+              el.style.display = 'block';
+            });
+            const agePopups = document.getElementsByClassName('section-age-verification-popup');
+            if (agePopups.length > 0) {
+              window.requestAnimationFrame(() => {
+                document.body.classList.add('overflow-hidden');
+              })
+              agePopups.forEach(el => {
+                el.style.display = 'block';
+              });
+            }
+            show = false;
+          }
+        "
+      >
+        {% render 'icon-alls', icon: 'icon-close', animation_class: 'icon-close-animation' %}
+      </button>
+      <div class="flex rounded-[10px]">
+        <div style="width: 265px; height: 265px;" x-show="isTrial">
+          <img
+            class="w-full h-full animate-Xpulse skeleton-image"
+            srcset="https://cdn.shopify.com/s/files/1/0851/0475/5006/files/IMPORTANT-NEVER_DELETE.png?v=1767751609&width=300 300w,
+            https://cdn.shopify.com/s/files/1/0851/0475/5006/files/IMPORTANT-NEVER_DELETE.png?v=1767751609&width=450 450w,
+            https://cdn.shopify.com/s/files/1/0851/0475/5006/files/IMPORTANT-NEVER_DELETE.png?v=1767751609&width=750 750w,
+            https://cdn.shopify.com/s/files/1/0851/0475/5006/files/IMPORTANT-NEVER_DELETE.png?v=1767751609&width=900 900w,
+            https://cdn.shopify.com/s/files/1/0851/0475/5006/files/IMPORTANT-NEVER_DELETE.png?v=1767751609&width=1100 1100w,
+            https://cdn.shopify.com/s/files/1/0851/0475/5006/files/IMPORTANT-NEVER_DELETE.png?v=1767751609&width=1500 1500w"
+            src="https://cdn.shopify.com/s/files/1/0851/0475/5006/files/IMPORTANT-NEVER_DELETE.png?v=1767751609&width=1500"
+            loading="lazy"
+            onload="requestAnimationFrame(() => { this.closest('.skeleton-image')?.classList.remove('animate-Xpulse', 'skeleton-image'); });"
+            sizes="(min-width: 1024px) 35vw, (min-width: 768px) 50vw, 100vw"
+            width="350"
+            height="350"
+            style="border-top-left-radius: 10px; border-bottom-left-radius: 10px;"
+          >
+        </div>
+        <div id="eurus-new-update-popup-content" class="flex flex-col justify-center pt-4 pb-4 pl-4 pr-4" style="font-size: 14px; width: 460px;">
+          <span class="mb-2 font-bold" style="font-size: 24px;">NEED HELP WITH EURUS?</span>
+          <div>
+            📘 <a href="https://support.omnithemes.com/blogs/themes/eurus-theme?utm_source=popup&utm_medium=in-theme" class="underline">User Guide</a> - Quick setup & usage instructions.
+          </div>
+          <div>
+            💬 <a href="https://omnithemes.com/contact/?product=eurus&utm_source=popup&utm_medium=in-theme" class="underline">Contact Support</a> - Get help from our support team.
+          </div>
+          <div x-show="isTrial">
+            🗃️ <a href="https://omnithemes.com/showcase/" class="underline">Inspiration hub</a> - Explore top stores using Eurus Theme
+          </div>          
+          <div x-show="isTrial">
+            🆓 <a href="https://omnithemes.com/theme-setup-design-consulting/" class="underline">Free theme setup & design</a> after purchasing theme
+          </div>
+          <div x-show="isTrial">
+            🆕 Recreate the Kylie Cosmetics look with Eurus. <a href="https://omnithemes.com/blog/ecommerce/how-to-design-a-shopify-store-like-kylie-cosmetics-using-eurus-theme/?utm_source=popup&utm_medium=in-theme" class="underline">See how!</a>
+          </div>
+          <div class="font-semibold" style="font-size: 16px; margin-top: 48px;">
+            <span>Note: this popup will not appear in your store.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endif %}
+<div id="eurus-popup" class="fixed duration-500 inset-0 z-[100] pointer-events-none md:block flex flex-col-reverse h-fit top-[unset] md:h-full md:top-0" x-cloak></div>
+{% liquid
+  assign position = settings.position_minimal
+  if settings.lang_direction contains request.locale.iso_code
+    if position == 'left'
+      assign position = 'right'
+    else
+      assign position = 'left'
+    endif
+  endif
+%}
+<div id="popup-minimal-{{ settings.position_minimal }}"
+  class="popup-minimal fixed z-50 bottom-4 md:bottom-8 {{ position }}-4 md:{{ position }}-8 pointer-events-auto {% if position == 'right' %}pl-4 md:pl-8 flex flex-col items-end{% else %}pr-4 md:pr-8{% endif %}"
+></div>

@@ -1,0 +1,49 @@
+{% doc %}
+  Renders the shared disclosure popup for a cart surface.
+  Content is filled at open time from the JSON payload of the clicked line item.
+  Only ever mounted once per page - the drawer is not injected on the cart page.
+
+  @example
+  {% render 'cart-disclosures-popup' %}
+{% enddoc %}
+
+<template x-teleport="body">
+  <div id="CartDisclosurePopup" x-show="$store.xProductDisclosure.show" x-cloak class="w-full h-full fixed top-0 left-0 z-[60] flex items-end md:items-center justify-center bg-[#acacac] bg-opacity-30">
+    <div
+      x-show="$store.xProductDisclosure.show"
+      @click.away="$store.xProductDisclosure.close();"
+      class="bg-[rgba(var(--background-color))] relative flex flex-col w-full h-fit gap-4 pt-4 pb-4 pl-4 pr-2 rtl:pl-2 rtl:pr-4 md:max-w-[50%] max-h-[70vh] md:max-h-[60dvh]{% if settings.edges_type == 'rounded_corners' %} rounded-t-[10px] md:rounded-[10px]{% endif %}"
+      x-transition:enter="transition-all ease-in-out duration-500"
+      x-transition:leave="transition-all ease-in-out duration-500"
+      x-transition:enter-start="opacity-0 transform translate-y-1/3"
+      x-transition:enter-end="opacity-100 transform translate-y-0"
+      x-transition:leave-end="opacity-0 transform translate-y-1/3"
+      x-intersect.full="$store.xProductDisclosure.trapFocus();"
+      @keyup.escape="$store.xProductDisclosure.close();"
+    >
+      <div class="flex justify-end items-center gap-4 pr-2 rtl:pl-2 rtl:pr-0">
+        {%- if settings.disclosures_heading != blank -%}
+          <h3 class="p-break-words flex-1 line-clamp-2 heading-text-base-h3">{{ settings.disclosures_heading }}</h3>
+        {%- endif -%}
+        <button id="CloseCartDisclosure" @click="$store.xProductDisclosure.close();" class="cursor-pointer icon-close-container w-fit rounded-full group-close-btn" aria-label="{{ 'accessibility.close' | t }}">
+          {%- render 'icon-alls', icon: 'icon-close', animation_class: 'icon-close-animation' -%}
+        </button>
+      </div>
+      <div class="overflow-y-auto scrollbar-body scrollbar-horizontal pr-2 rtl:pl-2 rtl:pr-0 h-full">
+        <template x-for="(disclosure, index) in $store.xProductDisclosure.items" :key="index">
+          <div class="w-full flex gap-2" :class="index > 0 && 'pt-4 mt-4 border-t'">
+            <template x-if="disclosure.symbol">
+              <span class="inline-block relative w-5 h-5 min-w-5 min-h-5 text-[rgb(var(--colors-text))]">
+                <img :src="disclosure.symbol" :alt="disclosure.symbol_alt" loading="lazy" width="20" height="20" class="w-full h-full">
+              </span>
+            </template>
+            <div class="w-full">
+              <p class="pr-6 rtl:pr-0 rtl:pl-6 font-medium p-break-words" x-text="disclosure.title"></p>
+              <div class="rte pt-2 pb-2" x-html="disclosure.content"></div>
+            </div>
+          </div>
+        </template>
+      </div>
+    </div>
+  </div>
+</template>

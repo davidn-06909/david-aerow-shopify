@@ -1,0 +1,20 @@
+
+.gpo-container .gpo-app {
+  padding-top: 10px;
+}
+.gpo-container .gpo-app .gpo-label {
+  margin-bottom: 12px;
+}
+.corners-app .gpo-app .gpo-input, 
+.corners-app .gpo-app .gpo-color-picker, 
+.corners-app .gpo-app .gpo-dropzone, 
+.corners-app .gpo-app .gpo-select select, 
+.corners-app .gpo-app .gpo-select select,
+.corners-app .gpo-app .gpo-swatches.buttons input + label {
+  border-radius: 6px;
+}
+.gpo-container .gpo-app .gpo-swatches.color-swatches input+label .top-color {
+  display: block;
+  width: 24px;
+  height: 24px;
+}

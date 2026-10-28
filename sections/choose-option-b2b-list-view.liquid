@@ -1,0 +1,355 @@
+<div id="choose-option-b2b-list-view">
+  <div id="choose-options-content">
+    {% style %}
+      .tooltip-quantity-price-breaks {
+        bottom: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        box-shadow: 0 10px 26px #00000038;
+        transition: .14s
+      }
+    {% endstyle %}
+    {% for variant in product.variants %}
+      {% liquid
+        assign cart_qty_variant = 0
+        for item in cart.items
+          if item.variant_id == variant.id
+            assign cart_qty_variant = cart_qty_variant | plus: item.quantity
+          endif
+        endfor
+        assign is_quantity_rule = false
+        if variant.quantity_rule.min > 1 and variant.quantity_rule.max != null and variant.quantity_rule.increment > 1
+          assign is_quantity_rule = true
+        endif
+        assign current_price = variant.price
+        assign active = -1
+        if cart_qty_variant > 1
+          assign active = 0
+        endif
+        if variant.quantity_price_breaks.size > 0
+          for price_break in variant.quantity_price_breaks
+            assign next_index = forloop.index
+            if variant.quantity_price_breaks[next_index] != blank
+              if cart_qty_variant >= price_break.minimum_quantity and cart_qty_variant < variant.quantity_price_breaks[next_index].minimum_quantity
+                assign current_price = price_break.price
+                assign active = forloop.index
+              endif
+            else
+              if cart_qty_variant >= price_break.minimum_quantity
+                assign current_price = price_break.price
+                assign active = forloop.index
+              endif
+            endif
+          endfor
+        endif
+        assign variant_available = variant.available
+        if cart_qty_variant >= variant.quantity_rule.max
+          assign variant_available = false
+        endif
+      %}
+      {% if variant.quantity_price_breaks.size > 0 %}
+        {% capture quantity_price_breaks %}
+          [
+            {% for price_break in variant.quantity_price_breaks %}
+              {
+                "minimum_quantity": {{ price_break.minimum_quantity | json }},
+                "price": {{ price_break.price | json }}
+              }{% unless forloop.last %},{% endunless %}
+            {% endfor %}
+          ]
+        {% endcapture %}
+      {% endif %}
+      <input type="hidden" aria-hidden="true" id="update-variant-{{ section.id }}-{{ variant.id }}" name="items[{{ forloop.index0 }}][id]" value="{{ variant.id }}">
+      <div 
+        id="x-product-template-{{ section.id }}-{{ variant.id }}"
+        x-data="{ zoomMediaVariant: false }"
+        class="card-product-body choose-options-content bg-[rgba(var(--colors-background))] flex items-center justify-items-center justify-stretch self-stretch gap-4 pt-2.5 pb-2.5 pl-5 md:pr-5 pr-2.5{% if settings.edges_type == 'rounded_corners' %} md:rounded-[10px]{% endif %} border-t border-solid md:border-none"
+      > 
+        {% liquid
+          assign featured_media = product.featured_media
+          if variant.featured_media
+            assign featured_media = variant.featured_media
+          endif
+        %}
+        <div class="x-block-featured-media aspect-square w-[52px] h-[52px] min-w-[52px] self-start md:self-center relative{% if featured_media %} cursor-zoom-in{% endif %}{% if settings.enable_lazy_loading_image %} animate_transition_card__image{% endif %} overflow-hidden{% if settings.edges_type == 'rounded_corners' %} rounded-lg{% endif %}"
+          {% if featured_media %}@click="zoomMediaVariant = true; $store.xPopup.open = true"{% endif %}
+        >
+          {% if featured_media %}
+            <img
+              src="{{ featured_media | image_url: width: 80 }}"
+              sizes="52px"
+              alt="{{ featured_media.alt | escape }}"
+              class="w-full h-full object-cover bg-[#c9c9c9] img-thumbnail animate-Xpulse image-hover skeleton-image{%- if settings.enable_lazy_loading_image %} animate_transition_image{% endif -%}"
+              {% if settings.enable_lazy_loading_image %}loading="lazy"{% else %}loading="eager"{% endif %}
+              width="{{ featured_media.width }}"
+              height="{{ featured_media.height }}"
+              onload="requestAnimationFrame(() => {
+                {% if settings.enable_lazy_loading_image %}this?.classList.add('active');{% endif -%}
+                this.closest('.skeleton-image')?.classList.remove('animate-Xpulse', 'skeleton-image');
+                setTimeout(() => { this.closest('.animate_transition_card__image')?.classList.add('lazy_active', 'active'); }, 250);
+              })"
+            >
+          {% else %}
+            <div 
+              class='bg-[#c9c9c9] flex justify-center absolute top-0 left-0 w-full h-full items-center'
+              x-init="$el.closest('.skeleton-image')?.classList.remove('animate-Xpulse', 'skeleton-image')"
+            >
+              {%- render 'icon-placeholder', icon: 'icon-product', class: 'w-full h-full' %}
+            </div> 
+          {% endif %}
+        </div>
+        {% if featured_media %}
+        <template x-teleport="body">
+          <div
+            x-show="zoomMediaVariant"
+            class="fixed top-0 left-0 bottom-0 right-0 bg-[rgba(var(--background-color),1)] z-[9999] cursor-zoom-out pt-16 pb-16"
+            @click="zoomMediaVariant = false; $store.xPopup.open = false"
+            @keyup.escape.window="zoomMediaVariant = false; $store.xPopup.open = false"
+            x-transition:enter="transition-all ease-in-out duration-500"
+            x-transition:enter-start="opacity-0 transform translate-y-1/3"
+            x-transition:enter-end="opacity-100 transform translate-y-0"
+            x-transition:leave="transition-all ease-in-out duration-500"
+            x-transition:leave-end="opacity-0 transform translate-y-1/3"
+          >
+            <div class="flex items-center justify-center h-full">
+              <img
+                srcset="{{ featured_media | image_url: width: 375 }} 375w,
+                  {{ featured_media | image_url: width: 450 }} 450w,
+                  {{ featured_media | image_url: width: 750 }} 750w,
+                  {{ featured_media | image_url: width: 900 }} 900w,
+                  {{ featured_media | image_url: width: 1100 }} 1100w,
+                  {{ featured_media | image_url: width: 1500 }} 1500w,
+                  {{ featured_media | image_url: width: 1780 }} 1780w,
+                  {{ featured_media | image_url: width: 2000 }} 2000w,
+                  {{ featured_media | image_url: width: 3000}} 3000w
+                  {% if featured_media.width %},{{ featured_media | image_url }} {{ featured_media.width }}w{% endif %}" 
+                src="{{ featured_media | image_url: width: 1200 }}"
+                alt="{{ featured_media.alt | escape }}"
+                class="w-full h-full max-w-3xl object-contain"
+                {% if settings.enable_lazy_loading_image %}loading="lazy"{% else %}loading="eager"{% endif %}
+                width="{{ featured_media.width }}"
+                height="{{ featured_media.height }}"
+              >
+            </div>
+          </div>
+        </template>
+        {% endif %}
+        {% liquid
+          assign is_tracked_inventory = false
+          if variant.available and variant.inventory_management == 'shopify' and variant.inventory_policy != 'continue'
+            assign is_tracked_inventory = true
+          endif
+        %}
+        <div
+          x-data="xQuantitySelectorB2B('{{ variant.id }}', '{{ section.id }}-{{ variant.id }}', {{ variant.quantity_rule.min | default: 0 }}, {{ variant.quantity_rule.max | json }}, {{ is_quantity_rule | json }}, {{ settings.currency_code_enable }}, '{{ shop.money_with_currency_format | escape }}', '{{ shop.money_format | escape }}', {{ quantity_price_breaks | strip | escape | default: '[]' }}, {{ cart_qty_variant }}, {{ active }}, {{ is_tracked_inventory }}, {{ variant.inventory_quantity | default: 0 }})"
+          class="grid items-center md:justify-between justify-start w-full min-w-0 gap-2 lg:gap-7{% if settings.hide_cart %} md:grid-cols-3{% else %} md:grid-cols-5{% endif %}"
+        >
+          <div class="flex flex-nowrap md:justify-between justify-start gap-3 lg:gap-7">
+            <div class="variant-infor text-left rtl:text-right">
+              <div class="variant-title flex gap-3">
+                <div class="x-card-title leading-6.5 h5">{{ variant.title }}</div>
+                <div class="self-start md:hidden inventory-status-{{ variant.id }}"></div>
+              </div>
+              {% if variant.sku != blank %}<div class="mt-2">{{ 'customer.order.sku' | t }}: <span class="whitespace-nowrap">{{ variant.sku }}</span></div>{% endif %}
+            </div>
+          </div>
+          {% liquid
+            assign low_stock_threshold = settings.low_stock_threshold | round
+            assign show_low_stock_count = settings.show_quantity
+            assign show_in_stock_count = settings.show_quantity
+            if customer.b2b? and settings.b2b_low_stock
+              assign low_stock_threshold = settings.b2b_low_stock_threshold | round
+              assign show_low_stock_count = true
+              assign show_in_stock_count = false
+              if settings.b2b_show_quantity == 'always'
+                assign show_in_stock_count = true
+              endif
+            endif
+            if variant.inventory_management == 'shopify'
+              if variant.inventory_quantity > 0
+                if variant.inventory_quantity <= low_stock_threshold
+                  assign color_inventory = 'inventory-low-stock-status'
+                  if show_low_stock_count
+                    assign text_inventory = 'products.product.inventory_low_stock_show_count_b2b' | t: quantity: variant.inventory_quantity
+                  else
+                    assign text_inventory = 'products.product.inventory_low_stock' | t
+                  endif
+                else
+                  assign color_inventory = 'inventory-in-stock-status'
+                  if show_in_stock_count
+                    assign text_inventory = 'products.product.inventory_in_stock_show_count_b2b' | t: quantity: variant.inventory_quantity 
+                  else
+                    assign text_inventory = 'products.product.inventory_out_of_stock_continue_selling' | t 
+                  endif
+                endif 
+              else
+                assign color_inventory = 'inventory-out-of-stock-status'
+                assign text_inventory = 'products.product.inventory_out_of_stock' | t
+              endif
+            elsif variant.inventory_management == nil
+              assign color_inventory = 'inventory-in-stock-status'
+              assign text_inventory = 'products.product.inventory_out_of_stock_continue_selling' | t
+            endif
+          %}
+          <div class="x-block-inventory-status self-center hidden md:block" id="block-inventory-{{ section.id }}-{{ variant.id }}">
+            <template x-teleport=".inventory-status-{{ variant.id }}">
+              <div class="{{ color_inventory }} flex justify-center whitespace-nowrap text-[80%]{%- if variant.inventory_management != 'shopify' and variant.inventory_management != nil %} hidden{% endif -%}">
+                <div class="pt-1 pb-1 pl-2 pr-2 overflow-auto hide-scrollbar{% if settings.edges_type == 'rounded_corners' %} rounded-full{% endif %} text-[rgb(var(--stock-color))] bg-[rgba(var(--stock-color),0.25)]">{{ text_inventory }}</div>
+              </div>
+            </template>
+            <div class="{{ color_inventory }} flex justify-center whitespace-nowrap text-[80%]{%- if variant.inventory_management != 'shopify' and variant.inventory_management != nil %} hidden{% endif -%}">
+              <div class="pt-1 pb-1 pl-2 pr-2 overflow-auto hide-scrollbar{% if settings.edges_type == 'rounded_corners' %} rounded-full{% endif %} text-[rgb(var(--stock-color))] bg-[rgba(var(--stock-color),0.25)]">{{ text_inventory }}</div>
+            </div>
+          </div>
+          <div class="x-block-price pricearea text-center w-full md:w-auto">
+            <div id="price-list-view-b2b-{{ section.id }}-{{ variant.id }}" class="flex justify-start md:justify-center items-center flex-wrap">
+              <div class="target-price hidden">{{ variant.price }}</div>
+              <div class="target-compare-at-price hidden">{{ variant.compare_at_price }}</div>
+              {% if variant.compare_at_price %}
+                <s class="cap rtl:inline-block price-compare rtl:leading-tight mr-1 opacity-70">{% if settings.currency_code_enable %}{{ variant.compare_at_price | money_with_currency }}{% else %}{{ variant.compare_at_price | money }}{% endif %}/ea</s>
+              {% endif %}
+              <span class="leading-6.5{% if variant.compare_at_price %} price-sale selection:bg-text-[rgb(var(--colors-price-sale),0.2)]{% endif %} text-[110%]"><span class="price-unit-list-view-b2b-{{ section.id }}-{{ variant.id }}">{% if settings.currency_code_enable %}{{ current_price | money_with_currency }}{% else %}{{ current_price | money }}{% endif %}</span>/ea</span>
+              {% if variant.quantity_price_breaks.size >= 1 %}
+                <span class="popup-info inline-flex items-center justify-center cursor-pointer relative pl-2 pr-2 pt-2 pb-2" >
+                  <span class="w-4 h-4"
+                    x-on:mouseover="if (window.innerWidth >= 768) showPopup = true"
+                    x-on:mouseleave="if (window.innerWidth >= 768) showPopup = false"
+                    @click.prevent="if (window.innerWidth < 768) { showPopup = true; $store.xPopup.open = true }"                     
+                  >
+                    {% render 'icon-labels-bags', icon: 'tooltip' %}
+                  </span>
+                  <div x-cloak x-show="showPopup && window.innerWidth >= 768" class="tooltip-quantity-price-breaks min-w-[200px] hidden md:flex absolute border-[rgba(var(--colors-line-and-border))] bg-[rgba(var(--background-color),1)] pt-4 pb-4 pl-4 pr-4{% if settings.edges_type == 'rounded_corners' %} rounded-md{% else %} rounded-none{% endif %} z-20 md:flex-col gap-2.5">
+                    <p class="title-table whitespace-nowrap text-[120%] font-semibold">{{ 'products.product.volumn_pricing.name' | t }} · {{ variant.title }}</p>
+                    <div :class="active == 0 ? 'bg-[rgba(var(--color-highlight),0.25)] text-[rgba(var(--color-highlight))] font-semibold' : ''" class="flex justify-between gap-2.5 pl-2 pr-2 pt-2 pb-2{% if settings.edges_type == 'rounded_corners' %} rounded-md{% else %} rounded-none{% endif %}">
+                      <span class="text-nowrap">1-{{ variant.quantity_price_breaks[0].minimum_quantity | minus: 1 }}</span>
+                      <span> {% if settings.currency_code_enable %}{{ variant.price | money_with_currency }}{% else %}{{ variant.price | money }}{% endif %}</span>
+                    </div>
+                    {% for price_break in variant.quantity_price_breaks %}
+                      {% liquid
+                        assign price_break_qty = price_break.minimum_quantity
+                        assign price_break_price = price_break.price
+                        assign next_index = forloop.index
+                        assign next_price_break_qty = variant.quantity_price_breaks[next_index].minimum_quantity
+                      %}
+                      <div :class="active == {{ forloop.index }} ? 'bg-[rgba(var(--color-highlight),0.25)] text-[rgba(var(--color-highlight))] font-semibold' : ''" class="flex justify-between gap-2.5 pl-2 pr-2 pt-2 pb-2{% if settings.edges_type == 'rounded_corners' %} rounded-md{% else %} rounded-none{% endif %}">
+                        <span>{{ price_break_qty }}{% if next_price_break_qty > 0 %}{{ next_price_break_qty | minus: 1 | prepend: '-' }}{% else %}+{% endif %}</span>
+                        <span>{% if settings.currency_code_enable %}{{ price_break_price | money_with_currency }}{% else %}{{ price_break_price | money }}{% endif %}</span>
+                      </div>
+                    {% endfor %}
+                  </div>
+                  <div x-cloak x-show="showPopup && window.innerWidth < 768" 
+                    class="fixed top-0 right-0 left-0 bottom-0 flex flex-col justify-end md:flex-row md:justify-start bg-[#acacac] bg-opacity-30 z-[60]"
+                    @keyup.escape="showPopup = false; $store.xPopup.open = false" x-cloak>
+                    <div 
+                      class="{% if settings.edges_type == 'rounded_corners' %}md:h-auto md:mt-2.5 md:mb-2.5 md:mr-2.5 md:ml-2.5 md:rounded-[10px]{% else %}md:h-full{% endif %} w-full md:w-96 relative bg-[rgba(var(--background-color))]" 
+                      x-show="showPopup && window.innerWidth < 768" 
+                      x-cloak 
+                      @click.away="showPopup = false; $store.xPopup.open = false"
+                      x-transition:enter="transition-all ease-in-out duration-500"
+                      x-transition:enter-start="opacity-0 transform translate-y-1/3 md:-translate-x-1/3 md:translate-y-0"
+                      x-transition:enter-end="opacity-100 transform translate-y-0 md:translate-x-0 md:translate-y-0"
+                      x-transition:leave="transition-all ease-in-out duration-500"
+                      x-transition:leave-end="opacity-0 transform translate-y-1/3 md:-translate-x-1/3 md:translate-y-0"
+                    >  
+                      <button 
+                        aria-label="{{ 'accessibility.close' | t }}"
+                        class="icon-close-container group-close-btn rounded-full absolute right-2 rtl:right-auto rtl:left-2 top-2 md:top-2 cursor-pointer" 
+                        @click.prevent="showPopup = false; $store.xPopup.open = false">
+                        {% render 'icon-alls', icon: 'icon-close', animation_class: 'icon-close-animation' %}
+                      </button>
+                      <div class="md:hidden pb-10 ml-5 mr-5 pt-10">
+                        <div class="text-[150%] font-medium pb-2 text-left rtl:text-right">{{ 'products.product.volumn_pricing.name' | t }}</div>
+                        <div class="pt-2 text-left rtl:text-right border-t border-solid">
+                          <span class="font-medium">{{ product.title }}</span> - <span>{{ variant.title }}</span>
+                        </div>
+                        {% if variant.sku != blank %}<div class="text-left rtl:text-right pb-2">{{ 'customer.order.sku' | t }}: {{ variant.sku }}</div>{% endif %}
+                        <div class="flex justify-between gap-2.5 pl-2 pr-2 pt-2 pb-2 font-bold text-[120%]">
+                          <span>{{ 'products.product.quantity.label' | t }}</span>
+                          <span>{{ 'sections.cart.headings.price' | t }}</span>
+                        </div>
+                        <div :class="active == 0 ? 'bg-[rgba(var(--color-highlight),0.2)] font-bold' : ''" class="flex text-[120%] justify-between gap-2.5 pl-2 pr-2 pt-2 pb-2{% if settings.edges_type == 'rounded_corners' %} rounded-md{% else %} rounded-none{% endif %}">
+                          <span class="text-nowrap">1-{{ variant.quantity_price_breaks[0].minimum_quantity | minus: 1 }}</span>
+                          <span> {% if settings.currency_code_enable %}{{ variant.price | money_with_currency }}{% else %}{{ variant.price | money }}{% endif %}</span>
+                        </div>
+                        {% for price_break in variant.quantity_price_breaks %}
+                          {% liquid
+                            assign price_break_qty = price_break.minimum_quantity
+                            assign price_break_price = price_break.price
+                            assign next_index = forloop.index
+                            assign next_price_break_qty = variant.quantity_price_breaks[next_index].minimum_quantity
+                          %}
+                          <div :class="active == {{ forloop.index }} ? 'bg-[rgba(var(--color-highlight),0.2)] font-bold' : ''" class="flex text-[120%] justify-between gap-2.5 pl-2 pr-2 pt-2 pb-2{% if settings.edges_type == 'rounded_corners' %} rounded-md{% else %} rounded-none{% endif %}">
+                            <span>{{ price_break_qty }}{% if next_price_break_qty > 0 %}{{ next_price_break_qty | minus: 1 | prepend: '-' }}{% else %}+{% endif %}</span>
+                            <span>{% if settings.currency_code_enable %}{{ price_break_price | money_with_currency }}{% else %}{{ price_break_price | money }}{% endif %}</span>
+                          </div>
+                        {% endfor %}
+                      </div>
+                    </div>
+                  </div>
+                </span>
+              {% endif %}
+            </div>
+          </div>
+          {%- unless settings.hide_cart -%}
+            <div class="x-block-quantity-selector w-full md:w-auto md:flex md:justify-center{% if variant.quantity_price_breaks.size > 0 %} mb-5{% endif %}{% if settings.edges_type == 'rounded_corners' %} corners-app{% endif %}">
+              <div id="atc-quantity-{{ section.id }}-{{ variant.id }}" class="inline-flex w-fit">
+                <div class="inline-flex relative w-fit border border-solid items-center{% if variant_available == false %} opacity-50{% endif %} bg-[rgba(var(--background-color),1)]{% if settings.buttons_type == 'rounded_corners' or settings.buttons_type == 'mixed' %} rounded-md{% elsif settings.buttons_type == 'rounded' %} rounded-full{% endif %}"
+                  x-intersect.once.margin.200px="initQtyChangeEvent('Quantity-atc-{{ section.id }}-{{ variant.id }}')"
+                  :class="(errMin || errIncrement || errMax || errInventory) && 'border-[rgba(var(--color-error))]'"
+                >
+                  <button class="cursor-pointer w-10 pt-2.5 pb-2.5 md:pt-3.5 md:pb-3.5 bg-transparent pl-3.5 pr-3.5 select-none" name="minus" aria-label="{{ 'accessibility.decrease_quantity' | t }}" @click.prevent="minus({{ variant.quantity_rule.increment | default: 0 }}, true)" {% if variant_available == false %} disabled{% endif %}>
+                    {% render 'icon-alls', icon: 'icon-minus' %}
+                  </button>
+                  <input class="{% if variant_available == false %}cursor-not-allowed{% endif %} outer-spin-button hide-spin-input focus:outline-none w-8 md:w-10 pt-2 pb-2 md:pt-2.5 md:pb-2.5 text-center bg-transparent"
+                    type="number"
+                    name="items[{{ forloop.index0 }}][quantity]"
+                    id="Quantity-atc-{{ section.id }}-{{ variant.id }}"
+                    aria-label="{{ 'products.product.quantity.label' | t }}"
+                    min="0"
+                    {% if variant.quantity_rule.max != null %}
+                      max="{{ variant.quantity_rule.max }}"
+                    {% endif %}
+                    step="{{ variant.quantity_rule.increment | default: 0 }}"
+                    value="0"
+                    x-model="qty"
+                    x-on:blur="invalid($el, {{ variant.quantity_rule.increment | default: 0 }}, true)"
+                    {% if variant_available == false %} readonly{% endif %}
+                  >
+                  <button class="cursor-pointer w-10 pt-2.5 pb-2.5 md:pt-3.5 md:pb-3.5 bg-transparent pr-3.5 pl-3.5 select-none" name="plus" @click.prevent="plus({{ variant.quantity_rule.increment | default: 0 }}, true)" aria-label="{{ 'accessibility.increase_quantity' | t }}" {% if variant_available == false %} disabled{% endif %}>
+                    {% render 'icon-alls', icon: 'icon-plus' %}
+                  </button>
+                  {% if variant.quantity_price_breaks.size > 0 %}
+                    <div class="quantity-rules absolute w-full text-center text-[85%] top-[calc(100%+4px)] left-0 whitespace-nowrap" x-show="!errMin && !errIncrement && !errMax && !errInventory">
+                      {% if variant.quantity_rule.min != null %}
+                        {{ 'products.product.quantity.min' | t }}: {{ variant.quantity_rule.min }}
+                      {% endif %}
+                      {% if variant.quantity_rule.increment != null and variant.quantity_rule.increment > 1 %}
+                        · {{ 'products.product.quantity.multiples' | t }}: {{ variant.quantity_rule.increment }}
+                      {% endif %}
+                      {% if variant.quantity_rule.max != null %}
+                        · {{ 'products.product.quantity.max' | t }}: {{ variant.quantity_rule.max }}
+                      {% endif %}
+                    </div>
+                  {% endif %}                     
+                  <div class="quantity-err font-bold absolute w-full text-center text-[85%] text-[rgba(var(--color-error))] top-[calc(100%+4px)] left-0">
+                    <span class="quantity-err-min whitespace-nowrap" x-cloak x-show="errMin">{{ 'products.product.quantity.err_min' | t: quantity: variant.quantity_rule.min }}</span>
+                    <span class="quantity-err-increment whitespace-nowrap" x-cloak x-show="errIncrement">{{ 'products.product.quantity.err_increment' | t: quantity: variant.quantity_rule.increment }}</span>
+                    {% assign only_left = variant.quantity_rule.max | minus: cart_qty_variant %}
+                    <span class="quantity-err-max whitespace-nowrap" x-cloak x-show="errMax">{{ 'products.product.quantity.err_max' | t: quantity: only_left }}</span>
+                    <span class="quantity-err-inventory whitespace-nowrap" x-cloak x-show="errInventory">{{ 'products.product.quantity.err_max' | t: quantity: variant.inventory_quantity }}</span>
+                  </div>
+                  <a class="underline absolute left-[calc(100%+12px)] rtl:right-[calc(100%+12px)] leading-normal{% if variant_available %} cursor-pointer{% else %} cursor-not-allowed{% endif %}" @click="if({{ variant_available }}){ validateQty(0, 1, true)}else return" @keydown.enter="if({{ variant_available }}){ validateQty(0, 1, true)}else return" @keydown.space.prevent="if({{ variant_available }}){ validateQty(0, 1, true)}else return" role="button" tabindex="0">
+                    {{ 'products.product.clear_qty' | t }}
+                  </a>
+                </div>
+              </div>
+            </div>
+            <div class="x-block-total-price hidden md:block overflow-hidden">
+              <div id="total-price-{{ section.id }}-{{ variant.id }}" class="overflow-auto hide-scrollbar total-variant-price text-right rtl:text-left leading-6.5 text-[110%]">–</div>
+            </div>
+          {%- endunless -%}
+        </div>        
+      </div>
+    {% endfor %}
+  </div>
+</div>

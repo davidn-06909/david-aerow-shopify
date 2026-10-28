@@ -1,0 +1,335 @@
+{%- liquid
+  assign target = product
+  assign enable_price_range = false
+  if product.has_only_default_variant or use_variant and product.selected_variant or settings.default_select_available_variant
+    if variant
+      assign target = variant
+    else
+      assign target = product.selected_or_first_available_variant
+    endif
+  else
+    unless container contains 'main-product-price' or mini_card
+      if settings.enable_price_range and product.price_varies
+        assign enable_price_range = true
+      endif
+    endunless
+  endif
+
+  assign custom_price_format = product.metafields.custom.custom_price_format.value.format | default: settings.custom_price_format
+
+  assign compare_at_price = target.compare_at_price
+  assign price = target.price | default: 1999
+  if settings.currency_code_enable
+    assign money_price = price | money_with_currency
+  else
+    assign money_price = price | money
+  endif
+
+  if product.price_varies and custom_price_format == '' and target == product
+    assign money_price = 'products.product.price.from_price_html' | t: price: money_price
+  endif
+
+  assign price_element_id = price_id
+  if price_element_id == blank
+    assign price_element_id = 'price-' | append: section.id | append: '-' | append: product.id
+  endif
+-%}
+{%- capture b2b_price_cta -%}
+  {%- render 'b2b-price-visibility', product: product, class: price_class -%}
+{%- endcapture -%}
+{%- if customer -%}
+  {%- capture b2b_approved -%}
+    {%- render 'b2b-customer-approved' -%}
+  {%- endcapture -%}
+{%- endif -%}
+{%- liquid
+  if b2b_approved contains 'true' and settings.b2b_show_compare_at_price == false
+    assign hide_sale_price = true
+  endif
+-%}
+{%- if b2b_price_cta != blank -%}
+  {{ b2b_price_cta }}
+{%- else -%}
+  <div class="{{ container }} price leading-none{% if enable_price_range %} flex{% endif %} {{ price_class }}">
+    <div class="target-price hidden">{{ price }}</div>
+    <div class="target-compare-at-price hidden">{{ compare_at_price }}</div>
+    {% if show_price_range or custom_price_format != '' %}
+      {% if target == product %}
+        {% liquid
+          assign middle_price = price
+          assign min_price = 0
+          assign max_price = 0
+          unless product.has_only_default_variant
+            assign index = product.variants.size | divided_by: 2.0 | floor
+            assign prices_variant = product.variants | sort: 'price' | map: 'price'
+            assign middle_price = prices_variant[index]
+          endunless
+          if settings.currency_code_enable
+            assign min_price = target.price_min | money_with_currency
+            assign max_price = target.price_max | money_with_currency
+            assign middle_price = middle_price | money_with_currency
+          else
+            assign min_price = target.price_min | money
+            assign max_price = target.price_max | money
+            assign middle_price = middle_price | money
+          endif
+        %}
+
+        {% if settings.custom_price_format != blank %}
+          {% liquid
+            assign show_custom_price_format = false
+            if settings.applied_price_format_products == blank and settings.applied_price_format_collections == blank
+              assign show_custom_price_format = true
+            else
+              if settings.applied_price_format_products != blank
+                assign custom_price_product_match = settings.applied_price_format_products | where: 'id', product.id
+                if custom_price_product_match.size > 0
+                  assign show_custom_price_format = true
+                endif
+              endif
+              if settings.applied_price_format_collections != blank and show_custom_price_format == false
+                for col in target.collections
+                  assign custom_price_collection_match = settings.applied_price_format_collections | where: 'id', col.id
+                  if custom_price_collection_match.size > 0
+                    assign show_custom_price_format = true
+                    break
+                  endif
+                endfor
+              endif
+            endif
+          %}
+          {% if show_custom_price_format
+            and custom_price_format
+            and custom_price_format != ''
+          %}
+            {% liquid
+              assign show_custom = true
+              if custom_price_format contains 'custom.'
+                assign custom_format_keys = custom_price_format | split: '}'
+                for key in custom_format_keys
+                  if key contains 'custom.'
+                    assign clean_key = key
+                    if key.first != '{'
+                      assign key_list = key | split: '{'
+                      assign clean_key = key_list.last | prepend: '{'
+                    endif
+                    assign key_metafield_placeholder = clean_key | remove: ' ' | append: '}'
+                    assign key_metafield = clean_key | remove: '{' | remove: '}' | remove: ' ' | split: '.'
+                    if product.metafields[key_metafield.first][key_metafield.last].value != blank
+                      assign custom_price_format = custom_price_format | replace: key_metafield_placeholder, product.metafields[key_metafield.first][key_metafield.last]
+                    else
+                      assign custom_price_format = custom_price_format | replace: key_metafield_placeholder, ''
+                    endif
+                  endif
+                endfor
+              endif
+
+              assign custom_price_html = custom_price_format | replace: '{price}', money_price | replace: '{max_price}', max_price | replace: '{middle_price}', middle_price | replace: '{min_price}', min_price
+            %}
+            <div class="custom-price">
+              {{ custom_price_html }}
+            </div>
+          {% endif %}
+        {% endif %}
+
+        {% if enable_price_range %}
+          {% capture price_detail_button %}
+            <div
+              id="price-range-{{ priceID }}"
+              class="price-range price leading-none flex-wrap pl-2 border-l border-solid inline-flex items-center gap-[3px] ml-1 rtl:border-r rtl:border-l-0 rtl:pl-0 rtl:pr-2 rtl:mr-1 rtl:ml-0{% if settings.price_popup != blank %} cursor-pointer{% else %} cursor-default{% endif %}"
+              {% if settings.price_popup != blank %}
+                role="button"
+                tabindex="0"
+                aria-label="{{ 'accessibility.price_range_detail' | t }}"
+                @click.prevent="$store.xPopupPriceDetail.show($event, '{{ product.id }}', '{{ money_price }}', '{{ max_price }}', '{{ middle_price }}', '{{ min_price }}', '{{ shop.url }}', '{{ settings.price_popup.handle }}'); $store.xModal.setActiveElement('price-range-{{ priceID }}')"
+                @keydown.enter.prevent="$store.xPopupPriceDetail.show($event, '{{ product.id }}', '{{ money_price }}', '{{ max_price }}', '{{ middle_price }}', '{{ min_price }}', '{{ shop.url }}', '{{ settings.price_popup.handle }}'); $store.xModal.setActiveElement('price-range-{{ priceID }}')"
+                @keydown.space.prevent="$store.xPopupPriceDetail.show($event, '{{ product.id }}', '{{ money_price }}', '{{ max_price }}', '{{ middle_price }}', '{{ min_price }}', '{{ shop.url }}', '{{ settings.price_popup.handle }}'); $store.xModal.setActiveElement('price-range-{{ priceID }}')"
+              {% else %}
+                aria-hidden="true"
+                tabindex="-1"
+              {% endif %}
+              style="text-align: unset;"
+            >
+              <span class="break-all">{{ min_price }} - {{ max_price }}</span>
+              {% if settings.price_popup != blank %}
+                <span class="w-3.5 h-3.5 min-w-[14px] pt-0.5 pb-0.5 border rounded-full flex items-center justify-center mb-0.5">
+                  {% render 'icon-alls', icon: 'icon-note-dot' %}
+                </span>
+              {% endif %}
+            </div>
+          {% endcapture %}
+        {% endif %}
+      {% endif %}
+    {% endif %}
+    {% unless show_custom %}
+      {%- if compare_at_price > price %}
+        {%- if hide_sale_price %}
+          <p
+            id="{{ price_element_id }}"
+            class="price inline-block"
+          >
+            {{ money_price }}
+          </p>
+        {%- else -%}
+          <s class="cap rtl:inline-block price-compare rtl:leading-tight text-[80%]">
+            {%- if settings.currency_code_enable -%}
+              {{- compare_at_price | money_with_currency -}}
+            {%- else -%}
+              {{- compare_at_price | money -}}
+            {%- endif -%}
+          </s>
+          <span
+            id="{{ price_element_id }}"
+            class="price-sale selection:bg-text-[rgb(var(--colors-price-sale),0.2)] ml-1{% unless align_left %} rtl:mr-1 rtl:ml-0{% endunless %}"
+          >
+            {{- money_price -}}
+          </span>
+        {%- endif -%}
+      {%- else -%}
+        <p
+          id="{{ price_element_id }}"
+          class="price inline-block"
+        >
+          {{ money_price }}
+        </p>
+      {%- endif -%}
+      {% assign unit_price_measurement = product.selected_or_first_available_variant.unit_price_measurement %}
+      {% if unit_price_measurement != null %}
+        <small class="text-[70%]">
+          <span class="hidden">
+            {{- 'products.product.price.unit_price' | t -}}
+          </span>
+          <span class="up price-item price-item--last">
+            <span class="unit-price">
+              {% if settings.currency_code_enable %}
+                {{-
+                  product.selected_or_first_available_variant.unit_price
+                  | money_with_currency
+                -}}
+              {% else %}
+                {{-
+                  product.selected_or_first_available_variant.unit_price
+                  | money
+                -}}
+              {% endif %}
+            </span>
+            <span aria-hidden="true">/</span>
+            <span class="hidden"
+              >&nbsp;{{ 'accessibility.unit_price_separator' | t }}&nbsp;</span
+            >
+            <span>
+              {%- if unit_price_measurement.reference_value != 1 -%}
+                {{- unit_price_measurement.reference_value -}}
+              {%- endif -%}
+              {{ unit_price_measurement.reference_unit }}
+            </span>
+          </span>
+        </small>
+      {% endif %}
+    {% endunless %}
+    {%- if settings.b2b_show_label
+      and settings.b2b_label != blank
+      and b2b_approved contains 'true'
+    -%}
+      <span class="b2b-label inline-block align-middle ml-1.5 rtl:ml-0 rtl:mr-1.5 pl-1.5 pr-1.5 pt-0.5 pb-0.5 text-[70%] leading-normal{% if settings.edges_type == 'rounded_corners' %} rounded{% endif %}">
+        {{- settings.b2b_label -}}
+      </span>
+    {%- endif -%}
+  </div>
+  {{ price_detail_button }}
+  {% style %}
+    .badges-tiers-price {
+      {%- unless section.settings.color_button.alpha == 0.0 -%}
+        --colors-button: {{ section.settings.color_button.red }}, {{ section.settings.color_button.green }}, {{ section.settings.color_button.blue }};
+      {%- endunless -%}
+      {%- unless section.settings.color_text_button.alpha == 0.0 -%}
+        --colors-button-text: {{ section.settings.color_text_button.red }}, {{ section.settings.color_text_button.green }}, {{ section.settings.color_text_button.blue }};
+      {%- endunless -%}
+      --color-highlight: {{ settings.colors_heading_highlight.red }}, {{ settings.colors_heading_highlight.green }}, {{ settings.colors_heading_highlight.blue }};
+    }
+    .dark .badges-tiers-price {
+      {%- unless section.settings.color_button_dark.alpha == 0.0 -%}
+        --colors-button: {{ section.settings.color_button_dark.red }}, {{ section.settings.color_button_dark.green }}, {{ section.settings.color_button_dark.blue }};
+      {%- endunless -%}
+      {%- unless section.settings.color_text_button_dark.alpha == 0.0 -%}
+        --colors-button-text: {{ section.settings.color_text_button_dark.red }}, {{ section.settings.color_text_button_dark.green }}, {{ section.settings.color_text_button_dark.blue }};
+      {%- endunless -%}
+      --color-highlight: {{ settings.colors_dark_heading_highlight.red }}, {{ settings.colors_dark_heading_highlight.green }}, {{ settings.colors_dark_heading_highlight.blue }};
+    }
+  {% endstyle %}
+  {% if enable_b2b and quick_view %}
+    {% if target.quantity_price_breaks.size > 0 %}
+      {% liquid
+        assign cart_qty = 0
+        for item in cart.items
+          if item.variant_id == target.id
+            assign cart_qty = cart_qty | plus: item.quantity
+          endif
+        endfor
+      %}
+      {% capture quantity_price_breaks %}
+        [
+        {% for price_break in target.quantity_price_breaks %}
+          { "minimum_quantity": {{ price_break.minimum_quantity | json }},
+          "price": {{ price_break.price | json }} }
+          {%- unless forloop.last %},{% endunless %}
+        {% endfor %}
+        ]
+      {% endcapture %}
+      <div
+        x-data="
+          {
+            active: 0,
+            listenQtyATC(sectionId, cartQty, quantityPriceBreaks) {
+              document.addEventListener(`quantity:changed-${sectionId}`, (e) => {
+                const qtyATC = e.detail.qty;
+                this.active = quantityPriceBreaks.length;
+                for(let i = 0; i < quantityPriceBreaks.length; i++) {
+                  if((cartQty + qtyATC) < quantityPriceBreaks[i].minimum_quantity) {
+                    this.active = i;
+                    break;
+                  }
+                };
+              });
+            }
+          }
+        "
+        x-init="listenQtyATC('{{ section.id }}', {{ cart_qty }}, {{ quantity_price_breaks | escape | strip }})"
+        class="badges-tiers-price flex gap-1.25 mt-2 flex-wrap justify-start w-full"
+      >
+        <span
+          :class="active == 0 ? 'text-[rgba(var(--colors-background))] bg-[rgba(var(--color-highlight))]' : 'bg-[rgba(var(--colors-text),0.25)]'"
+          class="body-text-base-size pt-1 pb-1 pl-2.25 pr-2.25{% if settings.edges_type == 'rounded_corners' %} rounded-full{% else %} rounded-none{% endif %}"
+          >1-{{ target.quantity_price_breaks[0].minimum_quantity | minus: 1 }}
+          {{ 'products.product.volumn_pricing.units' | t }}: {{ money_price -}}
+        </span>
+        {% for price_break in target.quantity_price_breaks %}
+          {% liquid
+            assign minimun_quantity = price_break.minimum_quantity
+            assign next_index = forloop.index
+            assign next_price_break = target.quantity_price_breaks[next_index]
+            assign next_minimum_quantity = next_price_break.minimum_quantity
+            if settings.currency_code_enable
+              assign price_break_price = price_break.price | money_with_currency
+            else
+              assign price_break_price = price_break.price | money
+            endif
+          %}
+          <span
+            :class="active == {{ forloop.index }} ? 'text-[rgba(var(--colors-background))] bg-[rgba(var(--color-highlight))]' : 'bg-[rgba(var(--colors-text),0.25)]'"
+            class="body-text-base-size pt-1 pb-1 pl-2.25 pr-2.25{% if settings.edges_type == 'rounded_corners' %} rounded-full{% else %} rounded-none{% endif %}"
+          >
+            {{- minimun_quantity -}}
+            {%- if next_minimum_quantity > 0 -%}
+              {{- next_minimum_quantity | minus: 1 | prepend: '-' -}}
+            {%- else -%}
+              +
+            {%- endif %}
+            {{ 'products.product.volumn_pricing.units' | t }}:
+            {{ price_break_price -}}
+          </span>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endif %}
+{% endif %}

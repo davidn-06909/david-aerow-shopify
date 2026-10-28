@@ -1,0 +1,32 @@
+@layer components {
+  .v_center {
+    @apply top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 text-center;
+  }
+
+  .v_center_left {
+    @apply left-5 top-1/2 -translate-y-1/2 text-left;
+  }
+
+  .v_center_right {
+    @apply right-5 top-1/2 -translate-y-1/2 text-right;
+  }
+
+  .v_bottom_left {
+    @apply left-5 bottom-5 text-left;
+  }
+
+  .v_bottom_center {
+    @apply left-1/2 -translate-x-1/2 bottom-5 text-center;
+  }
+
+  .v_bottom_right {
+    @apply right-5 bottom-5 text-right;
+  }
+
+  @supports not (-webkit-touch-callout: none) {
+    .video-hero iframe {
+      width: 100%;
+      height: 300%;
+    }
+  }
+}

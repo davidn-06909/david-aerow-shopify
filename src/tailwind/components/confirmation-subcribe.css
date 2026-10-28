@@ -1,0 +1,15 @@
+.shopify-email-marketing-confirmation__container {
+    @apply pt-[44px] pb-[44px] md:pt-[52px] md:pb-[52px];
+}
+
+.shopify-email-marketing-confirmation__container h1 {
+    @apply mb-4;
+}
+
+.shopify-email-marketing-confirmation__container p {
+    @apply mb-4;
+}
+
+.shopify-email-marketing-confirmation__container a {
+    @apply underline underline-offset-2 hover:opacity-100 hover:text-[rgb(var(--colors-text-link))];
+}

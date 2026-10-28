@@ -1,0 +1,12 @@
+@layer components {
+  .content-flashsale-horizontal {
+    @apply flex flex-col lg:flex lg:flex-row lg:items-center lg:justify-center
+  }
+  .content-flashsale-horizontal .flash-sale-text {
+    @apply lg:flex lg:gap-x-7 lg:gap-y-2;
+  }
+
+  .content-flashsale-vertical {
+    @apply flex flex-col lg:flex lg:flex-col
+  }
+}

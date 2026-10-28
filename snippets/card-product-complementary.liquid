@@ -1,0 +1,362 @@
+{%- liquid
+  assign url_collection = collection
+  if settings.disable_collection_context_url
+    assign url_collection = nil
+  endif
+-%}
+{% comment %}
+    Renders a product card in product complementary block
+
+    Accepts:
+    - card_product: {Object} Product Liquid object (optional)
+    - layout: {String} Card layout. "vertical" shows image beside content (list style), "horizontal" stacks image above content. Default is "vertical" (optional)
+    - media_aspect_ratio: {String} Size of the product image card. Values are "square" and "portrait". Default is "square" (optional)
+    - show_vendor: {Boolean} Show the product vendor. Default: false
+    - show_rating: {Boolean} Show the product rating. Default: false
+    - loading: {Boolean} Image should be lazy loaded. Default: lazy (optional)
+    - section_id: {String} The ID of the section that contains this card.
+    - block_id: {String} The ID of the block that contains this card.
+    - show_highlighted_features: {Boolean} Show highlighted features,
+    - add_as_bundle: {Boolean} Add product as bundle,
+    Usage:
+    {% render 'card-product-complementary', show_vendor: section.settings.show_vendor %}
+{% endcomment %}
+{%- liquid
+  assign first_variant = card_product.selected_or_first_available_variant
+  assign card_product_id = card_product.id
+  assign is_rtl = false
+  if settings.lang_direction contains request.locale.iso_code
+    assign is_rtl = true
+  endif
+  assign ratio = 100
+  case media_aspect_ratio
+    when "portrait"
+      assign ratio = 150
+    when "landscape"
+      assign ratio = 75
+    when "wide"
+      assign ratio = 56.25
+    when "3/4"
+      assign ratio = 133
+  endcase
+  assign content_alignment = settings.info_alignment_card_product
+  if is_rtl
+    if content_alignment == 'left'
+      assign content_alignment = 'right'
+    elsif content_alignment == 'right'
+      assign content_alignment = 'left'
+    endif
+  endif
+
+  assign can_show_preorder = false
+  if settings.preorder_show == 'yes' or settings.preorder_show == 'on_backordered' and first_variant.inventory_policy == 'continue' and first_variant.inventory_quantity < 1 and first_variant.inventory_management != nil
+    if settings.applied_products_preorder == blank and settings.applied_collections_preorder == blank
+      assign can_show_preorder = true
+    else 
+      assign list_product = settings.applied_products_preorder | map: 'id'
+      if list_product contains card_product_id 
+        assign can_show_preorder = true
+      endif
+
+      unless can_show_preorder
+        assign list_collection = settings.applied_collections_preorder | map: 'id'
+        for collection in card_product.collections
+          if list_collection contains collection.id
+            assign can_show_preorder = true
+            break
+          endif
+        endfor
+      endunless
+    endif
+  endif 
+
+  assign message_preorder = 'general.preorder.message_preorder' | t
+  if settings.message_preorder != blank
+    assign message_preorder = settings.message_preorder
+  endif 
+
+  assign disable_cart_edt = false
+  if card_product.gift_card? or can_show_preorder and settings.hide_when_pre_order
+    assign disable_cart_edt = true
+  endif
+
+  assign count_media = card_product.media | size
+  if settings.number_of_additional_images < count_media
+    assign count_media = settings.number_of_additional_images
+  endif
+
+  assign insurance_enabled = settings.enable_shipping_insurance
+  assign insurance_default = settings.shipping_insurance_added_by_default
+  assign product_insurance = settings.product_shipping_insurance
+
+  assign shipping_insurance = false
+  if insurance_enabled and product_insurance != blank and product_insurance.selected_or_first_available_variant.available
+    assign shipping_insurance = product_insurance.selected_or_first_available_variant.id
+    for item in cart.items
+      if item.product.selected_or_first_available_variant.id == product_insurance.selected_or_first_available_variant.id
+        assign shipping_insurance = false
+      endif
+    endfor
+  endif
+
+  assign variant_available = first_variant.available
+  assign only_default_variant = card_product.has_only_default_variant
+
+  assign card_product_url = card_product.url | within: url_collection | split: "?" | first
+-%}
+{%- capture data_for_customer_event -%}
+  {
+    "product": {
+      "title": "{{ card_product.title | escape }}",
+      "listName": "",
+      "sku": "{{ card_product_id }}",
+      "currencyCode": "{{ cart.currency.iso_code }}",
+      "price": {{ card_product.price }},
+      "vendor": "{{ card_product.vendor | escape }}"
+    }
+  }
+{%- endcapture %}
+<div 
+  {% if settings.swatches_type == 'both_text_and_color' or settings.swatches_type == 'color' %}
+    x-data="xProductCard('{{ section_id }}-{{ product_card_id }}', '{{ card_product_url }}', '{{ card_product_id }}')"  
+  {% else %}
+    x-data="{ showOptions: false, options: [] }"
+  {% endif %}
+  class="card-product overflow-hidden card relative pb-4 recommendations h-full{%- if is_rtl %} rtl{% endif -%}{% if layout == 'horizontal' %} flex flex-col{% endif %}"
+  x-slide-index="{{ index | minus: 1 }}"
+>
+  {%- if card_product != blank -%}
+    {%- assign card_view_context = standard_event_context | default: 'recommendation' -%}
+    <s-view-event
+      data-view-on-intersect
+      view-event-trigger="manual"
+      view-event-payload='{{ card_product | standard_event_data: "view", context: card_view_context | escape }}'></s-view-event>
+  {%- endif -%}
+  <div class="relative disable-effect flex{% if layout == 'horizontal' %} flex-col flex-1{% endif %}">
+    <div class="{% if layout == 'horizontal' %}w-full{% else %}w-[88px] min-w-[88px]{% endif %}">
+      <a 
+        {% unless loading == 'eager' %}
+          x-intersect.once.margin.-20px.0px.-20px.0px="$el.querySelector('.animate_transition_card__image')?.classList.add('active', 'lazy_active')"
+        {% endunless %}
+        href="{{ card_product.url | within: url_collection }}"
+        aria-label="{{ card_product.title | escape }}"
+        id="{{ card_product_id }}-{{ section.id }}"
+        class="x-labels-data ltr group link-product-variant overflow-hidden block relative z-[15] cursor-pointer before:h-0 before:block
+        {%- if settings.edges_type == 'rounded_corners' %} rounded-[6px]{% endif -%}
+        {%- if media_aspect_ratio == "natural" and card_product.featured_media.media_type == "model" or card_product.featured_media == blank %}
+          md:pb-[100%]
+        {% else %} 
+          pb-[{{ ratio }}%]
+        {% endif -%}"
+        {% if media_aspect_ratio == "natural" and card_product.featured_media and card_product.featured_media.media_type != "model" %} style="height: 0; padding-bottom: {{ 100.0 | divided_by: card_product.featured_media.aspect_ratio }}%;"{% endif %}>
+        <div
+          id="x-slideshow-card-product-{{ section_id }}-{{ product_card_id }}-{{ index | minus: 1 }}"
+          class="block w-full h-full absolute top-0 left-0 z-0 overflow-hidden" 
+          @click='$store.xCustomerEvent.fire("product_selected", $el)'
+          x-data="xDoubleTouch('{{ card_product.url | within: url_collection }}')"
+          x-customer-event-data="{{ data_for_customer_event | escape }}"
+        >
+          {%- if card_product.featured_media -%}
+            {%- capture sizes -%}
+              (min-width: 1024px) calc((100vw) / 6), 50vw
+            {%- endcapture -%}
+            {% assign product_featured_image = card_product.featured_media %}
+            <div class="w-full z-0{% if media_aspect_ratio != "natural" %} h-full min-h-full{% endif %} top-0 left-0 absolute">
+              {% # theme-check-disable ImgLazyLoading %}
+              <img
+                srcset="{{ product_featured_image | image_url: width: 250 }} 250w,
+                  {{ product_featured_image | image_url: width: 350 }} 350w,
+                  {{ product_featured_image | image_url: width: 450 }} 450w,
+                  {{ product_featured_image | image_url: width: 750 }} 750w,
+                  {{ product_featured_image | image_url: width: 900 }} 900w,
+                  {{ product_featured_image | image_url: width: 1100 }} 1100w,
+                  {{ product_featured_image | image_url: width: 1500 }} 1500w
+                  {%- if product_featured_image.width %},{{ product_featured_image | image_url }} {{ product_featured_image.width }}w{% endif %}" 
+                src="{{ product_featured_image | image_url: width: 1500 }}"
+                sizes="{{ sizes }}"
+                alt="{{ product_featured_image.alt | split: "#" | first | escape }}"
+                class="w-full preview-img motion-reduce aspect-{{ media_aspect_ratio }} relative animate-Xpulse skeleton-image object-cover{%- if media_aspect_ratio != "natural" %} h-full min-h-full{% endif -%}"
+                loading="{{ loading | default: 'lazy' }}"
+                width="{{ product_featured_image.preview_image.width }}"
+                height="{{ product_featured_image.preview_image.height }}"
+                onload="requestAnimationFrame(() => {
+                  this.closest('.skeleton-image')?.classList.remove('animate-Xpulse', 'skeleton-image');
+                  setTimeout(() => { this.closest('.animate_transition_card__image')?.classList.add('lazy_active', 'active'); }, 250);
+                })"
+              />
+              {% # theme-check-enable ImgLazyLoading %}
+            </div>
+          {%- else -%} 
+            <div 
+              class='bg-[#c9c9c9] flex justify-center{% unless media_aspect_ratio == "natural" %} absolute{% endunless %} top-0 left-0 w-full h-full items-center'
+              x-init="$el.closest('.skeleton-image')?.classList.remove('animate-Xpulse', 'skeleton-image')"
+            >
+              {%- render 'icon-placeholder', icon: 'icon-product', class: 'w-full h-full' %}
+            </div>
+          {%- endif -%}
+        </div>
+      </a>
+    </div>
+    {% capture card_info %}
+      <div class="card-info mb-2{% if layout == 'horizontal' %} w-full pt-4 text-center{% else %} w-5/6 pl-4 pr-4{% endif %}">
+        {% if show_highlighted_features and settings.highlighted_features_position == "top_card" %}
+          {% render 'highlighted-features', card_product: card_product %}
+        {% endif %}
+        {%- if show_vendor -%}
+          <div class="mb-2 uppercase tracking-widest p-break-words">{{ card_product.vendor }}</div>
+        {%- endif -%}
+        <p class="card__heading h5 mb-2 leading-tight"{% if card_product.featured_media %} id="title-{{ section_id }}-{{ card_product_id }}"{% endif %}>
+          <a href="{{ card_product.url | within: url_collection }}"
+            class="x-card-title full-unstyled-link link-product-variant x-heading text-[rgba(var(--colors-heading))] hover:text-[rgba(var(--colors-text-link))] cursor-pointer duration-200 p-break-words"
+            @click='$store.xCustomerEvent.fire("product_selected", $el)'
+            x-customer-event-data="{{ data_for_customer_event | escape }}"
+          >
+            {{ card_product.title | escape }}
+          </a>
+        </p>
+        {% if show_highlighted_features and settings.highlighted_features_position == "below_title" %}
+          {% render 'highlighted-features', card_product: card_product, product_complementary: true %}
+        {% endif %}
+        {%- if show_rating -%}
+          {% liquid
+            assign content_alignment = 'left'
+            if layout == 'horizontal'
+              assign content_alignment = 'center'
+            elsif is_rtl
+              assign content_alignment = 'right'
+            endif
+          %}
+          {% render 'review-product', product: card_product, content_alignment: content_alignment, card_product: true, product_complementary: true %}
+        {%- endif -%}
+        <div class="x-card-price mb-2">
+          {% render 'price', product: card_product, use_variant: true, container: 'main-product-price' %}
+        </div>
+        {% if show_highlighted_features and settings.highlighted_features_position == "below_price" %}
+          {% render 'highlighted-features', card_product: card_product %}
+        {% endif %}
+        <template x-if="localStorage.getItem('selectedStore')">
+          <div id="x-availability-notice-{{ section.id }}" class="flex {% if layout == 'horizontal' %}justify-center{% endif %} items-center flex-wrap gap-1" x-show="$store.xStoreSelector?.canShow('{{ card_product_id }}', [{{ card_product.collections | map: 'id' | join: ', ' }}])">
+            {%- liquid 
+              assign availabilities = first_variant.store_availabilities
+              assign locations = availabilities | map: 'location' | map: 'name' | json
+            -%}
+            {%- if locations != blank -%}
+              {% assign pickup_locations = availabilities | where: 'pick_up_enabled', true | map: 'location' | map: 'name' | json %}
+              {% assign pickup_availabilites = availabilities | where: 'pick_up_enabled', true | map: 'available' | json  %}
+              {%- render 'availability-notice', locations: locations, pickup_locations: pickup_locations, pickup_availabilites: pickup_availabilites -%}
+            {%- endif -%}
+          </div>
+        </template>
+      </div>
+    {% endcapture %}
+    {{ card_info }}
+    <template x-if="$store.xQuickView && $store.xQuickView.enabled">
+      {%- if card_product.has_only_default_variant -%}
+        {%- capture b2b_price_hidden -%}
+          {%- render 'b2b-price-hidden', product: card_product -%}
+        {%- endcapture -%}
+        {%- unless settings.hide_cart or b2b_price_hidden contains 'true' -%}
+          <div x-data="xProductCart" x-show="$store.xQuickView.show_atc_button"{% if layout == 'horizontal' %} class="mt-auto"{% endif %}>
+            {%- assign product_form_id = 'product-form-choose-option' | append: card_product_id -%}
+            {%- form 'product', card_product, id: product_form_id, class: 'form B', novalidate: 'novalidate', data-type: 'add-to-cart-form', x-ref: 'product_form' -%}
+              <input type="hidden" aria-hidden="true" name="id" value="{{ first_variant.id }}">
+              {% if settings.show_in_cart_items != 'none' %}
+                {% render 'estimate-shipping-cart', product: card_product, message: settings.message_estimate_cart, disable_cart_edt: disable_cart_edt %}
+              {% endif %}
+              {% if can_show_preorder %}
+                <input name="properties[{{ 'general.preorder.name' | t }}]" aria-label="{{ 'general.preorder.name' | t }}" class="hidden" value="{{ message_preorder }}"/>
+              {% endif %}
+              <button
+                type="submit"
+                name="add"
+                {% if add_as_bundle %}
+                  @click.prevent="errorMessage == false && validateError($el) && validateErrorAddAsBundle($el) && addToCart($event);"
+                  data-add-as-bundle="true"
+                {% else %}
+                  @click.prevent="errorMessage == false && addToCart($event);"
+                {% endif %}
+                class="relative button button-action disable-action-btn-animation{% if layout == 'horizontal' %} w-full mt-4 pt-2.5 pb-2.5{% else %}{% if settings.edges_type == 'rounded_corners' %} rounded-[10px]{% endif %} not-icon w-[36px] inline-block pt-2.5 pb-2.5 pr-2.5 pl-2.5{% endif %}"
+                {% if insurance_enabled and insurance_default and shipping_insurance %}
+                  @init-run.window="loadInsurance('{{ shipping_insurance }}')"
+                {% endif %}
+                {% if insurance_enabled and product_insurance != blank and product_insurance.id == card_product_id %}
+                  style="display: none;"
+                {% endif %}
+                {% if variant_available == false %}
+                  disabled
+                  aria-label="{{ 'products.product.sold_out' | t }}"
+                {% else %}
+                  aria-label="{{ 'products.product.add_to_cart' | t }}"
+                {% endif %}
+                {% unless settings.default_select_available_variant or only_default_variant %}
+                  disabled
+                {% endunless %}
+              >
+                <span :class="loading && 'opacity-0'" class="block">
+                  {% if layout == 'horizontal' %}
+                    {% if variant_available == false %}{{ 'products.product.sold_out' | t }}{% else %}{{ 'products.product.add_to_cart' | t }}{% endif %}
+                  {% else %}
+                    {% render 'icon-alls', icon: 'icon-add-complementary' %}
+                  {% endif %}
+                </span>
+                <div class="inline-block w-5 h-5 absolute top-[calc(50%-10px)] left-[calc(50%-10px)]" x-show="loading" x-cloak>
+                  {% render 'icon-alls', icon: 'icon-loading' %}
+                </div>
+              </button>
+            {%- endform -%}
+          </div>
+        {%- endunless -%}
+      {% endif %}
+      {% unless card_product.has_only_default_variant %}
+        <div x-show="$store.xQuickView.enabled"{% if layout == 'horizontal' %} class="mt-auto"{% endif %}>
+          <button
+            class="button button-action{% if layout == 'horizontal' %} w-full mt-1.5 pt-2.5 pb-2.5{% else %}{% if settings.edges_type == 'rounded_corners' %} rounded-[10px]{% endif %} not-icon w-[36px] inline-block pt-2.5 pb-2.5 pr-2.5 pl-2.5{% endif %}"
+            id="button-quickview-{{ section_id }}-{{ card_product_id }}-{{ block_id }}"
+            {% if add_as_bundle %}
+              data-add-as-bundle="true"
+              @click.prevent='validateError($el) && validateErrorAddAsBundle($el) && $store.xQuickView && $store.xQuickView.open(); validateErrorAddAsBundle($el) && $store.xCustomerEvent.fire("product_selected", $el);'
+              x-on:mouseover="validateErrorAddAsBundle($el) && $store.xQuickView && $store.xQuickView.load('{{ card_product_url }}', $el, '{{ section_id }}-{{ card_product_id }}-{{ block_id }}')"
+              x-on:focus="validateErrorAddAsBundle($el) && $store.xQuickView && $store.xQuickView.load('{{ card_product_url }}', $el, '{{ section_id }}-{{ card_product_id }}-{{ block_id }}')"
+            {% else %}
+              @click.prevent='$store.xQuickView && $store.xQuickView.open(); $store.xCustomerEvent.fire("product_selected", $el);'
+              x-on:mouseover="$store.xQuickView && $store.xQuickView.load('{{ card_product_url }}', $el, '{{ section_id }}-{{ card_product_id }}-{{ block_id }}')"
+              x-on:focus="$store.xQuickView && $store.xQuickView.load('{{ card_product_url }}', $el, '{{ section_id }}-{{ card_product_id }}-{{ block_id }}')"
+            {% endif %}
+            x-customer-event-data="{{ data_for_customer_event | escape }}"
+            aria-label="{{ 'products.product.add_to_cart' | t }}"
+          >
+            <span>
+              {% if layout == 'horizontal' %}
+                {{ 'products.product.choose_options' | t }}
+              {% else %}
+                {% render 'icon-alls', icon: 'icon-add-complementary' %}
+              {% endif %}
+            </span>
+          </button>
+        </div>
+      {% endunless %}
+    </template>
+  </div>
+  {%- if variant_available and only_default_variant == false -%}
+    <div
+      id="choose-options-{{ section_id }}-{{ card_product_id }}-{{ block_id }}"
+      class="hidden md:block absolute w-full min-h-full h-full left-0 top-0 bg-[rgba(var(--background-color))] z-[15]"
+      x-show="showOptions"
+      x-transition:enter="transition-all ease-in-out duration-300"
+      x-transition:enter-start="opacity-0 transform translate-y-full"
+      x-transition:enter-end="opacity-100 transform translate-y-0"
+      x-transition:leave="transition-all ease-in-out duration-300"
+      x-transition:leave-start="opacity-100 transform translate-y-0"
+      x-transition:leave-end="opacity-0 transform translate-y-full"
+      x-cloak
+    >
+      <div class="choose-options relative w-full min-h-full h-full"></div>
+      <div class="icon-loading hidden absolute top-0 left-0 right-0 h-full w-full z-20 bg-[rgba(var(--background-color))]">
+        <div
+          class="lg:inline-block w-4 h-4 md:w-5 md:h-5 absolute top-[calc(50%-8px)] left-[calc(50%-8px)] md:top-[calc(50%-10px)] md:left-[calc(50%-10px)]">
+          {% render 'icon-alls', icon: 'icon-loading' %}
+        </div>
+      </div>
+    </div>
+  {%- endif -%}
+</div>

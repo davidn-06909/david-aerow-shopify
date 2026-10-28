@@ -1,0 +1,11 @@
+.shopify-block.shopify-app-block:has(.gw-rv-reviews-slider-widget-placeholder,.gw-rv-mini-slider-widget-placeholder,.gw-rv-main-widget-placeholder) {
+  max-width: 100%;
+  width: 100%;
+}
+
+@media (min-width: 767px){
+  .gw-rv-reviews-slider-widget-placeholder {
+    padding-left: 10%;
+    padding-right: 10%;
+  }
+}

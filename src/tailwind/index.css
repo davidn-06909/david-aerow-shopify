@@ -1,0 +1,125 @@
+@charset "UTF-8";
+
+/* ---------------------------------------------------------------------------
+ * Tailwind v4 — single import (replaces v3's separate base/components/utilities)
+ * ------------------------------------------------------------------------- */
+@import "tailwindcss";
+
+/* ---------------------------------------------------------------------------
+ * Source globs — what Tailwind scans for class names. Paths are relative to
+ * THIS file (src/tailwind/index.css).
+ *
+ * pre-process-template/ contains hand-authored class-name safelists for
+ * dynamic theme-settings-driven values (e.g. pt-[Xpx] where X comes from
+ * settings.spacing). Including the folder here guarantees those classes
+ * survive even though no template constructs them statically.
+ * ------------------------------------------------------------------------- */
+@source "../../assets/**/*.js";
+@source "../../blocks/**/*.liquid";
+@source "../../layout/**/*.liquid";
+@source "../../sections/**/*.liquid";
+@source "../../snippets/**/*.liquid";
+@source "./pre-process-template/**/*.liquid";
+
+/* ---------------------------------------------------------------------------
+ * v3-compat overrides. v4 changes several defaults that would otherwise cause
+ * subtle visual regressions on a live theme.
+ * ------------------------------------------------------------------------- */
+@theme {
+  --default-border-color: #e5e7eb;
+  --default-ring-color: #3b82f6;
+  --default-ring-width: 3px;
+}
+
+/* ---------------------------------------------------------------------------
+ * Custom variants — reauthored from the v3 build's compiled output. Names
+ * match the literal class-prefix strings already in the templates.
+ * ------------------------------------------------------------------------- */
+@custom-variant dark               (.dark &);
+@custom-variant quick-view         (.quick-view &);
+@custom-variant search-page        (.search-page &);
+@custom-variant unavailable        (.unavailable &);
+@custom-variant no-collage         (.no-collage &);
+@custom-variant promotion          (&.promotion);
+@custom-variant promotion-header   (.promotion-header &);
+@custom-variant active-hotspot     (.active-hotspot &);
+@custom-variant type-aside         (.type-aside &);
+@custom-variant product-page       (.product-page &);
+@custom-variant splide__slide--clone (.splide__slide--clone &);
+@custom-variant slideshow          (.splide-slideshow &);
+@custom-variant input_not_empty    (.input:not(:placeholder-shown) ~ &);
+
+/* TODO: the chained variant `pagination-bars:is-active-pagination:after:`
+ * (used only by the shimmerX animation on the bars-pagination component)
+ * is too exotic for @custom-variant. Hand-authored in slideshow.css. */
+
+/* ---------------------------------------------------------------------------
+ * v3-config-replacement utilities. The original v3 tailwind.config.js registered
+ * these as utilities so @apply could reference them. v4 needs an explicit
+ * @utility block — same effect, different syntax.
+ * (theme-settings.css ALSO defines bare .bg-image-treatment / .bg-theme-secondary
+ * rules; the duplication is intentional and harmless.)
+ * ------------------------------------------------------------------------- */
+@utility bg-image-treatment {
+  background: rgba(var(--image-treatment-text));
+}
+@utility bg-theme-secondary {
+  color: rgb(var(--colors-text-secondary));
+  background: rgba(var(--colors-background-secondary));
+}
+@utility ltr {
+  direction: ltr;
+}
+@utility rtl {
+  direction: rtl;
+}
+
+/* ---------------------------------------------------------------------------
+ * Vendored CSS — base layer (loads before Tailwind utilities).
+ * ------------------------------------------------------------------------- */
+@import "./components/lib/splide.css" layer(base);
+
+/* ---------------------------------------------------------------------------
+ * Theme settings — base layer. The original v3 build placed this BETWEEN
+ * tailwind base and tailwind utilities so utilities could override the
+ * settings-derived defaults. The base-layer assignment reproduces that
+ * cascade order.
+ * ------------------------------------------------------------------------- */
+@import "./components/theme-settings.css" layer(base);
+
+/* ---------------------------------------------------------------------------
+ * Component CSS — unlayered (highest cascade priority, after Tailwind
+ * utilities). Order preserved from the original v3 index.css.
+ *
+ * Note: app.scss (previous-tenant cruft) and popup-promotion.css (was never
+ * imported in the original build) are intentionally excluded.
+ * ------------------------------------------------------------------------- */
+@import "./components/confirmation-subcribe.css";
+@import "./components/slideshow.css";
+@import "./components/promotion-banner.css";
+@import "./components/map.css";
+@import "./components/featured-product.css";
+@import "./components/product-review.css";
+@import "./components/product-labels-and-badges.css";
+@import "./components/video-with-text.css";
+@import "./components/blog-post.css";
+@import "./components/main-register.css";
+@import "./components/style-app-cart.css";
+@import "./components/email-signup-banner.css";
+@import "./components/component-rte.css";
+@import "./components/promotion-grid.css";
+@import "./components/featured-collection.css";
+@import "./components/image-with-text.css";
+@import "./components/contact-form.css";
+@import "./components/header.css";
+@import "./components/announcement-bar.css";
+@import "./components/app-product-options.css";
+@import "./components/flash-sale.css";
+@import "./components/collage.css";
+@import "./components/okendo-reviews.css";
+@import "./components/parcel-panel.css";
+@import "./components/collection-page.css";
+@import "./components/app-review-options.css";
+@import "./components/app-wishlist-options.css";
+
+[x-cloak] { display: none !important; }

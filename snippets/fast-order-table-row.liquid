@@ -1,0 +1,164 @@
+{% doc %}
+  Renders one line of the fast order table (product/variant, stock, price, quantity, total).
+
+  Must be used inside an Alpine `x-for` that exposes `row` and `index`, within the
+  `xFastOrder` component scope.
+
+  @param {string} title_expr - Alpine expression for the main label. Groups with real variants pass the variant title; single-variant products pass the product title.
+  @param {string} [subtitle_expr] - Alpine expression for the secondary label. Defaults to the variant SKU.
+  @param {string} [row_class] - Extra classes for the row. Top-level product lines pass the group-header background so they match.
+  @param {string} [image_class] - Size classes for the thumbnail. Defaults to the variant size; product lines pass the larger group-header size.
+
+  @example
+  {% render 'fast-order-table-row', title_expr: 'row.product.title', row_class: 'bg-[rgba(var(--colors-background-secondary))]', image_class: 'w-20 h-20' %}
+{% enddoc %}
+
+{% liquid
+  assign row_title = title_expr | default: 'row.variant.title'
+  assign row_subtitle = subtitle_expr | default: 'row.variant.sku'
+  assign row_extra_class = row_class | default: ''
+  assign row_image_class = image_class | default: 'w-14 h-14'
+%}
+<tr
+  class="fo-row animate-enter block lg:table-row border-b border-[rgba(var(--colors-line-and-border))]{% if row_extra_class != blank %} {{ row_extra_class }}{% endif %}"
+  x-intersect.once="setTimeout(() => { $el.classList.remove('animate-enter') }, 300)"
+  :class="{ 'opacity-70': row.variant.available === false }"
+  :style="'animation-delay: ' + ((index % 10) * 50) + 'ms'"
+>
+  <td class="fo-product-cell block lg:table-cell pb-2 lg:pb-4 pt-4 pl-4 pr-4 align-middle">
+    <form
+      class="fo-line-form hidden"
+      :class="{ 'fo-line-form--valid': row.valid }"
+    >
+      <input type="hidden" class="product-id" :value="row.variant.id">
+      <input type="hidden" class="product-qty" :value="row.quantity">
+    </form>
+    <div class="fo-product-inner flex items-center gap-3">
+      <div
+        class="fo-img overflow-hidden {{ row_image_class }} shrink-0{% if settings.edges_type == 'rounded_corners' %} rounded-md{% endif %}"
+        x-show="row.variant.imageHtml || row.product.imageHtml"
+        x-html="row.variant.imageHtml || row.product.imageHtml"
+      ></div>
+      <div
+        x-show="!row.variant.imageHtml && !row.product.imageHtml"
+        class="fo-img shrink-0 {{ row_image_class }} bg-[#c9c9c9] flex items-center justify-center{% if settings.edges_type == 'rounded_corners' %} rounded-md{% endif %}"
+      >
+        {% render 'icon-placeholder', icon: 'icon-product', class: 'w-full h-full' %}
+      </div>
+      <div class="fo-meta min-w-0">
+        <span class="font-semibold block text-[rgba(var(--colors-heading))]" x-text="{{ row_title }}"></span>
+        <span class="text-[rgba(var(--colors-text))] block" x-text="{{ row_subtitle }}"></span>
+        <div
+          class="lg:hidden mt-2 inline-block"
+          :class="row.variant.available === false ? 'inventory-out-of-stock-status' : (isLowStock(row.variant) ? 'inventory-low-stock-status' : 'inventory-in-stock-status')"
+        >
+          <p
+            class="inventory-status w-fit pt-1 pb-1 pl-2 pr-2 rounded-full"
+            x-text="row.variant.available === false ? '{{ 'products.product.inventory_out_of_stock' | t }}' : (isLowStock(row.variant) ? '{{ 'products.product.inventory_low_stock' | t }}' + ' (' + row.variant.inventory_quantity + ')' : '{{ 'products.product.inventory_out_of_stock_continue_selling' | t }}')"
+          ></p>
+        </div>
+      </div>
+    </div>
+  </td>
+
+  <td class="pb-4 pt-4 align-middle hidden lg:table-cell text-center">
+    <div
+      class="inline-block"
+      :class="row.variant.available === false ? 'inventory-out-of-stock-status' : (isLowStock(row.variant) ? 'inventory-low-stock-status' : 'inventory-in-stock-status')"
+    >
+      <p
+        class="inventory-status w-fit m-auto pt-1 pb-1 pl-2 pr-2 rounded-full"
+        x-text="row.variant.available === false ? '{{ 'products.product.inventory_out_of_stock' | t }}' : (isLowStock(row.variant) ? '{{ 'products.product.inventory_low_stock' | t }}' + ' (' + row.variant.inventory_quantity + ')' : '{{ 'products.product.inventory_out_of_stock_continue_selling' | t }}')"
+      ></p>
+    </div>
+  </td>
+
+  <td class="fo-price block lg:table-cell pb-2 lg:pb-4 pt-0 lg:pt-4 pr-4 lg:pl-0 lg:pr-0 align-middle text-left lg:text-center font-semibold">
+    <template x-if="row.variant.compare_at_price > row.variant.price">
+      <p>
+        <s class="cap price-compare text-[80%]" x-text="formatMoney(row.variant.compare_at_price)"></s>
+        <span class="price-sale ml-1" x-text="formatMoney(row.variant.price)"></span>
+      </p>
+    </template>
+    <template x-if="!(row.variant.compare_at_price > row.variant.price)">
+      <p class="price" x-text="formatMoney(row.variant.price)"></p>
+    </template>
+    <template x-if="row.variant.quantity_price_breaks && row.variant.quantity_price_breaks.length">
+      <div class="flex flex-wrap items-center justify-start lg:justify-center gap-1 mt-2 lg:mt-1">
+        <template x-for="(tier, index) in row.variant.quantity_price_breaks" :key="tier.minimum_quantity">
+          <span
+            class="pl-2 pr-2 pt-1 pb-1 text-[90%] leading-none whitespace-nowrap rounded-xl"
+            :class="isTierActive(row, index) ? 'bg-[rgba(var(--colors-button))] text-[rgb(var(--colors-button-text))]' : 'bg-[rgba(var(--colors-line-and-border))] text-[rgba(var(--colors-text))]'"
+          >
+            <span x-text="tier.minimum_quantity + '+ {{ 'products.product.volumn_pricing.units' | t }}:'"></span>
+            <span x-text="formatMoney(tier.price)"></span>
+          </span>
+        </template>
+      </div>
+    </template>
+  </td>
+
+  <td class="fo-qty block lg:table-cell pb-4 pt-0 lg:pt-4 pr-4 lg:pl-0 lg:pr-0 align-middle text-left lg:text-center">
+    <div class="flex justify-start lg:justify-center">
+      <div class="flex flex-col justify-center items-center">
+        <span
+          class="product-form__quantity pt-2 pb-2 pl-3 pr-3 inline-flex w-fit border border-solid items-center {% if settings.edges_type == 'rounded_corners' %} rounded-full{% endif %}"
+          x-show="row.variant.available !== false"
+          :class="row.error ? 'border-[rgb(var(--color-error))]' : ''"
+        >
+          <button
+            class="w-6 h-6 cursor-pointer bg-transparent pt-1.5 pb-1.5 pr-1.5 pl-1.5 select-none disabled:opacity-40 disabled:cursor-not-allowed"
+            aria-label="{{ 'accessibility.decrease_quantity' | t }}"
+            :disabled="row.error === 'MIN'"
+            @click="decrementRow(row)"
+          >
+            {% render 'icon-alls', icon: 'icon-minus' %}
+          </button>
+          <input
+            type="number"
+            :min="row.rule.min"
+            :max="row.rule.max"
+            :step="row.rule.step"
+            class="outer-spin-button hide-spin-input focus:outline-none w-14 text-center bg-transparent"
+            aria-label="{{ 'products.product.quantity.label' | t }}"
+            x-model.number="row.quantity"
+            x-on:blur="evaluateRow(row)"
+          >
+          <button
+            class="w-6 h-6 cursor-pointer bg-transparent pt-1.5 pb-1.5 pr-1.5 pl-1.5 select-none disabled:opacity-40 disabled:cursor-not-allowed"
+            aria-label="{{ 'accessibility.increase_quantity' | t }}"
+            :disabled="row.error === 'MAX'"
+            @click="incrementRow(row)"
+          >
+            {% render 'icon-alls', icon: 'icon-plus' %}
+          </button>
+        </span>
+        <p
+          class="text-[rgba(var(--colors-text))] mt-1 text-[90%]"
+          x-show="(row.rule.min > 1 || row.rule.max != null || row.rule.step > 1) && (!row.error)"
+          x-text="[
+            row.rule.min > 1 ? '{{ 'sections.fast-order.qty_rule_min' | t }} ' + row.rule.min : null,
+            row.rule.step > 1 ? '{{ 'sections.fast-order.qty_rule_increment' | t }} ' + row.rule.step : null,
+            row.rule.max != null ? '{{ 'sections.fast-order.qty_rule_max' | t }} ' + row.rule.max : null
+          ].filter(Boolean).join(' · ')"
+        ></p>
+        <p class="text-[rgba(var(--color-error))] mt-1 text-[90%]" x-show="row.error">
+          <span x-show="row.error === 'MIN'">{{ 'sections.fast-order.qty_error_min' | t }} <span x-text="row.rule.min"></span></span>
+          <span x-show="row.error === 'MAX'">{{ 'sections.fast-order.qty_error_max' | t }} <span x-text="row.rule.max"></span></span>
+          <span x-show="row.error === 'MULTIPLE'">{{ 'sections.fast-order.qty_error_multiple' | t }} <span x-text="row.rule.step"></span></span>
+        </p>
+      </div>
+
+      <span
+        class="underline text-[rgb(var(--colors-text-link))] cursor-pointer ml-2 pt-2.5"
+        x-show="row.variant.available !== false"
+        @click="removeRow(row.variant.id)"
+      >{{ 'sections.fast-order.clear' | t }}</span>
+    </div>
+  </td>
+
+  <td class="hidden lg:table-cell pb-4 pt-4 pr-4 align-middle text-right font-semibold whitespace-nowrap">
+    <span x-show="row.variant.available === false">—</span>
+    <span x-show="row.variant.available !== false" x-text="formatMoney(rowTotal(row))"></span>
+  </td>
+</tr>

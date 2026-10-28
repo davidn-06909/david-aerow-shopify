@@ -1,0 +1,42 @@
+{% doc %}
+  Dispatches shopify:search:update for the search a buyer ran.
+
+  Render inside search.performed; facets.js dispatches later refinements.
+
+  @param {string} query - Search term, from search.terms.
+  @param {number} total_count - Matched result count, from search.results_count.
+
+  @example
+  {% render 'standard-events-search-update', query: search.terms, total_count: search.results_count %}
+{% enddoc %}
+{%- if query != blank -%}
+  <script data-query="{{ query | escape }}" data-total-count="{{ total_count | default: 0 }}">
+    (() => {
+      const data = document.currentScript.dataset;
+      const documentReady = document.readyState === 'loading'
+        ? new Promise((resolve) => document.addEventListener('DOMContentLoaded', resolve, { once: true }))
+        : Promise.resolve();
+
+      Promise.all([window.StandardEventsReady, documentReady]).then(([library]) => {
+        if (!library || !library.SearchUpdateEvent) return;
+        const Ctor = library.SearchUpdateEvent;
+        try {
+          const params = new URLSearchParams(window.location.search);
+          const search = { query: data.query };
+          const productFilters = Ctor.parseProductFilters(params);
+          if (productFilters) search.productFilters = productFilters;
+          const sortKey = Ctor.getSortKey(params);
+          if (sortKey) search.sortKey = sortKey;
+
+          const deferred = Ctor.createPromise();
+          const event = new Ctor({ search, promise: deferred.promise });
+          event.promise.catch(() => {});
+          (document.getElementById('FacetFiltersForm') || document).dispatchEvent(event);
+          deferred.resolve({ totalCount: Number(data.totalCount) });
+        } catch (error) {
+          console.warn('[Eurus] Could not dispatch shopify:search:update.', error);
+        }
+      });
+    })();
+  </script>
+{%- endif -%}

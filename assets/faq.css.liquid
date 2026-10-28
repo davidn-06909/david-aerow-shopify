@@ -1,0 +1,20 @@
+.faq-category {
+  padding-top: 0.75rem;
+}
+.faq-item + .faq-category, .faq-category + .faq-category, .x-block-faq-content + .faq-category {
+  margin-top: 1.25rem;
+}
+.faq-category:has(+ .faq-item), .faq-category:has(+ .faq-category), .faq-category:has(+ .x-block-faq-content) {
+  padding-bottom: 0.75rem;
+}
+@media (min-width: 768px) {
+  .faq-category {
+    padding-top: 1.25rem;
+  }
+  .faq-item + .faq-category, .faq-category + .faq-category, .x-block-faq-content + .faq-category {
+    margin-top: 1.75rem;
+  }
+  .faq-category:has(+ .faq-item), .faq-category:has(+ .faq-category), .faq-category:has(+ .x-block-faq-content) {
+    padding-bottom: 1.25rem;
+  }
+}

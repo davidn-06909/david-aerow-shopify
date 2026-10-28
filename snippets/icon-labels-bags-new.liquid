@@ -1,0 +1,50 @@
+{%- if icon != 'none' -%}
+  {% case icon %}
+    {% when "flower" %}
+      <svg width="100%" height="100%" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+        <path fill="none" d="M12.0076 12.8462C13.5785 12.8462 15.0851 12.2221 16.1959 11.1113C17.3067 10.0005 17.9307 8.49397 17.9307 6.92308V1L12.0076 4.38462L6.08457 1V6.92308C6.08457 8.49397 6.7086 10.0005 7.8194 11.1113C8.93019 12.2221 10.4367 12.8462 12.0076 12.8462ZM12.0076 12.8462V23M12.0076 23V21.3077M12.0076 23H16.2384C17.5849 23 18.8762 22.4651 19.8283 21.513C20.7804 20.5609 21.3153 19.2696 21.3153 17.9231V17.0769C21.3153 16.8525 21.2262 16.6373 21.0675 16.4786C20.9088 16.3199 20.6936 16.2308 20.4692 16.2308H17.0846C15.7381 16.2308 14.4467 16.7657 13.4946 17.7178C12.5425 18.6699 12.0076 19.9612 12.0076 21.3077M12.0076 23H7.77687C6.43039 23 5.13906 22.4651 4.18695 21.513C3.23484 20.5609 2.69995 19.2696 2.69995 17.9231V17.0769C2.69995 16.8525 2.7891 16.6373 2.94778 16.4786C3.10647 16.3199 3.32169 16.2308 3.5461 16.2308H6.93072C8.2772 16.2308 9.56854 16.7657 10.5206 17.7178C11.4728 18.6699 12.0076 19.9612 12.0076 21.3077" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    {% when "leaf" %}
+      <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24" fill="currentColor" preserveAspectRatio="xMidYMid meet">
+        <path fill-rule="evenodd" d="M23.708.841l-.497-.052-.052-.497.613-.064-.064.613 M22.643 1.358c-.383.046-.928.114-1.59.206-1.352.189-3.188.475-5.13.869-1.943.394-3.981.892-5.74 1.502-1.778.616-3.199 1.322-3.974 2.097-3.247 3.247-3.247 8.512 0 11.759 3.247 3.247 8.512 3.247 11.759 0 .775-.775 1.481-2.196 2.097-3.974.609-1.759 1.108-3.797 1.501-5.74.394-1.942.681-3.778.869-5.13.092-.662.161-1.207.207-1.59 M23.21.789l-.063-.497-.011.001-.031.003-.119.013c-.104.012-.256.03-.451.053-.39.047-.95.118-1.633.213-1.365.19-3.222.48-5.189.879-1.965.398-4.051.907-5.868 1.537-1.8.623-3.408 1.389-4.354 2.335-3.638 3.638-3.638 9.536 0 13.173 3.638 3.638 9.536 3.638 13.173 0 .946-.946 1.712-2.554 2.335-4.353.63-1.818 1.139-3.904 1.537-5.869.398-1.967.689-3.824.879-5.189.095-.683.166-1.243.213-1.633.023-.195.041-.347.053-.451l.013-.119.003-.031.001-.011"/>
+        <path d="M0.143982 23.1489L17.4988 5.7941L18.2059 6.5012L0.85109 23.856L0.143982 23.1489Z M12.3521 5.88919H13.3521V10.6265H17.9732V11.6265H12.3521V5.88919Z M8.49829 9.74307H9.49829V14.4803H14.1194V15.4803H8.49829V9.74307Z"/>
+      </svg>
+    {% when "shopping-bag" %}
+      <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24" fill="none" preserveAspectRatio="xMidYMid meet">
+        <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="M5.6 7.64h12.8 M8.8 7.64V6.2a3.2 3.2 0 1 1 6.4 0v1.44 M15.2 10.84a3.2 3.2 0 1 1-6.4 0 M18.4 7.64l1.587 12.438A1.6 1.6 0 0 1 18.4 21.88H5.6A1.6 1.6 0 0 1 4.013 20.078L5.6 7.64"/>
+      </svg>
+    {% when "shopping-bag-1" %}
+      <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24" fill="none" preserveAspectRatio="xMidYMid meet">
+        <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M20.142 19.463a1.75 1.75 0 0 1-.817 1.08 1.79 1.79 0 0 1-.568.34 1.83 1.83 0 0 1-.757.117H5.243a1.83 1.83 0 0 1-.757-.117 1.79 1.79 0 0 1-.568-.34 1.75 1.75 0 0 1-.817-1.08L5.077 8.538h13.846l1.219 10.925 M8.539 8.538V6.462a3.462 3.462 0 1 1 6.923 0v2.076"/>
+      </svg>
+    {% when "shopping-cart" %}
+      <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24" fill="none" preserveAspectRatio="xMidYMid meet">
+        <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="M2.99 7.2 4.19 15.6H16.8l4.8-8.4H2.99M2.4 2.4h3.6"/>
+        <path fill="currentColor" d="M5.39 18.149a1.8 1.8 0 1 1 0 3.6 1.8 1.8 0 0 1 0-3.6 M13.2 18.149a1.8 1.8 0 1 1 0 3.6 1.8 1.8 0 0 1 0-3.6"/>
+      </svg>
+    {% when "star" %}
+      <svg width="100%" height="100%" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+        <path fill="none" d="M16.9421 14.7229L21.6618 9.93045L15.0544 8.91329L12.0001 2.80464L8.94568 8.91329L2.33838 9.93045L7.05807 14.7229L5.93852 21.4601L12.0001 18.3134L18.0616 21.4601L16.9421 14.7229Z" stroke="currentColor" stroke-width="1.5" stroke-miterlimit="10"/>
+      </svg>
+    {% when "sun" %}
+      <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24" fill="none" preserveAspectRatio="xMidYMid meet">
+        <path stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none" d="M12 17a5 5 0 1 0 0-10 5 5 0 0 0 0 10 M12 1v2M12 21v2 M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42 M1 12h2M21 12h2 M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+      </svg>
+    {% when "arrow-left" %}
+      <svg width="100%" height="100%" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+        <path fill="none" d="M9.30024 7L4 12.3789L9.30024 17.7577M20 12.3789H5.03024" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+    {% when "arrow-right" %}
+      <svg width="100%" height="100%" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+        <path fill="none" d="M14.6998 17.7577L20 12.3788L14.6998 7M4 12.3789H18.9697" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>         
+    {% when "chevron-left" %}
+      <svg width="100%" height="100%" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+        <path fill="none" d="M16 1L5 12L16 23" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    {% when "chevron-right" %}
+      <svg width="100%" height="100%" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+        <path fill="none" d="M8 1L19 12L8 23" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+  {% endcase %}
+{%- endif -%}

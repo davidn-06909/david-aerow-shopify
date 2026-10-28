@@ -1,0 +1,580 @@
+{% comment %}
+    Renders the volume pricing table
+
+    Accepts:
+    - block: {object} the block object of volume pricing table block
+    Usage:
+    {% render 'volume-pricing-progress-bar', block: block %}
+{% endcomment %}
+{% style %}
+#x-pricing-progress-bar-{{ section.id }} {
+  {% if is_product_page %}
+    {% if block.settings.background_option_color.alpha != 0.0 %}
+      --background-color: {{ block.settings.background_option_color.red }}, {{ block.settings.background_option_color.green }}, {{ block.settings.background_option_color.blue }};
+    {% else %}
+      --background-color: {{ settings.colors_background.red }}, {{ settings.colors_background.green }}, {{ settings.colors_background.blue }};
+    {% endif %}
+    {% if block.settings.active_option_discount_color.alpha != 0.0 %}
+      --color-highlight: {{ block.settings.active_option_discount_color.red }}, {{ block.settings.active_option_discount_color.green }}, {{ block.settings.active_option_discount_color.blue }};
+    {% else %}
+      --color-highlight: {{ settings.colors_heading_highlight.red }}, {{ settings.colors_heading_highlight.green }}, {{ settings.colors_heading_highlight.blue }};
+    {% endif %}
+  {% else %}
+    --background-color: {{ settings.colors_background.red }}, {{ settings.colors_background.green }}, {{ settings.colors_background.blue }};
+    --color-highlight: {{ settings.colors_heading_highlight.red }}, {{ settings.colors_heading_highlight.green }}, {{ settings.colors_heading_highlight.blue }};
+  {% endif %}
+} 
+{% endstyle %}
+{% liquid
+  assign cart_qty = 0
+  assign price_max = product.selected_or_first_available_variant.price
+  assign price_break_price_active = price_max
+  for item in cart.items
+    if item.variant_id == product.selected_or_first_available_variant.id
+      assign cart_qty = cart_qty | plus: item.quantity
+    endif
+  endfor
+%}
+{%- if block.settings.layout == 'label' -%}
+  <div class="x-volume-pricing-table w-full mb-4 md:mb-6" id="volume-{{ section.id }}">
+    {%- if product.selected_or_first_available_variant.quantity_price_breaks.size > 0 -%}
+      <p class="font-medium mb-1 md:mb-2">{{ 'products.product.quantity.label' | t }}:</p>      
+      {% liquid
+        assign variant_picker_blocks = section.blocks | where: 'type', 'variant_picker'
+        assign quantity_selector_blocks = section.blocks | where: 'type', 'quantity_selector'
+       %}
+      {% if variant_picker_blocks.size == 0 and quantity_selector_blocks.size == 0 %}
+        <div 
+          x-init="document.addEventListener('eurus:cart:items-changed', () => {
+            Alpine.store('xUpdateVariantQuanity').cachedResults = [];
+            Alpine.store('xUpdateVariantQuanity').updateQuantity('{{ section.id }}', '{{ product.url }}', '{{ product.selected_or_first_available_variant.id }}');
+          });"
+        ></div>
+      {% endif %}
+        <div id="x-pricing-progress-bar-{{ section.id }}" class="x-pricing-progress-bar-container mb-4 md:mb-6">
+          {% liquid
+            assign quantity_price_break_size = product.selected_or_first_available_variant.quantity_price_breaks.size
+            assign cols = quantity_price_break_size | at_most: 5
+          %}
+          <div class="x-pricing-label-{{ section.id }} grid grid-cols-{{ cols }} gap-3 w-full justify-center text-center mb-2 md:mb-4 ">
+            {% for price_break in product.selected_or_first_available_variant.quantity_price_breaks %}
+              {% liquid
+                assign price_break_price = price_break.price
+                assign minimum_quantity = price_break.minimum_quantity
+                assign discount_per_product = price_max | times: 100 | divided_by: price_break_price | minus: 100 | append: '%' | prepend: '-'
+                assign is_active = false
+                assign next_index = forloop.index
+                if product.selected_or_first_available_variant.quantity_price_breaks[next_index]
+                  assign minimum_quantity_next = product.selected_or_first_available_variant.quantity_price_breaks[next_index].minimum_quantity
+                else
+                  assign minimum_quantity_next = ''
+                endif
+                if minimum_quantity_next != blank
+                  if cart_qty >= minimum_quantity and cart_qty < minimum_quantity_next
+                    assign is_active = true
+                  endif
+                else
+                  if cart_qty >= minimum_quantity
+                    assign is_active = true
+                  endif
+                endif
+                if is_active
+                  assign price_break_price_active = price_break_price
+                endif
+              %}
+              <div class="relative pt-3">
+                <div class="relative flex flex-col justify-between pt-4 pb-4 border-2 w-full rounded-2xl {% if is_active %} border-[rgba(var(--color-highlight))] bg-[rgba(var(--color-highlight),0.2)] {% else %} border-[rgba(var(--colors-line-and-border))] bg-[rgba(var(--background-color))]{% endif %}">
+                  <div
+                    role="button"
+                    tabindex="0"
+                    @keydown.enter.prevent="$el.click()"
+                    @keydown.space.prevent="$el.click()"
+                    class="font-semibold text-[150%] cursor-pointer "
+                    @click="() => {
+                      document.dispatchEvent(new CustomEvent(`eurus:product:quantity-changed-{{ section.id }}`, {
+                          detail: {
+                              quantity: {{ minimum_quantity }}
+                          }
+                      })); 
+                      document.dispatchEvent(new CustomEvent(`quantity:changed-{{ section.id }}`, {
+                        detail: {
+                          qty: {{ minimum_quantity }}
+                        }
+                      }));                     
+                    }"
+                  >
+                    {{ minimum_quantity }}
+                  </div>
+                  <div class="text-[80%] text-[rgb(var(--colors-text),0.7)]">{{ 'sections.collection_list.items' | t }}</div>
+                </div>
+                <div class="absolute text-[70%] top-0 left-1/2 -translate-x-1/2 {% if is_active %} bg-[rgba(var(--color-highlight))] {% else %} bg-[rgba(var(--colors-text))] {% endif %} text-[rgba(var(--colors-background))] rounded-full pt-1 pb-1 pl-3 pr-3">
+                  {{ discount_per_product }}
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+          {% liquid
+            assign qty_rule_min = product.selected_or_first_available_variant.quantity_rule.min | default: 1
+            assign price_per_item = price_break_price_active
+            if cart_qty != 0
+              assign total_price = price_per_item | times: cart_qty
+            else
+              assign total_price = price_per_item | times: qty_rule_min
+            endif
+            if price_break_price_active == price_max
+              assign original_total_price = ''
+              assign money_save = 0
+            else 
+              assign original_total_price = price_max | times: cart_qty 
+              assign money_save = original_total_price | minus: total_price
+            endif
+          %}
+          {% capture quantity_price_breaks %}
+            [
+              {% for price_break in product.selected_or_first_available_variant.quantity_price_breaks %}
+                {
+                  'minimum_quantity': {{ price_break.minimum_quantity | json }},
+                  'price': {{ price_break.price | json }}
+                }{% unless forloop.last %},{% endunless %}
+              {% endfor %}
+            ]
+          {% endcapture %}
+          <div 
+            x-intersect.once.margin.200px="$store.xUpdateVariantQuanity.listenQtyATC({{ cart_qty }}, {{ price_max }}, {{ quantity_price_breaks | strip }}, '{{ product.id }}', '{{ section.id }}', {{ settings.currency_code_enable }}, window.Eurus.money_with_currency_format, window.Eurus.money_format)"
+            class="grid w-full {% if block.settings.discount_summary_layout == 'vertical' %}grid-rows-3 pl-4 pr-4 pt-2 pb-2 bg-[rgba(var(--colors-background-secondary))] rounded-xl{% else %}grid-cols-3 pt-4 pb-4 gap-2{% endif %}"
+          >
+            <div class="order-1 {% if block.settings.discount_summary_layout == 'vertical' %}flex w-full border-b-1 pt-2 pb-2 border-b-2 justify-between {% else %}flex-row gap-1 items-start pl-4 pr-4 pt-3 pb-3 rounded-xl bg-[rgba(var(--colors-background-secondary))]{% endif %}">
+              <div class="{% if block.settings.discount_summary_layout == 'vertical' %}flex max-w-[50%] items-center{% else %}text-[80%]{% endif %} ">{% if block.settings.discount_summary_layout == 'vertical' %} {{ 'products.product.price.total_price' | t }} {% else %} {{ 'sections.cart.total' | t }} {% endif %}</div>
+              <div class="{% if block.settings.discount_summary_layout == 'vertical' %}max-w-[50%] flex flex-wrap items-end justify-end gap-x-3{% endif %}">
+                {% if block.settings.discount_summary_layout == 'vertical' %}
+                  <s class="pricingPB-original-total-price-{{ section.id }} relative flex text-[rgb(var(--colors-text),0.7)]">
+                    {% if settings.currency_code_enable %}{{ original_total_price | money_with_currency }}{%  else %}{{ original_total_price | money }}{% endif %}
+                  </s>
+                {% endif %}
+                <div class="pricingPB-total-price-{{ section.id }} font-medium text-[110%]">{% if settings.currency_code_enable %}{{ total_price | money_with_currency }}{%  else %}{{ total_price | money }}{% endif %}</div>
+              </div>
+            </div>
+            <div class="{% if block.settings.discount_summary_layout == 'vertical' %}order-2 flex w-full border-b-2 pt-2 pb-2 justify-between {% else %}order-3 flex-row gap-1 items-start pl-4 pr-4 pt-3 pb-3 rounded-xl bg-[rgba(var(--colors-background-secondary))]{% endif %}">
+              <div class="{% if block.settings.discount_summary_layout == 'horizontal' %}text-[80%]{% endif %} ">{% if block.settings.discount_summary_layout == 'vertical' %} {{ 'products.product.price.price_per_item' | t }} {% else %} {{ 'products.product.price.per_item' | t }} {% endif %} </div>
+              <div class="font-medium text-[110%]">
+                <span class="pricingPB-price-per-item-{{ section.id }}">{% if settings.currency_code_enable %}{{ price_per_item | money_with_currency}}{%  else %}{{ price_per_item | money}}{% endif %}</span>
+                <span>{% if block.settings.discount_summary_layout == 'vertical' %} {{ 'sections.collection_list.item' | t | prepend: ' / '}}{% else %} {{ 'products.product.price.each' | t }}{% endif %}</span>
+              </div>
+            </div>
+            <div class="{% if block.settings.discount_summary_layout == 'vertical' %}order-3 flex w-full pt-2 pb-2 justify-between {% else %}order-2 flex-row gap-1 items-start pl-4 pr-4 pt-3 pb-3 rounded-xl bg-[rgba(var(--colors-background-secondary))] {% endif %}">
+              <div class="{% if block.settings.discount_summary_layout == 'horizontal' %}text-[80%]{% endif %}">{{ 'products.product.price.you_save' | t }}</div>
+              <div class="pricingPB-money-save-{{ section.id }} font-medium text-[rgba(var(--color-highlight))] text-[110%]">
+                {% if settings.currency_code_enable %}{{ money_save | money_with_currency }}{%  else %}{{ money_save | money }}{% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+    {%- endif -%}
+  </div>
+{%- else -%}
+  <div class="x-volume-pricing-table w-full mb-4 md:mb-6" id="volume-{{ section.id }}">
+    <div id="x-pricing-progress-bar-{{ section.id }}" class="x-pricing-progress-bar-container">
+      {%- if product.selected_or_first_available_variant.quantity_price_breaks.size > 0 -%}
+        <p class="font-medium mb-1">{{ 'products.product.volumn_pricing.name' | t }}</p>
+        {% if block.settings.default_design == false %}  
+          {%- for price_break in product.selected_or_first_available_variant.quantity_price_breaks -%}
+            {% liquid
+              assign price_break_price = price_break.price
+              assign minimum_quantity = price_break.minimum_quantity
+              assign is_active = false
+              assign next_index = forloop.index
+              if product.selected_or_first_available_variant.quantity_price_breaks[next_index]
+                assign minimum_quantity_next = product.selected_or_first_available_variant.quantity_price_breaks[next_index].minimum_quantity
+              else
+                assign minimum_quantity_next = ''
+              endif
+              if minimum_quantity_next != blank
+                if cart_qty >= minimum_quantity and cart_qty < minimum_quantity_next
+                  assign is_active = true
+                endif
+              else
+                if cart_qty >= minimum_quantity
+                  assign is_active = true
+                endif
+              endif
+              if is_active
+                assign price_break_price_active = price_break_price
+              endif
+            %} 
+            <div class="flex justify-between pl-2 pr-2 pt-2.5 pb-2.5 border-transparent rounded-lg {% if is_active %} bg-[rgba(var(--color-highlight),0.2)] {% endif %}">
+              <div class="flex max-w-[50%] items-center gap-1">
+                {% if is_active %}
+                  <span class="inline-block w-3.5 h-3.5 text-[rgba(var(--color-highlight))]">
+                    {% if block.settings.custom_goal_reached_icon == blank %}
+                      {% if block.settings.another_goal_reached_icon != blank
+                        and block.settings.goal_reached_icon == 'another_icon'
+                      %}
+                        {% render 'icon-new-alls', icon: block.settings.another_goal_reached_icon %}
+                      {% else %}
+                        {% if block.settings.goal_reached_icon %}
+                          {% render 'icon-labels-bags', icon: block.settings.goal_reached_icon %}
+                        {% else %}
+                          {% render 'icon-labels-bags', icon: 'award' %}
+                        {% endif %}
+                      {% endif %}
+                    {% else %}
+                      {{ block.settings.custom_goal_reached_icon }}
+                    {% endif %}
+                  </span>
+                {% endif %}
+                <div
+                  role="button"
+                  tabindex="0"
+                  class="text-center cursor-pointer {% if is_active %} text-[rgba(var(--color-highlight))] {% endif %}"
+                    @click="
+                      document.dispatchEvent(new CustomEvent(`eurus:product:quantity-changed-{{ section.id }}`, {
+                        detail: {
+                          quantity: {{ minimum_quantity }}
+                        }
+                      }));
+                    "
+                    @keydown.enter.prevent="$el.click()"
+                    @keydown.space.prevent="$el.click()"
+                >
+                  {{ minimum_quantity | append:"+ items" }}
+                </div>
+              </div>
+              {% liquid
+                if settings.currency_code_enable
+                  assign total_price = price_break_price | times: minimum_quantity | money_with_currency
+                else
+                  assign total_price = price_break_price | times: minimum_quantity | money
+                endif
+              %}
+              <div class="flex max-w-[50%] items-center justify-end gap-3 justify-items-end">
+                <span class="text-[90%] text-end text-[rgb(var(--colors-text),0.7)]">{{ 'products.product.price.total_price' | t | append: ": " | append: total_price }}+</span>
+                <span class="text-end{% if is_active %} text-[rgba(var(--color-highlight))] {% endif %}">{% if settings.currency_code_enable %}{{ price_break_price | money_with_currency | append: '/item' }}{% else %}{{ price_break_price | money | append: '/item' }}{%  endif %}</span>
+                {% if is_active %}
+                  <span class="self-center justify-center border border-transparent rounded-xl bg-[rgba(var(--color-highlight),0.8)] text-white pl-3 pr-3 pt-1 pb-1 text-center text-[80%] shrink">
+                    {{- 'products.product.price.active' | t -}}
+                  </span>
+                {% endif %}
+              </div>
+            </div>
+          {%- endfor -%}
+        {% else %}
+          <ul class="list-unstyled">
+            {%- for price_break in product.selected_or_first_available_variant.quantity_price_breaks -%}
+              {%- liquid
+                if settings.currency_code_enable
+                  assign price_break_price = price_break.price | money_with_currency
+                else
+                  assign price_break_price = price_break.price | money
+                endif
+              -%}
+              <li class="flex justify-between pt-2 pb-2 border-t">
+                <span
+                  role="button"
+                  tabindex="0"
+                  class="cursor-pointer"
+                  @click='document.dispatchEvent(new CustomEvent(`eurus:product:quantity-changed-{{ section.id }}`, {
+                    detail: {
+                      quantity: {{ price_break.minimum_quantity }}
+                    }
+                  }));'
+                  @keydown.enter.prevent="$el.click()"
+                  @keydown.space.prevent="$el.click()"
+                >
+                  {{- price_break.minimum_quantity -}}+
+                </span>
+                <span>
+                  {{- price_break_price -}}/ea
+                </span>
+              </li>
+            {%- endfor -%}
+          </ul>
+        {% endif %}  
+      {%- endif -%}
+      {%- if block.settings.show_progress_bar and product.selected_or_first_available_variant.quantity_price_breaks.size > 0 -%}
+        {% liquid
+          assign variant_picker_blocks = section.blocks | where: 'type', 'variant_picker'
+          assign quantity_selector_blocks = section.blocks | where: 'type', 'quantity_selector'
+        %}
+        {% if variant_picker_blocks.size == 0 and quantity_selector_blocks.size == 0 %}
+          <div 
+            x-init="document.addEventListener('eurus:cart:items-changed', () => {
+              Alpine.store('xUpdateVariantQuanity').cachedResults = [];
+              Alpine.store('xUpdateVariantQuanity').updateQuantity('{{ section.id }}', '{{ product.url }}', '{{ product.selected_or_first_available_variant.id }}');
+            });"
+          ></div>
+        {% endif %}
+            {% liquid
+              assign is_slider = false
+              if product.selected_or_first_available_variant.quantity_price_breaks.size > 3
+                assign is_slider = true
+              endif                                           
+              
+              assign text_size = settings.text_base_size | times: 0.00875
+              assign text_size_mobile = settings.text_base_size | times: 0.007875
+
+              assign product_quantity_in_cart = 0
+              for item in cart.items
+                if product.selected_or_first_available_variant.id == item.variant_id
+                  assign product_quantity_in_cart = product_quantity_in_cart | plus: item.quantity
+                endif
+              endfor
+
+              assign goal_reached_message_show = false
+              assign goal_reached_value = 0  
+              assign next_goal_reached_needed = 0
+              assign next_goal_reached_value = 0
+              assign previous_price_break_min_msg = 0
+              for price_break in product.selected_or_first_available_variant.quantity_price_breaks
+                if product_quantity_in_cart >= price_break.minimum_quantity
+                  if product_quantity_in_cart == price_break.minimum_quantity
+                    assign goal_reached_message_show = true
+                  endif
+                    if settings.currency_code_enable
+                      assign goal_reached_value = price_break.price | money_with_currency
+                    else
+                      assign goal_reached_value = price_break.price | money
+                    endif
+                endif
+
+                assign current_min_qty_msg = price_break.minimum_quantity
+                
+
+                assign is_prev_goal_reached_msg = false
+                if product_quantity_in_cart >= previous_price_break_min_msg
+                  assign is_prev_goal_reached_msg = true
+                endif
+
+                if is_prev_goal_reached_msg
+                  assign range_msg = current_min_qty_msg | minus: previous_price_break_min_msg
+                  assign progress_qty_msg = product_quantity_in_cart | minus: previous_price_break_min_msg
+                  assign next_goal_reached_needed = range_msg | minus: progress_qty_msg
+                  if settings.currency_code_enable
+                    assign next_goal_reached_value = price_break.price | money_with_currency
+                  else
+                    assign next_goal_reached_value = price_break.price | money
+                  endif
+                endif
+                assign previous_price_break_min_msg = current_min_qty_msg
+              endfor      
+              
+              assign previous_price_break_min = 0
+            %}        
+            {% if goal_reached_message_show or next_goal_reached_needed < 0 %}
+              {% liquid
+                assign goal_reached_value = goal_reached_value | append: '/ea'
+                assign post_message = block.settings.post_goal_msg | replace: '[goal_label]', goal_reached_value
+              %}
+              <div class="x-post-progress-msg mb-4 mt-4 rte">{{ post_message }}</div>
+            {% else %}
+              {% liquid
+                assign next_goal_reached_value = next_goal_reached_value | append: '/ea'
+                assign pre_message = block.settings.pre_goal_msg | replace: '[x]', next_goal_reached_needed | replace: '[goal_label]', next_goal_reached_value
+              %}
+              <div class="x-pre-progress-msg mb-4 mt-4 rte">{{ pre_message }}</div>
+            {% endif %}  
+            {%- style -%}
+              .icon-size-{{ block.id }} {
+                width: {{ block.settings.icon_size }}px;
+                height: {{ block.settings.icon_size }}px;
+                color: rgba(var(--color-highlight));
+                border-color: rgba(var(--color-highlight));
+              }
+              .icon-size-{{ block.id }}.goal-reached, .none-icon-{{ block.id }}.goal-reached {
+                background: rgba(var(--color-highlight));;
+                color: rgba(var(--colors-background))
+              }
+              {% unless block.settings.goal_reached_icon == "none" and block.settings.goal_icon == "none"  %}
+                .none-icon-padding:has(.none-icon-{{ block.id }}) {
+                  padding-top: calc(({{ block.settings.icon_size | minus: 16 }}px / 2));
+                  padding-bottom: calc(({{ block.settings.icon_size | minus: 16 }}px / 2));
+                }
+              {% endunless %}
+              .none-icon-{{ block.id }} {
+                width: 16px;
+                height: 16px;
+                color: rgba(var(--color-highlight));;
+                border-color: rgba(var(--color-highlight));;
+              }    
+              .padding-text-pricing {
+                padding-bottom: {{ text_size_mobile | times: 1.375 | plus: 0.375 }}rem;
+                padding-top: {{ text_size_mobile | times: 1.375 | plus: 0.375 }}rem
+              }
+              @media (min-width: 768px) {
+                .padding-text-pricing {
+                  padding-bottom: {{ text_size | times: 1.375 | plus: 0.375 }}rem;
+                  padding-top: {{ text_size | times: 1.375 | plus: 0.375 }}rem
+                }
+              }    
+              .pricing-progress::after {
+                content: "";
+                position: absolute;
+                border-color: rgba(var(--color-highlight));;
+                border-top: 1px solid;
+                top: -1px;
+                width: var(--progress)
+              }                         
+            {%- endstyle -%}             
+            <div 
+              class="x-pricing-progress-bar-list x-splide splide visible"
+              id="x-pricing-progress-items-{{ section.id }}"
+              {% if is_slider -%}
+                x-intersect.once.margin.200px='$store.xSplide.load($el, {    
+                  "speed": 1000, 
+                  "pagination": false, 
+                  "mediaQuery": "min", 
+                  "updateOnMove": "true",
+                  "pauseOnHover": true,
+                  "pauseOnFocus": false,
+                  "arrows": false,
+                  "drag": true,
+                  "autoWidth": true,
+                  "gap": "0px",
+                  "focus": "center",
+                  "breakpoints": {
+                    300: {          
+                      "perPage": 3,
+                      "perMove": 3
+                    },
+                    768: {
+                      "perPage": 3,
+                      "perMove": 3
+                    },
+                    1024: {
+                      {% if product.selected_or_first_available_variant.quantity_price_breaks.size <= 5 -%} 
+                        "destroy": true,
+                      {% else -%}
+                        "destroy": false,
+                      {%- endif %}
+                      "perPage": 5,
+                      "perMove": 5
+                    }
+                  },
+                  "events": [
+                    {
+                      "event": "ready",
+                      "callback": () => {
+                        document.dispatchEvent(new CustomEvent("eurus:{{ block.id }}:splide-ready"));
+                      }
+                    }
+                  ]
+                })'
+              {%- endif -%}
+            >                            
+              <div class="{% if is_slider %} splide__track overflow-x-clip overflow-y-visible md:cursor-grab{% endif %}">
+                <div class="splide__list flex items-center">
+                  {% if is_slider %}
+                    {% style %}
+                      .x-pricing-progress-bar-item {
+                        width: calc((100% / 3) - (2rem / {{ forloop.length | minus: 1 }}));
+                      }
+                      .x-pricing-progress-bar-item.last-item {
+                        width: calc((100% / 3) + 2rem);
+                      }            
+                      @media (min-width: 1024px) {
+                        .x-pricing-progress-bar-item {
+                          width: calc((100% / 5) - (2rem / {{ forloop.length | minus: 1 }}));
+                        }
+                        .x-pricing-progress-bar-item.last-item {
+                          width: calc((100% / 5) + 2rem);
+                        }
+                      }
+                    {% endstyle %}
+                  {% endif %}
+                  {%- for price_break in product.selected_or_first_available_variant.quantity_price_breaks -%}
+                    {% liquid
+                      assign current_min_qty = price_break.minimum_quantity | times: 1.0
+                      if settings.currency_code_enable
+                        assign price_break_price = price_break.price | money_with_currency
+                      else
+                        assign price_break_price = price_break.price | money
+                      endif
+                      assign is_prev_goal_reached = false
+                      if product_quantity_in_cart >= previous_price_break_min 
+                        assign is_prev_goal_reached = true
+                      endif
+
+                      if is_prev_goal_reached
+                        assign range = current_min_qty | minus: previous_price_break_min
+                        assign progress_qty = product_quantity_in_cart | minus: previous_price_break_min
+
+                        if progress_qty > range
+                          assign process = 100
+                        elsif progress_qty < 0
+                          assign process = 0
+                        else
+                          assign process = progress_qty | times: 100 | divided_by: range
+                        endif
+                      else
+                        assign process = 0
+                      endif
+
+                      assign previous_price_break_min = current_min_qty
+                    %}
+                    <div class="x-pricing-progress-bar-item {% if forloop.last %}last-item{% endif %} {% unless is_slider %}flex-1{% endunless %} padding-text-pricing flex items-center splide__slide x-splide-slide">                          
+                      <span class="border-t flex-1 pricing-progress relative" 
+                        style="--progress: {{ process }}%"
+                      ></span>
+                      <div
+                        {% if is_slider %}
+                          role="button"
+                          tabindex="0"
+                          {% if product_quantity_in_cart >= price_break.minimum_quantity %}
+                            x-init="document.addEventListener(`eurus:{{ block.id }}:splide-ready`, () => {
+                              $el.closest('.x-pricing-progress-bar-list').splide.go({{ forloop.index }});
+                            });"
+                          {% endif %}
+                          @click="$el.closest('.x-pricing-progress-bar-list').splide.go({{ forloop.index }})"
+                          @keydown.enter.prevent="$el.click()"
+                          @keydown.space.prevent="$el.click()"
+                        {% endif %}
+                        class="flex flex-col items-center relative none-icon-padding"
+                      >
+                        <span class="{% if product_quantity_in_cart >= price_break.minimum_quantity %}{% if block.settings.goal_reached_icon == "none" %}none-icon-{{ block.id }}{% else %}icon-size-{{ block.id }}{% endif %} goal-reached {% else %}{% if block.settings.goal_icon == "none" %}none-icon-{{ block.id }}{% else %}icon-size-{{ block.id }}{% endif %}{% endif %} pt-1.5 pb-1.5 pl-1.5 pr-1.5 border rounded-full">
+                          {% if product_quantity_in_cart >= price_break.minimum_quantity %}
+                            {% if block.settings.custom_goal_reached_icon == blank %}
+                              {% if block.settings.another_goal_reached_icon != blank and block.settings.goal_reached_icon == 'another_icon' %}
+                                {% render 'icon-new-alls', icon: block.settings.another_goal_reached_icon %}
+                              {% else %}
+                                {% render 'icon-labels-bags', icon: block.settings.goal_reached_icon %}
+                              {% endif %}
+                            {% else %}
+                              {{ block.settings.custom_goal_reached_icon }}
+                            {% endif %}
+                          {% else %}
+                            {% if block.settings.custom_goal_icon == blank %}
+                              {% if block.settings.another_goal_icon != blank and block.settings.goal_icon == 'another_icon' %}
+                                {% render 'icon-new-alls', icon: block.settings.another_goal_icon %}
+                              {% else %}
+                                {% if block.settings.goal_icon %}
+                                  {% render 'icon-labels-bags', icon: block.settings.goal_icon %}
+                                {% else %}
+                                  {% render 'icon-labels-bags', icon: 'award' %}
+                                {% endif %}
+                              {% endif %}
+                            {% else %}
+                              {{ block.settings.custom_goal_icon }}
+                            {% endif %}
+                          {% endif %}
+                        </span>
+                        <span class="absolute top-full pt-1.5">                
+                          {{- price_break.minimum_quantity -}}
+                        </span>
+                        <span class="absolute bottom-full pb-1.5 whitespace-nowrap overflow-hidden">
+                          {{- price_break_price -}}/ea
+                        </span>
+                      </div> 
+                      {% if forloop.last %}
+                        <span class="border-t w-8 pricing-progress relative" 
+                          {% if product_quantity_in_cart >= price_break.minimum_quantity %} style="--progress: 100%" {% endif %}
+                        ></span>  
+                      {% endif %}
+                    </div>
+                  {%- endfor -%}
+                </div>
+              </div>
+            </div>
+
+      {%- endif -%}
+    </div>
+  </div>
+{%- endif -%}

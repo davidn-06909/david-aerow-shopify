@@ -1,0 +1,1212 @@
+{%- liquid
+  assign main_variant = product.selected_or_first_available_variant
+  assign is_simple_product = false
+  if main_variant.title contains 'Default'
+    assign is_simple_product = true
+  endif
+  assign block_id = block.id
+  assign rounded_corner = false
+  if settings.edges_type == 'rounded_corners'
+    assign rounded_corner = true
+  endif
+
+  if settings.currency_code_enable
+    assign money_format = shop.money_with_currency_format
+  else
+    assign money_format = shop.money_format
+  endif
+
+  assign product_list_metafields = product.metafields.custom.set_companions.value
+  assign set_products = ''
+  for product in product_list_metafields
+    assign set_products = set_products | append: product.id | append: ','
+  endfor
+  for i in (1..3)
+    assign product_key = 'product_' | append: i
+    assign set_product = block.settings[product_key]
+    if set_product != blank
+      assign set_products = set_products | append: set_product.id | append: ','
+    endif
+  endfor
+
+  assign product_ids = set_products | split: ','
+  assign item_count = product_ids.size
+-%}
+{%- if item_count > 0 -%}
+  {%- liquid
+    # out_of_stock handling:
+    #   'hide'    → if any item's default variant is unavailable at page load,
+    #               don't render the block at all (server-side, below).
+    #   'disable' → always render; the Add-all button is disabled and a
+    #               "Sold out" tag shows per item whenever a selected variant
+    #               is unavailable (handled live via Alpine setAvailable).
+    # After render, both modes behave the same on variant change (disable + tag).
+    assign any_default_unavailable = false
+
+    if main_variant.available == false
+      assign any_default_unavailable = true
+    else
+      assign offset_mtf = 0
+      assign item_active_index = 0
+      for i in (1..3)
+        if product_list_metafields != blank and item_active_index < product_list_metafields.size
+          for item in product_list_metafields offset: offset_mtf
+            assign offset_mtf = offset_mtf | plus: 1
+            if item.id == product.id
+              continue
+            endif
+            assign set_product = item
+            assign chosen_variant = set_product.selected_or_first_available_variant
+            unless chosen_variant.available
+              assign any_default_unavailable = true
+            endunless
+            assign item_active_index = item_active_index | plus: 1
+            break
+          endfor
+        else
+          assign block_index = i | minus: item_active_index
+          assign product_key = 'product_' | append: block_index
+          assign set_product = block.settings[product_key]
+          if set_product == blank or set_product.id == product.id
+            continue
+          endif
+
+          assign variant_key = 'variant_id_' | append: block_index
+          assign wanted_variant_id = block.settings[variant_key]
+
+          assign chosen_variant = null
+          if wanted_variant_id != blank
+            assign wanted_variant_num = wanted_variant_id | plus: 0
+            assign chosen_variant = set_product.variants | where: 'id', wanted_variant_num | first
+          endif
+          unless chosen_variant
+            assign chosen_variant = set_product.selected_or_first_available_variant
+          endunless
+
+          unless chosen_variant.available
+            assign any_default_unavailable = true
+          endunless
+        endif
+      endfor
+    endif
+    assign should_render = true
+    if any_default_unavailable and block.settings.out_of_stock == 'hide'
+      assign should_render = false
+    endif
+  -%}
+  {%- if should_render -%}
+    {%- style -%}
+      .complete-the-set-{{ block_id }} {
+        --color-highlight: {{ settings.colors_heading_highlight.red }}, {{ settings.colors_heading_highlight.green }}, {{ settings.colors_heading_highlight.blue }};
+        {%- if block.settings.background_color_light != blank and block.settings.background_color_light.alpha != 0.0 %}
+          --colors-background: {{ block.settings.background_color_light.red }}, {{ block.settings.background_color_light.green }}, {{ block.settings.background_color_light.blue }};
+        {% else %}
+          --colors-background:  {{ settings.colors_background.red }}, {{ settings.colors_background.green }}, {{ settings.colors_background.blue }};
+        {% endif -%}
+        {%- if block.settings.heading_color_light != blank and block.settings.heading_color_light.alpha != 0.0 %}
+          --colors-heading: {{ block.settings.heading_color_light.red }}, {{ block.settings.heading_color_light.green }}, {{ block.settings.heading_color_light.blue }};
+        {% else %}
+          --colors-heading:  {{ settings.colors_heading.red }}, {{ settings.colors_heading.green }}, {{ settings.colors_heading.blue }};
+        {% endif -%}
+        {%- if block.settings.text_color_light != blank and block.settings.text_color_light.alpha != 0.0 %}
+          --colors-text: {{ block.settings.text_color_light.red }}, {{ block.settings.text_color_light.green }}, {{ block.settings.text_color_light.blue }};
+        {% else %}
+          --colors-text:  {{ settings.colors_text.red }}, {{ settings.colors_text.green }}, {{ settings.colors_text.blue }};
+        {% endif -%}
+        {%- if block.settings.line_border_color_light != blank and block.settings.line_border_color_light.alpha != 0.0 %}
+          --colors-line-and-border: {{ block.settings.line_border_color_light.red }}, {{ block.settings.line_border_color_light.green }}, {{ block.settings.line_border_color_light.blue }};
+        {% else %}
+          --colors-line-and-border:  {{ settings.colors_line_and_borders.red }}, {{ settings.colors_line_and_borders.green }}, {{ settings.colors_line_and_borders.blue }};
+        {% endif -%}
+        {%- if block.settings.badge_color_light != blank and block.settings.badge_color_light.alpha != 0.0 %}--badge-color: {{ block.settings.badge_color_light.red }}, {{ block.settings.badge_color_light.green }}, {{ block.settings.badge_color_light.blue }};{% else %}--badge-color: {{ settings.colors_heading_highlight.red }}, {{ settings.colors_heading_highlight.green }}, {{ settings.colors_heading_highlight.blue }};{% endif -%}
+      }
+      .dark .complete-the-set-{{ block_id }} {
+        --color-highlight: {{ settings.colors_dark_heading_highlight.red }}, {{ settings.colors_dark_heading_highlight.green }}, {{ settings.colors_dark_heading_highlight.blue }};
+        {%- if block.settings.background_color_dark != blank and block.settings.background_color_dark.alpha != 0.0 %}
+          --colors-background: {{ block.settings.background_color_dark.red }}, {{ block.settings.background_color_dark.green }}, {{ block.settings.background_color_dark.blue }};
+        {% else %}
+          --colors-background:  {{ settings.colors_dark_background.red }}, {{ settings.colors_dark_background.green }}, {{ settings.colors_dark_background.blue }};
+        {% endif -%}
+        {%- if block.settings.heading_color_dark != blank and block.settings.heading_color_dark.alpha != 0.0 %}
+          --colors-heading: {{ block.settings.heading_color_dark.red }}, {{ block.settings.heading_color_dark.green }}, {{ block.settings.heading_color_dark.blue }};
+        {% else %}
+          --colors-heading:  {{ settings.colors_dark_heading.red }}, {{ settings.colors_dark_heading.green }}, {{ settings.colors_dark_heading.blue }};
+        {% endif -%}
+        {%- if block.settings.text_color_dark != blank and block.settings.text_color_dark.alpha != 0.0 %}
+          --colors-text: {{ block.settings.text_color_dark.red }}, {{ block.settings.text_color_dark.green }}, {{ block.settings.text_color_dark.blue }};
+        {% else %}
+          --colors-text:  {{ settings.colors_dark_text.red }}, {{ settings.colors_dark_text.green }}, {{ settings.colors_dark_text.blue }};
+        {% endif -%}
+        {%- if block.settings.line_border_color_dark != blank and block.settings.line_border_color_dark.alpha != 0.0 %}
+          --colors-line-and-border: {{ block.settings.line_border_color_dark.red }}, {{ block.settings.line_border_color_dark.green }}, {{ block.settings.line_border_color_dark.blue }};
+        {% else %}
+          --colors-line-and-border:  {{ settings.colors_dark_line_and_borders.red }}, {{ settings.colors_dark_line_and_borders.green }}, {{ settings.colors_dark_line_and_borders.blue }};
+        {% endif -%}
+        {%- if block.settings.badge_color_dark != blank and block.settings.badge_color_dark.alpha != 0.0 %}--badge-color: {{ block.settings.badge_color_dark.red }}, {{ block.settings.badge_color_dark.green }}, {{ block.settings.badge_color_dark.blue }};{% else %}--badge-color: {{ settings.colors_dark_heading_highlight.red }}, {{ settings.colors_dark_heading_highlight.green }}, {{ settings.colors_dark_heading_highlight.blue }};{% endif -%}
+      }
+      .complete-the-set-{{ block_id }} .cts-primary-btn, .complete-the-set-{{ block_id }} .cts-primary-btn.button-solid:before {
+        {%- if block.settings.primary_button_light.alpha != 0.0 %}--colors-button: {{ block.settings.primary_button_light.red }}, {{ block.settings.primary_button_light.green }}, {{ block.settings.primary_button_light.blue }};{% else %} --colors-button: {{ settings.colors_button.red }}, {{ settings.colors_button.green }}, {{ settings.colors_button.blue }};{% endif -%}
+        {%- if block.settings.primary_button_text_light.alpha != 0.0 %}--colors-button-text: {{ block.settings.primary_button_text_light.red }}, {{ block.settings.primary_button_text_light.green }}, {{ block.settings.primary_button_text_light.blue }};{% else %}--colors-button-text: {{ settings.colors_button_text.red }}, {{ settings.colors_button_text.green }}, {{ settings.colors_button_text.blue }};{% endif -%}
+        {%- if block.settings.primary_button_hover_light.alpha != 0.0 %}--colors-button-hover: rgb({{ block.settings.primary_button_hover_light.red }}, {{ block.settings.primary_button_hover_light.green }}, {{ block.settings.primary_button_hover_light.blue }});{% else %}--colors-button-hover: rgb({{ settings.colors_button_hover.red }}, {{ settings.colors_button_hover.green }}, {{ settings.colors_button_hover.blue }});{% endif -%}
+        {%- if block.settings.primary_button_hover_text_light.alpha != 0.0 %}--colors-button-text-hover: {{ block.settings.primary_button_hover_text_light.red }}, {{ block.settings.primary_button_hover_text_light.green }}, {{ block.settings.primary_button_hover_text_light.blue }};{% else %}--colors-button-text-hover: {{ settings.colors_button_text_hover.red }}, {{ settings.colors_button_text_hover.green }}, {{ settings.colors_button_text_hover.blue }};{% endif -%}
+      }
+      .dark .complete-the-set-{{ block_id }} .cts-primary-btn, .dark .complete-the-set-{{ block_id }} .cts-primary-btn.button-solid:before {
+        {%- if block.settings.primary_button_dark.alpha != 0.0 %}--colors-button: {{ block.settings.primary_button_dark.red }}, {{ block.settings.primary_button_dark.green }}, {{ block.settings.primary_button_dark.blue }};{% else %}--colors-button: {{ settings.colors_dark_button.red }}, {{ settings.colors_dark_button.green }}, {{ settings.colors_dark_button.blue }};{% endif -%}
+        {%- if block.settings.primary_button_text_dark.alpha != 0.0 %}--colors-button-text: {{ block.settings.primary_button_text_dark.red }}, {{ block.settings.primary_button_text_dark.green }}, {{ block.settings.primary_button_text_dark.blue }};{% else %}--colors-button-text: {{ settings.colors_dark_button_text.red }}, {{ settings.colors_dark_button_text.green }}, {{ settings.colors_dark_button_text.blue }};{% endif -%}
+        {%- if block.settings.primary_button_hover_dark.alpha != 0.0 %}--colors-button-hover: rgb({{ block.settings.primary_button_hover_dark.red }}, {{ block.settings.primary_button_hover_dark.green }}, {{ block.settings.primary_button_hover_dark.blue }});{% else %}--colors-button-hover: rgb({{ settings.colors_dark_button_hover.red }}, {{ settings.colors_dark_button_hover.green }}, {{ settings.colors_dark_button_hover.blue }});{% endif -%}
+        {%- if block.settings.primary_button_hover_text_dark.alpha != 0.0 %}--colors-button-text-hover: {{ block.settings.primary_button_hover_text_dark.red }}, {{ block.settings.primary_button_hover_text_dark.green }}, {{ block.settings.primary_button_hover_text_dark.blue }};{% else %}--colors-button-text-hover: {{ settings.colors_dark_button_text_hover.red }}, {{ settings.colors_dark_button_text_hover.green }}, {{ settings.colors_dark_button_text_hover.blue }};{% endif -%}
+      }
+      .complete-the-set-{{ block_id }} .is-checked .icon-check-mark {
+        display: block;
+      }
+      .complete-the-set-{{ block_id }} .icon-check-mark {
+        display: none;
+      }
+      .complete-the-set-{{ block_id }} .is-checked:has(.icon-check-mark) {
+        border-color: rgb(var(--color-highlight),1);
+        background-color: rgb(var(--color-highlight),1);
+        color: rgb(var(--background-color),1);
+        transition-duration: 100ms
+      }
+      .complete-the-set-{{ block_id }} .input-radio.disabled+.options-choose label::after{
+        position:absolute;
+        top:50%;
+        left:-5px;
+        right:-5px;
+        height:0px;
+        --tw-rotate:-30deg;
+        transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+        border-bottom-width:1px;
+        content:var(--tw-content);
+        border-style:solid
+      }
+    {%- endstyle -%}
+
+    {%- liquid
+      assign heading_alignment = block.settings.heading_alignment
+      if heading_alignment == 'center'
+        assign rtl_alignment = 'center'
+      elsif heading_alignment == 'left'
+        assign rtl_alignment = 'right'
+      else
+        assign rtl_alignment = 'left'
+      endif
+    -%}
+
+    {%- capture config_json -%}
+      { "discountType": {{ block.settings.discount_type | json }}, "discountValue":
+      {{ block.settings.discount_value | default: '' | json }}, "applyOnce":
+      {{ block.settings.only_apply_discount_once }}, "moneyFormat": {{ money_format | json }}
+      }
+    {%- endcapture -%}
+ 
+    {%- capture items_json -%}
+      [
+        {%- assign item_index = 0 -%}
+        {%- assign item_metafield_active = 0 -%}
+        {%- assign item_index_metafield = 0 -%}
+        {%- assign product_list_metafields = product.metafields.custom.set_companions.value -%}
+
+        {%- for i in (1..3) -%}
+          {%- assign qty = 1 -%}
+          {%- if product_list_metafields != blank and item_index_metafield < product_list_metafields.size -%}
+            {%- for item in product_list_metafields offset: item_index_metafield -%}
+              {%- assign item_index_metafield = item_index_metafield | plus: 1 -%}
+              {%- if item.id == product.id -%}
+                {%- continue -%}
+              {%- endif -%}
+              {%- assign set_product = item -%}
+              {%- assign default_variant = set_product.selected_or_first_available_variant -%}
+              {%- assign qty = 1 -%}
+              {%- assign item_metafield_active = item_metafield_active | plus: 1 -%}
+              {%- assign v_image = default_variant.featured_image | default: set_product.featured_image | default: set_product.featured_media.preview_image -%}
+              {%- if item_index > 0 -%},{%- endif -%}
+              {%- assign item_index = item_index | plus: 1 -%}
+              {
+                "quantity": {{ qty }},
+                "variant": {
+                  "id": {{ default_variant.id }},
+                  "title": {{ default_variant.title | json }},
+                  "price": {{ default_variant.price }},
+                  "compareAtPrice": {{ default_variant.compare_at_price | default: 0 }},
+                  "available": {{ default_variant.available }},
+                  "image": {% if v_image != blank %}{{ v_image | image_url: width: 128 | json }}{% else %}null{%  endif %},
+                  "imageqv": {% if v_image != blank %}{{ v_image | image_url: width: 1200 | json }}{% else %}null{% endif %}
+                }
+              }
+              {%- break -%}
+            {%- endfor -%}
+          {%- else -%}
+            {%- assign block_index = i | minus: item_metafield_active -%}
+            {%- assign product_key = 'product_' | append: block_index -%}
+            {%- assign set_product = block.settings[product_key] -%}
+            {%- if set_product == blank or set_product.id == product.id -%}
+              {%- continue -%}
+            {%- endif -%}
+            {%- assign variant_key = 'variant_id_' | append: block_index -%}
+            {%- assign quantity_key = 'quantity_' | append: block_index -%}
+            {%- assign wanted_variant_id = block.settings[variant_key] -%}
+            {%- assign qty = block.settings[quantity_key] | floor | at_least: 1 -%}
+            {%- assign default_variant = null -%}
+            {%- if wanted_variant_id != blank -%}
+              {%- assign wanted_variant_num = wanted_variant_id | plus: 0 -%}
+              {%- assign default_variant = set_product.variants | where: 'id', wanted_variant_num | first -%}
+            {%- endif -%}
+            {%- unless default_variant -%}
+              {%- assign default_variant = set_product.selected_or_first_available_variant -%}
+            {%- endunless -%}
+            {%- assign v_image = default_variant.featured_image | default: set_product.featured_image | default: set_product.featured_media.preview_image -%}
+            {%- if item_index > 0 -%},{%- endif -%}
+            {%- assign item_index = item_index | plus: 1 -%}
+            {
+              "quantity": {{ qty }},
+              "variant": {
+                "id": {{ default_variant.id }},
+                "title": {{ default_variant.title | json }},
+                "price": {{ default_variant.price }},
+                "compareAtPrice": {{ default_variant.compare_at_price | default: 0 }},
+                "available": {{ default_variant.available }},
+                "image": {% if v_image != blank %}{{ v_image | image_url: width: 128 | json }}{% else %}null{%  endif %},
+                "imageqv": {% if v_image != blank %}{{ v_image | image_url: width: 1200 | json }}{% else %}null{% endif %}
+              }
+            }
+          {%- endif -%}
+        {%- endfor -%}
+      ]
+    {%- endcapture -%}
+    <div
+      class="complete-the-set-{{ block_id }} bg-[rgba(var(--colors-background))] text-[rgba(var(--colors-text))]{% if rounded_corner %} rounded-xl{% endif %} pt-7.5 pb-7.5 border-solid border"
+      x-data="xCompleteTheSet({{ main_variant | json | escape }}, '{{ section_id }}', {{ items_json | strip_newlines | strip | escape }}, {{ config_json | strip_newlines | strip | escape }}, {{ settings.currency_code_enable }}, '{{ shop.money_with_currency_format | escape }}', '{{ shop.money_format | escape }}', {% if quick_view %}true{% else %}false{% endif %})"
+    >
+      <div class="complete-the-set-content-{{ block_id }} text-{{ heading_alignment }} rtl:text-{{ rtl_alignment }} md:pb-7.5 pb-5 md:pr-7.5 md:pl-7.5 pl-5 pr-5 border-solid border-b flex gap-2 flex-nowrap flex-start items-center">
+        <div class="icon w-7 h-7 shrink-0">
+          {%- render 'icon-labels-bags', icon: 'sale-tag', class: 'w-full h-full' -%}
+        </div>
+        <div class="grow">
+          {%- if block.settings.eyebrow != blank -%}
+            <p class="complete-the-set-eyebrow-{{ block_id }} text-sm font-semibold tracking-wide mb-2 leading-tight text-[rgba(var(--colors-text))] opacity-70">
+              {{- block.settings.eyebrow | escape -}}
+            </p>
+          {%- endif -%}
+          {%- if block.settings.heading != blank -%}
+            <p class="complete-the-set-heading-{{ block_id }} h4 font-semibold block leading-tight p-break-words text-[rgba(var(--colors-heading))]">
+              {{- block.settings.heading | escape -}}
+            </p>
+          {%- endif -%}
+        </div>
+      </div>
+
+      <div class="complete-the-set-items-{{ block_id }} md:pr-7.5 md:pl-7.5 pl-5 pr-5 border-solid border-b" role="list">
+        <div class="main-product-variant md:pt-7.5 md:pb-7.5 pt-5 pb-5 flex gap-5 border-b border-solid border-[rgba(var(--colors-line-and-border))]">
+          <div class="min-w-[72px] w-[72px] h-[72px] relative shrink-0 ring-2 ring-[rgba(var(--badge-color))]{% if rounded_corner %} rounded-md overflow-hidden{% endif %}">
+            <div class="relative w-full h-full overflow-hidden">
+              {%- if product.featured_media != blank -%}
+                {% assign featured_image = main_variant.featured_image | default: product.featured_image | default: product.featured_media.preview_image %}
+                <img
+                  class="cts-item-image absolute inset-0 object-cover w-full h-full"           
+                  src="{{ featured_image | image_url: width: 128 }}"
+                  alt="{{ product.title | escape }}"
+                  {% if settings.enable_lazy_loading_image %}loading="lazy"{% else %}loading="eager"{% endif %}
+                  width="60"
+                  height="60"
+                >
+              {%- else -%}
+                <div class="bg-[#c9c9c9] absolute inset-0 w-full h-full">
+                  {%- render 'icon-placeholder', icon: 'icon-product', class: 'w-full h-full' -%}
+                </div>
+              {%- endif -%}
+            </div>
+          </div>
+          <div class="grow min-w-0 flex flex-col items-start gap-2">
+            <div class="inline-block text-[80%] font-semibold tracking-wide leading-none px-2 py-1 bg-[rgba(var(--badge-color),0.2)] text-[rgba(var(--badge-color))] rounded-full">
+              {{ 'products.product.this_product' | t }}
+            </div>
+            {% if main_variant.available == false %}
+              <div class="cts-soldout-tag inline-block text-[80%] font-semibold tracking-wide leading-none px-2 py-1 bg-[rgba(var(--color-error),0.2)] text-[rgba(var(--color-error))] rounded-full">
+                {{ 'products.product.unavailable' | t }}
+              </div>
+            {% endif %}
+            <div class='w-full flex justify-between gap-5 items-center'>
+              <div class="x-heading block text-[110%] leading-tight p-break-words text-[rgba(var(--colors-heading))]">
+                {{ product.title }}
+              </div>
+              <div class="quantity-variant pl-3 rtl:pr-3 {% if block.settings.show_quick_view %}md:pr-22 pr-19 rtl:md:pl-22 rtl:pl-19{% else %}pr-3 rtl:pl-3{% endif %}">x<span x-text="mainVariantQty"></span></div>
+            </div>
+            {% if is_simple_product == false %}
+              {% assign options = main_variant.title | split: "/" %}  
+              <div class='flex gap-2'>
+                {% for option in options %}
+                  <span class="pr-2 border-r border-solid last:border-none">{{ option }}</span>
+                {% endfor %}
+              </div>
+            {% endif %}
+            <div class="price flex gap-2 items-baseline text-right rtl:text-left">
+              <span x-text="Alpine.store('xHelper').formatMoney(mainVariant.price, currencyCodeEnable ? moneyWithCurrency : moneyFormat)" class="font-semibold"></span>
+              <s x-text="Alpine.store('xHelper').formatMoney(mainVariant.compare_at_price, currencyCodeEnable ? moneyWithCurrency : moneyFormat)" class="cap rtl:inline-block price-compare rtl:leading-tight text-[80%] opacity-60"
+                {% if main_variant.compare_at_price == blank or main_variant.compare_at_price <= main_variant.price %}
+                  style="display: none"
+                {% endif %}
+              ></s>
+            </div>
+          </div>
+        </div>
+        {%- liquid
+          assign row_index = 0 
+          assign item_index_metafield = 0
+          assign row_index_metafield = 0
+          assign product_list_metafields = product.metafields.custom.set_companions.value
+        -%}
+        {%- for i in (1..3) -%}
+          {%- liquid
+            if product_list_metafields != blank and item_index_metafield < product_list_metafields.size
+              for item_list in product_list_metafields offset: item_index_metafield
+                assign item_index_metafield = item_index_metafield | plus: 1
+                if item_list.id == product.id
+                  continue
+                endif
+                assign set_product = item_list
+                assign default_variant = set_product.selected_or_first_available_variant
+                if set_product.variants.size <= 1
+                  assign show_select = false
+                else
+                  assign show_select = true
+                endif
+                assign qty = 1
+                assign is_current_product = false
+                if product != blank and set_product.id == product.id
+                  assign is_current_product = true
+                endif
+
+                assign is_default_title = false
+                if default_variant.title contains 'Default'
+                  assign is_default_title = true
+                endif
+
+                assign row_image = default_variant.featured_image | default: set_product.featured_image
+                assign cts_item_id = block_id | append: '-item-' | append: row_index
+
+                if settings.currency_code_enable
+                  assign price_display = default_variant.price  | money_with_currency
+                  assign compare_display = default_variant.compare_at_price | money_with_currency
+                else
+                  assign price_display = default_variant.price  | money
+                  assign compare_display = default_variant.compare_at_price | money
+                endif
+                assign row_index_metafield = row_index_metafield | plus: 1
+                break
+              endfor
+            else
+              assign index = i | minus: row_index_metafield
+              assign product_key = 'product_' | append: index
+              assign set_product = block.settings[product_key]
+              if set_product == blank or set_product.id == product.id
+                continue
+              endif
+
+              assign variant_key = 'variant_id_' | append: index
+              assign quantity_key = 'quantity_' | append: index
+              assign wanted_variant_id = block.settings[variant_key]
+              assign qty = block.settings[quantity_key] | floor | at_least: 1
+
+              assign fixed_variant = null
+              if wanted_variant_id != blank
+                assign wanted_variant_num = wanted_variant_id | plus: 0
+                assign fixed_variant = set_product.variants | where: 'id', wanted_variant_num | first
+              endif
+              if fixed_variant == null and set_product.variants.size == 1
+                assign fixed_variant = set_product.variants | first
+              endif
+
+              if fixed_variant
+                assign default_variant = fixed_variant
+                assign show_select = false
+              else
+                assign default_variant = set_product.selected_or_first_available_variant
+                assign show_select = true
+              endif
+
+              assign is_current_product = false
+              if product != blank and set_product.id == product.id
+                assign is_current_product = true
+              endif
+
+              assign is_default_title = false
+              if default_variant.title contains 'Default'
+                assign is_default_title = true
+              endif
+
+              assign row_image = default_variant.featured_image | default: set_product.featured_image | default: set_product.featured_media.preview_image
+              assign cts_item_id = block_id | append: '-item-' | append: row_index
+
+              if settings.currency_code_enable
+                assign price_display = default_variant.price | money_with_currency
+                assign compare_display = default_variant.compare_at_price | money_with_currency
+              else
+                assign price_display = default_variant.price | money
+                assign compare_display = default_variant.compare_at_price | money
+              endif
+            endif
+          -%}
+          <div
+            class="complete-the-set-item flex items-start md:pt-7.5 md:pb-7.5 pt-5 pb-5 gap-5 border-b border-solid border-[rgba(var(--colors-line-and-border))] last:border-b-0"
+            role="listitem"
+            data-cts-item="{{ cts_item_id }}"
+            data-cts-index="{{ row_index }}"
+            data-url="{{ set_product.url }}"
+          >
+            <div class="min-w-[72px] w-[72px] h-[72px] relative shrink-0{% if is_current_product %} ring-2 ring-[rgba(var(--badge-color))]{% endif %}{% if rounded_corner %} rounded-md overflow-hidden{% endif %}">
+              <div class="relative w-full h-full overflow-hidden">
+                {%- if row_image != blank -%}
+                  <div 
+                    x-cloak
+                    x-transition:enter="transition-opacity duration-300 ease-in-out" 
+                    x-transition:enter-start="!opacity-0" 
+                    x-transition:enter-end="opacity-30" 
+                    x-transition:leave="transition-opacity duration-300 ease-in-out" 
+                    x-transition:leave-start="opacity-30" 
+                    x-transition:leave-end="!opacity-0" 
+                    x-show="loadingProductEls == '{{ row_index }}'" 
+                    class="opacity-30 absolute w-full h-full top-0 left-0 bg-[#acacac] z-10">
+                  </div>
+                  <img
+                    class="cts-item-image absolute inset-0 object-cover w-full h-full"
+                    src="{{ row_image | image_url: width: 128 }}"
+                    :src="items[{{ row_index }}].variant.image || '{{ row_image | image_url: width: 128 }}'"
+                    alt="{{ set_product.title | escape }}"
+                    {% if settings.enable_lazy_loading_image %}loading="lazy"{% else %}loading="eager"{% endif %}
+                    width="60"
+                    height="60"
+                  >
+                {%- else -%}
+                  <div class="bg-[#c9c9c9] absolute inset-0 w-full h-full">
+                    {%- render 'icon-placeholder', icon: 'icon-product', class: 'w-full h-full' -%}
+                  </div>
+                {%- endif -%}
+              </div>
+            </div>
+
+            <div class="grow min-w-0 flex flex-col items-start gap-2">
+              {%- if is_current_product -%}
+                <span class="inline-block text-[80%] font-semibold tracking-wide leading-none px-2 py-1 bg-[rgba(var(--badge-color),0.2)] text-[rgba(var(--badge-color))] rounded-full">
+                  {{ 'products.product.this_product' | t }}
+                </span>
+              {%- endif -%}
+              <span
+                x-cloak
+                x-show="!items[{{ row_index }}].variant.available"
+                x-text="items[{{ row_index }}].variant.id ? '{{ 'products.product.sold_out' | t }}' : '{{ 'products.product.unavailable' | t }}'"
+                class="cts-soldout-tag inline-block text-[80%] font-semibold tracking-wide leading-none px-2 py-1 bg-[rgba(var(--color-error),0.2)] text-[rgba(var(--color-error))] rounded-full"
+              >
+              </span>
+              <div class="w-full flex justify-between gap-5 items-center">
+                <a
+                  href="{{ set_product.url }}"
+                  class="x-heading block leading-tight p-break-words text-[rgba(var(--colors-heading))] text-[110%] hover-text-link transition"
+                >
+                  {%- if set_product != blank -%}
+                    {%- assign card_view_context = standard_event_context | default: 'recommendation' -%}
+                    <s-view-event
+                      data-view-on-intersect
+                      view-event-trigger="manual"
+                      view-event-payload='{{ set_product | standard_event_data: "view", context: card_view_context | escape }}'></s-view-event>
+                  {%- endif -%}
+                  {{- set_product.title | escape -}}
+                </a>
+                <div class='quantity-variant pl-3 pr-3'>x{{ qty }}</div>
+              </div>
+              <div :class="loadingProductEls == '{{ row_index }}' && 'animate-Xpulse-fast'" class="shrink-0 text-right rtl:text-left relative" x-show="items[{{ row_index }}].variant.id">
+                <div class="cts-item-price flex gap-2 items-baseline transition-opacity duration-200">
+                  <span class="font-semibold" x-text="money(items[{{ row_index }}].variant.price)">{{- price_display -}}</span>
+                  <s
+                    class="text-[80%] opacity-60"
+                    x-show="items[{{ row_index }}].variant.compareAtPrice > items[{{ row_index }}].variant.price"
+                    x-text="money(items[{{ row_index }}].variant.compareAtPrice)"
+                    {% if default_variant.compare_at_price == blank or default_variant.compare_at_price <= default_variant.price %}
+                      style="display: none"
+                    {% endif %}
+                  >
+                    {{- compare_display -}}
+                  </s>
+                </div>
+              </div>
+              {%- if show_select -%}
+                <div class="cts-options flex flex-wrap items-center gap-2 mt-1">
+                  {%- for option in set_product.options_with_values -%}
+                    <div class="select relative outline-none eurus" data-option-index="{{ forloop.index0 }}">
+                      <fieldset>
+                          <div class="cts-option-select w-full flex flex-wrap gap-x-2{% if settings.color_option_name contains option.name %} pl-0.5 rtl:pr-0.5 rtl:pl-0{% endif %}"
+                            @change="onVariantChange($el, {{ row_index }}, false)"
+                          >
+                            <div class="flex w-full items-center">
+                              <legend class="font-medium flex gap-x-2 flex-wrap">
+                                {{ option.name }}{% if set_product.selected_variant or settings.default_select_available_variant %}:
+                                  <span x-text="items[{{ row_index }}].variant.title.split(' / ')[{{ forloop.index0 }}]"></span>
+                                {% endif %}
+                              </legend> 
+                            </div>
+                            {%- liquid
+                              assign color_option_values = settings.color_option_values | newline_to_br | strip_newlines | split: '<br />'
+                              assign text_option_values = settings.text_option_values | newline_to_br | strip_newlines | split: '<br />'
+                              assign swatch_natural = false     
+                              if settings.products_color_swatches_style == 'natural'
+                                assign swatch_natural = true
+                              endif
+                            -%}
+                            {%- for value in option.values -%}
+                              {%- liquid
+                                assign ratio_image = 0
+                                assign variant_value = value.variant
+
+                                assign preview_image = variant_value.featured_media.preview_image | default: set_product.featured_media
+                                unless ratio_image
+                                  assign ratio_image = 100 | divided_by: preview_image.aspect_ratio
+                                endunless
+                              -%}
+                              {%- capture input_id -%}
+                                {{ section_id }}-{{ block.id }}-{{ set_product.id }}-{{ option.position }}-{{ forloop.index0 }}
+                              {%- endcapture -%}
+
+                              {%- capture input_name -%}
+                                {{ set_product.id }}-{{ option.name }}-{{ option.position }}
+                              {%- endcapture -%}
+                              {%- capture input_dataset -%}
+                                data-available="{{ value.available }}"
+                                data-product-url="{{ value.product_url }}"
+                                data-option-value-id="{{ value.id }}"
+                              {%- endcapture -%}
+                                {%- liquid
+                                  assign color_custom = ''
+                                  assign swatch_image = false
+                                  assign color_value = ''
+                                  if settings.color_option_values contains value
+                                    for color_option_value in color_option_values reversed
+                                      if color_option_value contains value
+                                        assign color_option_key_value = color_option_value | split: ':'
+                                        assign color_option_key = color_option_key_value | first
+                                        if value == color_option_key
+                                          assign color_custom = color_option_key
+                                          assign option_value = color_option_key_value | last | strip
+                                          assign color_value = option_value
+                                          if option_value contains '.'
+                                            assign swatch_image = true
+                                          endif
+                                          assign multi_colors = option_value | remove_first: '#' | split: '#'
+                                          break
+                                        endif
+                                      endif
+                                    endfor
+                                  endif
+                                -%}
+                                {% if preview_image != blank and settings.replace_color_with_variant_images %}
+                                  {%- style %}
+                                  .color-watches.variant-{{ section_id }}-{{ block.id }}-{{ set_product.id }}-{{ option.position }}-{{ forloop.index0 }}:before {
+                                      background-image: url({{ preview_image | image_url: width: 100, height: 100 }});
+                                    }
+                                  {%- endstyle %}
+                                {% elsif color_custom != '' %}
+                                  {%- style %}
+                                    {% if swatch_image %}
+                                      [data-swatch="{{ color_custom }}"]:before {
+                                        background-image: url({{ color_value | file_img_url: "100x100" }});
+                                      }
+                                    {% elsif multi_colors.size == 3 %}
+                                      [data-swatch="{{ color_custom }}"]:before {
+                                        background: linear-gradient(45deg, {{ '#' | append: multi_colors[0] }}, {{ '#' | append: multi_colors[0] }} 33.3%, {{ '#' | append: multi_colors[1] }} 33.3%, {{ '#' | append: multi_colors[1] }} 66.6%, {{ '#' | append: multi_colors[2] }} 66.6%, {{ '#' | append: multi_colors[2] }});
+                                      }
+                                    {% elsif multi_colors.size == 2 %}
+                                      [data-swatch="{{ color_custom }}"]:before {
+                                        background: linear-gradient(45deg, {{ '#' | append: multi_colors[0] }}, {{ '#' | append: multi_colors[0] }} 50%, {{ '#' | append: multi_colors[1] }} 50%, {{ '#' | append: multi_colors[1] }});
+                                      }
+                                    {% else %}
+                                      [data-swatch="{{ color_custom }}"]:before {
+                                        background: {{ color_value }};
+                                      }
+                                    {% endif %}
+                                  {%- endstyle %}
+                                {% endif %}
+                                {% if disable_option_disabled == blank %}
+                                  <input 
+                                    id="{{ input_id | strip }}"
+                                    type="radio"
+                                    name="{{ input_name }}"
+                                    value="{{ value | escape }}"
+                                    {{ input_dataset }}
+                                    class="absolute opacity-0 h-1 w-1 input-radio{% unless value.available %} disabled{% endunless %}"
+                                    aria-label="{{ value | escape }}"
+                                    data-value-selected="{{ value.selected }}"
+                                    x-effect="$el.checked = items[{{ row_index }}].variant.title.split(' / ')[{{ option.position | minus: 1 }}] === {{ value | json | escape }}"
+                                  >
+                                {% endif %}
+                                {%- liquid   
+                                  if settings.products_color_swatches_style == 'round'
+                                    assign rounded = 'rounded-full before:rounded-full'
+                                  elsif settings.edges_type == 'rounded_corners'
+                                    assign rounded = ' rounded-md before:rounded-md'
+                                  endif
+                                  assign name = option.name | prepend: ',' | append: ','
+                                  assign color_option_name_list = settings.color_option_name | prepend: ',' | append: ','
+                                -%}                                    
+                                {% if color_option_name_list contains name %}
+                                  <label 
+                                    id="color-swatch-{{ section_id }}-{{ block.id }}-{{ set_product.id }}-{{ option.position }}-{{ forloop.index0 }}"
+                                    class="color-watches relative translate-y-0 transform-none transition {% if color_custom != '' and settings.products_color_swatches_style != 'round' %} custom-color-swatch before:border{% else %} border{% unless swatch_natural %} overflow-hidden{% endunless %}{% endif %} variant-{{ section_id }}-{{ block.id }}-{{ set_product.id }}-{{ option.position }}-{{ forloop.index0 }}{% if disable_option_disabled == blank %} cursor-pointer mt-3{% endif %} block{% if swatch_natural and settings.replace_color_with_variant_images and ratio_image != 0 %} color-swatch-natural{% endif %} swatch-small border relative {{ rounded }}" 
+                                    for="{{ input_id | strip }}" 
+                                    data-swatch="{{ color_custom }}"
+                                    {% if preview_image == blank or settings.replace_color_with_variant_images == false and color_custom == '' %}
+                                      {% liquid
+                                        if value.swatch.image
+                                          assign image_url = value.swatch.image | image_url: width: 50
+                                          assign swatch_value = 'url(' | append: image_url | append: ')'
+                                        elsif value.swatch.color
+                                          assign swatch_value = 'rgb(' | append: value.swatch.color.rgb | append: ')'
+                                        else
+                                          assign swatch_value = value | split: ' ' | last | handle
+                                        endif
+                                      %}
+                                      style="background: {% if color_custom == '' %}{{ swatch_value }}{% else %}none{% endif %};"
+                                    {% elsif swatch_natural and ratio_image %}
+                                      style="--ratio-image: {{ ratio_image }}%;"
+                                    {% endif %}
+                                    tabindex="0"
+                                    aria-label="{{ value | escape }}"
+                                  >
+                                    <span class="h-full w-full color-watches-disable"></span>
+                                  </label>
+                                {% else %}
+                                  {% liquid
+                                    assign text_custom = blank
+                                    assign text_value = ''
+                                    if settings.text_option_values contains value
+                                      for text_option_value in text_option_values
+                                        if text_option_value contains value
+                                          assign text_option_key_value = text_option_value | split: ':'
+                                          assign text_option_key = text_option_key_value | first
+
+                                          if text_option_key == value
+                                            assign text_custom = text_option_key
+                                            assign text_value = text_option_key_value | last
+                                            break
+                                          endif
+                                        endif
+                                      endfor
+                                    endif
+                                  %}
+                                  <div class="options-choose flex items-center mt-2.5 md:gap-x-2.5 gap-x-1.5 {% unless forloop.last %}md:mr-5.5 mr-1{% endunless %}">
+                                    <label {% if disable_option_disabled == blank %}:class="{'is-checked': items[{{ row_index }}].variant.title.split(' / ')[{{ option.position | minus: 1 }}] === {{ value | json | escape }}}" class="relative overflow-hidden flex items-center outline-none cursor-pointer md:w-8 md:h-8 w-6 h-6 border bg-[rgba(var(--background-color),1)] rounded-full"{% endif %} for="{{ input_id | strip }}">
+                                      <span class="icon-check-mark md:w-4 md:h-4 w-3 h-3 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">{% render 'icon-labels-bags', icon: 'check-mark' %}</span>
+                                    </label>
+                                    <span class="self-center">{% if text_custom != blank %}{{ text_value | escape }}{% else %}{{ value | escape }}{% endif %}</span>
+                                  </div>
+                                {% endif %}
+                            {%- endfor -%}
+                          </div>
+                      </fieldset>
+                    </div>
+                  {%- endfor -%}
+                </div>
+              {%- elsif is_default_title == false -%}
+                {% assign options = default_variant.title | split: '/' %}
+                <div class='flex gap-2'>
+                  {% for option in options %}
+                    <span class="pr-2 border-r border-solid last:border-none">{{ option }}</span>
+                  {% endfor %}
+                </div>
+              {%- endif -%}
+            </div>
+            {%- if block.settings.show_quick_view -%}
+              <button
+                id="description-quick-view-{{ block.id }}-{{ row_index }}"
+                class="hover:opacity-80 transition md:pl-3.5 md:pr-3.5 md:pt-3.5 md:pb-3.5 pt-2 pb-2 pr-2 pl-2"
+                @click.prevent="
+                  loadQuickView = {{ row_index }};
+                  itemsOnQuickView = structuredClone(Alpine.raw(items)); 
+                  openDescriptionPopup = {{ row_index }}; 
+                  $store.xPopup.open = true;"
+                @mouseenter="loadQuickView = {{ row_index }}"
+                aria-label="{{ 'products.product.button_quickview' | t }}"
+              >
+                <span class="w-7 h-7 flex items-center">
+                  {%- render 'icon-alls', icon: 'icon-search-quickview' -%}
+                </span>
+              </button>
+              <template x-if="loadQuickView == '{{ row_index }}'">
+                <template x-teleport="body">
+                  <div 
+                    id="quickview-{{ block.id }}-{{ row_index }}"
+                    :class="{ 'overflow-hidden padding-scrollbar': $store.xPopup.open }" 
+                    x-cloak
+                    x-show="openDescriptionPopup == '{{ row_index }}'"
+                    @keydown.escape.window="
+                      openDescriptionPopup = -1;
+                      $store.xPopup.open = false;
+                      removeFocus('description-quick-view-{{ block.id }}-{{ row_index }}')"
+                    class="quick-view-{{ block.id }} flex items-end md:items-center fixed top-0 left-0 right-0 bottom-0 z-[90] border"
+                  >
+                    {%- style -%}
+                      .quick-view-{{ block.id }} {
+                        --color-highlight: {{ settings.colors_heading_highlight.red }}, {{ settings.colors_heading_highlight.green }}, {{ settings.colors_heading_highlight.blue }};
+                        {%- if block.settings.background_color_light != blank and block.settings.background_color_light.alpha != 0.0 %}
+                          --colors-background: {{ block.settings.background_color_light.red }}, {{ block.settings.background_color_light.green }}, {{ block.settings.background_color_light.blue }};
+                        {% else %}
+                          --colors-background:  {{ settings.colors_background.red }}, {{ settings.colors_background.green }}, {{ settings.colors_background.blue }};
+                        {% endif -%}
+                        {%- if block.settings.heading_color_light != blank and block.settings.heading_color_light.alpha != 0.0 %}
+                          --colors-heading: {{ block.settings.heading_color_light.red }}, {{ block.settings.heading_color_light.green }}, {{ block.settings.heading_color_light.blue }};
+                        {% else %}
+                          --colors-heading:  {{ settings.colors_heading.red }}, {{ settings.colors_heading.green }}, {{ settings.colors_heading.blue }};
+                        {% endif -%}
+                        {%- if block.settings.text_color_light != blank and block.settings.text_color_light.alpha != 0.0 %}
+                          --colors-text: {{ block.settings.text_color_light.red }}, {{ block.settings.text_color_light.green }}, {{ block.settings.text_color_light.blue }};
+                        {% else %}
+                          --colors-text:  {{ settings.colors_text.red }}, {{ settings.colors_text.green }}, {{ settings.colors_text.blue }};
+                        {% endif -%}
+                        {%- if block.settings.line_border_color_light != blank and block.settings.line_border_color_light.alpha != 0.0 %}
+                          --colors-line-and-border: {{ block.settings.line_border_color_light.red }}, {{ block.settings.line_border_color_light.green }}, {{ block.settings.line_border_color_light.blue }};
+                        {% else %}
+                          --colors-line-and-border:  {{ settings.colors_line_and_borders.red }}, {{ settings.colors_line_and_borders.green }}, {{ settings.colors_line_and_borders.blue }};
+                        {% endif -%}
+                        {%- if block.settings.badge_color_light != blank and block.settings.badge_color_light.alpha != 0.0 %}--badge-color: {{ block.settings.badge_color_light.red }}, {{ block.settings.badge_color_light.green }}, {{ block.settings.badge_color_light.blue }};{% else %}--badge-color: {{ settings.colors_heading_highlight.red }}, {{ settings.colors_heading_highlight.green }}, {{ settings.colors_heading_highlight.blue }};{% endif -%}
+                      }
+                      .dark .quick-view-{{ block.id }} {
+                        --color-highlight: {{ settings.colors_dark_heading_highlight.red }}, {{ settings.colors_dark_heading_highlight.green }}, {{ settings.colors_dark_heading_highlight.blue }};
+                        {%- if block.settings.background_color_dark != blank and block.settings.background_color_dark.alpha != 0.0 %}
+                          --colors-background: {{ block.settings.background_color_dark.red }}, {{ block.settings.background_color_dark.green }}, {{ block.settings.background_color_dark.blue }};
+                        {% else %}
+                          --colors-background:  {{ settings.colors_dark_background.red }}, {{ settings.colors_dark_background.green }}, {{ settings.colors_dark_background.blue }};
+                        {% endif -%}
+                        {%- if block.settings.heading_color_dark != blank and block.settings.heading_color_dark.alpha != 0.0 %}
+                          --colors-heading: {{ block.settings.heading_color_dark.red }}, {{ block.settings.heading_color_dark.green }}, {{ block.settings.heading_color_dark.blue }};
+                        {% else %}
+                          --colors-heading:  {{ settings.colors_dark_heading.red }}, {{ settings.colors_dark_heading.green }}, {{ settings.colors_dark_heading.blue }};
+                        {% endif -%}
+                        {%- if block.settings.text_color_dark != blank and block.settings.text_color_dark.alpha != 0.0 %}
+                          --colors-text: {{ block.settings.text_color_dark.red }}, {{ block.settings.text_color_dark.green }}, {{ block.settings.text_color_dark.blue }};
+                        {% else %}
+                          --colors-text:  {{ settings.colors_dark_text.red }}, {{ settings.colors_dark_text.green }}, {{ settings.colors_dark_text.blue }};
+                        {% endif -%}
+                        {%- if block.settings.line_border_color_dark != blank and block.settings.line_border_color_dark.alpha != 0.0 %}
+                          --colors-line-and-border: {{ block.settings.line_border_color_dark.red }}, {{ block.settings.line_border_color_dark.green }}, {{ block.settings.line_border_color_dark.blue }};
+                        {% else %}
+                          --colors-line-and-border:  {{ settings.colors_dark_line_and_borders.red }}, {{ settings.colors_dark_line_and_borders.green }}, {{ settings.colors_dark_line_and_borders.blue }};
+                        {% endif -%}
+                        {%- if block.settings.badge_color_dark != blank and block.settings.badge_color_dark.alpha != 0.0 %}--badge-color: {{ block.settings.badge_color_dark.red }}, {{ block.settings.badge_color_dark.green }}, {{ block.settings.badge_color_dark.blue }};{% else %}--badge-color: {{ settings.colors_dark_heading_highlight.red }}, {{ settings.colors_dark_heading_highlight.green }}, {{ settings.colors_dark_heading_highlight.blue }};{% endif -%}
+                      }
+                      .quick-view-{{ block_id }} .cts-primary-btn, .quick-view-{{ block_id }} .cts-primary-btn.button-solid:before {
+                        {%- if block.settings.primary_button_light.alpha != 0.0 %}--colors-button: {{ block.settings.primary_button_light.red }}, {{ block.settings.primary_button_light.green }}, {{ block.settings.primary_button_light.blue }};{% else %} --colors-button: {{ settings.colors_button.red }}, {{ settings.colors_button.green }}, {{ settings.colors_button.blue }};{% endif -%}
+                        {%- if block.settings.primary_button_text_light.alpha != 0.0 %}--colors-button-text: {{ block.settings.primary_button_text_light.red }}, {{ block.settings.primary_button_text_light.green }}, {{ block.settings.primary_button_text_light.blue }};{% else %}--colors-button-text: {{ settings.colors_button_text.red }}, {{ settings.colors_button_text.green }}, {{ settings.colors_button_text.blue }};{% endif -%}
+                        {%- if block.settings.primary_button_hover_light.alpha != 0.0 %}--colors-button-hover: rgb({{ block.settings.primary_button_hover_light.red }}, {{ block.settings.primary_button_hover_light.green }}, {{ block.settings.primary_button_hover_light.blue }});{% else %}--colors-button-hover: rgb({{ settings.colors_button_hover.red }}, {{ settings.colors_button_hover.green }}, {{ settings.colors_button_hover.blue }});{% endif -%}
+                        {%- if block.settings.primary_button_hover_text_light.alpha != 0.0 %}--colors-button-text-hover: {{ block.settings.primary_button_hover_text_light.red }}, {{ block.settings.primary_button_hover_text_light.green }}, {{ block.settings.primary_button_hover_text_light.blue }};{% else %}--colors-button-text-hover: {{ settings.colors_button_text_hover.red }}, {{ settings.colors_button_text_hover.green }}, {{ settings.colors_button_text_hover.blue }};{% endif -%}
+                      }
+                      .dark .quick-view-{{ block_id }} .cts-primary-btn, .dark .quick-view-{{ block_id }} .cts-primary-btn.button-solid:before {
+                        {%- if block.settings.primary_button_dark.alpha != 0.0 %}--colors-button: {{ block.settings.primary_button_dark.red }}, {{ block.settings.primary_button_dark.green }}, {{ block.settings.primary_button_dark.blue }};{% else %}--colors-button: {{ settings.colors_dark_button.red }}, {{ settings.colors_dark_button.green }}, {{ settings.colors_dark_button.blue }};{% endif -%}
+                        {%- if block.settings.primary_button_text_dark.alpha != 0.0 %}--colors-button-text: {{ block.settings.primary_button_text_dark.red }}, {{ block.settings.primary_button_text_dark.green }}, {{ block.settings.primary_button_text_dark.blue }};{% else %}--colors-button-text: {{ settings.colors_dark_button_text.red }}, {{ settings.colors_dark_button_text.green }}, {{ settings.colors_dark_button_text.blue }};{% endif -%}
+                        {%- if block.settings.primary_button_hover_dark.alpha != 0.0 %}--colors-button-hover: rgb({{ block.settings.primary_button_hover_dark.red }}, {{ block.settings.primary_button_hover_dark.green }}, {{ block.settings.primary_button_hover_dark.blue }});{% else %}--colors-button-hover: rgb({{ settings.colors_dark_button_hover.red }}, {{ settings.colors_dark_button_hover.green }}, {{ settings.colors_dark_button_hover.blue }});{% endif -%}
+                        {%- if block.settings.primary_button_hover_text_dark.alpha != 0.0 %}--colors-button-text-hover: {{ block.settings.primary_button_hover_text_dark.red }}, {{ block.settings.primary_button_hover_text_dark.green }}, {{ block.settings.primary_button_hover_text_dark.blue }};{% else %}--colors-button-text-hover: {{ settings.colors_dark_button_text_hover.red }}, {{ settings.colors_dark_button_text_hover.green }}, {{ settings.colors_dark_button_text_hover.blue }};{% endif -%}
+                      }
+                      .quick-view-{{ block.id }} .is-checked .icon-check-mark {
+                        display: block;
+                      }
+                      .quick-view-{{ block.id }} .icon-check-mark {
+                        display: none;
+                      }
+                      .quick-view-{{ block.id }} .is-checked:has(.icon-check-mark) {
+                        border-color: rgb(var(--color-highlight),1);
+                        background-color: rgb(var(--color-highlight),1);
+                        color: rgb(var(--background-color),1);
+                        transition-duration: 100ms
+                      }
+                      .quick-view-{{ block_id }} .input-radio.disabled+.options-choose label::after{
+                        position:absolute;
+                        top:50%;
+                        left:-5px;
+                        right:-5px;
+                        height:0px;
+                        --tw-rotate:-30deg;
+                        transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+                        border-bottom-width:1px;
+                        content:var(--tw-content);
+                        border-style:solid
+                      }
+                    {%- endstyle -%}
+                    <div class="x-overlay absolute top-0 left-0 right-0 bottom-0 bg-[#acacac] bg-opacity-30"></div>
+                    <div 
+                      role="dialog"
+                      aria-label="{{ 'products.product.quick_view_label' | t }}"
+                      aria-modal="true"
+                      x-show="openDescriptionPopup == '{{ row_index }}'"
+                      class="x-quickview-modal duration-400 x-pgw page-width w-full pl-0 pr-0 md:pl-5 md:pr-5 lg:pl-16 lg:pr-16 lg:ml-auto lg:mr-auto"
+                      x-transition:enter="transition-all ease-in-out duration-500"
+                      x-transition:enter-start="opacity-0 transform translate-y-1/3"
+                      x-transition:enter-end="opacity-100 transform translate-y-0"
+                      x-transition:leave="transition-all ease-in-out duration-500"
+                      x-transition:leave-end="opacity-0 transform translate-y-1/3"
+                    >
+                      <div class="x-container-quickview-body shadow-popup overflow-hidden relative bg-[rgba(var(--background-color),1)] h-[calc(88vh-96px)] md:h-[85vh] 2xl:h-[77vh] md:pt-12 md:pb-12{% if settings.edges_type == 'rounded_corners' %} rounded-t-[10px] md:rounded-[10px]{% endif %}" 
+                        @click.away="openDescriptionPopup = -1; $store.xPopup.open = false; removeFocus('description-quick-view-{{ block.id }}-{{ row_index }}')"
+                        x-intersect.full="Alpine.store('xFocusElement').trapFocus('quickview-{{ block.id }}-{{ row_index }}', 'quickview-close-{{ block.id }}-{{ row_index }}')"
+                      >
+                        <button aria-label="{{ 'accessibility.close' | t }}" id="quickview-close-{{ block.id }}-{{ row_index }}" class="absolute group-close-btn cursor-pointer top-2 right-2 rtl:right-auto rtl:left-2 icon-close-container w-fit z-10 rounded-full" @click.prevent="openDescriptionPopup = -1; $store.xPopup.open = false; removeFocus('description-quick-view-{{ block.id }}-{{ row_index }}')">
+                          {% render 'icon-alls', icon: 'icon-close', animation_class: 'icon-close-animation' %}
+                        </button>
+                          <div class="x-container-quickview-content md:flex md:gap-15 md:items-start md:flex-row  md:justify-between block md:pl-16 md:pr-16 h-full overflow-y-auto overflow-x-hidden scrollbar-body">
+                            <div class="md:hidden block w-full{% if rounded_corner %} rounded-md overflow-hidden{% endif %}">
+                              <div class="relative w-full">
+                                {%- if row_image != blank -%}
+                                  <div 
+                                    x-cloak
+                                    x-transition:enter="transition-opacity duration-300 ease-in-out" 
+                                    x-transition:enter-start="!opacity-0" 
+                                    x-transition:enter-end="opacity-30" 
+                                    x-transition:leave="transition-opacity duration-300 ease-in-out" 
+                                    x-transition:leave-start="opacity-30" 
+                                    x-transition:leave-end="!opacity-0" 
+                                    x-show="loadingProductEls == '{{ row_index }}'" 
+                                    class="opacity-30 absolute w-full h-full top-0 left-0 bg-[#acacac] z-10">
+                                  </div>
+                                  <img
+                                    src="{{ row_image | image_url: width: 1200 }}"
+                                    :src="itemsOnQuickView[{{ row_index }}].variant.imageqv || '{{ row_image | image_url: width: 1200 }}'"
+                                    alt="{{ row_image.alt | escape }}"
+                                    class="w-full h-auto {% if rounded_corner %} rounded-md overflow-hidden{% endif %}"
+                                    {% if settings.enable_lazy_loading_image %}loading="lazy"{% else %}loading="eager"{% endif %}
+                                    width="{{ row_image.width }}"
+                                    height="{{ row_image.height }}"
+                                  >
+                                {%- else -%}
+                                  <div class="bg-[#c9c9c9] w-full h-full">
+                                    {%- render 'icon-placeholder', icon: 'icon-product', class: 'w-full h-full' -%}
+                                  </div>
+                                {%- endif -%}
+                            </div>
+                            </div>
+                            <div class="complete-the-set-item product-info mt-auto mb-auto flex flex-col md:gap-7 gap-6 pt-6 md:pt-0 "
+                              data-cts-item="{{ cts_item_id }}"
+                              data-cts-index="{{ row_index }}"
+                              data-url="{{ set_product.url }}"
+                            >
+                              {%- if set_product.title != blank -%}
+                                <div class="pl-4 pr-4 md:pl-0 md:pr-0 w-full{% unless settings.disable_heading_animation %} overflow-hidden{% endunless %}"{% unless settings.disable_heading_animation %} x-intersect.once="$el.querySelector('.anm-move-up')?.classList.add('active-anm-heading')"{% endunless %}>
+                                  <h2 class="product-title h2 leading-tight title-size--{{ section_id }}{% if show_content_center %} text-center{% endif %}{% unless settings.disable_heading_animation %} anm-move-up{% endunless %}">{{ set_product.title | escape }}</h2>
+                                </div>
+                              {%- endif -%}
+                              <div :class="loadingProductEls == '{{ row_index }}' && 'animate-Xpulse-fast'" class="pl-4 pr-4 md:pl-0 md:pr-0 shrink-0 text-right rtl:text-left relative" x-show="itemsOnQuickView[{{ row_index }}].variant.id">
+                                <div class="cts-item-price flex gap-2 items-baseline transition-opacity duration-200">
+                                  {% if default_variant.compare_at_price == blank or default_variant.compare_at_price <= default_variant.price %}
+                                    <span class="text-[150%]" x-text="money(itemsOnQuickView[{{ row_index }}].variant.price)">{{- price_display -}}</span>
+                                  {% else %}
+                                    <span class="text-[150%] price-sale selection:bg-text-[rgb(var(--colors-price-sale))]" x-text="money(itemsOnQuickView[{{ row_index }}].variant.price)">{{- price_display -}}</span>
+                                    <s
+                                      class="text-[120%]"
+                                      x-show="itemsOnQuickView[{{ row_index }}].variant.compareAtPrice > itemsOnQuickView[{{ row_index }}].variant.price"
+                                      x-text="money(itemsOnQuickView[{{ row_index }}].variant.compareAtPrice)"
+                                    >
+                                      {{- compare_display -}}
+                                    </s>
+                                  {% endif %}
+                                </div>
+                              </div>
+                              <div class="product-description rte pl-4 pr-4 md:pl-0 md:pr-0">
+                                {%- render 'truncate-text',
+                                  number_of_lines_shown: 'none',
+                                  content: set_product.description
+                                -%}
+                              </div>
+                              {%- if show_select -%}
+                                <div class="cts-options flex flex-wrap flex-col items-start gap-y-7 pl-4 pr-4 md:pl-0 md:pr-0">
+                                  {%- for option in set_product.options_with_values -%}
+                                    <div class="select relative outline-none eurus" data-option-index="{{ forloop.index0 }}">
+                                      <fieldset>
+                                          <div class="cts-option-select w-full flex flex-wrap gap-x-2{% if settings.color_option_name contains option.name %} pl-0.5 rtl:pr-0.5 rtl:pl-0{% endif %}"
+                                            @change="onVariantChange($el, {{ row_index }}, true)"
+                                            x-intersect.full="onVariantChange($el, {{ row_index }}, true)"
+                                          >
+                                            <div class="flex w-full items-center">                              
+                                              <legend class="text-[105%] flex gap-x-2 flex-wrap">
+                                                {{ option.name }}{% if set_product.selected_variant or settings.default_select_available_variant %}:
+                                                  <span class="font-semibold" x-text="itemsOnQuickView[{{ row_index }}].variant.title.split(' / ')[{{ forloop.index0 }}]"></span>
+                                                {% endif %}
+                                              </legend> 
+                                            </div>
+                                            {%- liquid
+                                              assign color_option_values = settings.color_option_values | newline_to_br | strip_newlines | split: '<br />'
+                                              assign text_option_values = settings.text_option_values | newline_to_br | strip_newlines | split: '<br />'
+                                              assign swatch_natural = false     
+                                              if settings.products_color_swatches_style == 'natural'
+                                                assign swatch_natural = true
+                                              endif
+                                            -%}
+                                            {%- for value in option.values -%}
+                                              {%- liquid
+                                                assign ratio_image = 0
+                                                assign variant_value = value.variant
+
+                                                assign preview_image = variant_value.featured_media.preview_image | default: set_product.featured_media
+                                                unless ratio_image
+                                                  assign ratio_image = 100 | divided_by: preview_image.aspect_ratio
+                                                endunless
+                                              -%}
+                                              {%- capture input_id -%}
+                                                quick_view-{{ section_id }}-{{ block.id }}-{{ set_product.id }}-{{ option.position }}-{{ forloop.index0 }}
+                                              {%- endcapture -%}
+
+                                              {%- capture input_name -%}
+                                                quick_view-{{ set_product.id }}-{{ option.name }}-{{ option.position }}
+                                              {%- endcapture -%}
+                                              {%- capture input_dataset -%}
+                                                data-available="{{ value.available }}"
+                                                data-product-url="{{ value.product_url }}"
+                                                data-option-value-id="{{ value.id }}"
+                                              {%- endcapture -%}
+                                                {%- liquid
+                                                  assign color_custom = ''
+                                                  assign swatch_image = false
+                                                  assign color_value = ''
+                                                  if settings.color_option_values contains value
+                                                    for color_option_value in color_option_values reversed
+                                                      if color_option_value contains value
+                                                        assign color_option_key_value = color_option_value | split: ':'
+                                                        assign color_option_key = color_option_key_value | first
+                                                        if value == color_option_key
+                                                          assign color_custom = color_option_key
+                                                          assign option_value = color_option_key_value | last | strip
+                                                          assign color_value = option_value
+                                                          if option_value contains '.'
+                                                            assign swatch_image = true
+                                                          endif
+                                                          assign multi_colors = option_value | remove_first: '#' | split: '#'
+                                                          break
+                                                        endif
+                                                      endif
+                                                    endfor
+                                                  endif
+                                                -%}
+                                                {% if preview_image != blank and settings.replace_color_with_variant_images %}
+                                                  {%- style %}
+                                                  .color-watches.variant-quick_view-{{ section_id }}-{{ block.id }}-{{ set_product.id }}-{{ option.position }}-{{ forloop.index0 }}:before {
+                                                      background-image: url({{ preview_image | image_url: width: 100, height: 100 }});
+                                                    }
+                                                  {%- endstyle %}
+                                                {% elsif color_custom != '' %}
+                                                  {%- style %}
+                                                    {% if swatch_image %}
+                                                      [data-swatch="{{ color_custom }}"]:before {
+                                                        background-image: url({{ color_value | file_img_url: "100x100" }});
+                                                      }
+                                                    {% elsif multi_colors.size == 3 %}
+                                                      [data-swatch="{{ color_custom }}"]:before {
+                                                        background: linear-gradient(45deg, {{ '#' | append: multi_colors[0] }}, {{ '#' | append: multi_colors[0] }} 33.3%, {{ '#' | append: multi_colors[1] }} 33.3%, {{ '#' | append: multi_colors[1] }} 66.6%, {{ '#' | append: multi_colors[2] }} 66.6%, {{ '#' | append: multi_colors[2] }});
+                                                      }
+                                                    {% elsif multi_colors.size == 2 %}
+                                                      [data-swatch="{{ color_custom }}"]:before {
+                                                        background: linear-gradient(45deg, {{ '#' | append: multi_colors[0] }}, {{ '#' | append: multi_colors[0] }} 50%, {{ '#' | append: multi_colors[1] }} 50%, {{ '#' | append: multi_colors[1] }});
+                                                      }
+                                                    {% else %}
+                                                      [data-swatch="{{ color_custom }}"]:before {
+                                                        background: {{ color_value }};
+                                                      }
+                                                    {% endif %}
+                                                  {%- endstyle %}
+                                                {% endif %}
+                                                {% if disable_option_disabled == blank %}
+                                                  <input 
+                                                    id="{{ input_id | strip }}"
+                                                    type="radio"
+                                                    name="{{ input_name }}"
+                                                    value="{{ value | escape }}"
+                                                    {{ input_dataset }}
+                                                    class="absolute opacity-0 h-1 w-1 input-radio{% unless value.available %} disabled{% endunless %}"
+                                                    aria-label="{{ value | escape }}"
+                                                    data-value-selected="{{ value.selected }}"
+                                                    x-effect="$el.checked = itemsOnQuickView[{{ row_index }}].variant.title.split(' / ')[{{ option.position | minus: 1 }}] === {{ value | json | escape }}"
+                                                  >
+                                                {% endif %}
+                                                {%- liquid   
+                                                  if settings.products_color_swatches_style == 'round'
+                                                    assign rounded = 'rounded-full before:rounded-full'
+                                                  elsif settings.edges_type == 'rounded_corners'
+                                                    assign rounded = ' rounded-md before:rounded-md'
+                                                  endif
+                                                  assign name = option.name | prepend: ',' | append: ','
+                                                  assign color_option_name_list = settings.color_option_name | prepend: ',' | append: ','
+                                                -%}                                    
+                                                {% if color_option_name_list contains name %}
+                                                  <label 
+                                                    id="color-swatch-quick_view-{{ section_id }}-{{ block.id }}-{{ set_product.id }}-{{ option.position }}-{{ forloop.index0 }}"
+                                                    class="color-watches relative translate-y-0 transform-none transition {% if color_custom != '' and settings.products_color_swatches_style != 'round' %} custom-color-swatch before:border{% else %} border{% unless swatch_natural %} overflow-hidden{% endunless %}{% endif %} variant-quick_view-{{ section_id }}-{{ block.id }}-{{ set_product.id }}-{{ option.position }}-{{ forloop.index0 }}{% if disable_option_disabled == blank %} cursor-pointer mt-3{% endif %} block{% if swatch_natural and settings.replace_color_with_variant_images and ratio_image != 0 %} color-swatch-natural{% endif %} w-9 h-9 border relative {{ rounded }}" 
+                                                    for="{{ input_id | strip }}" 
+                                                    data-swatch="{{ color_custom }}"
+                                                    {% if preview_image == blank or settings.replace_color_with_variant_images == false and color_custom == '' %}
+                                                      {% liquid
+                                                        if value.swatch.image
+                                                          assign image_url = value.swatch.image | image_url: width: 50
+                                                          assign swatch_value = 'url(' | append: image_url | append: ')'
+                                                        elsif value.swatch.color
+                                                          assign swatch_value = 'rgb(' | append: value.swatch.color.rgb | append: ')'
+                                                        else
+                                                          assign swatch_value = value | split: ' ' | last | handle
+                                                        endif
+                                                      %}
+                                                      style="background: {% if color_custom == '' %}{{ swatch_value }}{% else %}none{% endif %};"
+                                                    {% elsif swatch_natural and ratio_image %}
+                                                      style="--ratio-image: {{ ratio_image }}%;"
+                                                    {% endif %}
+                                                    tabindex="0"
+                                                    aria-label="{{ value | escape }}"
+                                                  >
+                                                    <span class="h-full w-full color-watches-disable"></span>
+                                                  </label>
+                                                {% else %}
+                                                  {% liquid
+                                                    assign text_custom = blank
+                                                    assign text_value = ''
+                                                    if settings.text_option_values contains value
+                                                      for text_option_value in text_option_values
+                                                        if text_option_value contains value
+                                                          assign text_option_key_value = text_option_value | split: ':'
+                                                          assign text_option_key = text_option_key_value | first
+
+                                                          if text_option_key == value
+                                                            assign text_custom = text_option_key
+                                                            assign text_value = text_option_key_value | last
+                                                            break
+                                                          endif
+                                                        endif
+                                                      endfor
+                                                    endif
+                                                  %}
+                                                  <div class="options-choose flex items-center mt-2.5 md:gap-x-2.5 gap-x-1.5 {% unless forloop.last %}md:mr-5.5 mr-1{% endunless %}">
+                                                    <label {% if disable_option_disabled == blank %} :class="{'is-checked': itemsOnQuickView[{{ row_index }}].variant.title.split(' / ')[{{ option.position | minus: 1 }}] === {{ value | json | escape }}}" class="relative overflow-hidden flex items-center outline-none cursor-pointer w-9 h-9 border bg-[rgba(var(--background-color),1)] rounded-full"{% endif %} for="{{ input_id | strip }}">
+                                                      <span class="icon-check-mark md:w-4 md:h-4 w-3 h-3 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">{% render 'icon-labels-bags', icon: 'check-mark' %}</span>
+                                                    </label>
+                                                    <span class="self-center">{% if text_custom != blank %}{{ text_value | escape }}{% else %}{{ value | escape }}{% endif %}</span>
+                                                  </div>
+                                                {% endif %}
+                                            {%- endfor -%}
+                                          </div>
+                                      </fieldset>
+                                    </div>
+                                  {%- endfor -%}
+                                </div>
+                              {%- elsif is_default_title == false -%}
+                                {% assign options = default_variant.title | split: '/' %}
+                                <div class='flex gap-2 text-[105%] font-semibold pl-4 pr-4 md:pl-0 md:pr-0'>
+                                  {% for option in options %}
+                                    <span class="pr-2 border-r border-solid last:border-none">{{ option }}</span>
+                                  {% endfor %}
+                                </div>
+                              {%- endif -%}
+                              <div class="border-solid border-t md:border-none pt-4 pb-4 pr-4 pl-4 md:pt-0 md:pb-0 md:pr-0 md:pl-0">
+                                <button
+                                  type="button"
+                                  class="cts-primary-btn button button-solid block w-full pl-7 pr-7 pt-3 pb-3 relative"
+                                  @click="items = structuredClone(Alpine.raw(itemsOnQuickView)); openDescriptionPopup = -1; $store.xPopup.open = false"
+                                >
+                                  <span class="flex items-center justify-center">
+                                    {{ 'products.product.done' | t }}
+                                  </span>
+                                </button>
+                              </div>
+                            </div>
+                            <div class="hidden md:flex items-center md:w-[45%] md:min-w-[45%] h-full w-full{% if rounded_corner %} rounded-md overflow-hidden{% endif %}">
+                              <div class="relative w-full">
+                                {%- if row_image != blank -%}
+                                  <div 
+                                    x-cloak
+                                    x-transition:enter="transition-opacity duration-300 ease-in-out" 
+                                    x-transition:enter-start="!opacity-0" 
+                                    x-transition:enter-end="opacity-30" 
+                                    x-transition:leave="transition-opacity duration-300 ease-in-out" 
+                                    x-transition:leave-start="opacity-30" 
+                                    x-transition:leave-end="!opacity-0" 
+                                    x-show="loadingProductEls == '{{ row_index }}'" 
+                                    class="opacity-30 absolute w-full h-full top-0 left-0 bg-[#acacac] z-10">
+                                  </div>
+                                  <img
+                                    src="{{ row_image | image_url: width: 1200 }}"
+                                    :src="itemsOnQuickView[{{ row_index }}].variant.imageqv || '{{ row_image | image_url: width: 1200 }}'"
+                                    alt="{{ row_image.alt | escape }}"
+                                    class="w-full h-auto {% if rounded_corner %} rounded-md overflow-hidden{% endif %}"
+                                    {% if settings.enable_lazy_loading_image %}loading="lazy"{% else %}loading="eager"{% endif %}
+                                    width="{{ row_image.width }}"
+                                    height="{{ row_image.height }}"
+                                  >
+                                {%- else -%}
+                                  <div class="bg-[#c9c9c9] w-full h-full">
+                                    {%- render 'icon-placeholder', icon: 'icon-product', class: 'w-full h-full' -%}
+                                  </div>
+                                {%- endif -%}
+                            </div>
+                            </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </template>
+              </template>
+            {%- endif -%}
+          </div>
+          {%- assign row_index = row_index | plus: 1 -%}
+        {%- endfor -%}
+      </div>
+
+      <div class="complete-the-set-summary-{{ block_id }} flex items-center flex-nowrap md:gap-x-3 md:justify-between justify-start pt-7.5 md:pr-7.5 md:pl-7.5 pl-5 pr-5">
+        <span class="md:text-[130%] text-[110%] opacity-70 py-2">{{ 'sections.cart.total' | t }}: </span>
+        <div class="flex flex-wrap items-center md:gap-x-2.5 gap-x-2 pl-1 gap-y-1">
+          <span class="x-heading md:text-[130%] text-[110%] py-2 text-[rgba(var(--colors-heading))]" x-text="money(setTotal)"></span>
+          {%- if block.settings.discount_value != blank -%}
+            <s class="opacity-60 py-2" x-show="discountAmount > 0 && money(setTotal) != '–'" x-text="money(subtotal)"></s>
+            <span
+              class="inline-block text-[90%] py-2 font-medium px-2.5 bg-[rgba(var(--badge-color),0.2)] text-[rgba(var(--badge-color))] rounded-full"
+              x-show="money(setTotal) != '–' && discountAmount > 0"
+            >
+              <span class="pl-2 pr-2 pt-3 pb-3">
+                {%- if block.settings.discount_type == 'percentage' -%}
+                  {{ 'sections.cart.save' | t }} {{ block.settings.discount_value | plus: 0 }}%
+                {%- else -%}
+                  {{ 'sections.cart.save' | t }} {% if settings.currency_code_enable %}{{ block.settings.discount_value | times: 100 | money_with_currency }}{% else %}{{ block.settings.discount_value | times: 100 | money }}{% endif %}
+                  {%- unless block.settings.only_apply_discount_once %} / {{ 'sections.collection_list.item' | t }}{% endunless -%}
+                {%- endif -%}
+              </span>
+            </span>
+          {%- endif -%}
+        </div>
+      </div>
+      <div class="mt-2 mb-2 md:pr-7.5 md:pl-7.5 pl-5 pr-5">
+        <button
+          type="button"
+          class="cts-primary-btn button button-solid block w-full pl-7 pr-7 pt-3 pb-3 relative disable-action-btn-animation disabled:cursor-not-allowed disabled:opacity-60 "
+          @click="handleAddToCart($el)"
+          :disabled="loading || !setAvailable"
+        >
+          <span :class="{ 'opacity-0': loading }" class="flex items-center justify-center">
+            <span x-show="setAvailable">
+              {{- block.settings.button_label | default: 'Add all to cart' | escape }} (<span
+                x-text="items.length + 1"
+              ></span>
+              {{ 'sections.collection_list.items' | t }})</span
+            >
+            <span x-show="!setAvailable" x-cloak>{{ 'products.product.sold_out' | t }}</span>
+          </span>
+          <div
+            class="inline-block w-5 h-5 absolute top-[calc(50%-10px)] left-[calc(50%-10px)]"
+            x-show="loading"
+            x-cloak
+          >
+            {%- render 'icon-alls', icon: 'icon-loading' -%}
+          </div>
+        </button>
+        <div
+          class="flex relative w-full mt-2 pt-3 pb-3 pr-3.5 pl-3.5 bg-[rgba(var(--color-error),0.2)]{% if rounded_corner %} rounded-md{% endif %}"
+          x-cloak
+          x-show="errorMessage"
+        >
+          <span class="absolute left-3.5 rtl:left-auto rtl:right-3.5 top-1/2 -translate-y-1/2 w-3">
+            {%- render 'icon-alls', icon: 'icon-error' -%}
+          </span>
+          <span class="cts-warning text-small pl-5 rtl:pl-0 rtl:pr-5" x-text="errorMessage"></span>
+        </div>
+      </div>
+    </div>
+    <script src="{{ 'complete-the-set.js' | asset_url }}" defer></script>
+  {%- endif -%}
+{%- endif -%}

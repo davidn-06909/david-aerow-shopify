@@ -1,0 +1,7 @@
+/*!
+ * Splide.js
+ * Version  : 4.1.3
+ * License  : MIT
+ * Copyright: 2022 Naotoshi Fujita
+ */
+.splide__track--fade>.splide__list>.splide__slide{margin:0!important;opacity:0;z-index:0}.splide__track--fade>.splide__list>.splide__slide.is-active{opacity:1;z-index:1}.splide--rtl{direction:rtl}.splide__pagination li{display:inline-block;list-style-type:none;pointer-events:auto}.splide.is-initialized,.splide.is-rendered{visibility:visible}.splide{position:relative;visibility:hidden}.splide__list{backface-visibility:hidden;display:flex;height:100%;margin:0;padding:0}.splide__slide{backface-visibility:hidden;box-sizing:border-box;flex-shrink:0;list-style-type:none;margin:0;position:relative}.splide__track{overflow:hidden;position:relative;z-index:0}

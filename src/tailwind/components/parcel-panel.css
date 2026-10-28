@@ -1,0 +1,62 @@
+.pp_tracking_content {
+    @apply !pr-5 !pl-5 md:!pr-0 md:!pl-0;
+}
+.pp_tracking_input input {
+    @apply py-2 px-4;
+}
+.pp_tracking_button button {
+    @apply py-4 px-8 duration-300;
+    background-color: rgba(var(--colors-button));
+    color: rgba(var(--colors-button-text))
+}
+.pp_tracking_button button:hover {
+    background-color: var(--colors-button-hover);
+    color: rgba(var(--colors-button-text-hover))
+}
+.rtl .google_translate_element:before {
+    @apply left-auto right-[240px];
+}
+.rtl .skiptranslate a {
+    @apply flex flex-col items-end;
+}
+.rtl .skiptranslate a img {
+    @apply w-fit;
+}
+/* recommendation product card */
+.pp_recommend_title {
+    @apply pb-4;
+}
+.product-recommendation__card {
+    @apply !pt-0 !pb-4 md:!pb-5;
+    background: var(--card-product-bg);
+    text-align: var(--card-product-alignment);
+}
+.product-img__wrapper {
+    @apply relative;
+    padding-bottom: var(--card-product-ratio);
+    height: var(--card-product-img-height);
+}
+.product-img__wrapper .product__img {
+    @apply top-0 h-full object-cover;
+    position: var(--card-product-img-position);
+}
+.product-img__wrapper:hover .product__img {
+    transform: var(--card-product-img-zoom) !important;
+}
+.swiper-slide .product-recommendation__card .product__title {
+    @apply pt-4 lg:pt-6;
+    padding-right: var(--card-product-padding-mobile);
+    padding-left: var(--card-product-padding-mobile);
+}
+.swiper-slide .product-recommendation__card .product__price {
+    padding: 0 var(--card-product-padding-mobile);
+}
+@media (min-width: 768px) {
+    .swiper-slide .product-recommendation__card .product__title {
+        padding-right: var(--card-product-padding);
+        padding-left: var(--card-product-padding);
+    }
+    .swiper-slide .product-recommendation__card .product__price {
+        padding: 0 var(--card-product-padding);
+    }
+}

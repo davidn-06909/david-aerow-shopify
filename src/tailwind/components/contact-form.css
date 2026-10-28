@@ -1,0 +1,61 @@
+@layer components {
+  .contact-align-right {
+    @apply flex flex-col md:flex-row;
+  }
+  .contact-align-left {
+    @apply flex flex-col md:flex-row-reverse;
+  }
+  .contact-info-align.align-left {
+    @apply pl-0 md:pr-5 lg:pr-10 pt-7 md:pt-0;
+  }
+
+  .contact-info-align.align-right{
+    @apply pr-0 md:pl-0 lg:pl-10 pb-7 md:pb-0 pt-7 lg:pt-0;
+  }
+  .contact-full-width .align-left.contact-image  {
+    @apply lg:pl-0;
+  }
+  .contact-full-width .align-right.contact-image  {
+    @apply lg:pr-0;
+  }
+  .contact-full-width .align-right,
+  .contact-full-width .form-align-right{
+    @apply lg:pl-0 lg:pr-5;
+  }
+  .contact-full-width .align-left {
+    @apply lg:pr-0 lg:pl-5;
+  }
+  .contact-full-width .form-align-left{
+    @apply lg:pr-0 lg:pl-5;
+  }
+
+  .contact-has-image.page-width .form-align-left {
+    @apply lg:pr-16;
+  }
+  .contact-has-image.page-width .form-align-right {
+    @apply pt-3 lg:pl-16;
+  }
+  
+  .dark .contact-has-image.page-width .form-align-right{
+    @apply pt-3 lg:pl-16;
+  }
+  .dark .contact-has-image.page-width .form-align-left{
+    @apply lg:pr-16;
+  }
+
+  .contact-full-width.contact-has-image .form-align-left .contact-form {
+    @apply lg:pr-24;
+  }
+  .contact-full-width.contact-has-image .form-align-right .contact-form {
+    @apply lg:pl-24;
+  }
+  .contact-full-width.contact-has-image .form-align-left .contact-form-both {
+    @apply lg:pr-5;
+  }
+  .contact-full-width.contact-has-image .form-align-right .contact-form-both {
+    @apply lg:pl-5;
+  }
+  .contact-form-both .heading-form {
+    @apply pt-6 border-t
+  }
+}

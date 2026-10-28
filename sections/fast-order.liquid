@@ -1,0 +1,1336 @@
+{%- if section.settings.only_show_b2b and customer -%}
+  {%- capture fo_b2b_approved -%}
+    {%- render 'b2b-customer-approved' -%}
+  {%- endcapture -%}
+{%- endif -%}
+{% liquid
+  assign is_gated = false
+  if section.settings.only_show_b2b and request.design_mode != true
+    unless customer.b2b? or fo_b2b_approved contains 'true'
+      assign is_gated = true
+    endunless
+  endif
+
+  assign fo_low_stock_threshold = settings.low_stock_threshold | round
+  if customer.b2b? and settings.b2b_low_stock
+    assign fo_low_stock_threshold = settings.b2b_low_stock_threshold | round
+  endif
+
+  assign fo_money_format = shop.money_format
+  if settings.currency_code_enable
+    assign fo_money_format = shop.money_with_currency_format
+  endif
+
+  assign heading_alignment = section.settings.heading_alignment
+  if heading_alignment == 'left'
+    assign rtl_alignment = 'right'
+  elsif heading_alignment == 'right'
+    assign rtl_alignment = 'left'
+  else
+    assign rtl_alignment = 'center'
+  endif
+
+  assign text_size = settings.text_base_size | times: 0.00875
+%}
+{% capture fo_csv_error_messages %}
+  {
+    'EMPTY_FILE': '{{ 'sections.fast-order.csv_error_empty_file' | t }}',
+    'TOO_MANY_LINES': '{{ 'sections.fast-order.csv_error_too_many_lines' | t }}',
+    'INVALID_HEADER': '{{ 'sections.fast-order.csv_error_invalid_header' | t }}',
+    'INVALID_FILE_TYPE': '{{ 'sections.fast-order.csv_error_invalid_file_type' | t }}',
+    'READ_ERROR': '{{ 'sections.fast-order.csv_error_read' | t }}',
+    'UNKNOWN': '{{ 'sections.fast-order.csv_error_unknown' | t }}'
+  }
+{% endcapture %}
+{% capture fo_csv_row_error_labels %}
+  {
+    'TOO_MANY_COLUMNS': '{{ 'sections.fast-order.csv_row_error_too_many_columns' | t }}',
+    'MISSING_SKU': '{{ 'sections.fast-order.csv_row_error_missing_sku' | t }}',
+    'MISSING_QUANTITY': '{{ 'sections.fast-order.csv_row_error_missing_quantity' | t }}',
+    'DECIMAL_QUANTITY': '{{ 'sections.fast-order.csv_row_error_decimal_quantity' | t }}',
+    'NON_NUMERIC_QUANTITY': '{{ 'sections.fast-order.csv_row_error_non_numeric_quantity' | t }}',
+    'NEGATIVE_QUANTITY': '{{ 'sections.fast-order.csv_row_error_negative_quantity' | t }}',
+    'ZERO_QUANTITY': '{{ 'sections.fast-order.csv_row_error_zero_quantity' | t }}',
+    'QUANTITY_OVERFLOW': '{{ 'sections.fast-order.csv_row_error_quantity_overflow' | t }}',
+    'DUPLICATE_SKU_ACROSS_PRODUCTS': '{{ 'sections.fast-order.csv_row_error_duplicate_sku' | t }}',
+    'SKU_NOT_FOUND': '{{ 'sections.fast-order.csv_row_error_sku_not_found' | t }}'
+  }
+{% endcapture %}
+{% capture fo_cart_items %}
+  [
+    {% for item in cart.items %}
+      { 'variant_id': {{ item.variant_id }}, 'quantity': {{ item.quantity }} }{% unless forloop.last %},{% endunless %}
+    {% endfor %}
+  ]
+{% endcapture %}
+{% style %}
+  .bg-section-fo-{{ section.id }} {
+    {% if section.settings.background_color_light.alpha != 0.0 %}
+      --colors-background: {{ section.settings.background_color_light.red }}, {{ section.settings.background_color_light.green }}, {{ section.settings.background_color_light.blue }};
+    {% else %}
+      --colors-background: {{ settings.colors_background.red }}, {{ settings.colors_background.green }}, {{ settings.colors_background.blue }};
+    {% endif %}
+  }
+  .dark .bg-section-fo-{{ section.id }} {
+    {% if section.settings.background_color_dark.alpha != 0.0 %}
+      --colors-background: {{ section.settings.background_color_dark.red }}, {{ section.settings.background_color_dark.green }}, {{ section.settings.background_color_dark.blue }};
+    {% else %}
+      --colors-background: {{ settings.colors_dark_background.red }}, {{ settings.colors_dark_background.green }}, {{ settings.colors_dark_background.blue }};
+    {% endif %}
+  }
+  .section-fo-{{ section.id }} {
+    {% if section.settings.heading_color_light.alpha != 0.0 %}
+      --colors-heading: {{ section.settings.heading_color_light.red }}, {{ section.settings.heading_color_light.green }}, {{ section.settings.heading_color_light.blue }};
+    {% else %}
+      --colors-heading: {{ settings.colors_heading.red }}, {{ settings.colors_heading.green }}, {{ settings.colors_heading.blue }};
+    {% endif %}
+    {% if section.settings.heading_highlight_color_light.alpha != 0.0 %}
+      --color-highlight: {{ section.settings.heading_highlight_color_light }};
+    {% else %}
+      --color-highlight: rgb({{ settings.colors_heading_highlight.red }}, {{ settings.colors_heading_highlight.green }}, {{ settings.colors_heading_highlight.blue }});
+    {% endif %}
+    {% if section.settings.text_color_light.alpha != 0.0 %}
+      --colors-text: {{ section.settings.text_color_light.red }}, {{ section.settings.text_color_light.green }}, {{ section.settings.text_color_light.blue }};
+    {% else %}
+      --colors-text: {{ settings.colors_text.red }}, {{ settings.colors_text.green }}, {{ settings.colors_text.blue }};
+    {% endif %}
+    {% if section.settings.line_and_border_color_light.alpha != 0.0 %}
+      --colors-line-and-border: {{ section.settings.line_and_border_color_light.red }}, {{ section.settings.line_and_border_color_light.green }}, {{ section.settings.line_and_border_color_light.blue }};
+    {% else %}
+      --colors-line-and-border: {{ settings.colors_line_and_borders.red }}, {{ settings.colors_line_and_borders.green }}, {{ settings.colors_line_and_borders.blue }};
+    {% endif %}
+    {% if section.settings.secondary_background_color_light.alpha != 0.0 %}
+      --colors-background-secondary: {{ section.settings.secondary_background_color_light.red }}, {{ section.settings.secondary_background_color_light.green }}, {{ section.settings.secondary_background_color_light.blue }};
+    {% else %}
+      --colors-background-secondary: {{ settings.secondary_background.red }}, {{ settings.secondary_background.green }}, {{ settings.secondary_background.blue }};
+    {% endif %}
+    {% if section.settings.colors_text_link_light.alpha != 0.0 %}
+      --colors-text-link: {{ section.settings.colors_text_link_light.red }}, {{ section.settings.colors_text_link_light.green }}, {{ section.settings.colors_text_link_light.blue }};
+    {% endif %}
+  }
+  .dark .section-fo-{{ section.id }} {
+    {% if section.settings.heading_color_dark.alpha != 0.0 %}
+      --colors-heading: {{ section.settings.heading_color_dark.red }}, {{ section.settings.heading_color_dark.green }}, {{ section.settings.heading_color_dark.blue }};
+    {% else %}
+      --colors-heading: {{ settings.colors_dark_heading.red }}, {{ settings.colors_dark_heading.green }}, {{ settings.colors_dark_heading.blue }};
+    {% endif %}
+    {% if section.settings.heading_highlight_color_dark.alpha != 0.0 %}
+      --color-highlight: {{ section.settings.heading_highlight_color_dark }};
+    {% else %}
+      --color-highlight: rgb({{ settings.colors_dark_heading_highlight.red }}, {{ settings.colors_dark_heading_highlight.green }}, {{ settings.colors_dark_heading_highlight.blue }});
+    {% endif %}
+    {% if section.settings.text_color_dark.alpha != 0.0 %}
+      --colors-text: {{ section.settings.text_color_dark.red }}, {{ section.settings.text_color_dark.green }}, {{ section.settings.text_color_dark.blue }};
+    {% else %}
+      --colors-text: {{ settings.colors_dark_text.red }}, {{ settings.colors_dark_text.green }}, {{ settings.colors_dark_text.blue }};
+    {% endif %}
+    {% if section.settings.line_and_border_color_dark.alpha != 0.0 %}
+      --colors-line-and-border: {{ section.settings.line_and_border_color_dark.red }}, {{ section.settings.line_and_border_color_dark.green }}, {{ section.settings.line_and_border_color_dark.blue }};
+    {% else %}
+      --colors-line-and-border: {{ settings.colors_dark_line_and_borders.red }}, {{ settings.colors_dark_line_and_borders.green }}, {{ settings.colors_dark_line_and_borders.blue }};
+    {% endif %}
+    {% if section.settings.secondary_background_color_dark.alpha != 0.0 %}
+      --colors-background-secondary: {{ section.settings.secondary_background_color_dark.red }}, {{ section.settings.secondary_background_color_dark.green }}, {{ section.settings.secondary_background_color_dark.blue }};
+    {% else %}
+      --colors-background-secondary: {{ settings.secondary_background_dark.red }}, {{ settings.secondary_background_dark.green }}, {{ settings.secondary_background_dark.blue }};
+    {% endif %}
+    {% if section.settings.colors_text_link_dark.alpha != 0.0 %}
+      --colors-text-link: {{ section.settings.colors_text_link_dark.red }}, {{ section.settings.colors_text_link_dark.green }}, {{ section.settings.colors_text_link_dark.blue }};
+    {% else %}
+      --colors-text-link: {{ settings.colors_dark_text_link.red }}, {{ settings.colors_dark_text_link.green }}, {{ settings.colors_dark_text_link.blue }};
+    {% endif %}
+  }
+  .button-fo-{{ section.id }}.button.button-solid {
+    {% if section.settings.button_light.alpha != 0.0 %}
+      --colors-button: {{ section.settings.button_light.red }}, {{ section.settings.button_light.green }}, {{ section.settings.button_light.blue }};
+    {% endif %}
+    {% if section.settings.button_text_light.alpha != 0.0 %}
+      --colors-button-text: {{ section.settings.button_text_light.red }}, {{ section.settings.button_text_light.green }}, {{ section.settings.button_text_light.blue }};
+    {% endif %}
+    {% if section.settings.button_text_hover_light.alpha != 0.0 %}
+      --colors-button-text-hover: {{ section.settings.button_text_hover_light.red }}, {{ section.settings.button_text_hover_light.green }}, {{ section.settings.button_text_hover_light.blue }};
+    {% endif %}
+  }
+  .button-fo-{{ section.id }}.button.button-solid:before, 
+  .button-fo-{{ section.id }}.button.button-solid:hover {
+    {% if section.settings.button_hover_light.alpha != 0.0 %}
+      --colors-button-hover: rgb({{ section.settings.button_hover_light.red }}, {{ section.settings.button_hover_light.green }}, {{ section.settings.button_hover_light.blue }});
+    {% else %}
+      --colors-button-hover: rgb({{ settings.colors_button_hover.red }}, {{ settings.colors_button_hover.green }}, {{ settings.colors_button_hover.blue }});
+    {% endif %}
+  }
+  .dark .button-fo-{{ section.id }}.button.button-solid { 
+    {% if section.settings.button_dark.alpha != 0.0 %}
+      --colors-button: {{ section.settings.button_dark.red }}, {{ section.settings.button_dark.green }}, {{ section.settings.button_dark.blue }};
+    {% else %}
+      --colors-button: {{ settings.colors_dark_button.red }}, {{ settings.colors_dark_button.green }}, {{ settings.colors_dark_button.blue }};
+    {% endif %}
+    {% if section.settings.button_text_dark.alpha != 0.0 %}
+      --colors-button-text: {{ section.settings.button_text_dark.red }}, {{ section.settings.button_text_dark.green }}, {{ section.settings.button_text_dark.blue }};
+    {% else %}
+      --colors-button-text: {{ settings.colors_dark_button_text.red }}, {{ settings.colors_dark_button_text.green }}, {{ settings.colors_dark_button_text.blue }};
+    {% endif %}
+    {% if section.settings.button_text_hover_dark.alpha != 0.0 %}
+      --colors-button-text-hover: {{ section.settings.button_text_hover_dark.red }}, {{ section.settings.button_text_hover_dark.green }}, {{ section.settings.button_text_hover_dark.blue }};
+    {% else %}
+      --colors-button-text-hover: {{ settings.colors_dark_button_text_hover.red }}, {{ settings.colors_dark_button_text_hover.green }}, {{ settings.colors_dark_button_text_hover.blue }};
+    {% endif %}
+  }
+  .dark .button-fo-{{ section.id }}.button.button-solid:before, 
+  .dark .button-fo-{{ section.id }}.button.button-solid:hover { 
+    {% if section.settings.primary_button_hover_color_dark.alpha != 0.0 %}
+      --colors-button-hover: rgb({{ section.settings.primary_button_hover_color_dark.red }}, {{ section.settings.primary_button_hover_color_dark.green }}, {{ section.settings.primary_button_hover_color_dark.blue }});
+    {% else %}
+      --colors-button-hover: rgb({{ settings.colors_dark_button_hover.red }}, {{ settings.colors_dark_button_hover.green }}, {{ settings.colors_dark_button_hover.blue }});
+    {% endif %}
+  }
+  .section-padding-{{ section.id }} {
+    padding-top: {{ section.settings.padding_top_mobile }}px;
+    padding-bottom: {{ section.settings.padding_bottom_mobile }}px;
+  }
+  .fo-controls-{{ section.id }} {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  @media (min-width: 768px) {
+    .fo-controls-{{ section.id }} {
+      grid-template-columns: minmax(0, 1fr) auto;
+    }
+  }
+  @media (min-width: 768px) {
+    .section-padding-{{ section.id }} {
+      padding-top: {{ section.settings.padding_top }}px;
+      padding-bottom: {{ section.settings.padding_bottom }}px;
+    }
+  }
+  #fast-order-{{ section.id }} .inventory-status {
+    font-size: {{ text_size | times: 0.8 }}rem;
+    background: rgba(var(--stock-color), 0.25);
+    color: rgb(var(--stock-color));
+  }
+  #fast-order-{{ section.id }} .added-status {
+    font-size: {{ text_size | times: 0.8 }}rem;
+    background: rgba(var(--colors-text-link), 0.25);
+    color: rgb(var(--colors-text-link));
+  }
+  #fast-order-{{ section.id }} .fo-row.animate-enter {
+    animation: fo-slide-in-{{ section.id }} 0.25s ease-out both;
+  }
+  [dir='rtl'] #fast-order-{{ section.id }} .fo-row {
+    animation-name: fo-slide-in-rtl-{{ section.id }};
+  }
+  @keyframes fo-slide-in-{{ section.id }} {
+    from {
+      opacity: 0;
+      transform: translateX(100%);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+  @keyframes fo-slide-in-rtl-{{ section.id }} {
+    from {
+      opacity: 0;
+      transform: translateX(-100%);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    #fast-order-{{ section.id }} .fo-row {
+      animation: none;
+    }
+  }
+  @media (max-width: 1023px) {
+    #fast-order-{{ section.id }} .fo-row {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      grid-template-rows: repeat(3, auto);
+      column-gap: 0.75rem;
+      row-gap: 0.5rem;
+      padding: 1rem;
+      align-items: start;
+    }
+    #fast-order-{{ section.id }} .fo-row .fo-product-cell,
+    #fast-order-{{ section.id }} .fo-row .fo-product-inner {
+      display: contents;
+    }
+    #fast-order-{{ section.id }} .fo-row .fo-img {
+      grid-column: 1;
+      grid-row: 1 / -1;
+      align-self: start;
+    }
+    #fast-order-{{ section.id }} .fo-row .fo-meta,
+    #fast-order-{{ section.id }} .fo-row .fo-price,
+    #fast-order-{{ section.id }} .fo-row .fo-qty {
+      grid-column: 2;
+      padding: 0;
+    }
+    #fast-order-{{ section.id }} .variant-row + .variant-row .variant-separator:before {
+      content: "";
+      width: 100%;
+      border-top-width: 1px;
+      {% if section.settings.line_and_border_color_light.alpha != 0.0 %}
+        border-color: rgb({{ section.settings.line_and_border_color_light.red }}, {{ section.settings.line_and_border_color_light.green }}, {{ section.settings.line_and_border_color_light.blue }});
+      {% else %}
+        border-color: rgb({{ settings.colors_line_and_borders.red }}, {{ settings.colors_line_and_borders.green }}, {{ settings.colors_line_and_borders.blue }});
+      {% endif %}
+    }
+    .dark #fast-order-{{ section.id }} .variant-row + .variant-row .variant-separator:before {
+      {% if section.settings.line_and_border_color_dark.alpha != 0.0 %}
+        border-color: rgb({{ section.settings.line_and_border_color_dark.red }}, {{ section.settings.line_and_border_color_dark.green }}, {{ section.settings.line_and_border_color_dark.blue }});
+      {% else %}
+        border-color: rgb({{ settings.colors_dark_line_and_borders.red }}, {{ settings.colors_dark_line_and_borders.green }}, {{ settings.colors_dark_line_and_borders.blue }});
+      {% endif %}
+    }
+  }
+{% endstyle %}
+
+{% assign import_btn_label = 'sections.fast-order.csv_button' | t %}
+{% assign upload_btn_label = 'sections.fast-order.csv_upload_button' | t %}
+{% assign csv_success_label = 'sections.fast-order.csv_parse_success' | t: file_name: '%%FILE%%' %}
+
+<div class="bg-section-fo-{{ section.id }} bg-[rgba(var(--colors-background))]">
+<div
+  id="fast-order-{{ section.id }}"
+  class="mr-auto ml-auto section-fo-{{ section.id }} section-padding-{{ section.id }}{% if section.settings.full_width %} full-width{% else %} x-pgw page-width{% endif %}"
+  {% unless is_gated %}
+    x-data="xFastOrder({{ fo_low_stock_threshold }}, {{ fo_csv_error_messages | escape }}, {{ fo_csv_row_error_labels | escape }}, {{ fo_cart_items | escape }}, '{{ fo_money_format | escape }}', '{{ import_btn_label | escape }}', '{{ upload_btn_label | escape }}', '{{ csv_success_label }}')"
+  {% endunless %}
+>
+  {% if is_gated %}
+    <div class="border border-[rgba(var(--colors-line-and-border))] pt-10 pb-10 pl-6 pr-6 text-center{% if settings.edges_type == 'rounded_corners' %} rounded-[10px]{% endif %}">
+      <div class="rte">{{ section.settings.notice_message }}</div>
+    </div>
+  {% else %}
+    <div class="mb-6 text-{{ heading_alignment }} rtl:text-{{ rtl_alignment }} w-full">
+      {% if section.settings.heading != blank %}
+        {% assign heading_size =  section.settings.heading_size | times: settings.heading_base_size | times: 0.000225 %}
+          {% style %}
+            .heading-{{ section.id }} { font-size: {{ heading_size | times: 0.6 }}rem; }
+            @media (min-width: 768px) {
+              .heading-{{ section.id }} {
+                font-size: {{ heading_size }}rem;
+              }  
+            }
+          {% endstyle %}
+        {% render 'heading-highlight',
+          headingId: section.id,
+          heading: section.settings.heading,
+          highlight_type: section.settings.highlight_type,
+          class: 'h2 block leading-tight p-break-words',
+          heading_tag: section.settings.heading_tag,
+          animation_heading: true
+        %}
+      {% endif %}
+      {% if section.settings.description != blank %}
+        <p class="text-[rgba(var(--colors-text))] mt-1">{{ section.settings.description }}</p>
+      {% endif %}
+    </div>
+
+    <div class="fo-controls-{{ section.id }} grid items-start md:items-stretch gap-x-4 gap-y-1 mb-8 w-full lg:w-3/4 mx-auto">
+      <div class="relative" @click.outside="closeSuggestions()">
+        <div class="md:h-full flex items-center gap-2 border border-[rgba(var(--colors-line-and-border))] pt-3 pb-3 pl-4 pr-4{% if settings.edges_type == 'rounded_corners' %} rounded-full{% endif %}">
+          <span class="w-6 h-6 pl-0.5 pr-0.5 pt-0.5 pb-0.5 shrink-0">{% render 'icon-alls', icon: 'icon-search' %}</span>
+          <input
+            type="text"
+            class="flex-1 border-none outline-none bg-transparent h-full"
+            x-model="query"
+            x-on:input="onSearchInput()"
+            x-on:focus="showSuggestions = true"
+            placeholder="{{ 'sections.fast-order.search_placeholder' | t }}"
+            autocomplete="off"
+          >
+        </div>
+
+        <div
+          class="absolute z-20 left-0 right-0 mt-2 pt-2 pb-2 pl-1 pr-1 border border-[rgba(var(--colors-line-and-border))] bg-[rgba(var(--colors-background))]{% if settings.edges_type == 'rounded_corners' %} rounded-[10px]{% endif %}"
+          x-show="showSuggestions && (suggestions.length > 0 || (query.trim().length > 0 && !searching))"
+          x-cloak
+        >
+          <div class="pt-3 pb-3 pl-4 pr-4" x-show="!suggestions.length && !searching">
+            <p class="font-semibold text-[rgba(var(--colors-heading))]">{{ 'sections.fast-order.no_results' | t }} “<span x-text="query"></span>”</p>
+            <p class="text-[rgba(var(--colors-text))] mt-1">{{ 'sections.fast-order.no_results_text' | t: store_name: shop.name }}</p>
+          </div>
+
+          <p class="pt-1 pb-2 pl-4 pr-4 font-semibold" x-show="suggestions.length">{{ 'sections.fast-order.search_results_heading' | t }}</p>
+
+          <div class="search-result max-h-[60vh] pl-1 pr-1 overflow-y-auto scrollbar-body">
+            <template x-for="(product, pIndex) in suggestions" :key="product.id">
+              <div :class="pIndex > 0 ? 'border-t border-[rgba(var(--colors-line-and-border))]' : ''">
+                <div
+                  class="flex items-start lg:items-center gap-3 pt-3 pb-3 pl-4 pr-4"
+                  :class="product.selected_variant && product.selected_variant.available === false ? 'opacity-50' : ''"
+                >
+                  <div
+                    class="w-14 h-14{% if settings.edges_type == 'rounded_corners' %} rounded-md{% endif %} overflow-hidden shrink-0"
+                    x-show="product.imageHtml"
+                    x-html="product.imageHtml"
+                  ></div>
+                  <div x-show="!product.imageHtml" class="w-14 h-14{% if settings.edges_type == 'rounded_corners' %} rounded-md{% endif %} shrink-0 bg-[#c9c9c9] flex items-center justify-center">
+                    {% render 'icon-placeholder', icon: 'icon-product', class: 'w-full h-full' %}
+                  </div>
+                  <div class="flex-1 min-w-0 flex flex-col gap-1 lg:flex-row lg:items-center lg:gap-3">
+                    <span class="min-w-0 lg:flex-1">
+                      <span class="font-semibold text-[rgba(var(--colors-heading))]" x-text="product.title"></span>
+                      <span class="text-[rgba(var(--colors-text))] block lg:inline-block lg:ml-3" x-show="product.selected_variant" x-text="[product.has_only_default_variant ? null : product.selected_variant?.title, product.selected_variant?.sku ? '{{ 'customer.order.sku' | t }}: ' + product.selected_variant?.sku : null].filter(Boolean).join(' | ')"></span>
+                    </span>
+                    <template x-if="product.selected_variant && (product.selected_variant.available === false || isLowStock(product.selected_variant))">
+                      <div
+                        class="inline-block w-fit"
+                        :class="product.selected_variant.available === false ? 'inventory-out-of-stock-status' : 'inventory-low-stock-status'"
+                      >
+                        <p
+                          class="inventory-status w-fit pt-1 pb-1 pl-2 pr-2 rounded-full"
+                          x-text="product.selected_variant.available === false
+                            ? '{{ 'products.product.inventory_out_of_stock' | t }}'
+                            : '{{ 'products.product.inventory_low_stock' | t }}' + ' (' + product.selected_variant.inventory_quantity + ')'"
+                        ></p>
+                      </div>
+                    </template>
+                    <div
+                      class="flex flex-wrap lg:flex-nowrap items-center gap-3 w-full mt-1 lg:mt-0 lg:w-auto"
+                      x-show="product.selected_variant && product.selected_variant.available !== false"
+                    >
+                      <span
+                        class="font-semibold whitespace-nowrap"
+                        x-show="rowQuantityFor(product.selected_variant?.id) === 0"
+                        x-text="formatMoney(product.selected_variant?.price)"
+                      ></span>
+                      <template x-if="product.selected_variant && rowQuantityFor(product.selected_variant.id) > 0">
+                        <span class="pl-2 pr-2 pt-1 pb-1 rounded-full bg-[rgba(var(--colors-line-and-border))] whitespace-nowrap flex items-center gap-1 text-small">
+                          <span class="w-3 h-3 shrink-0">{% render 'icon-alls', icon: 'icon-check' %}</span>
+                          <span>{{ 'sections.product-bundle.added' | t }} <span x-text="rowQuantityFor(product.selected_variant.id)"></span> {{ 'sections.collection_list.items' | t }}</span>
+                        </span>
+                      </template>
+                      <span
+                        class="font-semibold whitespace-nowrap ml-auto lg:ml-0"
+                        :class="product.selected_variant?.remaining <= 0 ? 'text-[rgba(var(--colors-text))] cursor-not-allowed' : 'text-[rgb(var(--colors-text-link))] cursor-pointer'"
+                        @click="!(product.selected_variant.remaining <= 0) && (product.selected_variant.remaining = addVariant(product, product.selected_variant))"
+                        x-text="rowQuantityFor(product.selected_variant?.id) > 0
+                          ? '+ {{ 'products.product.add' | t }} ' + (product.selected_variant.quantity_rule?.min || 1) + ' {{ 'sections.fast-order.add_more_suffix' | t }}'
+                          : '+ {{ 'products.product.add' | t }}'"
+                      ></span>
+                    </div>
+                    <span
+                      class="font-semibold whitespace-nowrap text-[rgb(var(--colors-text-link))] cursor-pointer w-full text-right lg:w-auto"
+                      x-show="!product.selected_variant"
+                      @click.stop="addGroup(product)"
+                    >+ {{ 'sections.fast-order.add_group' | t }}</span>
+                  </div>
+                </div>
+
+                <div x-show="!product.selected_variant">
+                  <template x-for="variant in product.variants" :key="variant.id">
+                    <div
+                      class="variant-row flex gap-3 pt-2 pb-2 pl-4 pr-4"
+                      :class="variant.available === false ? 'opacity-50' : ''"
+                    >
+                      <span class="w-14 shrink-0 lg:hidden" aria-hidden="true"></span>
+                      <div class="flex-1 variant-separator relative min-w-0 flex flex-col gap-1 lg:flex-row lg:items-center lg:gap-3">
+                        <span class="min-w-0 lg:flex-1">
+                          <span class="block font-semibold text-[rgba(var(--colors-heading))]" x-text="variant.title"></span>
+                          <span class="text-[rgba(var(--colors-text))] block" x-show="variant.sku" x-text="'{{ 'customer.order.sku' | t }}: ' + variant.sku"></span>
+                        </span>
+                        <template x-if="variant.available === false || isLowStock(variant)">
+                          <div
+                            class="inline-block w-fit"
+                            :class="variant.available === false ? 'inventory-out-of-stock-status' : 'inventory-low-stock-status'"
+                          >
+                            <p
+                              class="inventory-status w-fit pt-1 pb-1 pl-2 pr-2 rounded-full"
+                              x-text="variant.available === false
+                                ? '{{ 'products.product.inventory_out_of_stock' | t }}'
+                                : '{{ 'products.product.inventory_low_stock' | t }}' + ' (' + variant.inventory_quantity + ')'"
+                            ></p>
+                          </div>
+                        </template>
+                        <div
+                          class="flex flex-wrap lg:flex-nowrap items-center gap-3 w-full mt-1 lg:mt-0 lg:w-auto"
+                          x-show="variant.available !== false"
+                        >
+                          <span class="font-semibold whitespace-nowrap" x-show="rowQuantityFor(variant.id) === 0" x-text="formatMoney(variant.price)"></span>
+                          <template x-if="rowQuantityFor(variant.id) > 0">
+                            <span class="pl-2 pr-2 pt-1 pb-1 rounded-full added-status whitespace-nowrap flex items-center gap-1 text-small">
+                              <span class="w-3 h-3 shrink-0">{% render 'icon-alls', icon: 'icon-check' %}</span>
+                              <span>{{ 'sections.product-bundle.added' | t }} <span x-text="rowQuantityFor(variant.id)"></span> {{ 'sections.collection_list.items' | t }}</span>
+                            </span>
+                          </template>
+                          <span
+                            class="font-semibold whitespace-nowrap ml-auto lg:ml-0 text-[rgb(var(--colors-text-link))]"
+                            :class="variant.remaining <= 0 ? 'opacity-70 cursor-not-allowed' : 'cursor-pointer'"
+                            @click="!(variant.remaining <= 0) && (variant.remaining = addVariant(product, variant))"
+                            x-text="rowQuantityFor(variant.id) > 0
+                              ? '+ {{ 'products.product.add' | t }} ' + (variant.quantity_rule?.min || 1) + ' {{ 'sections.fast-order.add_more_suffix' | t }}'
+                              : '+ {{ 'products.product.add' | t }}'"
+                          ></span>
+                        </div>
+                      </div>
+                    </div>
+                  </template>
+                </div>
+              </div>
+            </template>
+          </div>
+        </div>
+      </div>
+
+      {% if section.settings.enable_csv %}
+        <div class="flex justify-center">
+          <button
+            type="button"
+            class="md:h-full button button-solid button-fo-{{ section.id }} w-full md:w-fit min-w-[150px] flex items-center justify-center gap-2 whitespace-nowrap pl-7 pr-7 pt-2.5 pb-2.5 md:pl-8 md:pr-8 md:pt-3.5 md:pb-3.5 disabled:opacity-40 disabled:cursor-not-allowed"
+            :disabled="importing || validating"
+            @click="onCsvButtonClick()"
+          >
+            {% render 'button-label', button_label: upload_btn_label, button_label_x_text: 'importButtonLabel', button_text_class: 'max-w-full md:max-w-[240px]', show_button_style: 'primary' %}
+          </button>
+          <input
+            type="file"
+            accept=".csv"
+            x-ref="csvInput"
+            class="hidden"
+            @change="selectCsvFile($event.target.files[0]); $event.target.value = ''"
+          >
+        </div>
+
+        <div class="text-[90%] flex items-center justify-center md:justify-start gap-2 text-center">
+          <span class="text-[rgba(var(--color-error))]" x-show="csvError" x-cloak x-text="csvErrorText"></span>
+          <span class="w-3.5 h-3.5 shrink-0 text-[rgba(var(--color-success))]" x-show="csvParsedData" x-cloak>
+            {% render 'icon-alls', icon: 'icon-check' %}
+          </span>
+          <span class="text-[rgba(var(--color-success))]" x-show="csvParsedData" x-cloak x-text="csvParseSuccessText"></span>
+        </div>
+
+        <div class="text-[90%] underline text-[rgb(var(--colors-text-link))] cursor-pointer text-center">
+          <span x-show="!selectedFile" @click="generateExample()">
+            {{ 'sections.fast-order.csv_template_link' | t }}
+          </span>
+          <span
+            x-show="selectedFile"
+            x-cloak
+            :class="importing || validating ? 'opacity-40 cursor-not-allowed' : ''"
+            role="button"
+            tabindex="0"
+            @click="!(importing || validating) && clearCsvFile()"
+            @keydown.enter.prevent="!(importing || validating) && clearCsvFile()"
+            @keydown.space.prevent="!(importing || validating) && clearCsvFile()"
+          >
+            {{ 'sections.fast-order.clear' | t }}
+          </span>
+        </div>
+      {% endif %}
+    </div>
+
+    {% if section.settings.enable_csv %}
+      <div
+        class="mb-8 flex flex-col gap-3 lg:w-3/4 mx-auto lg:flex-row lg:items-center lg:justify-between{% if settings.edges_type == 'rounded_corners' %} rounded-[10px]{% endif %}"
+        x-show="importing || csvSummary"
+        x-cloak
+      >
+        <div class="flex flex-wrap items-center gap-2">
+          <template x-if="importing">
+            <span class="flex flex-wrap items-center gap-2" aria-hidden="true">
+              <span class="flex w-24 pl-3 pr-3 pt-1 pb-1 rounded-full bg-[#acacac] animate-Xpulse">
+                <span class="inline-block" style="height: 1em"></span>
+              </span>
+              <span class="flex w-24 pl-3 pr-3 pt-1 pb-1 rounded-full bg-[#acacac] animate-Xpulse">
+                <span class="inline-block" style="height: 1em"></span>
+              </span>
+            </span>
+          </template>
+          <span class="inline-flex items-center gap-1 pl-3 pr-3 pt-1 pb-1 rounded-full bg-[rgba(var(--colors-text),0.1)] text-[rgba(var(--colors-text))]" x-show="csvSummary?.added > 0">
+            <span class="w-3 h-3 shrink-0">{% render 'icon-alls', icon: 'icon-check' %}</span>
+            <span class="leading-tight"><span x-text="csvSummary?.added"></span> {{ 'sections.fast-order.csv_added_suffix' | t }}</span>
+          </span>
+          <div
+            class="inline-flex items-center gap-1 pl-3 pr-3 pt-1 pb-1 rounded-full bg-[rgba(var(--colors-text),0.1)] text-[rgba(var(--colors-text))] cursor-pointer"
+            x-show="csvSummary?.merged > 0"
+            role="button"
+            tabindex="0"
+            :aria-expanded="csvMergedOpen"
+            aria-controls="fo-csv-merged-{{ section.id }}"
+            @click="csvMergedOpen = !csvMergedOpen"
+            @keydown.enter.prevent="csvMergedOpen = !csvMergedOpen"
+            @keydown.space.prevent="csvMergedOpen = !csvMergedOpen"
+          >
+            <span class="leading-tight"><span x-text="csvSummary?.merged"></span> {{ 'sections.fast-order.csv_merged_suffix' | t }}</span>
+            <span class="w-2.5 h-2.5 shrink-0 duration-200" :class="csvMergedOpen ? 'rotate-180' : ''">
+              {% render 'icon-alls', icon: 'icon-caret' %}
+            </span>
+          </div>
+          <div
+            class="inline-flex items-center gap-1 pl-3 pr-3 pt-1 pb-1 rounded-full bg-[rgba(var(--colors-text),0.1)] text-[rgba(var(--colors-text))] cursor-pointer"
+            x-show="skuChoices.length"
+            role="button"
+            tabindex="0"
+            :aria-expanded="skuChoicesOpen"
+            aria-controls="fo-sku-choices-{{ section.id }}"
+            @click="skuChoicesOpen = !skuChoicesOpen"
+            @keydown.enter.prevent="skuChoicesOpen = !skuChoicesOpen"
+            @keydown.space.prevent="skuChoicesOpen = !skuChoicesOpen"
+          >
+            <span class="leading-tight"><span x-text="skuChoices.length"></span> {{ 'sections.fast-order.csv_sku_choices_suffix' | t }}</span>
+            <span class="w-2.5 h-2.5 shrink-0 duration-200" :class="skuChoicesOpen ? 'rotate-180' : ''">
+              {% render 'icon-alls', icon: 'icon-caret' %}
+            </span>
+          </div>
+          <div
+            class="inline-flex items-center gap-1 pl-3 pr-3 pt-1 pb-1 rounded-full bg-[rgba(var(--color-error),0.1)] text-[rgba(var(--color-error))]"
+            :class="sortedCsvErrors.length ? 'cursor-pointer' : ''"
+            x-show="csvSummary?.needsReview > 0"
+            :role="sortedCsvErrors.length ? 'button' : null"
+            :tabindex="sortedCsvErrors.length ? '0' : null"
+            :aria-expanded="sortedCsvErrors.length ? csvErrorsOpen : null"
+            aria-controls="fo-csv-errors-{{ section.id }}"
+            @click="sortedCsvErrors.length && (csvErrorsOpen = !csvErrorsOpen)"
+            @keydown.enter.prevent="sortedCsvErrors.length && (csvErrorsOpen = !csvErrorsOpen)"
+            @keydown.space.prevent="sortedCsvErrors.length && (csvErrorsOpen = !csvErrorsOpen)"
+          >
+            <span class="w-2.5 h-2.5 shrink-0">{% render 'icon-alls', icon: 'icon-close' %}</span>
+            <span class="leading-tight"><span x-text="csvSummary?.needsReview"></span> {{ 'sections.fast-order.csv_review_suffix' | t }}</span>
+            <span class="w-2.5 h-2.5 shrink-0 duration-200" x-show="sortedCsvErrors.length" :class="csvErrorsOpen ? 'rotate-180' : ''">
+              {% render 'icon-alls', icon: 'icon-caret' %}
+            </span>
+          </div>
+        </div>
+        <button
+          type="button"
+          class="button button-outline min-w-[150px] cursor-pointer whitespace-nowrap pl-6 pr-6 pt-2.5 pb-2.5 w-full lg:w-auto flex items-center justify-center gap-2"
+          x-show="importing || csvSummary?.added > 0"
+          :disabled="importing"
+          :class="importing && 'opacity-40 cursor-not-allowed'"
+          @click="!importing && undoImport()"
+        >
+          {{ 'sections.fast-order.csv_undo' | t }}
+        </button>
+      </div>
+
+      <div id="fo-csv-errors-{{ section.id }}" x-show="csvErrorsOpen" x-collapse x-cloak>
+        <div class="lg:w-3/4 mx-auto mb-8 border border-[rgba(var(--colors-line-and-border))] overflow-hidden{% if settings.edges_type == 'rounded_corners' %} rounded-[10px]{% endif %}">
+          <div class="hidden lg:flex lg:items-center lg:gap-4 pt-2 pb-2 pl-4 pr-4  text-[rgba(var(--colors-heading))]">
+            <span class="lg:w-16 shrink-0">{{ 'sections.fast-order.csv_error_table_line' | t }}</span>
+            <span class="lg:flex-1 min-w-0">{{ 'customer.order.sku' | t }}</span>
+            <span class="lg:w-24 shrink-0">{{ 'sections.cart.headings.quantity' | t }}</span>
+            <span class="lg:flex-1 min-w-0">{{ 'accessibility.error' | t }}</span>
+          </div>
+          <template x-for="(error, index) in sortedCsvErrors" :key="index">
+            <div
+              class="flex flex-wrap lg:flex-nowrap lg:items-center text-[rgba(var(--colors-text))] gap-x-4 gap-y-1 pt-3 pb-3 lg:pt-2 lg:pb-2 pl-4 pr-4 border-[rgba(var(--colors-line-and-border))]"
+              :class="index > 0 ? 'border-t' : 'md:border-t'"
+            >
+              <span class="shrink-0 font-semibold lg:w-16">
+                <span class="lg:hidden">{{ 'sections.fast-order.csv_error_table_line' | t }}</span>
+                <span x-text="error.line ?? '—'"></span>
+              </span>
+              <span class="min-w-0 lg:flex-1" x-text="error.sku || '—'"></span>
+              <span class="hidden lg:block lg:w-24 shrink-0 truncate line-clamp-1" x-text="error.qty || '—'"></span>
+              <span class="w-full lg:w-auto lg:flex-1 min-w-0 text-[rgba(var(--color-error))]" x-text="error.label"></span>
+            </div>
+          </template>
+        </div>
+      </div>
+
+      <div id="fo-csv-merged-{{ section.id }}" class="lg:w-3/4 mx-auto" x-show="csvMergedOpen" x-collapse x-cloak>
+        <div class="mb-8 border border-[rgba(var(--colors-line-and-border))] overflow-hidden{% if settings.edges_type == 'rounded_corners' %} rounded-[10px]{% endif %}">
+          <template x-for="(item, index) in csvMerged" :key="index">
+            <div class="pt-2 pb-2 pl-4 pr-4 text-[rgba(var(--colors-text))]" :class="index > 0 ? 'border-t border-[rgba(var(--colors-line-and-border))]' : ''">
+              <span class="font-semibold" x-text="item.sku"></span>
+              ({{ 'sections.fast-order.csv_error_table_line' | t }}: <span class="font-semibold" x-text="item.lines"></span>)
+              {{ 'sections.fast-order.csv_row_error_duplicate_sku_in_file' | t }}
+            </div>
+          </template>
+        </div>
+      </div>
+
+      <div id="fo-sku-choices-{{ section.id }}" x-show="skuChoicesOpen" x-collapse x-cloak>
+        <div class="lg:w-3/4 mx-auto mb-8 border border-[rgba(var(--colors-line-and-border))] overflow-hidden{% if settings.edges_type == 'rounded_corners' %} rounded-[10px]{% endif %}">
+          <p class="pt-2 pb-2 pl-4 pr-4 text-[rgba(var(--colors-heading))]">
+            {{ 'sections.fast-order.sku_choices_heading' | t }}
+          </p>
+          <template x-for="choice in skuChoices" :key="choice.sku">
+            <div class="pt-3 pb-3 pl-4 pr-4 border-t border-[rgba(var(--colors-line-and-border))]">
+              <p class="font-semibold mb-2 text-[rgba(var(--colors-heading))]">{{ 'customer.order.sku' | t }}: <span x-text="choice.sku"></span></p>
+              <div class="flex flex-col gap-2">
+                <template x-for="product in choice.products" :key="product.id">
+                  <div
+                    class="flex items-start lg:items-center gap-3 border border-[rgba(var(--colors-line-and-border))] pt-2 pb-2 pl-3 pr-3{% if settings.edges_type == 'rounded_corners' %} rounded-[10px]{% endif %}"
+                    :class="product.selected_variant && product.selected_variant.available === false ? 'opacity-50' : ''"
+                  >
+                    <div class="w-12 h-12{% if settings.edges_type == 'rounded_corners' %} rounded-md{% endif %} overflow-hidden shrink-0" x-show="product.imageHtml" x-html="product.imageHtml"></div>
+                    <div x-show="!product.imageHtml" class="w-12 h-12{% if settings.edges_type == 'rounded_corners' %} rounded-md{% endif %} shrink-0 bg-[#c9c9c9] flex items-center justify-center">
+                      {% render 'icon-placeholder', icon: 'icon-product', class: 'w-full h-full' %}
+                    </div>
+                    <div class="flex-1 min-w-0 flex flex-col gap-1 lg:flex-row lg:items-center lg:gap-3">
+                      <span class="min-w-0 lg:flex-1">
+                        <span class="font-semibold text-[rgba(var(--colors-heading))]" x-text="product.title"></span>
+                        <span class="text-[rgba(var(--colors-text))] block lg:inline-block lg:ml-3" x-show="product.selected_variant && !product.has_only_default_variant" x-text="product.selected_variant?.title"></span>
+                      </span>
+                      <div class="flex flex-wrap items-center gap-3 w-full mt-1 lg:mt-0 lg:w-auto">
+                        <span class="font-semibold whitespace-nowrap" x-show="product.selected_variant && product.selected_variant.available !== false" x-text="formatMoney(product.selected_variant?.price)"></span>
+                        <span
+                          class="font-semibold whitespace-nowrap ml-auto lg:ml-0"
+                          :class="product.selected_variant?.available === false ? 'text-[rgba(var(--colors-text))] cursor-not-allowed' : 'text-[rgb(var(--colors-text-link))] cursor-pointer'"
+                          @click="chooseSkuVariant(choice.sku, product)"
+                          x-text="product.selected_variant?.available === false ? '{{ 'products.product.inventory_out_of_stock' | t }}' : '+ {{ 'products.product.add' | t }}'"
+                        ></span>
+                      </div>
+                    </div>
+                  </div>
+                </template>
+              </div>
+            </div>
+          </template>
+        </div>
+      </div>
+    {% endif %}
+
+    {% capture fo_colgroup %}
+      <colgroup>
+        <col class="lg:w-[40%]">
+        <col class="lg:w-[120px]">
+        <col class="lg:w-[20%]">
+        <col class="lg:w-[200px]">
+        <col class="lg:w-[120px]">
+      </colgroup>
+    {% endcapture %}
+
+    <div class="fast-order-table-{{ section.id }} border border-[rgba(var(--colors-line-and-border))] overflow-hidden{% if settings.edges_type == 'rounded_corners' %} rounded-[10px]{% endif %}">
+      <table class="w-full lg:table-fixed text-left rtl:text-right">
+        {{ fo_colgroup }}
+        <thead class="border-b border-[rgba(var(--colors-line-and-border))] text-[rgba(var(--colors-text))] hidden lg:table-header-group">
+          <tr>
+            <th class="pb-3 pt-3 uppercase text-[110%] x-heading pl-4">{{ 'sections.cart.headings.product' | t }}/{{ 'sections.quick-order-list.variant' | t }}</th>
+            <th class="pb-3 pt-3 uppercase text-[110%] x-heading text-center">{{ 'sections.quick-order-list.inventory-status' | t }}</th>
+            <th class="pb-3 pt-3 uppercase text-[110%] x-heading text-center">{{ 'sections.cart.headings.price' | t }}</th>
+            <th class="pb-3 pt-3 uppercase text-[110%] x-heading text-center">{{ 'sections.cart.headings.quantity' | t }}</th>
+            <th class="pb-3 pt-3 uppercase text-[110%] x-heading pr-4 text-right">{{ 'sections.cart.headings.total' | t }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr x-show="!rows.length && !skuChoices.length && !importing">
+            <td colspan="5" class="pt-10 pb-10 pl-5 pr-5 text-center">
+              <p class="text-[rgba(var(--colors-text))] mt-2">
+                <span class="block mb-4 font-heading text-[rgba(var(--colors-heading))]">{{ 'sections.fast-order.empty_state_title' | t }}</span>
+                {{ 'sections.fast-order.empty_state_text' | t }}
+              </p>
+            </td>
+          </tr>
+        </tbody>
+
+
+        <template x-for="group in searchedGroups" :key="group.product.id">
+          <tbody>
+            <template x-for="(row, index) in (isSingleVariantGroup(group) ? group.items : [])" :key="row.variant.id">
+              {% render 'fast-order-table-row',
+                title_expr: 'row.product.title',
+                row_class: 'bg-[rgba(var(--colors-background-secondary))] text-[rgba(var(--colors-text))] border-b border-[rgba(var(--colors-line-and-border))]',
+                image_class: 'w-20 h-20'
+              %}
+            </template>
+
+            <template x-if="!isSingleVariantGroup(group)">
+              <tr class="bg-[rgba(var(--colors-background-secondary))] text-[rgba(var(--colors-text))] border-b border-[rgba(var(--colors-line-and-border))]">
+                <td colspan="5" class="pt-3 pb-3 pl-4 pr-4 cursor-pointer" @click="collapsedGroups[group.product.id] = !collapsedGroups[group.product.id]">
+                  <div class="flex items-center gap-3">
+                    <div class="w-20 h-20{% if settings.edges_type == 'rounded_corners' %} rounded-md{% endif %} overflow-hidden shrink-0" x-show="group.product.imageHtml" x-html="group.product.imageHtml"></div>
+                    <div x-show="!group.product.imageHtml" class="w-20 h-20{% if settings.edges_type == 'rounded_corners' %} rounded-md{% endif %} shrink-0 bg-[#c9c9c9] flex items-center justify-center">
+                      {% render 'icon-placeholder', icon: 'icon-product', class: 'w-full h-full' %}
+                    </div>
+                    <div class="flex-1 min-w-0">
+                      <span class="font-semibold block text-[rgba(var(--colors-heading))]" x-text="group.product.title"></span>
+                      <span class="text-[rgba(var(--colors-text))] block" x-text="group.product.variants_count + ' {{ 'sections.fast-order.variants_count_suffix' | t }}'"></span>
+                    </div>
+                    <span class="font-semibold whitespace-nowrap">
+                      {{ 'products.product.price.from_price_html' | t: price: '' }}<span x-text="formatMoney(group.product.price_min)"></span>
+                    </span>
+                    <span
+                      class="w-8 h-8 shrink-0 rounded-full border border-[rgba(var(--colors-line-and-border))] flex items-center justify-center duration-200"
+                      :class="collapsedGroups[group.product.id] ? '' : 'rotate-180'"
+                    >
+                      <span class="w-2.5 h-2.5 block">{% render 'icon-alls', icon: 'icon-caret' %}</span>
+                    </span>
+                  </div>
+                </td>
+              </tr>
+            </template>
+
+            <template x-if="!isSingleVariantGroup(group)">
+              <tr>
+                <td class="pt-0 pb-0 pl-0 pr-0" colspan="5">
+                  <div x-show="!collapsedGroups[group.product.id]" x-collapse>
+                    <table class="w-full lg:table-fixed text-left rtl:text-right">
+                      {{ fo_colgroup }}
+                      <tbody>
+                        <template x-for="(row, index) in group.items" :key="row.variant.id">
+                          {% render 'fast-order-table-row' %}
+                        </template>
+                      </tbody>
+                    </table>
+                  </div>
+                </td>
+              </tr>
+            </template>
+          </tbody>
+        </template>
+
+        <tbody x-cloak x-show="searchedGroups.length && importedCount">
+          <tr class="bg-[rgba(var(--colors-background-secondary))] text-[rgba(var(--colors-text))]">
+            <td colspan="5" class="pt-2 pb-2 pl-4 pr-4 text-[rgba(var(--colors-text))]">
+              {{ 'sections.fast-order.imported_from_csv' | t }}
+            </td>
+          </tr>
+        </tbody>
+
+        <tbody>
+          <template x-for="(row, index) in importedRows" :key="row.variant.id">
+            <tr
+              class="fo-row animate-enter block lg:table-row border-b border-[rgba(var(--colors-line-and-border))] last:border-b-0"
+              x-intersect.once="setTimeout(() => { $el.classList.remove('animate-enter') }, 300)"
+              :class="{ 'opacity-70': row.variant.available === false }"
+              :style="'animation-delay: ' + ((index % 10) * 50) + 'ms'"
+            >
+              <td class="fo-product-cell block lg:table-cell pb-2 lg:pb-4 pt-4 pl-4 pr-4 align-middle">
+                <form
+                  class="fo-line-form hidden"
+                  :class="{ 'fo-line-form--valid': row.valid }"
+                >
+                  <input type="hidden" class="product-id" :value="row.variant.id">
+                  <input type="hidden" class="product-qty" :value="row.quantity">
+                </form>
+                <div class="fo-product-inner flex items-center gap-3">
+                  <div
+                    class="fo-img w-20 h-20{% if settings.edges_type == 'rounded_corners' %} rounded-md{% endif %} overflow-hidden shrink-0"
+                    x-show="row.variant.imageHtml || row.product.imageHtml"
+                    x-html="row.variant.imageHtml || row.product.imageHtml"
+                  ></div>
+                  <div x-show="!row.variant.imageHtml && !row.product.imageHtml" class="fo-img w-20 h-20{% if settings.edges_type == 'rounded_corners' %} rounded-md{% endif %} shrink-0 bg-[#c9c9c9] flex items-center justify-center">
+                    {% render 'icon-placeholder', icon: 'icon-product', class: 'w-full h-full' %}
+                  </div>
+                  <div class="fo-meta min-w-0">
+                    <span class="font-semibold block" x-text="row.product.title + ' · ' + row.variant.title"></span>
+                    <span class="text-[rgba(var(--colors-text))] block" x-text="row.variant.sku"></span>
+                    <div
+                      class="lg:hidden mt-2 inline-block"
+                      :class="row.variant.available === false ? 'inventory-out-of-stock-status' : (isLowStock(row.variant) ? 'inventory-low-stock-status' : 'inventory-in-stock-status')"
+                    >
+                      <p
+                        class="inventory-status w-fit pt-1 pb-1 pl-2 pr-2 rounded-full"
+                        x-text="row.variant.available === false ? '{{ 'products.product.inventory_out_of_stock' | t }}' : (isLowStock(row.variant) ? '{{ 'products.product.inventory_low_stock' | t }}' + ' (' + row.variant.inventory_quantity + ')' : '{{ 'products.product.inventory_out_of_stock_continue_selling' | t }}')"
+                      ></p>
+                    </div>
+                  </div>
+                </div>
+              </td>
+
+              <td class="pb-4 pt-4 align-middle hidden lg:table-cell text-center">
+                <div
+                  class="inline-block"
+                  :class="row.variant.available === false ? 'inventory-out-of-stock-status' : (isLowStock(row.variant) ? 'inventory-low-stock-status' : 'inventory-in-stock-status')"
+                >
+                  <p
+                    class="inventory-status w-fit m-auto pt-1 pb-1 pl-2 pr-2 rounded-full"
+                    x-text="row.variant.available === false ? '{{ 'products.product.inventory_out_of_stock' | t }}' : (isLowStock(row.variant) ? '{{ 'products.product.inventory_low_stock' | t }}' + ' (' + row.variant.inventory_quantity + ')' : '{{ 'products.product.inventory_out_of_stock_continue_selling' | t }}')"
+                  ></p>
+                </div>
+              </td>
+
+              <td class="fo-price block lg:table-cell pb-2 lg:pb-4 pt-0 lg:pt-4 pr-4 lg:pl-0 lg:pr-0 align-middle text-left lg:text-center font-semibold">
+                <template x-if="row.variant.compare_at_price > row.variant.price">
+                  <p>
+                    <s class="cap price-compare text-[80%]" x-text="formatMoney(row.variant.compare_at_price)"></s>
+                    <span class="price-sale ml-1" x-text="formatMoney(row.variant.price)"></span>
+                  </p>
+                </template>
+                <template x-if="!(row.variant.compare_at_price > row.variant.price)">
+                  <p class="price" x-text="formatMoney(row.variant.price)"></p>
+                </template>
+                <template x-if="row.variant.quantity_price_breaks && row.variant.quantity_price_breaks.length">
+                  <div class="flex flex-wrap items-center justify-start lg:justify-center gap-1 mt-2 lg:mt-1">
+                    <template x-for="(tier, index) in row.variant.quantity_price_breaks" :key="tier.minimum_quantity">
+                      <span
+                        class="pl-2 pr-2 pt-1 pb-1 text-[90%] leading-none whitespace-nowrap rounded-xl"
+                        :class="isTierActive(row, index) ? 'bg-[rgba(var(--colors-button))] text-[rgb(var(--colors-button-text))]' : 'bg-[rgba(var(--colors-line-and-border))] text-[rgba(var(--colors-text))]'"
+                      >
+                        <span x-text="tier.minimum_quantity + '+ {{ 'products.product.volumn_pricing.units' | t }}:'"></span>
+                        <span x-text="formatMoney(tier.price)"></span>
+                      </span>
+                    </template>
+                  </div>
+                </template>
+              </td>
+
+              <td class="fo-qty block lg:table-cell pb-4 pt-0 lg:pt-4 pr-4 lg:pl-0 lg:pr-0 align-middle text-left lg:text-center">
+                <div class="flex justify-start lg:justify-center">
+                  <div class="flex flex-col justify-center items-center">
+                    <span
+                      class="product-form__quantity pt-2 pb-2 pl-3 pr-3 inline-flex w-fit border border-solid items-center {% if settings.edges_type == 'rounded_corners' %} rounded-full{% endif %}"
+                      x-show="row.variant.available !== false"
+                      :class="row.error ? 'border-[rgb(var(--color-error))]' : ''"
+                    >
+                      <button
+                        class="w-6 h-6 cursor-pointer bg-transparent pt-1.5 pb-1.5 pr-1.5 pl-1.5 select-none disabled:opacity-40 disabled:cursor-not-allowed"
+                        aria-label="{{ 'accessibility.decrease_quantity' | t }}"
+                        :disabled="row.error === 'MIN'"
+                        @click="decrementRow(row)"
+                      >
+                        {% render 'icon-alls', icon: 'icon-minus' %}
+                      </button>
+                      <input
+                        type="number"
+                        :min="row.rule.min"
+                        :max="row.rule.max"
+                        :step="row.rule.step"
+                        class="outer-spin-button hide-spin-input focus:outline-none w-14 text-center bg-transparent"
+                        aria-label="{{ 'products.product.quantity.label' | t }}"
+                        x-model.number="row.quantity"
+                        x-on:blur="evaluateRow(row)"
+                      >
+                      <button
+                        class="w-6 h-6 cursor-pointer bg-transparent pt-1.5 pb-1.5 pr-1.5 pl-1.5 select-none disabled:opacity-40 disabled:cursor-not-allowed"
+                        aria-label="{{ 'accessibility.increase_quantity' | t }}"
+                        :disabled="row.error === 'MAX'"
+                        @click="incrementRow(row)"
+                      >
+                        {% render 'icon-alls', icon: 'icon-plus' %}
+                      </button>
+                    </span>
+                    <p
+                      class="text-[rgba(var(--colors-text))] mt-1 text-[90%]"
+                      x-show="(row.rule.min > 1 || row.rule.max != null || row.rule.step > 1) && (!row.error)"
+                      x-text="[
+                        row.rule.min > 1 ? '{{ 'sections.fast-order.qty_rule_min' | t }} ' + row.rule.min : null,
+                        row.rule.step > 1 ? '{{ 'sections.fast-order.qty_rule_increment' | t }} ' + row.rule.step : null,
+                        row.rule.max != null ? '{{ 'sections.fast-order.qty_rule_max' | t }} ' + row.rule.max : null
+                      ].filter(Boolean).join(' · ')"
+                    ></p>
+                    <p class="text-[rgba(var(--color-error))] mt-1 text-[90%]" x-show="row.error">
+                      <span x-show="row.error === 'MIN'">{{ 'sections.fast-order.qty_error_min' | t }} <span x-text="row.rule.min"></span></span>
+                      <span x-show="row.error === 'MAX'">{{ 'sections.fast-order.qty_error_max' | t }} <span x-text="row.rule.max"></span></span>
+                      <span x-show="row.error === 'MULTIPLE'">{{ 'sections.fast-order.qty_error_multiple' | t }} <span x-text="row.rule.step"></span></span>
+                    </p>
+                  </div>
+
+                  <span
+                    class="underline text-[rgb(var(--colors-text-link))] cursor-pointer ml-2 pt-2.5"
+                    x-show="row.variant.available !== false"
+                    @click="removeRow(row.variant.id)"
+                  >{{ 'sections.fast-order.clear' | t }}</span>
+                </div>
+              </td>
+
+              <td class="hidden lg:table-cell pb-4 pt-4 pr-4 align-middle text-right font-semibold whitespace-nowrap">
+                <span x-show="row.variant.available === false">—</span>
+                <span x-show="row.variant.available !== false" x-text="formatMoney(rowTotal(row))"></span>
+              </td>
+            </tr>
+          </template>
+
+          <template x-for="index in skeletonRowCount" :key="'skeleton-' + index">
+            <tr
+              class="fo-row animate-enter block lg:table-row border-b border-[rgba(var(--colors-line-and-border))] last:border-b-0"
+              x-intersect.once="setTimeout(() => { $el.classList.remove('animate-enter') }, 300)"
+              :style="'animation-delay: ' + (((index - 1) % 10) * 50) + 'ms'"
+              aria-hidden="true"
+            >
+              <td class="fo-product-cell block lg:table-cell pb-2 lg:pb-4 pt-4 pl-4 pr-4 align-middle">
+                <div class="fo-product-inner flex items-center gap-3">
+                  <div class="fo-img w-20 h-20 shrink-0 animate-Xpulse{% if settings.edges_type == 'rounded_corners' %} rounded-md{% endif %}"></div>
+                  <div class="fo-meta min-w-0 w-full">
+                    <div class="h-4 w-1/2 animate-Xpulse mb-2"></div>
+                    <div class="h-4 w-1/4 animate-Xpulse"></div>
+                  </div>
+                </div>
+              </td>
+
+              <td class="pb-4 pt-4 align-middle hidden lg:table-cell text-center">
+                <div class="h-6 w-20 mx-auto rounded-full animate-Xpulse"></div>
+              </td>
+
+              <td class="fo-price block lg:table-cell pb-2 lg:pb-4 pt-0 lg:pt-4 pr-4 lg:pl-0 lg:pr-0 align-middle">
+                <div class="h-4 w-16 animate-Xpulse"></div>
+              </td>
+
+              <td class="fo-qty block lg:table-cell pb-4 pt-0 lg:pt-4 pr-4 lg:pl-0 lg:pr-0 align-middle">
+                <div class="h-10 w-28 rounded-full animate-Xpulse"></div>
+              </td>
+
+              <td class="hidden lg:table-cell pb-4 pt-4 pr-4 align-middle text-right">
+                <div class="h-4 w-16 ml-auto animate-Xpulse"></div>
+              </td>
+            </tr>
+          </template>
+        </tbody>
+      </table>
+
+      <div x-cloak x-show="rows.length && !importing" class="flex bg-[rgba(var(--colors-background-secondary))] text-[rgba(var(--colors-text))] items-center justify-between md:justify-end gap-4 flex-wrap pt-4 pb-4 pl-4 pr-4">
+        <span class="text-[rgba(var(--colors-text))] text-[110%]">
+          {{ 'sections.fast-order.summary_total' | t }} <b class="text-[rgba(var(--colors-text))]" x-text="getSubtotal()"></b>
+        </span>
+        <button
+          type="button"
+          class="button button-solid button-fo-{{ section.id }} pt-3 pb-3 pl-6 pr-6 disabled:cursor-not-allowed disabled:opacity-60"
+          x-data="xProductsList('{{ section.id }}')"
+          :disabled="loading"
+          :aria-busy="loading"
+          @click="handleAddToCart($el, '.fast-order-table-{{ section.id }}', '.fo-line-form--valid', '{{ settings.name_edt | default: 'Note' }}')"
+        >
+          <span :class="{ 'opacity-0': loading }">{{ 'products.product.add_all_to_cart' | t }}</span>
+          <div
+            class="inline-block w-4 h-4 md:w-5 md:h-5 absolute top-[calc(50%-8px)] left-[calc(50%-8px)] md:top-[calc(50%-10px)] md:left-[calc(50%-10px)]"
+            x-show="loading"
+            x-cloak
+          >
+            {% render 'icon-alls', icon: 'icon-loading' %}
+          </div>
+        </button>
+      </div>
+    </div>
+  {% endif %}
+</div>
+</div>
+
+<script src="{{ 'product-list.js' | asset_url }}" defer></script>
+<script src="{{ 'fast-order.js' | asset_url }}" defer></script>
+
+{% schema %}
+{
+  "name": "t:sections.fast-order.name",
+  "class": "x-section-fast-order",
+  "enabled_on": {
+    "templates": ["page"]
+  },
+  "limit": 1,
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "only_show_b2b",
+      "default": true,
+      "label": "t:sections.fast-order.settings.only_show_b2b.label",
+      "info": "t:sections.fast-order.settings.only_show_b2b.info"
+    },
+    {
+      "type": "richtext",
+      "id": "notice_message",
+      "default": "<p>This section is available exclusively to approved wholesale accounts.</p><p>Sign in with your company account to view section and start your order.</p><p>Don't have a wholesale account? Contact us to apply.</p>",
+      "label": "t:sections.fast-order.settings.notice_message.label",
+      "visible_if": "{{ section.settings.only_show_b2b }}"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "default": "Fast order",
+      "label": "t:sections.all.text.heading",
+      "info": "t:settings_schema.typography.settings.heading_highlight_type.info"
+    },
+    {
+      "type": "select",
+      "id": "highlight_type",
+      "default": "underline",
+      "label": "t:settings_schema.typography.settings.heading_highlight_type.label",
+      "options": [
+        {
+          "value": "underline",
+          "label": "t:settings_schema.typography.settings.heading_highlight_type.option__1.label"
+        },
+        {
+          "value": "font_highlight",
+          "label": "t:settings_schema.typography.settings.heading_highlight_type.option__3.label"
+        }
+      ]
+    },
+    {
+      "type": "range",
+      "id": "heading_size",
+      "min": 50,
+      "max": 200,
+      "unit": "%",
+      "step": 10,
+      "default": 100,
+      "label": "t:sections.all.text.heading_size"
+    },
+    {
+      "type": "select",
+      "id": "heading_tag",
+      "default": "h2",
+      "label": "t:sections.all.text.heading_tag",
+      "options": [
+        {
+          "value": "h1",
+          "label": "H1"
+        },
+        {
+          "value": "h2",
+          "label": "H2"
+        },
+        {
+          "value": "h3",
+          "label": "H3"
+        },
+        {
+          "value": "h4",
+          "label": "H4"
+        },
+        {
+          "value": "h5",
+          "label": "H5"
+        },
+        {
+          "value": "h6",
+          "label": "H6"
+        },
+        {
+          "value": "p",
+          "label": "p"
+        }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "heading_alignment",
+      "default": "center",
+      "label": "t:sections.all.text.heading_alignment",
+      "options": [
+        {
+          "value": "left",
+          "label": "t:sections.all.content_alignment.options__1.label"
+        },
+        {
+          "value": "center",
+          "label": "t:sections.all.content_alignment.options__2.label"
+        },
+        {
+          "value": "right",
+          "label": "t:sections.all.content_alignment.options__3.label"
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "id": "description",
+      "default": "Input SKU/Product name, or upload a CSV file.",
+      "label": "t:sections.all.text.text"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_csv",
+      "default": true,
+      "label": "t:sections.fast-order.settings.enable_csv.label",
+      "info": "t:sections.fast-order.settings.enable_csv.info"
+    },
+    {
+      "type": "paragraph",
+      "content": "t:sections.fast-order.settings.csv_conditions.content"
+    },
+    {
+      "type": "header",
+      "content": "t:settings_schema.colors.name"
+    },
+    {
+      "type": "color",
+      "id": "background_color_light",
+      "default": "rgba(0,0,0,0)",
+      "label": "t:sections.all.background.background_color_light"
+    },
+    {
+      "type": "color",
+      "id": "secondary_background_color_light",
+      "default": "rgba(0,0,0,0)",
+      "label": "t:sections.featured-collection.settings.color_background_secondary.label"
+    },
+    {
+      "type": "color",
+      "id": "heading_color_light",
+      "label": "t:sections.all.text.color_heading_light",
+      "default": "rgba(0,0,0,0)"
+    },
+    {
+      "type": "color",
+      "id": "heading_highlight_color_light",
+      "label": "t:sections.all.text.color_heading_highlight_light",
+      "default": "rgba(0,0,0,0)"
+    },
+    {
+      "type": "color",
+      "id": "line_and_border_color_light",
+      "default": "rgba(0,0,0,0)",
+      "label": "t:sections.all.text.line_border"
+    },
+    {
+      "type": "color",
+      "id": "text_color_light",
+      "label": "t:sections.all.text.color",
+      "default": "rgba(0,0,0,0)"
+    },
+    {
+      "type": "color",
+      "id": "colors_text_link_light",
+      "default": "rgba(0,0,0,0)",
+      "label": "t:sections.main-collection-banner.block.textlink_color_light"
+    },
+    {
+      "type": "color",
+      "id": "button_light",
+      "label": "t:sections.all.button.primary_button_light",
+      "default": "rgba(0,0,0,0)"
+    },
+    {
+      "type": "color",
+      "id": "button_text_light",
+      "label": "t:sections.all.button.primary_button_text_light",
+      "default": "rgba(0,0,0,0)"
+    },
+    {
+      "type": "color",
+      "id": "button_hover_light",
+      "label": "t:sections.all.button.primary_button_hover_light",
+      "default": "rgba(0,0,0,0)"
+    },
+    {
+      "type": "color",
+      "id": "button_text_hover_light",
+      "label": "t:sections.all.button.primary_button_hover_text_light",
+      "default": "rgba(0,0,0,0)"
+    },
+    {
+      "type": "color",
+      "id": "background_color_dark",
+      "default": "rgba(0,0,0,0)",
+      "label": "t:sections.all.background.background_color_dark",
+      "visible_if": "{{ settings.theme_mode_enabled }}"
+    },
+    {
+      "type": "color",
+      "id": "secondary_background_color_dark",
+      "default": "rgba(0,0,0,0)",
+      "label": "t:sections.featured-collection.settings.color_background_secondary_dark.label",
+      "visible_if": "{{ settings.theme_mode_enabled }}"
+    },
+    {
+      "type": "color",
+      "id": "heading_color_dark",
+      "label": "t:sections.all.text.color_heading_dark",
+      "default": "rgba(0,0,0,0)",
+      "visible_if": "{{ settings.theme_mode_enabled }}"
+    },
+    {
+      "type": "color",
+      "id": "heading_highlight_color_dark",
+      "label": "t:sections.all.text.color_heading_highlight_dark",
+      "default": "rgba(0,0,0,0)",
+      "visible_if": "{{ settings.theme_mode_enabled }}"
+    },
+    {
+      "type": "color",
+      "id": "line_and_border_color_dark",
+      "default": "rgba(0,0,0,0)",
+      "label": "t:sections.all.text.line_border_dark",
+      "visible_if": "{{ settings.theme_mode_enabled }}"
+    },
+    {
+      "type": "color",
+      "id": "text_color_dark",
+      "label": "t:sections.all.text.color_dark",
+      "default": "rgba(0,0,0,0)",
+      "visible_if": "{{ settings.theme_mode_enabled }}"
+    },
+    {
+      "type": "color",
+      "id": "colors_text_link_dark",
+      "default": "rgba(0,0,0,0)",
+      "label": "t:sections.main-collection-banner.block.textlink_color_dark",
+      "visible_if": "{{ settings.theme_mode_enabled }}"
+    },
+    {
+      "type": "color",
+      "id": "button_dark",
+      "label": "t:sections.all.button.primary_button_dark",
+      "default": "rgba(0,0,0,0)",
+      "visible_if": "{{ settings.theme_mode_enabled }}"
+    },
+    {
+      "type": "color",
+      "id": "button_text_dark",
+      "label": "t:sections.all.button.primary_button_text_dark",
+      "default": "rgba(0,0,0,0)",
+      "visible_if": "{{ settings.theme_mode_enabled }}"
+    },
+    {
+      "type": "color",
+      "id": "button_hover_dark",
+      "label": "t:sections.all.button.primary_button_hover_dark",
+      "default": "rgba(0,0,0,0)",
+      "visible_if": "{{ settings.theme_mode_enabled }}"
+    },
+    {
+      "type": "color",
+      "id": "button_text_hover_dark",
+      "label": "t:sections.all.button.primary_button_hover_text_dark",
+      "default": "rgba(0,0,0,0)",
+      "visible_if": "{{ settings.theme_mode_enabled }}"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.all.padding.section_padding_heading"
+    },
+    {
+      "type": "checkbox",
+      "id": "full_width",
+      "default": false,
+      "label": "t:sections.all.full_width.label"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "unit": "px",
+      "step": 4,
+      "default": 36,
+      "label": "t:sections.all.padding.padding_top"
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "unit": "px",
+      "step": 4,
+      "default": 36,
+      "label": "t:sections.all.padding.padding_bottom"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.all.padding.section_layout_mobile"
+    },
+    {
+      "type": "range",
+      "id": "padding_top_mobile",
+      "min": 0,
+      "max": 100,
+      "unit": "px",
+      "step": 4,
+      "default": 28,
+      "label": "t:sections.all.padding.padding_top"
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom_mobile",
+      "min": 0,
+      "max": 100,
+      "unit": "px",
+      "step": 4,
+      "default": 28,
+      "label": "t:sections.all.padding.padding_bottom"
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.fast-order.name",
+      "category": "t:categories.products"
+    }
+  ]
+}
+{% endschema %}

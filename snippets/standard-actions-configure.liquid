@@ -1,0 +1,131 @@
+{% doc %}
+  Registers the Eurus handlers for the standard storefront actions updateCart and openCart.
+
+  Render inline in <head> before {{ content_for_header }} -- the first configure() call per
+  action wins.
+
+  Publishes: window.EurusStandardEventTarget({ type, action }) -> Element, the element the
+  theme's own cart dispatchers target.
+
+  @example
+  {% render 'standard-actions-configure' %}
+{% enddoc %}
+<script>
+  (() => {
+    let configured = false;
+    let updateCartClaimed = false;
+    let openCartClaimed = false;
+
+    const cartRoot = () =>
+      document.getElementById('main-cart-items') || document.getElementById('CartDrawer') || document;
+
+    const eventTarget = (meta) => {
+      if (meta.type === 'shopify:cart:note-update') return document.getElementById('x-cart-note') || cartRoot();
+      if (meta.type === 'shopify:cart:discount-update') return document.getElementById('x-cart-discount-field') || cartRoot();
+      {%- if request.page_type == 'product' %}
+        if (meta.type === 'shopify:cart:lines-update' && meta.action === 'add') {
+          return document.querySelector('.main-product .product-info') || cartRoot();
+        }
+      {%- endif %}
+      return cartRoot();
+    };
+
+    window.EurusStandardEventTarget = eventTarget;
+
+    const SECTION_LIMIT = 5;
+
+    const renderSections = async (helper, signal) => {
+      const ids = helper.getSectionsToRender().map((section) => section.id);
+      const batches = [];
+      for (let i = 0; i < ids.length; i += SECTION_LIMIT) batches.push(ids.slice(i, i + SECTION_LIMIT));
+      const parts = await Promise.all(batches.map(async (batch) => {
+        try {
+          const res = await fetch(`${window.location.pathname}?sections=${batch.join(',')}`, { signal: signal });
+          return res.ok ? await res.json() : {};
+        } catch (error) {
+          return {};
+        }
+      }));
+      await helper.reRenderSections(Object.assign({}, ...parts));
+    };
+
+    const updateCart = async (defaultHandler, payload, options) => {
+      const helper = window.Alpine && Alpine.store('xCartHelper');
+      if (!helper || !helper.withCartLock) return defaultHandler();
+
+      const signal = options && options.signal;
+      return helper.withCartLock(async () => {
+        const result = await defaultHandler();
+        /* A caller that aborted mid-flight gets no re-render, and none of its requests. */
+        if (!signal || !signal.aborted) await renderSections(helper, signal);
+        return { ...result, detail: { ...result?.detail, handledBy: 'eurus' } };
+      });
+    };
+
+    {%- liquid
+      assign has_drawer = true
+      if template == 'cart' or settings.cart_type == 'page'
+        assign has_drawer = false
+      endif
+    -%}
+    const openCart = async () => {
+      {%- if has_drawer %}
+        const miniCart = window.Alpine && Alpine.store('xMiniCart');
+        if (miniCart && miniCart.openCart) return miniCart.openCart();
+      {%- else %}
+        const cartItems = document.getElementById('main-cart-items');
+        if (cartItems) return cartItems.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      {%- endif %}
+      window.location.href = '{{ routes.cart_url }}';
+    };
+
+    /* Claims one action. A missing or throwing action never blocks the next claim.
+       @param {Object|undefined} action The Shopify.actions entry.
+       @param {Object} config The configure() argument.
+       @returns {boolean} True when this call claimed the action. */
+    const claim = (action, config) => {
+      if (!action || typeof action.configure !== 'function') return false;
+      try {
+        return action.configure(config);
+      } catch (error) {
+        return false;
+      }
+    };
+
+    const configure = () => {
+      const actions = window.Shopify && window.Shopify.actions;
+      if (configured || !actions) return;
+
+      if (!updateCartClaimed) updateCartClaimed = claim(actions.updateCart, { eventTarget, handler: updateCart });
+      if (!openCartClaimed) openCartClaimed = claim(actions.openCart, { handler: openCart });
+      configured = updateCartClaimed && openCartClaimed;
+    };
+
+    configure();
+    if (!configured) {
+      try {
+        const shopify = (window.Shopify = window.Shopify || {});
+        let actions = shopify.actions;
+        Object.defineProperty(shopify, 'actions', {
+          configurable: true,
+          enumerable: true,
+          get: () => actions,
+          set: (value) => {
+            actions = value;
+            configure();
+          },
+        });
+      } catch (e) {}
+      document.addEventListener('DOMContentLoaded', configure);
+      window.addEventListener('load', () => {
+        configure();
+        {%- if request.design_mode %}
+          if (!configured) {
+            const missing = [!updateCartClaimed && 'updateCart', !openCartClaimed && 'openCart'].filter(Boolean);
+            console.warn('[Eurus] Standard storefront action not claimed:', missing.join(', '));
+          }
+        {%- endif %}
+      });
+    }
+  })();
+</script>

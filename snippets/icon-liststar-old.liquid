@@ -1,0 +1,36 @@
+{%- if icon != 'none' -%}
+  {%- case icon -%}
+    {%- when 'quote' -%}
+      <svg xmlns="http://www.w3.org/2000/svg" class="rotate-180 size_icon_testimonial--{{ section.id }} text-[rgb(var(--colors-text))]" viewBox="0 0 512 512" fill="currentColor" preserveAspectRatio="xMidYMid meet">
+        <path transform="translate(0 512) scale(.1 -.1)" d="M0 3520V2560H1283l-7-87c-26-325-159-607-390-831-221-213-489-333-799-358l-87-7V960 640l103 7c483 31 914 224 1251 562 285 285 461 623 539 1034 21 113 21 138 24 1178l4 1062H0v-960z M3200 3520V2560H4483l-7-87c-26-325-159-607-390-831-221-213-489-333-798-358l-88-7V960 640l103 7c483 31 914 224 1251 562 285 285 461 623 539 1034 21 113 21 138 24 1178l4 1062H3200v-960z"/>
+      </svg>
+    {%- when '1_star' -%}
+      <svg xmlns="http://www.w3.org/2000/svg" class="size_icon_testimonial--{{ section.id }} text-[rgb(var(--colors-icon-rating))]" fill="currentColor" viewBox="0 0 512 512" preserveAspectRatio="xMidYMid meet">
+        <path transform="translate(0 512) scale(.1 -.1)" d="M2205 4135c-336-845-349-875-374-875-60 1-1749-111-1785-118l-38-7 706-599c388-330 706-606 706-613 0-7-103-419-230-915-126-496-229-903-227-904 2-2 361 223 799 500l797 504 797-504c439-277 798-503 800-501 1 1-282 1119-440 1735l-24 93 710 602 710 602-39 7c-35 7-1723 118-1785 118-26 0-34 19-375 875-191 481-351 875-354 875-3 0-162-394-354-875z"/>
+      </svg>
+    {%- when '2_star' -%}
+      {% for i in (1..2) %}
+        <svg xmlns="http://www.w3.org/2000/svg" class="size_icon_testimonial--{{ section.id }} text-[rgb(var(--colors-icon-rating))]" fill="currentColor" viewBox="0 0 512 512" preserveAspectRatio="xMidYMid meet">
+          <path transform="translate(0 512) scale(.1 -.1)" d="M2205 4135c-336-845-349-875-374-875-60 1-1749-111-1785-118l-38-7 706-599c388-330 706-606 706-613 0-7-103-419-230-915-126-496-229-903-227-904 2-2 361 223 799 500l797 504 797-504c439-277 798-503 800-501 1 1-282 1119-440 1735l-24 93 710 602 710 602-39 7c-35 7-1723 118-1785 118-26 0-34 19-375 875-191 481-351 875-354 875-3 0-162-394-354-875z"/>
+        </svg>
+      {% endfor %}
+    {%- when '3_star' -%}
+      {% for i in (1..3) %}
+        <svg xmlns="http://www.w3.org/2000/svg" class="size_icon_testimonial--{{ section.id }} text-[rgb(var(--colors-icon-rating))]" fill="currentColor" viewBox="0 0 512 512" preserveAspectRatio="xMidYMid meet">
+          <path transform="translate(0 512) scale(.1 -.1)" d="M2205 4135c-336-845-349-875-374-875-60 1-1749-111-1785-118l-38-7 706-599c388-330 706-606 706-613 0-7-103-419-230-915-126-496-229-903-227-904 2-2 361 223 799 500l797 504 797-504c439-277 798-503 800-501 1 1-282 1119-440 1735l-24 93 710 602 710 602-39 7c-35 7-1723 118-1785 118-26 0-34 19-375 875-191 481-351 875-354 875-3 0-162-394-354-875z"/>
+        </svg>
+      {% endfor %}
+    {%- when '4_star' -%}
+      {% for i in (1..4) %}
+        <svg xmlns="http://www.w3.org/2000/svg" class="size_icon_testimonial--{{ section.id }} text-[rgb(var(--colors-icon-rating))]" fill="currentColor" viewBox="0 0 512 512" preserveAspectRatio="xMidYMid meet">
+          <path transform="translate(0 512) scale(.1 -.1)" d="M2205 4135c-336-845-349-875-374-875-60 1-1749-111-1785-118l-38-7 706-599c388-330 706-606 706-613 0-7-103-419-230-915-126-496-229-903-227-904 2-2 361 223 799 500l797 504 797-504c439-277 798-503 800-501 1 1-282 1119-440 1735l-24 93 710 602 710 602-39 7c-35 7-1723 118-1785 118-26 0-34 19-375 875-191 481-351 875-354 875-3 0-162-394-354-875z"/>
+        </svg>
+      {% endfor %}
+    {%- when '5_star' -%}
+      {% for i in (1..5) %}
+        <svg xmlns="http://www.w3.org/2000/svg" class="size_icon_testimonial--{{ section.id }} text-[rgb(var(--colors-icon-rating))]" fill="currentColor" viewBox="0 0 512 512" preserveAspectRatio="xMidYMid meet">
+          <path transform="translate(0 512) scale(.1 -.1)" d="M2205 4135c-336-845-349-875-374-875-60 1-1749-111-1785-118l-38-7 706-599c388-330 706-606 706-613 0-7-103-419-230-915-126-496-229-903-227-904 2-2 361 223 799 500l797 504 797-504c439-277 798-503 800-501 1 1-282 1119-440 1735l-24 93 710 602 710 602-39 7c-35 7-1723 118-1785 118-26 0-34 19-375 875-191 481-351 875-354 875-3 0-162-394-354-875z"/>
+        </svg>
+      {% endfor %}
+  {%- endcase -%}
+{%- endif -%}

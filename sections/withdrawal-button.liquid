@@ -1,0 +1,202 @@
+{% liquid
+  assign is_right_position = false
+  if section.settings.button_position contains 'right'
+    assign is_right_position = true
+  endif
+  assign button_position_class = "top-1/2 -translate-y-1/2 left-0"
+  if is_right_position
+    assign button_position_class = "top-1/2 -translate-y-1/2 right-0"
+  endif
+  assign button_padding_class = "pt-5 pb-5 pl-3 pr-3"
+  assign button_border_radius = "0"
+  if section.settings.edges_type == 'rounded_corners'
+    assign button_border_radius = "6px"
+  endif
+%}
+{% style %}
+  .button-{{ section.id }}, .button-{{ section.id }} *:before {
+    {% if section.settings.button_light.alpha != 0.0 %}
+      --colors-button: {{ section.settings.button_light.red }}, {{ section.settings.button_light.green }}, {{ section.settings.button_light.blue }};
+    {% endif %}
+    {% if section.settings.button_text_light.alpha != 0.0 %}
+      --colors-button-text: {{ section.settings.button_text_light.red }}, {{ section.settings.button_text_light.green }}, {{ section.settings.button_text_light.blue }};
+    {% endif %}
+    {% if section.settings.button_hover_light.alpha != 0.0 %}
+      --colors-button-hover: rgb({{ section.settings.button_hover_light.red }}, {{ section.settings.button_hover_light.green }}, {{ section.settings.button_hover_light.blue }});
+    {% endif %}
+    {% if section.settings.button_text_hover_light.alpha != 0.0 %}
+      --colors-button-text-hover: {{ section.settings.button_text_hover_light.red }}, {{ section.settings.button_text_hover_light.green }}, {{ section.settings.button_text_hover_light.blue }};
+    {% endif %}
+  }
+  .dark .button-{{ section.id }}, .dark .button-{{ section.id }} *:before {
+    {% if section.settings.button_dark.alpha != 0.0 %}
+      --colors-button: {{ section.settings.button_dark.red }}, {{ section.settings.button_dark.green }}, {{ section.settings.button_dark.blue }};
+    {% else %}
+      --colors-button: {{ settings.colors_dark_button.red }}, {{ settings.colors_dark_button.green }}, {{ settings.colors_dark_button.blue }};
+    {% endif %}
+    {% if section.settings.button_text_dark.alpha != 0.0 %}
+      --colors-button-text: {{ section.settings.button_text_dark.red }}, {{ section.settings.button_text_dark.green }}, {{ section.settings.button_text_dark.blue }};
+    {% else %}
+      --colors-button-text: {{ settings.colors_dark_button_text.red }}, {{ settings.colors_dark_button_text.green }}, {{ settings.colors_dark_button_text.blue }};
+    {% endif %}
+    {% if section.settings.button_hover_dark.alpha != 0.0 %}
+      --colors-button-hover: rgb({{ section.settings.button_hover_dark.red }}, {{ section.settings.button_hover_dark.green }}, {{ section.settings.button_hover_dark.blue }});
+    {% else %}
+      --colors-button-hover: rgb({{ settings.colors_dark_button_hover.red }}, {{ settings.colors_dark_button_hover.green }}, {{ settings.colors_dark_button_hover.blue }});
+    {% endif %}
+    {% if section.settings.button_text_hover_dark.alpha != 0.0 %}
+      --colors-button-text-hover: {{ section.settings.button_text_hover_dark.red }}, {{ section.settings.button_text_hover_dark.green }}, {{ section.settings.button_text_hover_dark.blue }};
+    {% else %}
+      --colors-button-text-hover: {{ settings.colors_dark_button_text_hover.red }}, {{ settings.colors_dark_button_text_hover.green }}, {{ settings.colors_dark_button_text_hover.blue }};
+    {% endif %}
+  }
+  .button-{{ section.id }} .button {
+    writing-mode: vertical-rl;
+    border-radius: 0 {{ button_border_radius }} {{ button_border_radius }} 0;
+    {%- if is_right_position %}
+      transform: rotate(180deg);
+    {%- endif %}
+  }
+{% endstyle %}
+<div class="button-{{ section.id }} fixed {{ button_position_class }} z-[100] w-max">
+  {% if customer %}
+    <a class="button button-solid button-vertical leading-normal block empty:hidden text-center {{ button_padding_class }}" href="{{ routes.account_url }}/orders"{% if section.settings.open_new_window %} target="_blank"{% endif %}>
+      {% render 'button-label', button_label: section.settings.button_label, show_button_style: 'primary', vertical: true %}
+    </a>
+  {% else %}
+    {% if section.settings.button_link == blank %}
+      <div class="button button-solid button-vertical leading-normal empty:hidden text-center {{ button_padding_class }} opacity-70 disable-btn-animation hover:cursor-not-allowed">
+        {% render 'button-label', button_label: section.settings.button_label, show_button_style: 'primary', vertical: true %}
+      </div>
+    {% else %}
+      <a class="button button-solid button-vertical leading-normal block empty:hidden text-center {{ button_padding_class }}" href="{{ section.settings.button_link }}"{% if section.settings.open_new_window %} target="_blank"{% endif %}>
+        {% render 'button-label', button_label: section.settings.button_label, show_button_style: 'primary', vertical: true %}
+      </a>
+    {% endif %}
+  {% endif %}
+</div>
+{% schema %}
+  {
+    "name": "t:sections.all.button.is_withdrawn",
+    "enabled_on": {
+      "groups": [
+        "aside"
+      ]
+    },
+    "limit": 1,
+    "settings": [
+      {
+        "type": "text",
+        "id": "button_label",
+        "default": "Withdraw from contract here",
+        "label": "t:sections.all.button.label"
+      },
+      {
+        "type": "url",
+        "id": "button_link",
+        "label": "t:sections.all.button.link"
+      },
+      {
+        "type": "paragraph",
+        "content": "t:sections.all.button.url_required",
+        "visible_if": "{{ section.settings.button_link == blank }}"
+      },
+      {
+        "type": "select",
+        "id": "button_position",
+        "options": [
+          {
+            "value": "middle-left",
+            "label": "t:sections.all.content_alignment.options__1.label"
+          },
+          {
+            "value": "middle-right",
+            "label": "t:sections.all.content_alignment.options__3.label"
+          }
+        ],
+        "default": "middle-right",
+        "label": "t:sections.all.button.button_position"
+      },
+      {
+        "type": "checkbox",
+        "id": "open_new_window",
+        "default": false,
+        "label": "t:sections.all.open_new_window.label"
+      },
+      {
+        "type": "select",
+        "id": "edges_type",
+        "options": [
+          {
+            "value": "square",
+            "label": "t:settings_schema.products.square"
+          },
+          {
+            "value": "rounded_corners",
+            "label": "t:settings_schema.buttons.rounded_corners"
+          }
+        ],
+        "default": "square",
+        "label": "t:settings_schema.design.edges"
+      },
+      {
+        "type": "color",
+        "id": "button_light",
+        "label": "t:sections.all.button.primary_button_light",
+        "default": "rgba(0,0,0,0)"
+      },
+      {
+        "type": "color",
+        "id": "button_text_light",
+        "label": "t:sections.all.button.primary_button_text_light",
+        "default": "rgba(0,0,0,0)"
+      },
+      {
+        "type": "color",
+        "id": "button_hover_light",
+        "label": "t:sections.all.button.primary_button_hover_light",
+        "default": "rgba(0,0,0,0)"
+      },
+      {
+        "type": "color",
+        "id": "button_text_hover_light",
+        "label": "t:sections.all.button.primary_button_hover_text_light",
+        "default": "rgba(0,0,0,0)"
+      },
+      {
+        "type": "color",
+        "id": "button_dark",
+        "label": "t:sections.all.button.primary_button_dark",
+        "default": "rgba(0,0,0,0)",
+        "visible_if": "{{ settings.theme_mode_enabled }}"
+      },
+      {
+        "type": "color",
+        "id": "button_text_dark",
+        "label": "t:sections.all.button.primary_button_text_dark",
+        "default": "rgba(0,0,0,0)",
+        "visible_if": "{{ settings.theme_mode_enabled }}"
+      },
+      {
+        "type": "color",
+        "id": "button_hover_dark",
+        "label": "t:sections.all.button.primary_button_hover_dark",
+        "default": "rgba(0,0,0,0)",
+        "visible_if": "{{ settings.theme_mode_enabled }}"
+      },
+      {
+        "type": "color",
+        "id": "button_text_hover_dark",
+        "label": "t:sections.all.button.primary_button_hover_text_dark",
+        "default": "rgba(0,0,0,0)",
+        "visible_if": "{{ settings.theme_mode_enabled }}"
+      }
+    ],
+    "presets": [
+      {
+        "name": "t:sections.all.button.is_withdrawn",
+        "category": "t:categories.utilities_and_layout"
+      }
+    ]
+  }
+{% endschema %}

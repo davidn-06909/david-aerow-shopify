@@ -1,0 +1,81 @@
+@layer components {
+  .min-w-4 {
+    @apply min-w-[1rem]
+  }
+
+  .min-w-8 {
+    @apply min-w-[2rem]
+  }
+
+  .min-w-12 {
+    @apply min-w-[3rem]
+  }
+
+  .min-w-16 {
+    @apply min-w-[4rem]
+  }
+
+  .min-w-20 {
+    @apply min-w-[5rem]
+  }
+
+  .min-w-24 {
+    @apply min-w-[6rem]
+  }
+
+  .min-w-28 {
+    @apply min-w-[7rem]
+  }
+
+  .min-w-32 {
+    @apply min-w-[8rem]
+  }
+
+  .min-w-36 {
+    @apply min-w-[9rem]
+  }
+
+  .min-w-40 {
+    @apply min-w-[10rem]
+  }
+
+  .min-h-1 {
+    @apply min-h-[0.25rem]
+  }
+
+  .min-h-2 {
+    @apply min-h-[0.5rem]
+  }
+
+  .min-h-3 {
+    @apply min-h-[0.75rem]
+  }
+
+  .min-h-4 {
+    @apply min-h-[1rem]
+  }
+
+  .min-h-5 {
+    @apply min-h-[1.25rem]
+  }
+
+  .min-h-6 {
+    @apply min-h-[1.5rem]
+  }
+
+  .min-h-7 {
+    @apply min-h-[1.75rem]
+  }
+
+  .min-h-8 {
+    @apply min-h-[2rem]
+  }
+
+  .min-h-9 {
+    @apply min-h-[2.25rem]
+  }
+
+  .min-h-10 {
+    @apply min-h-[2.5rem]
+  }
+}

@@ -1,0 +1,81 @@
+@layer components {
+    
+    .content-article-spacing-2{
+        background-color: rgba(var(--colors-text), 0.05);
+        @apply w-full p-7 pb-6;
+    }
+    .content-article-bg-2{
+        @apply w-2/3 pl-5 pt-4 pb-4 md:pb-0 md:pt-5 pr-5;
+    }
+    .blog-image-desktop-top .content-article-default-2{
+        @apply w-2/3 px-0 md:px-0 pl-5 md:pt-5;
+    }
+    .blog-image-desktop-left .content-article-default-2{
+        @apply w-2/3 pl-5 md:pl-7;
+    }
+    .blog-image-desktop-top .content-article-default-rtl-2{
+        @apply w-2/3 px-0 pr-5 md:pt-5;
+    }
+    .blog-image-desktop-left .content-article-default-rtl-2{
+        @apply w-2/3 pr-5 md:pr-7;
+    }
+    .blog-image-desktop-top .content-article-2{
+        @apply float-left md:w-auto md:float-none;
+    }
+    .blog-image-desktop-left .content-article-2{
+        @apply float-left;
+    }
+    .content-article-spacing-1{
+        background-color: rgba(var(--colors-text), 0.05);
+        @apply px-7 py-7;  
+    } 
+    .content-article-bg-1{
+        @apply px-7 pt-5 pb-6;
+    }
+    .content-article-default-rtl-1, .content-article-default-1{
+        @apply pt-5;
+    }
+
+    .article-1{
+        @apply flex-col flex;
+    }
+    .article-bg-1{
+        background-color: rgba(var(--colors-text), 0.05);
+    }
+    .article-bg-2{
+        background-color: rgba(var(--colors-text), 0.05);
+    }
+
+    .blog-image-desktop-top .article-layout-2{
+        @apply w-1/3 float-left md:w-full before:h-0 before:block md:float-none;
+    }
+    .blog-image-desktop-left .article-layout-2{
+        @apply w-1/3 float-left before:h-0 before:block;
+    }
+
+    .blog-image-desktop-top .article-layout-rtl-2{
+        @apply w-1/3 float-right md:w-full before:h-0 before:block md:float-none;
+    }
+    .blog-image-desktop-left .article-layout-rtl-2{
+        @apply w-1/3 float-right before:h-0 before:block;
+    }
+
+    .article-layout-1{
+        @apply w-full;
+    }
+
+    .blog-image-desktop-left.article-2 {
+        @apply pt-5 pb-5
+    }
+
+    .blog-position-right {
+        @apply flex-row-reverse;
+    }
+
+    .blog-position-left .list-blog {
+        @apply pl-5
+    }
+    .blog-position-right .list-blog {
+        @apply pr-5
+    }
+}

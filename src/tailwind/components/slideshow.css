@@ -1,0 +1,31 @@
+@layer components {
+  /* type pagination */
+
+  .is-active-pagination:after {
+    background-image: linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.8) 100%,
+      rgba(255, 255, 255, 0.9) 50%,
+      rgba(255, 255, 255, 1) 0
+    ); 
+    animation-iteration-count: 1;
+    content: "";
+  }  
+
+  .pagination-dots button:after{
+    content: '';
+    @apply rounded-full bg-image-treatment ml-1.5 mr-1.5 w-2 h-2 lg:w-2.5 lg:h-2.5 opacity-50;
+  }
+  .pagination-dots button.is-active:after{
+    content: '';
+    @apply scale-150 opacity-100 duration-300;
+  }
+  .x-splide:not(.disable-effect-hover):hover .splide__arrow--next:not(.disable-effect-hover),
+  .rtl .x-splide:not(.disable-effect-hover):hover .splide__arrow--prev:not(.disable-effect-hover) {
+    @apply lg:-translate-x-2 lg:disabled:opacity-30;
+  }
+  .x-splide:not(.disable-effect-hover):hover .splide__arrow--prev:not(.disable-effect-hover),
+  .rtl .x-splide:not(.disable-effect-hover):hover .splide__arrow--next:not(.disable-effect-hover) {
+    @apply lg:translate-x-2 lg:disabled:opacity-30;
+  }
+}

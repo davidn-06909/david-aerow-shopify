@@ -1,0 +1,64 @@
+.shopify-block.shopify-app-block:has(wishlist-button-block) + .accordion {
+    margin-top: 1.25rem;
+    border-top-width: 0px;
+}
+
+.x-block-product-complementary wishlist-button-collection wk-button.wk-floating {
+    display: none;
+}
+
+wishlist-button-collection wk-button.wk-floating {
+    z-index: 9999;
+}
+
+html[dir="rtl"] .wk-button {
+    flex-direction: row-reverse;
+}
+
+button.wishlist-page-widget, div.wishlist-engine-button, div.wishlist-engine-button:hover, div.wishlist-engine-button:focus {
+    display: flex;
+    flex-wrap: wrap;
+    align-content: center;
+    justify-content: center;
+    align-items: center;
+    width: fit-content;
+}
+
+.bulk_action li label {
+    padding-left: 5px;
+}
+
+.swym-button.swym-add-to-wishlist {
+    z-index: 100;
+}
+
+html[dir="rtl"] .swym-btn-container .swym-button:after {
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    width: 50px;
+    height: inherit;
+    font-size: 30px;
+    font-family: "swym-font";
+    text-indent: 0px;
+    line-height: inherit;
+}
+
+html[dir="rtl"] .swym-ui-component .swym-atw-notification-container .swym-atw-notification-header-container {
+    padding-left: 0;
+    padding-right: 20px;
+}
+
+html[dir="rtl"] .swym-ui-component .swym-atw-notification-container .swym-atw-notification-header-container .swym-atw-notification-header-wrapper {
+    flex-direction: row-reverse;
+}
+
+.swym-wishlist-item {
+    border-radius: 0;
+}
+
+.rtl #swym-modal-wishlist-title {
+    margin-left: auto;
+    margin-right: 0;
+    flex-grow: 0;
+}

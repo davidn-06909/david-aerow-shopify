@@ -1,0 +1,47 @@
+@layer components { 
+    .promotion-alignment--top-left{
+        @apply top-2.5 translate-x-0 translate-y-0 left-0 lg:left-5 bottom-auto right-auto;
+    }
+    .promotion-alignment--top-center{
+        @apply top-2.5 left-1/2 -translate-x-1/2 translate-y-0 bottom-auto right-auto;
+    }
+    .promotion-alignment--top-right{
+        @apply top-2.5 translate-x-0 translate-y-0 right-0 lg:right-5 bottom-auto left-auto;
+    }
+    .promotion-alignment--center-left{
+        @apply top-1/2 left-0 lg:left-5 -translate-y-1/2 right-auto bottom-auto translate-x-0;
+    }
+    .promotion-alignment--center{
+        @apply top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bottom-auto right-auto;
+    }
+    .promotion-alignment--center-right{
+        @apply top-1/2 right-0 lg:right-5 -translate-y-1/2 left-auto bottom-auto translate-x-0;
+    }
+    .promotion-alignment--bottom-left{
+        @apply bottom-2.5 left-0 lg:left-5 right-auto top-auto translate-x-0 translate-y-0;
+    }
+    .promotion-alignment--bottom-center{
+        @apply bottom-2.5 left-1/2 -translate-x-1/2 right-auto top-auto translate-y-0;
+    }
+    .promotion-alignment--bottom-right{
+        @apply bottom-2.5 right-0 lg:right-5 top-auto left-auto translate-x-0 translate-y-0;
+    }
+    .promotion-alignment--custom{
+        @apply -translate-x-1/2 translate-y-1/2 top-auto right-auto bottom-auto left-auto;
+    }  
+    .round{
+        @apply rounded-full
+    }
+    .justify-left{
+        @apply justify-start;
+    }
+    .justify-right{
+        @apply justify-end;
+    }
+    .items-left{
+        @apply items-start;
+    }
+    .items-right{
+        @apply items-end;
+    }
+}

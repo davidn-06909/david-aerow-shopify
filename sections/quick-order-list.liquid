@@ -1,0 +1,1782 @@
+{%- if customer -%}
+  {%- capture qol_b2b_approved -%}
+    {%- render 'b2b-customer-approved' -%}
+  {%- endcapture -%}
+{%- endif -%}
+{% liquid
+  assign qol_hide_compare_at_price = false
+  if qol_b2b_approved contains 'true' and settings.b2b_show_compare_at_price == false
+    assign qol_hide_compare_at_price = true
+  endif
+
+  assign show_quick_order_section = true
+  if section.settings.only_show_b2b and request.design_mode != true
+    unless customer.b2b? or qol_b2b_approved contains 'true'
+      assign show_quick_order_section = false
+    endunless
+  endif
+
+  assign qol_hide_sold_out = true
+  if section.settings.show_sold_out
+    assign qol_hide_sold_out = false
+  endif
+
+  assign qol_max_additional = 8
+  assign qol_seen = '~'
+  assign qol_seen = qol_seen | append: product.handle | append: '~'
+  assign qol_sibling_handles = ''
+  assign qol_added = 0
+
+  if section.settings.enable_sibling_products and show_quick_order_section
+    assign qol_sibling_collection_metafield = section.settings.sibling_collection_handle_metafield | default: settings.sibling_collection_handle_metafield
+    assign qol_sibling_option_metafield = section.settings.sibling_option_value_metafield | default: settings.sibling_option_value_metafield
+    assign qol_sibling_collection_key = qol_sibling_collection_metafield | split: '.'
+    if product.metafields[qol_sibling_collection_key.first][qol_sibling_collection_key.last] != blank
+      assign qol_sibling_collection_handle = product.metafields[qol_sibling_collection_key.first][qol_sibling_collection_key.last].value
+    endif
+    assign qol_sibling_collection = collections[qol_sibling_collection_handle]
+    assign qol_sibling_in_collection = product.collections | where: 'id', qol_sibling_collection.id
+    if qol_sibling_in_collection == blank
+      assign qol_sibling_collection = blank
+    endif
+    if qol_sibling_collection != blank
+      assign qol_sibling_option_key = qol_sibling_option_metafield | split: '.'
+      paginate qol_sibling_collection.products by 250
+        for qol_candidate in qol_sibling_collection.products
+          if qol_candidate.metafields[qol_sibling_option_key.first][qol_sibling_option_key.last] == blank
+            continue
+          endif
+          assign qol_seen_key = '~' | append: qol_candidate.handle | append: '~'
+          unless qol_seen contains qol_seen_key
+            assign qol_sibling_handles = qol_sibling_handles | append: qol_candidate.handle | append: '~'
+            assign qol_seen = qol_seen | append: qol_candidate.handle | append: '~'
+          endunless
+        endfor
+      endpaginate
+    endif
+  endif
+
+  assign qol_handles = qol_sibling_handles
+  assign qol_sibling_lookup = '~' | append: qol_sibling_handles
+
+  assign qol_meta_products = product.metafields.custom.quick_order_additional.value
+  if qol_meta_products != blank
+    for qol_candidate in qol_meta_products
+      assign qol_seen_key = '~' | append: qol_candidate.handle | append: '~'
+      unless qol_seen contains qol_seen_key
+        if qol_added < qol_max_additional
+          assign qol_handles = qol_handles | append: qol_candidate.handle | append: '~'
+          assign qol_seen = qol_seen | append: qol_candidate.handle | append: '~'
+          assign qol_added = qol_added | plus: 1
+        endif
+      endunless
+    endfor
+  endif
+
+  if section.settings.additional_products != blank
+    for qol_candidate in section.settings.additional_products
+      assign qol_seen_key = '~' | append: qol_candidate.handle | append: '~'
+      unless qol_seen contains qol_seen_key
+        if qol_added < qol_max_additional
+          assign qol_handles = qol_handles | append: qol_candidate.handle | append: '~'
+          assign qol_seen = qol_seen | append: qol_candidate.handle | append: '~'
+          assign qol_added = qol_added | plus: 1
+        endif
+      endunless
+    endfor
+  endif
+
+  assign qol_handle_list = qol_handles | split: '~'
+  assign qol_extra_count = qol_handle_list.size
+
+  assign qol_variant_cap = 0
+  if section.settings.initial_variants_display
+    assign qol_variant_cap = section.settings.number_of_variants | plus: 0
+    if qol_variant_cap > 250
+      assign qol_variant_cap = 250
+    elsif qol_variant_cap < 1
+      assign qol_variant_cap = 1
+    endif
+  endif
+  assign qol_rendered_variants = 0
+  assign qol_truncated = false
+
+  assign qol_empty_groups = '~'
+  if qol_hide_sold_out and show_quick_order_section
+    assign qol_scan_groups = 0
+    assign qol_scan_empty = 0
+    for qol_scan_index in (0..qol_extra_count)
+      if qol_scan_index == 0
+        assign qol_scan_product = product
+      else
+        assign qol_scan_target = qol_scan_index | minus: 1
+        assign qol_scan_handle = qol_handle_list[qol_scan_target]
+        assign qol_scan_product = all_products[qol_scan_handle]
+      endif
+      if qol_scan_product == null or qol_scan_product == empty
+        continue
+      endif
+
+      assign qol_scan_groups = qol_scan_groups | plus: 1
+      assign qol_scan_has_stock = false
+      for qol_scan_variant in qol_scan_product.variants
+        assign qol_scan_check_inventory = true
+        if qol_scan_variant.inventory_management != 'shopify' or qol_scan_variant.inventory_policy == 'continue'
+          assign qol_scan_check_inventory = false
+        endif
+        assign qol_scan_sold_out = false
+        if qol_scan_variant.available == false
+          assign qol_scan_sold_out = true
+        elsif qol_scan_check_inventory and qol_scan_variant.quantity_rule.min > qol_scan_variant.inventory_quantity
+          assign qol_scan_sold_out = true
+        endif
+        unless qol_scan_sold_out
+          assign qol_scan_has_stock = true
+          break
+        endunless
+      endfor
+
+      unless qol_scan_has_stock
+        assign qol_empty_groups = qol_empty_groups | append: qol_scan_product.id | append: '~'
+        assign qol_scan_empty = qol_scan_empty | plus: 1
+      endunless
+    endfor
+
+    if qol_scan_groups > 0 and qol_scan_groups == qol_scan_empty and request.design_mode != true
+      assign show_quick_order_section = false
+    endif
+  endif
+%}
+{% if show_quick_order_section %}
+  {% liquid
+    assign size_heading = section.settings.heading_size | times: settings.heading_base_size | times: 0.000225
+    if settings.edges_type == 'rounded_corners'
+      assign rounded_corner = true
+    endif
+    if settings.lang_direction contains request.locale.iso_code
+      assign is_rtl = true
+    else
+      assign is_rtl = false
+    endif
+
+    assign list_product = ''
+    assign list_collection = ''
+
+    if settings.applied_products_preorder != blank
+      assign list_product = settings.applied_products_preorder | map: 'id'
+    endif
+    if settings.applied_collections_preorder != blank
+      assign list_collection = settings.applied_collections_preorder | map: 'id'
+    endif
+  %}
+  {% style %}
+    .heading-{{ section.id }} {
+      font-size: {{ size_heading | times: 0.6 }}rem;
+    }
+    .qol-table .inventory-status {
+      background-color: rgba(var(--stock-color),0.25);
+      color: rgb(var(--stock-color));
+    }
+    .qol-group-label > tr > td {
+      border-top: 1px solid rgb(var(--colors-line-and-border));
+    }
+    .qol-table > .qol-group-label:first-child > tr > td {
+      border-top: 0;
+    }
+    .order-list-item-variant + .order-list-item-variant > td {
+      border-top: 1px solid rgb(var(--colors-line-and-border));
+    }
+    .order-list-item-variant + .order-list-item-variant > td:first-child {
+      position: relative;
+      border-top-color: transparent;
+    }
+    .order-list-item-variant + .order-list-item-variant > td:first-child::after {
+      content: '';
+      position: absolute;
+      top: -1px;
+      left: 16px;
+      right: 0;
+      border-top: 1px solid rgb(var(--colors-line-and-border));
+    }
+    .rtl .order-list-item-variant + .order-list-item-variant > td:first-child::after {
+      left: 0;
+      right: 16px;
+    }
+    @media screen and (max-width: 1023px) {
+      tr.qol-group-row {
+        color: inherit;
+        background: transparent;
+      }
+    }
+    @media screen and (min-width: 1024px) {
+      .order-list-item-variant + .order-list-item-variant > td:first-child::after {
+        left: 56px;
+      }
+      .rtl .order-list-item-variant + .order-list-item-variant > td:first-child::after {
+        left: 0;
+        right: 56px;
+      }
+    }
+    @media screen and (min-width: 1024px) {
+      {% if section.settings.inventory_status %}
+        .section-padding-{{ section.id }} .qol-col-variant { width: 27%; }
+        .section-padding-{{ section.id }} .qol-col-status { width: 16%; }
+        .section-padding-{{ section.id }} .qol-col-qty { width: 26%; }
+        .section-padding-{{ section.id }} .qol-col-price { width: 20%; }
+        .section-padding-{{ section.id }} .qol-col-total { width: 12%; }
+      {% else %}
+        .section-padding-{{ section.id }} .qol-col-variant { width: 35%; }
+        .section-padding-{{ section.id }} .qol-col-qty { width: 30%; }
+        .section-padding-{{ section.id }} .qol-col-price { width: 20%; }
+        .section-padding-{{ section.id }} .qol-col-total { width: 15%; }
+      {% endif %}
+    }
+    @media screen and (min-width: 1280px) {
+      {% if section.settings.inventory_status %}
+        .section-padding-{{ section.id }} .qol-col-variant { width: 25%; }
+        .section-padding-{{ section.id }} .qol-col-status { width: 19%; }
+        .section-padding-{{ section.id }} .qol-col-qty { width: 20%; }
+        .section-padding-{{ section.id }} .qol-col-price { width: 20%; }
+        .section-padding-{{ section.id }} .qol-col-total { width: 16%; }
+      {% else %}
+        .section-padding-{{ section.id }} .qol-col-variant { width: 35%; }
+        .section-padding-{{ section.id }} .qol-col-qty { width: 25%; }
+        .section-padding-{{ section.id }} .qol-col-price { width: 20%; }
+        .section-padding-{{ section.id }} .qol-col-total { width: 20%; }
+      {% endif %}
+    }
+    .qol-qty-invalid {
+      border-color: rgb(var(--color-error));
+    }
+    .qol-tier-inline {
+      background-color: rgba(var(--colors-text), 0.25);
+    }
+    .qol-tier-active.qol-tier-inline {
+      color: rgba(var(--colors-background));
+      background-color: var(--color-highlight);
+    }
+    .qol-active-rule {
+      color: var(--color-highlight);
+      background-color: rgba({{ settings.colors_heading_highlight.red }}, {{ settings.colors_heading_highlight.green }}, {{ settings.colors_heading_highlight.blue }}, 0.25);
+    }
+    .qol-volume-popover {
+      visibility: hidden;
+      opacity: 0;
+      transition: opacity 0.2s ease, visibility 0.2s ease;
+    }
+    .qol-volume-trigger:hover .qol-volume-popover,
+    .qol-volume-trigger:focus-within .qol-volume-popover {
+      visibility: visible;
+      opacity: 1;
+    }
+    .qol-volume-popover::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 8px;
+    }
+    .qol-volume-popover::after {
+      content: '';
+      position: absolute;
+      right: 12px;
+      width: 12px;
+      height: 12px;
+      background-color: rgba(var(--background-color), 1);
+      border: 1px solid rgb(var(--colors-line-and-border));
+      transform: rotate(45deg);
+    }
+    .rtl .qol-volume-popover::after {
+      right: auto;
+      left: 12px;
+    }
+    .qol-volume-popover--below::before {
+      top: -8px;
+    }
+    .qol-volume-popover--below::after {
+      top: -6px;
+      border-right: 0;
+      border-bottom: 0;
+    }
+    .qol-volume-popover--above::before {
+      bottom: -8px;
+    }
+    .qol-volume-popover--above::after {
+      bottom: -6px;
+      border-left: 0;
+      border-top: 0;
+    }
+    @media screen and (min-width: 768px) {
+      .heading-{{ section.id }}{ font-size: {{ size_heading }}rem; }
+    }
+  {% endstyle %}
+  {% style %}
+    #order-list-sticky {
+      {%- if section.settings.background_color_light.alpha != 0.0 -%}
+        --colors-line-and-border: {{ section.settings.background_color_light.red }}, {{ section.settings.background_color_light.green }}, {{ section.settings.background_color_light.blue }};
+        --background-color: {{ section.settings.background_color_light.red }}, {{ section.settings.background_color_light.green }}, {{ section.settings.background_color_light.blue }};
+      {%- else -%}
+        --colors-line-and-border: {{ settings.colors_line_and_borders.red }}, {{ settings.colors_line_and_borders.green }}, {{ settings.colors_line_and_borders.blue }};
+        --background-color: {{ settings.colors_background.red }}, {{ settings.colors_background.green }}, {{ settings.colors_background.blue }};
+      {%- endif -%}
+    }
+    .dark #order-list-sticky {
+      {%- if section.settings.background_color_dark.alpha != 0.0 -%}
+        --background-color: {{ section.settings.background_color_dark.red }}, {{ section.settings.background_color_dark.green }}, {{ section.settings.background_color_dark.blue }};
+        --colors-line-and-border: {{ section.settings.background_color_dark.red }}, {{ section.settings.background_color_dark.green }}, {{ section.settings.background_color_dark.blue }};
+      {%- else -%}
+        --colors-line-and-border: {{ settings.colors_dark_line_and_borders.red }}, {{ settings.colors_dark_line_and_borders.green }}, {{ settings.colors_dark_line_and_borders.blue }};
+        --background-color: {{ settings.colors_dark_background.red }}, {{ settings.colors_dark_background.green }}, {{ settings.colors_dark_background.blue }};
+      {%- endif -%}
+    }
+    #order-list-sticky, #order-list-sticky *:before {
+      {% if section.settings.text_light.alpha != 0.0 %}
+        --colors-text: {{ section.settings.text_light.red }}, {{ section.settings.text_light.green }}, {{ section.settings.text_light.blue }};
+      {% endif %}
+      {% if section.settings.button_light.alpha != 0.0 %}
+        --colors-button: {{ section.settings.button_light.red }}, {{ section.settings.button_light.green }}, {{ section.settings.button_light.blue }};
+      {% endif %}
+      {% if section.settings.button_text_light.alpha != 0.0 %}
+        --colors-button-text: {{ section.settings.button_text_light.red }}, {{ section.settings.button_text_light.green }}, {{ section.settings.button_text_light.blue }};
+      {% endif %}
+      {% if section.settings.button_hover_light.alpha != 0.0 %}
+        --colors-button-hover: rgb({{ section.settings.button_hover_light.red }}, {{ section.settings.button_hover_light.green }}, {{ section.settings.button_hover_light.blue }});
+      {% endif %}
+      {% if section.settings.button_text_hover_light.alpha != 0.0 %}
+        --colors-button-text-hover: {{ section.settings.button_text_hover_light.red }}, {{ section.settings.button_text_hover_light.green }}, {{ section.settings.button_text_hover_light.blue }};
+      {% endif %}
+      {% if section.settings.line_border.alpha != 0.0 %}
+        --colors-line-and-border: {{ section.settings.line_border.red }},{{ section.settings.line_border.green }},{{ section.settings.line_border.blue }};
+      {% endif %}
+    }
+    .dark #order-list-sticky, .dark #order-list-sticky *:before {
+      {% if section.settings.text_dark.alpha != 0.0 %}
+        --colors-text: {{ section.settings.text_dark.red }}, {{ section.settings.text_dark.green }}, {{ section.settings.text_dark.blue }};
+      {% else %}
+        --colors-text: {{ settings.colors_dark_text.red }}, {{ settings.colors_dark_text.green }}, {{ settings.colors_dark_text.blue }};
+      {% endif %}
+      {% if section.settings.button_dark.alpha != 0.0 %}
+        --colors-button: {{ section.settings.button_dark.red }}, {{ section.settings.button_dark.green }}, {{ section.settings.button_dark.blue }};
+      {% else %}
+        --colors-button: {{ settings.colors_dark_button.red }}, {{ settings.colors_dark_button.green }}, {{ settings.colors_dark_button.blue }};
+      {% endif %}
+      {% if section.settings.button_text_dark.alpha != 0.0 %}
+        --colors-button-text: {{ section.settings.button_text_dark.red }}, {{ section.settings.button_text_dark.green }}, {{ section.settings.button_text_dark.blue }};
+      {% else %}
+        --colors-button-text: {{ settings.colors_dark_button_text.red }}, {{ settings.colors_dark_button_text.green }}, {{ settings.colors_dark_button_text.blue }};
+      {% endif %}
+      {% if section.settings.button_hover_dark.alpha != 0.0 %}
+        --colors-button-hover: rgb({{ section.settings.button_hover_dark.red }}, {{ section.settings.button_hover_dark.green }}, {{ section.settings.button_hover_dark.blue }});
+      {% else %}
+        --colors-button-hover: rgb({{ settings.colors_dark_button_hover.red }}, {{ settings.colors_dark_button_hover.green }}, {{ settings.colors_dark_button_hover.blue }});
+      {% endif %}
+      {% if section.settings.button_text_hover_dark.alpha != 0.0 %}
+        --colors-button-text-hover: {{ section.settings.button_text_hover_dark.red }}, {{ section.settings.button_text_hover_dark.green }}, {{ section.settings.button_text_hover_dark.blue }};
+      {% else %}
+        --colors-button-text-hover: {{ settings.colors_dark_button_text_hover.red }}, {{ settings.colors_dark_button_text_hover.green }}, {{ settings.colors_dark_button_text_hover.blue }};
+      {% endif %}
+      {% if section.settings.line_border_dark.alpha != 0.0 %}
+        --colors-line-and-border: {{ section.settings.line_border_dark.red }},{{ section.settings.line_border_dark.green }},{{ section.settings.line_border_dark.blue }};
+      {% endif %}
+    }
+    .section-padding-{{ section.id }} {
+      padding-top: {{ section.settings.padding_top_mobile }}px;
+      padding-bottom: {{ section.settings.padding_bottom_mobile }}px;
+    }
+    @media (min-width: 768px) {
+      .section-padding-{{ section.id }} {
+        padding-top: {{ section.settings.padding_top }}px;
+        padding-bottom: {{ section.settings.padding_bottom }}px;
+      }
+    }
+  {% endstyle %}
+
+  {%- if section.settings.show_section_divider or section.settings.show_section_divider_mobile -%}
+    {% render 'section-divider' %}
+  {%- endif -%}
+  <div class="section-padding-{{ section.id }}">
+    {%- if section.settings.heading != blank or section.settings.text != blank or section.settings.subheading != blank -%}
+      <div class="x-block-quick-order-list-header pl-5 pr-5 empty:hidden text-{{ section.settings.heading_alignment }} rtl:text-{% if section.settings.heading_alignment == 'center' %}center{% elsif section.settings.heading_alignment == 'left' %}right{% else %}left{% endif %}{% if section.settings.full_width %} full-width{% else %} x-pgw page-width{% endif %}">
+        {% if section.settings.subheading != blank %}
+          <div class="mb-1.5{% unless settings.disable_heading_animation %} overflow-hidden{% endunless %}"{% unless settings.disable_heading_animation %} x-intersect.once="$el.querySelector('.anm-move-up')?.classList.add('active-anm-heading')"{% endunless %}>
+            <p class="rte{% unless settings.disable_heading_animation %} anm-move-up{% endunless %}">{{ section.settings.subheading }}</p>
+          </div>
+        {% endif %}
+        {% if section.settings.heading != blank %}
+          {% render 'heading-highlight',
+            headingId: section.id,
+            heading: section.settings.heading,
+            highlight_type: section.settings.highlight_type,
+            class: 'h2 block leading-tight',
+            heading_tag: section.settings.heading_tag,
+            animation_heading: true
+          %}
+        {% endif %}
+        {% if section.settings.text != blank %}
+          <div class="rte mt-2 mb-6 lg:mb-12">{{ section.settings.text }}</div>
+        {% endif %}
+      </div>
+    {%- endif -%}
+    {% liquid
+      assign section_id = section.id
+
+      assign qol_money_format = 'window.Eurus.money_format'
+      if settings.currency_code_enable
+        assign qol_money_format = 'window.Eurus.money_with_currency_format'
+      endif
+
+      assign is_b2b = false
+      if customer.b2b?
+        assign is_b2b = true
+      endif
+      assign qol_low_stock_threshold = settings.low_stock_threshold | round
+      if is_b2b and settings.b2b_low_stock
+        assign qol_low_stock_threshold = settings.b2b_low_stock_threshold | round
+      endif
+
+      assign volume_display_icon = false
+      if section.settings.volume_pricing_display == 'icon'
+        assign volume_display_icon = true
+      endif
+
+      assign style_quantity = section.settings.quantity_style
+      if section.settings.quantity_style == 'adapt'
+        assign style_quantity = 'rounded-none'
+        if settings.buttons_type == 'rounded_corners' or settings.buttons_type == 'mixed'
+          assign style_quantity = 'rounded-md'
+        elsif settings.buttons_type == 'rounded'
+          assign style_quantity = 'rounded-full'
+        endif
+      endif
+
+      assign message_preorder = 'general.preorder.message_preorder' | t
+      if settings.message_preorder != blank
+        assign message_preorder = settings.message_preorder
+      endif
+    %}
+    <div id="x-quick-order-list-container" x-init="$store.xQuickOrderList.initPagination('{{ section.id }}', '{{ product.url }}')" class="mr-auto ml-auto{% if section.settings.full_width %} full-width{% else %} x-pgw page-width{% endif %} pl-5 pr-5 mt-7 lg:mt-12">
+      <div class="flex flex-col gap-[30px]{% if section.settings.desktop_layout == "horizontal" %} lg:flex-col lg:items-end lg:gap-4{% else %} lg:flex-row lg:gap-[60px]{% endif %}">
+        <div id="QuickOrderList" class="w-full flex flex-col {% if section.settings.desktop_layout == "sidebar" %} lg:w-2/3{% endif %}">
+          {% capture sizes %}
+            {% unless section.settings.full_width %}(min-width: {{ settings.page_width }}px) {{ settings.page_width | times: 0.4 }}px, {% endunless %}(min-width: 767px) 40vw, calc(50vw - 50px)
+          {% endcapture %}
+          {%- capture qol_colgroup -%}
+            <colgroup>
+              <col class="qol-col-variant">
+              {% if section.settings.inventory_status %}<col class="qol-col-status">{% endif %}
+              <col class="qol-col-qty">
+              <col class="qol-col-price">
+              <col class="qol-col-total">
+            </colgroup>
+          {%- endcapture -%}
+          {%- capture volume_pricing_icon -%}
+            <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 20 20" fill="none" style="fill: none">
+              <path d="M9.65039 18.65C14.6209 18.65 18.6504 14.6205 18.6504 9.65002C18.6504 4.67946 14.6209 0.650024 9.65039 0.650024C4.67983 0.650024 0.650391 4.67946 0.650391 9.65002C0.650391 14.6205 4.67983 18.65 9.65039 18.65Z" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M9.65039 5.05005H9.65939" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M9.65039 14.45V7.45001" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+            </svg>
+          {%- endcapture -%}
+          {%- liquid
+            assign qol_error_line_one = 'sections.quick-order-list.error-line' | t: count: '[count]'
+            assign qol_error_line_other = 'sections.quick-order-list.error-lines' | t: count: '[count]'
+            assign qol_colspan = 4
+            assign qol_colspan_group = 3
+            if section.settings.inventory_status
+              assign qol_colspan = 5
+              assign qol_colspan_group = 4
+            endif
+          -%}
+          {% for qol_pass in (1..2) %}
+          {%- liquid
+            assign qol_is_popup = false
+            assign qol_scope = 'page'
+            assign qol_prefix = ''
+            if qol_pass == 2
+              assign qol_is_popup = true
+              assign qol_scope = 'popup'
+              assign qol_prefix = 'popup-'
+            endif
+            assign qol_rendered_variants = 0
+            assign qol_sibling_label_shown = false
+            assign qol_additional_label_shown = false
+            if qol_is_popup and qol_truncated == false
+              break
+            endif
+          -%}
+          {% if qol_is_popup %}
+            <div
+              x-cloak
+              x-show="$store.xQuickOrderList.showAll"
+              class="qol-view-all-popup flex items-end md:items-center fixed top-0 left-0 right-0 bottom-0 z-[60] bg-[#acacac] bg-opacity-30"
+            >
+              <div
+                id="QuickOrderListViewAll"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="QuickOrderListViewAllTitle"
+                x-show="$store.xQuickOrderList.showAll"
+                class="w-full x-pgw page-width md:w-11/12 lg:w-5/6 max-h-[90vh] flex flex-col pt-5 pb-5 pl-0 pr-0 lg:pt-8 lg:pb-8 relative ml-auto mr-auto bg-[rgba(var(--background-color),1)]{% if rounded_corner %} rounded-[10px]{% endif %}"
+                x-transition:enter="transition-all ease-in-out duration-500"
+                x-transition:enter-start="opacity-0 transform translate-y-1/3"
+                x-transition:enter-end="opacity-100 transform translate-y-0"
+                x-transition:leave="transition-all ease-in-out duration-500"
+                x-transition:leave-end="opacity-0 transform translate-y-1/3"
+                x-intersect.full="$store.xModal.focus('QuickOrderListViewAll', 'QuickOrderListViewAllClose')"
+                @keydown.escape="$store.xQuickOrderList.closeAll()"
+                @click.away="$store.xQuickOrderList.closeAll()"
+              >
+                <button
+                  id="QuickOrderListViewAllClose"
+                  class="cursor-pointer group-close-btn rounded-full icon-close-container w-fit absolute top-1 lg:top-3 right-4 lg:right-6 rtl:right-auto rtl:left-4 rtl:lg:left-6"
+                  aria-label="{{ 'accessibility.close' | t }}"
+                  @click="$store.xQuickOrderList.closeAll()"
+                >
+                  {% render 'icon-alls', icon: 'icon-close', animation_class: 'icon-close-animation' %}
+                </button>
+                <p id="QuickOrderListViewAllTitle" class="h3 pb-4 pr-12 rtl:pr-0 rtl:pl-12 pl-5 lg:pl-8">{% if section.settings.heading != blank %}{{ section.settings.heading }}{% else %}{{ 'templates.search.view_all' | t }}{% endif %}</p>
+                <div class="overflow-y-auto overflow-x-hidden scrollbar-body grow pl-5 pr-5 lg:pl-8 lg:pr-8">
+                  <template x-if="$store.xQuickOrderList.popupRendered" data-qol-popup>
+          {% endif %}
+          <table class="qol-table lg:table-fixed w-full text-left rtl:text-right" data-qol-scope="{{ qol_scope }}">
+            {{ qol_colgroup }}
+            <thead class="order-list-item border-b order-list-header hidden lg:table-header-group">
+              <tr>
+                <th class="pb-3 pt-3 pr-[30px] x-heading text-[110%] pl-4 uppercase rtl:pl-7">{{ 'sections.cart.headings.product' | t }}/{{ 'sections.quick-order-list.variant' | t }}</th>
+                {% if section.settings.inventory_status %}
+                  <th class="pb-3 pt-3 hidden text-center x-heading text-[110%] lg:table-cell uppercase">{{ 'sections.quick-order-list.inventory-status' | t }}</th>
+                {% endif %}
+                <th class="pb-3 pt-3 pl-2 pr-10 hidden text-center x-heading text-[110%] lg:table-cell uppercase">{{ 'sections.cart.headings.quantity' | t }}</th>
+                <th class="pb-3 pt-3 hidden lg:table-cell uppercase x-heading text-[110%] text-center">{{ 'sections.cart.headings.price' | t }}</th>
+                <th class="pb-3 pt-3 pr-4 uppercase x-heading text-[110%] text-right rtl:text-left rtl:pl-4 rtl:pr-0">{{ 'sections.cart.headings.total' | t }}</th>
+              </tr>
+            </thead>
+            {% for group_index in (0..qol_extra_count) %}
+            {% liquid
+              assign qol_product = null
+              if group_index == 0
+                assign qol_product = product
+              else
+                assign qol_target_i = group_index | minus: 1
+                assign qol_handle = qol_handle_list[qol_target_i]
+                assign qol_product = all_products[qol_handle]
+              endif
+
+              assign skip_group = false
+              if qol_product == null or qol_product == empty
+                assign skip_group = true
+              elsif qol_hide_sold_out
+                assign qol_group_key = '~' | append: qol_product.id | append: '~'
+                if qol_empty_groups contains qol_group_key
+                  assign skip_group = true
+                endif
+              endif
+
+              assign qol_single = false
+              unless skip_group
+                if qol_product.has_only_default_variant
+                  assign qol_single = true
+                endif
+              endunless
+
+              unless skip_group or qol_is_popup
+                if qol_variant_cap > 0 and qol_rendered_variants >= qol_variant_cap
+                  assign skip_group = true
+                  assign qol_truncated = true
+                endif
+              endunless
+
+              assign qol_group_label = ''
+              assign qol_group_is_additional = false
+              unless skip_group or group_index == 0
+                assign qol_group_handle_key = '~' | append: qol_product.handle | append: '~'
+                if qol_sibling_lookup contains qol_group_handle_key
+                  unless qol_sibling_label_shown
+                    assign qol_group_label = section.settings.sibling_products_label
+                    assign qol_sibling_label_shown = true
+                  endunless
+                else
+                  assign qol_group_is_additional = true
+                  unless qol_additional_label_shown
+                    assign qol_group_label = section.settings.additional_products_label
+                    assign qol_additional_label_shown = true
+                  endunless
+                endif
+              endunless
+            %}
+            {% unless skip_group %}
+            {% if qol_group_label != blank %}
+              <tbody class="qol-group-label">
+                <tr>
+                  <td colspan="{{ qol_colspan }}" class="pt-7 pb-3">
+                    <span class="x-heading text-[110%] font-semibold">{{ qol_group_label }}</span>
+                  </td>
+                </tr>
+              </tbody>
+            {% endif %}
+            {%- capture qol_b2b_price_hidden -%}
+              {%- render 'b2b-price-hidden', product: qol_product -%}
+            {%- endcapture -%}
+            {%- if qol_b2b_price_hidden contains 'true' -%}
+              {%- capture qol_b2b_price_cta -%}
+                {%- render 'b2b-price-visibility', product: qol_product -%}
+              {%- endcapture -%}
+            {%- endif -%}
+            {% paginate qol_product.variants by 250 %}
+            {% liquid
+              assign qol_page_count = paginate.pages
+              assign qol_current_page = paginate.current_page
+              assign qol_page_param = paginate.page_param
+            %}
+            <tbody
+              id="{{ qol_prefix }}qol-group-{{ qol_product.id }}"
+              data-page-param="{{ qol_page_param }}"
+              data-qol-scope="{{ qol_scope }}"
+              {%- if qol_group_is_additional and qol_single == false and section.settings.collapsed_additional_products %} x-init="$store.xQuickOrderList.collapseByDefault('{{ qol_product.id }}')"{% endif %}
+            >
+              {% unless qol_single %}
+              <tr
+                class="order-list-item border-y bg-theme-secondary qol-group-row cursor-pointer"
+                @click="$store.xQuickOrderList.toggleGroup('{{ qol_product.id }}')"
+              >
+                <td class="pt-3 pb-3 pl-0 lg:pr-5 rtl:pr-0 rtl:lg:pl-5" colspan="{{ qol_colspan_group }}">
+                  {%- if qol_product != blank -%}
+                    <s-view-event
+                      data-view-on-intersect
+                      view-event-trigger="manual"
+                      view-event-payload='{{ qol_product | standard_event_data: "view", context: "page" | escape }}'></s-view-event>
+                  {%- endif -%}
+                  <div class="flex items-center gap-4">
+                    <span role="button" class="pt-3 pb-3 pr-3 pl-3 shrink-0 cursor-pointer hidden lg:block" aria-label="{{ qol_product.title | escape }}" :aria-expanded="$store.xQuickOrderList.isCollapsed('{{ qol_product.id }}') ? 'false' : 'true'" @click.stop="$store.xQuickOrderList.toggleGroup('{{ qol_product.id }}')">
+                      <span class="w-4 h-4 block duration-200" :class="$store.xQuickOrderList.isCollapsed('{{ qol_product.id }}') ? '' : 'rotate-180'">
+                        {% render 'icon-alls', icon: 'icon-caret' %}
+                      </span>
+                    </span>
+                    {% if section.settings.show_images and qol_product.featured_media %}
+                      <a href="{{ qol_product.url }}" aria-label="{{ qol_product.title | escape }}" class="block shrink-0 cursor-pointer" @click.stop>
+                        <picture class="w-[80px] h-[80px] min-w-[80px] block">
+                          <img
+                            src="{{ qol_product.featured_media | image_url: width: 150 }}"
+                            alt="{{ qol_product.featured_media.alt | escape }}"
+                            class="w-full h-full object-cover aspect-square {% if rounded_corner %}rounded-lg{% endif %}"
+                            {% if settings.enable_lazy_loading_image %}loading="lazy"{% else %}loading="eager"{% endif %}
+                            width="150"
+                            height="150"
+                          >
+                        </picture>
+                      </a>
+                    {% endif %}
+                    <div class="flex flex-col color-text-body grow min-w-0">
+                      <div class="text-[110%] font-semibold">
+                        <a href="{{ qol_product.url }}" class="hover:text-[rgba(var(--colors-text-link))] cursor-pointer duration-200 p-break-words" @click.stop>{{ qol_product.title }}</a>
+                      </div>
+                      <div class="lg:hidden font-semibold mt-1 flex items-center gap-1">
+                        <span>{{ 'sections.cart.headings.total' | t }}:</span>
+                        <span id="{{ qol_prefix }}qol-group-total-mobile-{{ qol_product.id }}" data-qol-group-total="{{ qol_product.id }}" x-html="$store.xHelper.formatMoney($store.xQuickOrderList.groupTotal('{{ qol_product.id }}'), {{ qol_money_format }})"></span>
+                      </div>
+                    </div>
+                    <div
+                      role="button"
+                      class="lg:hidden shrink-0 w-9 h-9 flex items-center justify-center border border-current rounded-full cursor-pointer"
+                      aria-label="{{ qol_product.title | escape }}"
+                      :aria-expanded="$store.xQuickOrderList.isCollapsed('{{ qol_product.id }}') ? 'false' : 'true'"
+                      aria-controls="{{ qol_prefix }}qol-variants-{{ qol_product.id }}"
+                      @click.stop="$store.xQuickOrderList.toggleGroup('{{ qol_product.id }}')"
+                    >
+                      <span class="w-4 h-4 block duration-200" :class="$store.xQuickOrderList.isCollapsed('{{ qol_product.id }}') ? '' : 'rotate-180'">
+                        {% render 'icon-alls', icon: 'icon-caret' %}
+                      </span>
+                    </div>
+                  </div>
+                </td>
+                <td id="{{ qol_prefix }}qol-group-total-{{ qol_product.id }}" data-qol-group-total="{{ qol_product.id }}" class="pt-5 pb-5 pr-4 rtl:pl-4 font-semibold text-[110%] text-right rtl:text-left hidden lg:table-cell align-middle p-break-words color-text-body" x-html="$store.xHelper.formatMoney($store.xQuickOrderList.groupTotal('{{ qol_product.id }}'), {{ qol_money_format }})"></td>
+              </tr>
+              <tr>
+                <td class="pt-0 pr-0 pb-0 pl-0" colspan="{{ qol_colspan }}">
+                  <div x-show="!$store.xQuickOrderList.isCollapsed('{{ qol_product.id }}')" x-collapse>
+                    <table class="qol-table lg:table-fixed w-full text-left rtl:text-right">
+                      {{ qol_colgroup }}
+                      <tbody id="{{ qol_prefix }}qol-variants-{{ qol_product.id }}">
+              {% endunless %}
+                        {% for variant in qol_product.variants %}
+                          {% liquid
+                            assign check_against_inventory = true
+                            assign quantity_rule_soldout = false
+                            if variant.inventory_management != 'shopify' or variant.inventory_policy == 'continue'
+                              assign check_against_inventory = false
+                            endif
+                            if variant.quantity_rule.min > variant.inventory_quantity and check_against_inventory
+                              assign quantity_rule_soldout = true
+                            endif
+
+                            assign sold_out = false
+                            if variant.available == false or quantity_rule_soldout
+                              assign sold_out = true
+                            endif
+                            if sold_out and qol_hide_sold_out
+                              continue
+                            endif
+
+                            if qol_is_popup == false and qol_variant_cap > 0 and qol_rendered_variants >= qol_variant_cap
+                              assign qol_truncated = true
+                              break
+                            endif
+                            assign qol_rendered_variants = qol_rendered_variants | plus: 1
+
+                            assign qol_qty_disabled = sold_out
+                            if qol_b2b_price_hidden contains 'true'
+                              assign qol_qty_disabled = true
+                            endif
+
+                            assign can_show_preorder = false
+                            if settings.preorder_show == 'yes' or settings.preorder_show == 'on_backordered' and variant.inventory_policy == 'continue' and variant.inventory_quantity < 1 and variant.inventory_management != nil
+                              if settings.applied_products_preorder == blank and settings.applied_collections_preorder == blank
+                                assign can_show_preorder = true
+                              else
+                                if list_product contains qol_product.id
+                                  assign can_show_preorder = true
+                                else
+                                  for col in qol_product.collections
+                                    if list_collection contains col.id
+                                      assign can_show_preorder = true
+                                      break
+                                    endif
+                                  endfor
+                                endif
+                              endif
+                            endif
+
+                            assign show_picture = false
+                            assign featured_media = blank
+                            if section.settings.show_images
+                              if qol_product.has_only_default_variant
+                                if qol_product.featured_media
+                                  assign show_picture = true
+                                  assign featured_media = qol_product.featured_media
+                                endif
+                              else
+                                if variant.featured_media
+                                  assign show_picture = true
+                                  assign featured_media = variant.featured_media
+                                elsif qol_product.featured_media
+                                  assign show_picture = true
+                                  assign featured_media = qol_product.featured_media
+                                endif
+                              endif
+                            endif
+
+                            assign inventory_text = ''
+                            assign inventory_color = ''
+                            if section.settings.inventory_status
+                              assign show_low_stock_count = false
+                              assign show_in_stock_count = false
+                              if variant.inventory_management == 'shopify' and variant.inventory_quantity > 0
+                                if is_b2b and settings.b2b_low_stock
+                                  assign show_low_stock_count = true
+                                  if settings.b2b_show_quantity == 'always'
+                                    assign show_in_stock_count = true
+                                  endif
+                                elsif settings.show_quantity
+                                  assign show_low_stock_count = true
+                                  assign show_in_stock_count = true
+                                endif
+                              endif
+                              if sold_out
+                                assign inventory_color = 'inventory-out-of-stock-status'
+                                assign inventory_text = 'products.product.inventory_out_of_stock' | t
+                              elsif variant.inventory_management == 'shopify' and variant.inventory_quantity > 0
+                                if variant.inventory_quantity <= qol_low_stock_threshold
+                                  assign inventory_color = 'inventory-low-stock-status'
+                                  if show_low_stock_count
+                                    assign inventory_text = 'products.product.inventory_low_stock_show_count_b2b' | t: quantity: variant.inventory_quantity
+                                  else
+                                    assign inventory_text = 'products.product.inventory_low_stock' | t
+                                  endif
+                                else
+                                  assign inventory_color = 'inventory-in-stock-status'
+                                  if show_in_stock_count
+                                    assign inventory_text = 'products.product.inventory_in_stock_show_count_b2b' | t: quantity: variant.inventory_quantity
+                                  else
+                                    assign inventory_text = 'products.product.inventory_out_of_stock_continue_selling' | t
+                                  endif
+                                endif
+                              elsif variant.inventory_management == 'shopify'
+                                assign inventory_color = 'inventory-out-of-stock-status'
+                                assign inventory_text = 'products.product.inventory_out_of_stock' | t
+                              else
+                                assign inventory_color = 'inventory-in-stock-status'
+                                assign inventory_text = 'products.product.inventory_out_of_stock_continue_selling' | t
+                              endif
+                            endif
+
+                            assign stock_error = 'sections.quick-order-list.stock-error' | t: quantity: variant.inventory_quantity
+                          %}
+                          {%- capture inventory_status_html -%}
+                            {%- if inventory_text != '' -%}
+                              <div class="{{ inventory_color }}">
+                                <p class="inventory-status w-fit text-[85%] text-[rgb(var(--background-color))] pt-1 pb-1 pl-2 pr-2 rounded-full">{{ inventory_text }}</p>
+                              </div>
+                            {%- endif -%}
+                          {%- endcapture -%}
+                          {% liquid
+                            assign quantity = 0
+                            assign in_cart = false
+                            for item in cart.items
+                              if item.variant_id == variant.id
+                                assign quantity = item.quantity
+                                assign in_cart = true
+                              endif
+                            endfor
+
+                            assign show_volume_pricing = false
+                            if section.settings.volume_pricing and sold_out == false and variant.quantity_price_breaks.size > 0
+                              assign show_volume_pricing = true
+                            endif
+
+                            assign qty_rule_parts = ''
+                            if section.settings.quantity_rules
+                              if variant.quantity_rule.min > 1
+                                assign qty_rule_parts = 'sections.quick-order-list.qty-rule-min' | t: quantity: variant.quantity_rule.min
+                              endif
+                              if variant.quantity_rule.increment > 1
+                                assign rule_part = 'sections.quick-order-list.qty-rule-increase' | t: quantity: variant.quantity_rule.increment
+                                if qty_rule_parts != ''
+                                  assign qty_rule_parts = qty_rule_parts | append: ' · '
+                                endif
+                                assign qty_rule_parts = qty_rule_parts | append: rule_part
+                              endif
+                              if variant.quantity_rule.max != null
+                                assign rule_part = 'sections.quick-order-list.qty-rule-max' | t: quantity: variant.quantity_rule.max
+                                if qty_rule_parts != ''
+                                  assign qty_rule_parts = qty_rule_parts | append: ' · '
+                                endif
+                                assign qty_rule_parts = qty_rule_parts | append: rule_part
+                              endif
+                            endif
+
+                            assign available_stock = variant.inventory_quantity | default: 0 | minus: quantity
+                            if available_stock < 0
+                              assign available_stock = 0
+                            endif
+                            assign available_max = null
+                            if variant.quantity_rule.max != null
+                              assign available_max = variant.quantity_rule.max | minus: quantity
+                              if available_max < 0
+                                assign available_max = 0
+                              endif
+                            endif
+
+                            assign error_min = 'sections.quick-order-list.error-min' | t: quantity: variant.quantity_rule.min
+                            assign error_max = 'sections.quick-order-list.error-max' | t: quantity: available_max
+                            assign error_multiple = 'sections.quick-order-list.error-multiple' | t: quantity: variant.quantity_rule.increment
+
+                            assign qol_price_money = variant.price | money
+                            if settings.currency_code_enable
+                              assign qol_price_money = variant.price | money_with_currency
+                            endif
+                            assign qol_show_compare_at = false
+                            assign qol_compare_at_money = ''
+                            if variant.compare_at_price > variant.price and qol_hide_compare_at_price == false
+                              assign qol_show_compare_at = true
+                              assign qol_compare_at_money = variant.compare_at_price | money
+                              if settings.currency_code_enable
+                                assign qol_compare_at_money = variant.compare_at_price | money_with_currency
+                              endif
+                            endif
+                          %}
+                          {%- capture price_breaks_json -%}
+                            [{% for pb in variant.quantity_price_breaks %}{"min":{{ pb.minimum_quantity }},"price":{{ pb.price | json }}}{% unless forloop.last %},{% endunless %}{% endfor %}]
+                          {%- endcapture -%}
+                          {%- capture rule_errors_json -%}
+                            {
+                              "min": {{ variant.quantity_rule.min | default: 1 | json }},
+                              "max": {{ available_max | json }},
+                              "step": {{ variant.quantity_rule.increment | default: 1 | json }},
+                              "checkStock": {{ check_against_inventory | json }},
+                              "stockLimit": {{ available_stock | json }},
+                              "price": {{ variant.price | json }},
+                              "priceBreaks": {{ price_breaks_json | strip_newlines | strip }},
+                              "productId": {{ qol_product.id | json }},
+                              "msgMin": {{ error_min | json }},
+                              "msgMax": {{ error_max | json }},
+                              "msgMultiple": {{ error_multiple | json }}
+                            }
+                          {%- endcapture -%}
+                          {%- capture unit_price_html -%}{%- if qol_b2b_price_hidden contains 'true' -%}{{ qol_b2b_price_cta }}{%- else -%}{%- if qol_show_compare_at -%}<s class="cap rtl:inline-block price-compare rtl:leading-tight text-[80%]">{{ qol_compare_at_money }}</s>{%- endif -%}<span{% if qol_show_compare_at %} class="price-sale ml-1 rtl:mr-1 rtl:ml-0"{% endif %} x-html="$store.xHelper.formatMoney(_unitPrice(draft), {{ qol_money_format }})">{{ qol_price_money }}</span>{%- endif -%}{%- endcapture -%}
+                          {%- if qol_b2b_price_hidden contains 'true' -%}
+                            {%- assign volume_pricing_html = '' -%}
+                          {%- elsif show_volume_pricing -%}
+                            {%- capture volume_pricing_html -%}
+                              {%- liquid
+                                assign base_tier_end = variant.quantity_price_breaks.first.minimum_quantity | minus: 1
+                              -%}
+                              {%- if volume_display_icon -%}
+                                <div class="flex items-center justify-between gap-4 pt-2 pb-2 pl-2 pr-2" :class="draft > 0 && draft < {{ variant.quantity_price_breaks.first.minimum_quantity }} ? 'font-semibold qol-active-rule{% if rounded_corner %} rounded-md{% endif %}' : ''">
+                                  <span>{% if base_tier_end > variant.quantity_rule.min %}{{ variant.quantity_rule.min }}-{{ base_tier_end }}{% else %}{{ variant.quantity_rule.min }}{% endif %}</span>
+                                  <span>{{ variant.price | money }}</span>
+                                </div>
+                              {%- else -%}
+                                <span class="text-[85%] whitespace-nowrap rounded-xl pt-1 pb-1 pl-2 pr-2 qol-tier-inline" :class="draft > 0 && draft < {{ variant.quantity_price_breaks.first.minimum_quantity }} ? 'qol-tier-active' : ''">{{ variant.quantity_rule.min }}+ {{ 'products.product.volumn_pricing.units' | t }}: {{ variant.price | money }}</span>
+                              {%- endif -%}
+                              {%- for price_break in variant.quantity_price_breaks -%}
+                                {%- liquid
+                                  assign next_index = forloop.index
+                                  assign tier_label = price_break.minimum_quantity | append: '+'
+                                  assign tier_condition = 'draft >= ' | append: price_break.minimum_quantity
+                                  if variant.quantity_price_breaks[next_index]
+                                    assign tier_end = variant.quantity_price_breaks[next_index].minimum_quantity | minus: 1
+                                    if tier_end > price_break.minimum_quantity
+                                      assign tier_label = price_break.minimum_quantity | append: '-' | append: tier_end
+                                    else
+                                      assign tier_label = price_break.minimum_quantity
+                                    endif
+                                    assign tier_condition = tier_condition | append: ' && draft < ' | append: variant.quantity_price_breaks[next_index].minimum_quantity
+                                  endif
+                                -%}
+                                {%- if volume_display_icon -%}
+                                  <div class="flex items-center justify-between gap-4 pt-2 pb-2 pl-2 pr-2" :class="{{ tier_condition }} ? 'font-semibold qol-active-rule{% if rounded_corner %} rounded-md{% endif %}' : ''">
+                                    <span>{{ tier_label }}</span>
+                                    <span>{{ price_break.price | money }}</span>
+                                  </div>
+                                {%- else -%}
+                                  <span class="text-[85%] whitespace-nowrap rounded-xl pt-1 pb-1 pl-2 pr-2 qol-tier-inline" :class="{{ tier_condition }} ? 'qol-tier-active' : ''">{{ price_break.minimum_quantity }}+ {{ 'products.product.volumn_pricing.units' | t }}: {{ price_break.price | money }}</span>
+                                {%- endif -%}
+                              {%- endfor -%}
+                            {%- endcapture -%}
+                          {%- endif -%}
+                          <tr id="{{ qol_prefix }}quick-order-list-item-{{ variant.id }}" class="order-list-item{% if qol_single %} bg-theme-secondary border-y{% else %} border-b-0 order-list-item-variant{% endif %}" data-qol-product="{{ qol_product.id }}" data-qol-variant="{{ variant.id }}" data-qol-scope="{{ qol_scope }}" data-qol-page="{{ qol_current_page }}" data-qol-page-param="{{ qol_page_param }}" x-data="xQuickOrderListItem({{ variant | json | escape }}, {{ rule_errors_json | strip_newlines | escape }}, {{ stock_error | json | escape }})">
+                            <td class="pb-4 pt-4 align-middle lg:pr-5{% if qol_single %} pl-7.5 rtl:pl-0 rtl:pr-7.5{% else %} pl-7.5 lg:pl-14 rtl:pl-0 rtl:pr-7.5 rtl:lg:pr-14{% endif %}">
+                              <div class="flex items-start gap-4">
+                                {% if show_picture %}
+                                  <picture class="{% if qol_single %}w-[80px] h-[80px] min-w-[80px]{% else %}w-[50px] h-[50px] min-w-[50px]{% endif %}">
+                                    <img
+                                      srcset="{{ featured_media | image_url: width: 225 }} 225w,
+                                        {{ featured_media | image_url: width: 375 }} 375w,
+                                        {{ featured_media | image_url: width: 450 }} 450w,
+                                        {{ featured_media | image_url: width: 750 }} 750w,
+                                        {{ featured_media | image_url: width: 900 }} 900w,
+                                        {{ featured_media | image_url: width: 1100 }} 1100w,
+                                        {{ featured_media | image_url: width: 1500 }} 1500w
+                                        {% if featured_media.width %},{{ featured_media | image_url }} {{ featured_media.width }}w{% endif %}"
+                                      src="{{ featured_media | image_url: width: 1080 }}"
+                                      sizes="{{ sizes }}"
+                                      alt="{{ featured_media.alt | escape }}"
+                                      class="w-full h-full object-cover aspect-square {% if rounded_corner %}rounded-lg{% endif %}"
+                                      {% if settings.enable_lazy_loading_image %}loading="lazy"{% else %}loading="eager"{% endif %}
+                                      width="{{ featured_media.width }}"
+                                      height="{{ featured_media.height }}"
+                                    >
+                                  </picture>
+                                {% endif %}
+                                <div class="flex flex-col">
+                                  <div class="flex items-center flex-wrap gap-2 lg:mb-0 p-break-words">
+                                    <span class="text-[110%] font-semibold color-text-body">{% if qol_product.has_only_default_variant %}<span class="font-semibold">{{ qol_product.title }}</span>{% else %}{{ variant.title }}{% endif %}</span>
+                                    {% if inventory_text != '' %}
+                                      <span class="lg:hidden">{{ inventory_status_html }}</span>
+                                    {% endif %}
+                                  </div>
+                                  {% if section.settings.show_skus and variant.sku != blank %}
+                                    <div class="mt-1 lg:mb-3 lg:mt-2"><span class="lg:hidden">{{ 'customer.order.sku' | t }}: </span>{{ variant.sku }}</div>
+                                  {% endif %}
+                                  {% if show_volume_pricing %}
+                                    {% if volume_display_icon %}
+                                      <div class="flex lg:hidden items-center mt-1 mb-2" x-data="{ volumeSheetLoaded: false, volumeSheetOpen: false }">
+                                        <span>{{ unit_price_html }}</span>
+                                        <div role="button" class="w-8 h-8 pl-2 pr-2 pt-2 pb-2 block shrink-0" aria-label="{{ 'products.product.volumn_pricing.name' | t }}" :aria-expanded="volumeSheetOpen" @click="volumeSheetLoaded = true; $nextTick(() => { volumeSheetOpen = true })">
+                                          {{ volume_pricing_icon }}
+                                        </div>
+                                        <template x-if="volumeSheetLoaded">
+                                          <div class="fixed z-[60] left-0 top-0 right-0 bottom-0" x-show="volumeSheetOpen" role="dialog" aria-modal="true" aria-label="{{ 'products.product.volumn_pricing.name' | t }}" @keyup.escape.window="volumeSheetOpen = false">
+                                            <div class="bg-[#acacac] opacity-40 block fixed top-0 right-0 bottom-0 left-0" @click="volumeSheetOpen = false"></div>
+                                            <div
+                                              x-show="volumeSheetOpen"
+                                              class="fixed bottom-0 left-0 w-full max-h-[85vh] text-[110%] overflow-y-auto scrollbar-body bg-[rgba(var(--background-color),1)] pl-5 pr-5 pt-10 pb-12{% if rounded_corner %} rounded-t-[10px]{% endif %}"
+                                              x-transition:enter="transition-all ease-in-out duration-500"
+                                              x-transition:enter-start="opacity-0 transform translate-y-1/3"
+                                              x-transition:enter-end="opacity-100 transform translate-y-0" 
+                                              x-transition:leave="transition ease-in-out duration-500"
+                                              x-transition:leave-end="opacity-0 transform translate-y-1/3"
+                                            >
+                                              <button class="cursor-pointer group-close-btn rounded-full absolute icon-close-container w-fit z-10 right-2 rtl:left-2 rtl:right-auto top-2" aria-label="{{ 'accessibility.close' | t }}" @click="volumeSheetOpen = false">
+                                                {% render 'icon-alls', icon: 'icon-close', animation_class: 'icon-close-animation' %}
+                                              </button>
+                                              <p class="font-semibold text-[120%] pt-2 pb-2 pl-2 pr-8 rtl:pr-0 rtl:pl-8">{{ 'products.product.volumn_pricing.name' | t }}{% unless qol_product.has_only_default_variant %} - {{ variant.title }}{% endunless %}</p>
+                                              <div class="flex items-center justify-between gap-4 pt-2 pb-2 pl-2 pr-2 font-medium">
+                                                <span>{{ 'products.product.quantity.label' | t }}</span>
+                                                <span>{{ 'sections.cart.headings.price' | t }}</span>
+                                              </div>
+                                              {{ volume_pricing_html }}
+                                            </div>
+                                          </div>
+                                        </template>
+                                      </div>
+                                    {% else %}
+                                      <span class="block lg:hidden mt-1">{{ unit_price_html }}</span>
+                                      <div class="flex lg:hidden flex-wrap gap-2 mt-1 mb-2">{{ volume_pricing_html }}</div>
+                                    {% endif %}
+                                  {% else %}
+                                    <span class="block lg:hidden mt-1 mb-2">{{ unit_price_html }}</span>
+                                  {% endif %}
+                                  <div class="product-form__quantity w-full block lg:hidden">
+                                    {% if settings.show_in_cart_items != 'none' %}
+                                      <div class="hidden" id="{{ qol_prefix }}cart-edt-{{ section_id }}">
+                                        {% unless settings.hide_when_pre_order and can_show_preorder %}
+                                          {% render 'estimate-variant-shipping-cart', variant: variant, message: settings.message_estimate_cart %}
+                                        {% endunless %}
+                                      </div>
+                                    {% endif %}
+                                    {% if settings.preorder_show != 'no' %}
+                                      <div class="hidden" id="{{ qol_prefix }}preorder-{{ section_id }}">
+                                        {% if can_show_preorder %}
+                                          <input name="properties[{{ 'general.preorder.name' | t }}]" aria-label="{{ 'general.preorder.name' | t }}" class="hidden preorder-edt-properties" value="{{ message_preorder }}"/>
+                                        {% endif %}
+                                      </div>
+                                    {% endif %}
+                                      {% if sold_out %}
+                                        <span>{{ 'products.product.sold_out' | t }}</span>
+                                      {% else %}
+                                      <div class="w-fit relative group">
+                                        <div class="flex gap-3 items-center">
+                                          <div class="inline-flex border w-fit items-center bg-[rgba(var(--background-color),1)] {{ style_quantity }}{% if qol_qty_disabled %} opacity-50 pointer-events-none{% endif %}" :class="hasError ? 'qol-qty-invalid' : ''">
+                                            <button class="w-10 cursor-pointer pt-2.5 pb-2.5 bg-transparent pl-3 pr-3 select-none opacity-70" name="minus" aria-label="{{ 'accessibility.decrease_quantity' | t }}" @click.prevent="minus()"{% if qol_qty_disabled %} disabled{% endif %}>
+                                              {% render 'icon-alls', icon: 'icon-minus' %}
+                                            </button>
+                                            <input class="outer-spin-button hide-spin-input focus:outline-none w-8 lg:w-10 pt-2.5 pb-2.5 text-center bg-transparent"
+                                              type="number"
+                                              name="quantity"
+                                              id="{{ qol_prefix }}quick-order-list-quantity-mobile-{{ variant.id }}"
+                                              data-qol-qty="{{ variant.id }}"
+                                              aria-label="{{ 'products.product.quantity.label' | t }}"
+                                              min="0"
+                                              step="{{ variant.quantity_rule.increment | default: 1 }}"
+                                              {% if variant.quantity_rule.max != null %}max="{{ variant.quantity_rule.max }}"{% endif %}
+                                              x-on:change="invalid($el); onChangeQuantity($event, {{ in_cart }}, $el)"
+                                              @keydown="handleKeydown($event, $el)"
+                                              value="0"
+                                              {% if qol_qty_disabled %}disabled{% endif %}
+                                            >
+                                            <button class="w-10 cursor-pointer pt-2.5 pb-2.5 pr-3 pl-3 bg-transparent select-none opacity-70" name="plus" @click.prevent="plus()" aria-label="{{ 'accessibility.increase_quantity' | t }}"{% if qol_qty_disabled %} disabled{% endif %}>
+                                              {% render 'icon-alls', icon: 'icon-plus' %}
+                                            </button>
+                                          </div>
+                                          <div class="w-6 h-6 relative leading-normal cursor-pointer" @click="removeItem()" @keydown.enter="removeItem()" @keydown.space.prevent="removeItem()" role="button" tabindex="0" aria-label="{{ 'products.product.remove' | t }}" x-cloak x-show="draft>0">
+                                            {% render 'icon-alls', icon: 'icon-cancel' %}
+                                          </div>
+                                        </div>
+                                        {% if qty_rule_parts != '' %}
+                                          <div class="text-[85%] mt-1.5" x-show="!hasError">{{ qty_rule_parts }}</div>
+                                        {% endif %}
+                                        <div id="{{ qol_prefix }}LineItemErrorMobile-{{ variant.id }}" data-qol-line-error="{{ variant.id }}" class="hidden cart-item__error mt-1.5" role="alert">
+                                          <span class="cart-item__error-text text-[85%] text-[rgba(var(--color-error))] p-break-words"></span>
+                                        </div>
+                                      </div>
+                                      {% endif %}
+                                  </div>
+                                </div>
+                              </div>
+                            </td>
+                            {% if section.settings.inventory_status %}
+                              <td class="pb-4 pt-4 align-middle hidden lg:table-cell whitespace-nowrap">
+                                <div class="flex justify-center">{{ inventory_status_html }}</div>
+                              </td>
+                            {% endif %}
+                            <td class="pb-4 pt-4 pl-2 pr-10 align-middle hidden lg:table-cell">
+                              {%- liquid
+                                assign product_form_id = qol_prefix | append: 'product-form-' | append: variant.id
+                                assign disable_cart_edt = false
+                                if variant.gift_card? or can_show_preorder and settings.hide_when_pre_order
+                                  assign disable_cart_edt = true
+                                endif
+                              %}
+                              {%- form 'product', qol_product, id: product_form_id, class: 'form', novalidate: 'novalidate', data-type: 'add-to-cart-form', x-ref: 'product_form' -%}
+                                <div class="product-form__quantity w-full flex flex-col items-center">
+                                  <input type="hidden" aria-hidden="true" id="{{ qol_prefix }}update-variant-{{ section.id }}" name="id" value="{{ variant.id }}"/>
+                                  {% if settings.show_in_cart_items != 'none' %}
+                                    <div class="hidden" id="{{ qol_prefix }}cart-edt-{{ section_id }}">
+                                      {% unless settings.hide_when_pre_order and can_show_preorder %}
+                                        {% render 'estimate-variant-shipping-cart', variant: variant, message: settings.message_estimate_cart, product_form_id: product_form_id, disable_cart_edt: disable_cart_edt %}
+                                      {% endunless %}
+                                    </div>
+                                  {% endif %}
+                                  {% if settings.preorder_show != 'no' %}
+                                    <div class="hidden" id="{{ qol_prefix }}preorder-{{ section_id }}">
+                                      {% if can_show_preorder %}
+                                        <input name="properties[{{ 'general.preorder.name' | t }}]" aria-label="{{ 'general.preorder.name' | t }}" class="hidden preorder-edt-properties" value="{{ message_preorder }}"/>
+                                      {% endif %}
+                                    </div>
+                                  {% endif %}
+                                  {% if sold_out %}
+                                    <span>{{ 'products.product.sold_out' | t }}</span>
+                                  {% else %}
+                                    <div class="w-fit relative group">
+                                      <div class="flex items-center justify-center">
+                                        <div class="relative inline-flex border w-fit items-center bg-[rgba(var(--background-color),1)] {{ style_quantity }}{% if qol_qty_disabled %} opacity-50 pointer-events-none{% endif %}" :class="hasError ? 'qol-qty-invalid' : ''">
+                                          <button class="w-10 cursor-pointer pt-2.5 pb-2.5 bg-transparent pl-3 pr-3 select-none opacity-70" name="minus" aria-label="{{ 'accessibility.decrease_quantity' | t }}" @click.prevent="minus()"{% if qol_qty_disabled %} disabled{% endif %}>
+                                            {% render 'icon-alls', icon: 'icon-minus' %}
+                                          </button>
+                                          <input class="outer-spin-button hide-spin-input focus:outline-none w-8 lg:w-10 pt-2.5 pb-2.5 text-center bg-transparent"
+                                            type="number"
+                                            name="quantity"
+                                            id="{{ qol_prefix }}quick-order-list-quantity-{{ variant.id }}"
+                                              data-qol-qty="{{ variant.id }}"
+                                            aria-label="{{ 'products.product.quantity.label' | t }}"
+                                            min="0"
+                                            step="{{ variant.quantity_rule.increment | default: 1 }}"
+                                            {% if variant.quantity_rule.max != null %}max="{{ variant.quantity_rule.max }}"{% endif %}
+                                            form="{{ product_form_id }}"
+                                            x-on:change="invalid($el); onChangeQuantity($event, {{ in_cart }}, $el)"
+                                            @keydown="handleKeydown($event, $el)"
+                                            value="0"
+                                            {% if qol_qty_disabled %}disabled{% endif %}
+                                          >
+                                          <button class="w-10 cursor-pointer pt-2.5 pb-2.5 bg-transparent pl-3 pr-3 select-none opacity-70" name="plus" @click.prevent="plus()" aria-label="{{ 'accessibility.increase_quantity' | t }}"{% if qol_qty_disabled %} disabled{% endif %}>
+                                            {% render 'icon-alls', icon: 'icon-plus' %}
+                                          </button>
+                                          <div class="qol-qty-action absolute left-full top-1/2 -translate-y-1/2 ml-3 w-6 h-6 leading-normal cursor-pointer" @click="removeItem()" @keydown.enter="removeItem()" @keydown.space.prevent="removeItem()" role="button" tabindex="0" aria-label="{{ 'products.product.remove' | t }}" x-cloak x-show="draft>0">
+                                            {% render 'icon-alls', icon: 'icon-cancel' %}
+                                          </div>
+                                        </div>
+                                      </div>
+                                      <div class="relative{% if qty_rule_parts != '' %} mt-1.5{% endif %}">
+                                        {% if qty_rule_parts != '' %}
+                                          <div class="text-center text-[85%] whitespace-nowrap" :class="hasError ? 'invisible' : ''">{{ qty_rule_parts }}</div>
+                                        {% endif %}
+                                        <div id="{{ qol_prefix }}LineItemError-{{ variant.id }}" data-qol-line-error="{{ variant.id }}" class="hidden cart-item__error text-center absolute top-0 w-max left-1/2 -translate-x-1/2" role="alert">
+                                          <span class="cart-item__error-text text-[85%] text-[rgba(var(--color-error))] p-break-words"></span>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  {% endif %}
+                                </div>
+                              {%- endform -%}
+                            </td>
+                            <td class="pb-4 pt-4 align-middle pl-1 pr-1 text-center hidden lg:table-cell">
+                              {% if show_volume_pricing %}
+                                {% if volume_display_icon %}
+                                  {%- liquid
+                                    assign flip_volume_popover = false
+                                    if forloop.last and forloop.length > 1
+                                      assign flip_volume_popover = true
+                                    endif
+                                  -%}
+                                  <div class="flex items-center justify-center">
+                                    <span>{{ unit_price_html }}</span>
+                                    <div class="qol-volume-trigger w-8 h-8 relative block shrink-0">
+                                      <div role="button" class="w-full h-full pl-2 pr-2 pt-2 pb-2 block" aria-label="{{ 'products.product.volumn_pricing.name' | t }}" aria-describedby="{{ qol_prefix }}qol-volume-pricing-{{ variant.id }}">
+                                        {{ volume_pricing_icon }}
+                                      </div>
+                                      <div id="{{ qol_prefix }}qol-volume-pricing-{{ variant.id }}" role="tooltip" class="qol-volume-popover qol-volume-popover--{% if flip_volume_popover %}above{% else %}below{% endif %} absolute {% if flip_volume_popover %}bottom-full mb-2{% else %}top-full mt-2{% endif %} right-0 rtl:right-auto rtl:left-0 z-20 w-max border border-[rgba(var(--colors-line-and-border))] bg-[rgba(var(--background-color),1)] shadow-md pl-3 pr-3 pt-2 pb-2 text-left rtl:text-right font-normal{% if rounded_corner %} rounded-[10px]{% endif %}">
+                                        <p class="text-[120%] font-semibold pt-1 pb-2 pl-2 pr-2">{{ 'products.product.volumn_pricing.name' | t }}{% unless qol_product.has_only_default_variant %} - {{ variant.title }}{% endunless %}</p>
+                                        {{ volume_pricing_html }}
+                                      </div>
+                                    </div>
+                                  </div>
+                                {% else %}
+                                  <span>{{ unit_price_html }}</span>
+                                  <div class="flex flex-wrap justify-center gap-2 mt-2">{{ volume_pricing_html }}</div>
+                                {% endif %}
+                              {% else %}
+                                <span>{{ unit_price_html }}</span>
+                              {% endif %}
+                            </td>
+                            <td class="pb-4 pt-4 align-middle text-[110%] font-semibold text-right rtl:text-left hidden lg:table-cell p-break-words">
+                              {%- if sold_out -%}
+                                <span>–</span>
+                              {%- else -%}
+                                <span x-html="draft > 0 && !hasError ? $store.xHelper.formatMoney(_lineTotal(draft), {{ qol_money_format }}) : '–'"></span>
+                              {%- endif -%}
+                            </td>
+                          </tr>
+                        {% endfor %}
+              {% unless qol_single %}
+                        {% if qol_current_page < qol_page_count %}
+                          {%- liquid
+                            assign qol_next_page = qol_current_page | plus: 1
+                            unless qol_is_popup
+                              if qol_variant_cap > 0
+                                assign qol_truncated = true
+                              endif
+                            endunless
+                          -%}
+                          {% if qol_is_popup or qol_variant_cap <= 0 %}
+                          <tr class="qol-sentinel"
+                            data-qol-product="{{ qol_product.id }}"
+                            data-qol-next-page="{{ qol_next_page }}"
+                            data-qol-page-param="{{ qol_page_param }}"
+                            data-qol-scope="{{ qol_scope }}"
+                            x-intersect.margin.400px="$store.xQuickOrderList.loadMoreVariants('{{ qol_product.id }}', '{{ qol_next_page }}', '{{ qol_page_param }}', '{{ qol_scope }}')"
+                          >
+                            <td colspan="{{ qol_colspan }}" class="pt-4 pb-4">
+                              <div class="w-5 h-5 mx-auto" x-cloak x-show="$store.xQuickOrderList.loadingMore['{{ qol_scope }}-{{ qol_product.id }}']">
+                                {% render 'icon-alls', icon: 'icon-loading' %}
+                              </div>
+                            </td>
+                          </tr>
+                          {% endif %}
+                        {% endif %}
+                      </tbody>
+                    </table>
+                  </div>
+                </td>
+              </tr>
+              {% endunless %}
+            </tbody>
+            {% endpaginate %}
+            {% endunless %}
+            {% endfor %}
+          </table>
+          {% if qol_is_popup %}
+                  </template>
+                </div>
+                <div class="pt-4 mt-2 border-t flex flex-col gap-4 pl-5 pr-5 lg:pl-8 lg:pr-8 lg:flex-row lg:items-end lg:justify-between lg:gap-8">
+                  <div class="flex flex-col gap-2 grow">
+                    <p
+                      class="text-[rgba(var(--color-error))]"
+                      role="status"
+                      x-cloak
+                      x-show="$store.xQuickOrderList.errorLineCount > 0"
+                      x-text="($store.xQuickOrderList.errorLineCount === 1 ? {{ qol_error_line_one | json | escape }} : {{ qol_error_line_other | json | escape }}).replace('[count]', $store.xQuickOrderList.errorLineCount)"
+                    ></p>
+                    <p class="text-[rgba(var(--colors-text))] font-semibold flex items-center justify-between gap-2 lg:justify-start">
+                      <span>{{ 'sections.quick-order-list.total-items' | t }}</span>
+                      <span x-text="String($store.xQuickOrderList.draftTotalQuantity).padStart(2, '0')"></span>
+                    </p>
+                    <p class="text-[rgba(var(--colors-text))] font-semibold flex items-center justify-between gap-2 lg:justify-start">
+                      <span>{{ 'sections.quick-order-list.product-subtotal' | t }}</span>
+                      <span x-html="$store.xHelper.formatMoney($store.xQuickOrderList.draftTotalPrice, {{ qol_money_format }})"></span>
+                    </p>
+                  </div>
+                  <div class="flex items-center justify-between gap-4 lg:gap-6 shrink-0">
+                    <div
+                      role="button"
+                      class="underline w-fit cursor-pointer disabled:cursor-not-allowed disabled:opacity-60"
+                      @click="$store.xQuickOrderList.removeAll()"
+                      :disabled="$store.xQuickOrderList.dirtyCount === 0 && $store.xQuickOrderList.errorLineCount === 0"
+                    >{{ 'products.product.remove_all' | t }}</div>
+                    <button
+                      type="button"
+                      class="button-atc button button-solid relative flex items-center justify-center pl-6 pr-6 pt-3 pb-3 lg:pl-10 lg:pr-10 disabled:cursor-not-allowed disabled:opacity-60 text-center"
+                      @click="$store.xQuickOrderList.addAllToCart()"
+                      :disabled="$store.xQuickOrderList.dirtyCount === 0 || $store.xQuickOrderList.addAllLoading"
+                    >
+                      <span x-show="!$store.xQuickOrderList.addAllLoading">{{ 'products.product.add_all_to_cart' | t }}</span>
+                      <span class="w-5 h-5" x-cloak x-show="$store.xQuickOrderList.addAllLoading">
+                        {% render 'icon-alls', icon: 'icon-loading' %}
+                      </span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          {% elsif qol_truncated %}
+            <div class="mt-6 flex justify-center">
+              <button
+                type="button"
+                class="button button-outline z-0 flex items-center justify-center pl-6 pr-6 pt-3 pb-3 lg:pl-10 lg:pr-10 text-center"
+                :aria-expanded="$store.xQuickOrderList.showAll"
+                aria-controls="QuickOrderListViewAll"
+                @click="$store.xModal.setActiveElement($el.id); $store.xQuickOrderList.openAll()"
+                id="QuickOrderListViewAllOpen"
+              >{{ 'templates.search.view_all' | t }}</button>
+            </div>
+          {% endif %}
+          {% endfor %}
+        </div>
+        <div class="{% if is_rtl %}rtl {% endif %}w-full{% if section.settings.desktop_layout != "horizontal" %} lg:w-1/3 lg:relative lg:bottom-auto lg:z-auto{% endif %} sticky bottom-14 z-[51]">
+          <div id="order-list-sticky" class="pb-5 bg-theme-secondary {% if rounded_corner %} rounded-2xl{% endif %} lg:sticky lg:z-[51] top-[calc(var(--height-header)+5rem)] pl-4 pr-4 pb-4 pt-4 {% if section.settings.desktop_layout != "horizontal" %}lg:pl-[30px] lg:pr-[30px] lg:pt-[30px] lg:pb-[30px]{% endif %} mt-[2px]">
+            <div class="flex flex-col gap-4{% if section.settings.desktop_layout == "horizontal" %} lg:flex-row lg:items-center lg:justify-between lg:gap-4{% endif %}">
+              <p
+                class="text-[rgba(var(--color-error))]"
+                role="status"
+                x-cloak
+                x-show="$store.xQuickOrderList.errorLineCount > 0"
+                x-text="($store.xQuickOrderList.errorLineCount === 1 ? {{ qol_error_line_one | json | escape }} : {{ qol_error_line_other | json | escape }}).replace('[count]', $store.xQuickOrderList.errorLineCount)"
+              ></p>
+              <p class="text-[rgba(var(--colors-text))] font-semibold flex items-center justify-between gap-2{% if section.settings.desktop_layout == "horizontal" %} lg:justify-start{% endif %}">
+                <span>{{ 'sections.quick-order-list.total-items' | t }}</span>
+                <span x-text="String($store.xQuickOrderList.draftTotalQuantity).padStart(2, '0')"></span>
+              </p>
+              <p class="text-[rgba(var(--colors-text))] font-semibold flex items-center justify-between gap-2{% if section.settings.desktop_layout == "horizontal" %} lg:justify-start{% endif %}">
+                <span>{{ 'sections.quick-order-list.product-subtotal' | t }}</span>
+                <span x-html="$store.xHelper.formatMoney($store.xQuickOrderList.draftTotalPrice, {{ qol_money_format }})"></span>
+              </p>
+              <div
+                role="button"
+                class="underline w-fit{% if section.settings.desktop_layout != "horizontal" %} lg:mb-4{% endif %} cursor-pointer disabled:cursor-not-allowed disabled:opacity-60"
+                @click="$store.xQuickOrderList.removeAll()"
+                :disabled="$store.xQuickOrderList.dirtyCount === 0 && $store.xQuickOrderList.errorLineCount === 0"
+              >{{ 'products.product.remove_all' | t }}</div>
+              <button
+                type="button"
+                class="button-atc button button-solid {% if section.settings.desktop_layout != "horizontal" %} lg:w-full{% endif %} relative flex items-center justify-center lg:pl-10 lg:pr-10 pl-6 pr-6 pt-3 pb-3 disabled:cursor-not-allowed disabled:opacity-60 text-center"
+                @click="$store.xQuickOrderList.addAllToCart()"
+                :disabled="$store.xQuickOrderList.dirtyCount === 0 || $store.xQuickOrderList.addAllLoading"
+              >
+                <span x-show="!$store.xQuickOrderList.addAllLoading">{{ 'products.product.add_all_to_cart' | t }}</span>
+                <span class="w-5 h-5" x-cloak x-show="$store.xQuickOrderList.addAllLoading">
+                  {% render 'icon-alls', icon: 'icon-loading' %}
+                </span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="{{ 'quick-order-list.js' | asset_url }}" defer></script>
+{% endif %}
+
+{% schema %}
+{
+  "name": "t:sections.quick-order-list.name",
+  "class": "x-section-quick-order-list",
+  "enabled_on": {
+    "templates": ["product"]
+  },
+  "limit": 1,
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "t:sections.user_guide_link.product_page.quick_order_list"
+    },
+    {
+      "type": "checkbox",
+      "id": "only_show_b2b",
+      "default": false,
+      "label": "t:sections.quick-order-list.settings.only_show_b2b.label"
+    },
+    {
+      "type": "select",
+      "id": "desktop_layout",
+      "default": "sidebar",
+      "label": "t:sections.all.padding.section_padding_heading",
+      "options": [
+        {
+          "value": "horizontal",
+          "label": "t:sections.featured-collection.settings.slider_style.options__1"
+        },
+        {
+          "value": "sidebar",
+          "label": "t:sections.quick-order-list.settings.desktop_layout.sidebar"
+        }
+      ]
+    },
+    {
+      "type": "checkbox",
+      "id": "show_images",
+      "label": "t:sections.quick-order-list.settings.show_images.label",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_skus",
+      "label": "t:sections.quick-order-list.settings.show_skus.label",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "inventory_status",
+      "default": true,
+      "label": "t:settings_schema.products.inventory_status"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_sold_out",
+      "default": false,
+      "label": "t:sections.quick-order-list.settings.show_sold_out.label"
+    },
+    {
+      "type": "checkbox",
+      "id": "initial_variants_display",
+      "default": true,
+      "label": "t:sections.quick-order-list.settings.initial_variants_display.label"
+    },
+    {
+      "type": "number",
+      "id": "number_of_variants",
+      "default": 30,
+      "label": "t:sections.quick-order-list.settings.number_of_variants.label",
+      "info": "t:sections.quick-order-list.settings.number_of_variants.info",
+      "visible_if": "{{ section.settings.initial_variants_display }}"
+    },
+    {
+      "type": "checkbox",
+      "id": "volume_pricing",
+      "default": true,
+      "label": "t:sections.quick-order-list.settings.volume_pricing.label"
+    },
+    {
+      "type": "select",
+      "id": "volume_pricing_display",
+      "default": "icon",
+      "label": "t:sections.quick-order-list.settings.volume_pricing_display.label",
+      "options": [
+        {
+          "value": "icon",
+          "label": "t:sections.all.icon.label"
+        },
+        {
+          "value": "inline",
+          "label": "t:sections.quick-order-list.settings.volume_pricing_display.option__2.label"
+        }
+      ],
+      "visible_if": "{{ section.settings.volume_pricing }}"
+    },
+    {
+      "type": "select",
+      "id": "quantity_style",
+      "label": "t:sections.featured-product.blocks.quantity_selector.style",
+      "default": "adapt",
+      "options": [
+        {
+          "value": "adapt",
+          "label": "t:settings_schema.buttons.adapt_edge_setting"
+        },
+        {
+          "value": "square",
+          "label": "t:settings_schema.products.square"
+        },
+        {
+          "value": "rounded-md",
+          "label": "t:settings_schema.buttons.rounded_corners"
+        },
+        {
+          "value": "rounded-full",
+          "label": "t:settings_schema.buttons.rounded"
+        }
+      ]
+    },
+    {
+      "type": "checkbox",
+      "id": "quantity_rules",
+      "default": true,
+      "label": "t:sections.quick-order-list.settings.quantity_rules.label"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "default": "Quick order list",
+      "label": "t:sections.all.text.heading",
+      "info": "t:settings_schema.typography.settings.heading_highlight_type.info"
+    },
+    {
+      "type": "select",
+      "id": "highlight_type",
+      "default": "underline",
+      "label": "t:settings_schema.typography.settings.heading_highlight_type.label",
+      "options": [
+        {
+          "value": "underline",
+          "label": "t:settings_schema.typography.settings.heading_highlight_type.option__1.label"
+        },
+        {
+          "value": "font_highlight",
+          "label": "t:settings_schema.typography.settings.heading_highlight_type.option__3.label"
+        }
+      ]
+    },
+    {
+      "type": "range",
+      "id": "heading_size",
+      "min": 50,
+      "max": 200,
+      "step": 10,
+      "unit": "%",
+      "default": 100,
+      "label": "t:sections.all.text.heading_size"
+    },
+    {
+      "type": "select",
+      "id": "heading_tag",
+      "default": "h2",
+      "label": "t:sections.all.text.heading_tag",
+      "options": [
+        {
+          "value": "h1",
+          "label": "H1"
+        },
+        {
+          "value": "h2",
+          "label": "H2"
+        },
+        {
+          "value": "h3",
+          "label": "H3"
+        },
+        {
+          "value": "h4",
+          "label": "H4"
+        },
+        {
+          "value": "h5",
+          "label": "H5"
+        },
+        {
+          "value": "h6",
+          "label": "H6"
+        },
+        {
+          "value": "p",
+          "label": "p"
+        }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "heading_alignment",
+      "default": "center",
+      "label": "t:sections.all.text.heading_alignment",
+      "options": [
+        {
+          "value": "left",
+          "label": "t:sections.all.content_alignment.options__1.label"
+        },
+        {
+          "value": "center",
+          "label": "t:sections.all.content_alignment.options__2.label"
+        },
+        {
+          "value": "right",
+          "label": "t:sections.all.content_alignment.options__3.label"
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "id": "subheading",
+      "label": "t:sections.all.text.subheading"
+    },
+    {
+      "type": "richtext",
+      "id": "text",
+      "label": "t:sections.all.text.text"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.main-product.blocks.product_sibling.name"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_sibling_products",
+      "default": false,
+      "label": "t:sections.quick-order-list.settings.enable_sibling_products.label"
+    },
+    {
+      "type": "text",
+      "id": "sibling_products_label",
+      "default": "Product family",
+      "label": "t:sections.quick-order-list.settings.sibling_products_label.label",
+      "visible_if": "{{ section.settings.enable_sibling_products }}"
+    },
+    {
+      "type": "text",
+      "id": "sibling_collection_handle_metafield",
+      "label": "t:sections.main-product.blocks.product_sibling.settings.collection_handle_metafield.label",
+      "info": "t:sections.main-product.blocks.product_sibling.settings.collection_handle_metafield.info",
+      "visible_if": "{{ section.settings.enable_sibling_products }}"
+    },
+    {
+      "type": "text",
+      "id": "sibling_option_value_metafield",
+      "label": "t:sections.main-product.blocks.product_sibling.settings.option_value_metafield.label",
+      "info": "t:sections.main-product.blocks.product_sibling.settings.option_value_metafield.info",
+      "visible_if": "{{ section.settings.enable_sibling_products }}"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.quick-order-list.settings.additional_products.label"
+    },
+    {
+      "type": "text",
+      "id": "additional_products_label",
+      "default": "Suggested add-ons",
+      "label": "t:sections.quick-order-list.settings.additional_products_label.label"
+    },
+    {
+      "type": "product_list",
+      "id": "additional_products",
+      "limit": 8,
+      "label": "t:sections.quick-order-list.settings.additional_products.label",
+      "info": "t:sections.quick-order-list.settings.additional_products.info"
+    },
+    {
+      "type": "checkbox",
+      "id": "collapsed_additional_products",
+      "default": false,
+      "label": "t:sections.quick-order-list.settings.collapsed_additional_products.label"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.quick-order-list.settings.order_list_summary.label"
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "t:sections.all.button.label",
+      "default": "View cart"
+    },
+    {
+      "type": "color",
+      "id": "background_color_light",
+      "default": "rgba(0,0,0,0)",
+      "label": "t:sections.all.background.background_color_light"
+    },
+    {
+      "type": "color",
+      "id": "text_light",
+      "label": "t:sections.all.text.color",
+      "default": "rgba(0,0,0,0)"
+    },
+    {
+      "type": "color",
+      "id": "button_light",
+      "label": "t:sections.all.button.primary_button_light",
+      "default": "rgba(0,0,0,0)"
+    },
+    {
+      "type": "color",
+      "id": "button_text_light",
+      "label": "t:sections.all.button.primary_button_text_light",
+      "default": "rgba(0,0,0,0)"
+    },
+    {
+      "type": "color",
+      "id": "button_hover_light",
+      "label": "t:sections.all.button.primary_button_hover_light",
+      "default": "rgba(0,0,0,0)"
+    },
+    {
+      "type": "color",
+      "id": "button_text_hover_light",
+      "label": "t:sections.all.button.primary_button_hover_text_light",
+      "default": "rgba(0,0,0,0)"
+    },
+    {
+      "type": "color",
+      "id": "line_border",
+      "label": "t:sections.all.text.line_border",
+      "default": "rgba(0,0,0,0)"
+    },
+    {
+      "type": "color",
+      "id": "background_color_dark",
+      "default": "rgba(0,0,0,0)",
+      "label": "t:sections.all.background.background_color_dark",
+      "visible_if": "{{ settings.theme_mode_enabled }}"
+    },
+    {
+      "type": "color",
+      "id": "text_dark",
+      "label": "t:sections.all.text.color_dark",
+      "default": "rgba(0,0,0,0)",
+      "visible_if": "{{ settings.theme_mode_enabled }}"
+    },
+    {
+      "type": "color",
+      "id": "button_dark",
+      "label": "t:sections.all.button.primary_button_dark",
+      "default": "rgba(0,0,0,0)",
+      "visible_if": "{{ settings.theme_mode_enabled }}"
+    },
+    {
+      "type": "color",
+      "id": "button_text_dark",
+      "label": "t:sections.all.button.primary_button_text_dark",
+      "default": "rgba(0,0,0,0)",
+      "visible_if": "{{ settings.theme_mode_enabled }}"
+    },
+    {
+      "type": "color",
+      "id": "button_hover_dark",
+      "label": "t:sections.all.button.primary_button_hover_dark",
+      "default": "rgba(0,0,0,0)",
+      "visible_if": "{{ settings.theme_mode_enabled }}"
+    },
+    {
+      "type": "color",
+      "id": "button_text_hover_dark",
+      "label": "t:sections.all.button.primary_button_hover_text_dark",
+      "default": "rgba(0,0,0,0)",
+      "visible_if": "{{ settings.theme_mode_enabled }}"
+    },
+    {
+      "type": "color",
+      "id": "line_border_dark",
+      "label": "t:sections.all.text.line_border_dark",
+      "default": "rgba(0,0,0,0)",
+      "visible_if": "{{ settings.theme_mode_enabled }}"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.all.padding.section_padding_heading"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_section_divider",
+      "default": false,
+      "label": "t:sections.all.show_section_divider.label"
+    },
+    {
+      "type": "checkbox",
+      "id": "full_width",
+      "default": false,
+      "label": "t:sections.all.full_width.label"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "unit": "px",
+      "step": 4,
+      "default": 28,
+      "label": "t:sections.all.padding.padding_top"
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "unit": "px",
+      "step": 4,
+      "default": 28,
+      "label": "t:sections.all.padding.padding_bottom"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.all.padding.section_layout_mobile"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_section_divider_mobile",
+      "default": false,
+      "label": "t:sections.all.show_section_divider.label"
+    },
+    {
+      "type": "range",
+      "id": "padding_top_mobile",
+      "min": 0,
+      "max": 100,
+      "unit": "px",
+      "step": 4,
+      "default": 28,
+      "label": "t:sections.all.padding.padding_top"
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom_mobile",
+      "min": 0,
+      "max": 100,
+      "unit": "px",
+      "step": 4,
+      "default": 28,
+      "label": "t:sections.all.padding.padding_bottom"
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.quick-order-list.name",
+      "category": "t:categories.products"
+    }
+  ]
+}
+{% endschema %}
