@@ -121,6 +121,9 @@
     "button_label": "S'abonner"
   },
   "accessibility": {
+    "announcements": "Announcements",
+    "pause_announcements": "Pause announcements",
+    "play_announcements": "Play announcements",
     "pause_video": "Pause video",
     "skip_to_text": "Aller au contenu",
     "skip_to_product_info": "Passer aux informations sur le produit",

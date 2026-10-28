@@ -1648,6 +1648,13 @@
     "announcement-bar": {
       "name": "告知バー",
       "settings": {
+        "atelier_bar": {
+          "label": "Use atelier announcement layout",
+          "info": "Displays announcement text, icons, and links in a rotating strip. Menus, social icons, buttons, promo codes, and countdowns use the standard layout."
+        },
+        "atelier_font": {
+          "label": "Announcement font"
+        },
         "show_only_on_homepage": {
           "label": "ホームページにのみ表示する"
         },

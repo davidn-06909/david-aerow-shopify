@@ -121,6 +121,9 @@
     "button_label": "สมัครรับข้อมูล"
   },
   "accessibility": {
+    "announcements": "Announcements",
+    "pause_announcements": "Pause announcements",
+    "play_announcements": "Play announcements",
     "pause_video": "Pause video",
     "skip_to_text": "ข้ามไปยังเนื้อหา",
     "skip_to_product_info": "ข้ามไปยังข้อมูลสินค้า",
