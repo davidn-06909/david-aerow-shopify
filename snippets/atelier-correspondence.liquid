@@ -1,0 +1,90 @@
+{%- liquid
+  assign heading_font = section.settings.atelier_heading_font
+  assign body_font = section.settings.atelier_body_font
+  assign quote_font = body_font | font_modify: 'style', 'italic'
+-%}
+{% style %}
+  {{ heading_font | font_face: font_display: 'swap' }}
+  {{ body_font | font_face: font_display: 'swap' }}
+  {{ quote_font | font_face: font_display: 'swap' }}
+  #atelier-correspondence-{{ section.id }} {
+    --correspondence-heading-font: {{ heading_font.family }}, {{ heading_font.fallback_families }};
+    --correspondence-heading-weight: {{ heading_font.weight }};
+    --correspondence-body-font: {{ body_font.family }}, {{ body_font.fallback_families }};
+    --correspondence-body-weight: {{ body_font.weight }};
+    {% unless section.settings.background_color_light.alpha == 0 %}--correspondence-background: {{ section.settings.background_color_light }};{% endunless %}
+    {% unless section.settings.heading_and_title_light.alpha == 0 %}--correspondence-text: {{ section.settings.heading_and_title_light }};{% endunless %}
+    {% unless section.settings.item_text_color_light.alpha == 0 %}--correspondence-soft: {{ section.settings.item_text_color_light }};{% endunless %}
+    --correspondence-accent: {{ section.settings.atelier_accent_color }};
+    --correspondence-top: {{ section.settings.top_padding }}px;
+    --correspondence-bottom: {{ section.settings.bottom_padding }}px;
+    --correspondence-top-mobile: {{ section.settings.top_padding_mobile }}px;
+    --correspondence-bottom-mobile: {{ section.settings.bottom_padding_mobile }}px;
+    --correspondence-heading-scale: {{ section.settings.heading_size | divided_by: 100.0 }};
+  }
+  .dark #atelier-correspondence-{{ section.id }} {
+    {% unless section.settings.background_color_dark.alpha == 0 %}--correspondence-background: {{ section.settings.background_color_dark }};{% endunless %}
+    {% unless section.settings.heading_and_title_dark.alpha == 0 %}--correspondence-text: {{ section.settings.heading_and_title_dark }};{% endunless %}
+    {% unless section.settings.item_text_color_dark.alpha == 0 %}--correspondence-soft: {{ section.settings.item_text_color_dark }};{% endunless %}
+  }
+{% endstyle %}
+{%- if section.settings.show_section_divider or section.settings.show_section_divider_mobile -%}
+  {% render 'section-divider' %}
+{%- endif -%}
+<div id="atelier-correspondence-{{ section.id }}" class="atelier-correspondence">
+  <div class="atelier-correspondence__page">
+    {% if section.settings.subheading != blank or section.settings.heading != blank or section.settings.text != blank %}
+      <header class="atelier-correspondence__header">
+        {% if section.settings.subheading != blank %}
+          <p class="atelier-correspondence__eyebrow">{{ section.settings.subheading | escape }}</p>
+        {% endif %}
+        {% if section.settings.heading != blank %}
+          <{{ section.settings.heading_tag }} class="atelier-correspondence__heading">{{ section.settings.heading | escape }}</{{ section.settings.heading_tag }}>
+        {% endif %}
+        {% if section.settings.text != blank %}
+          <div class="atelier-correspondence__intro">{{ section.settings.text }}</div>
+        {% endif %}
+      </header>
+    {% endif %}
+    <div class="atelier-correspondence__grid">
+      {% for block in section.blocks %}
+        {%- liquid
+          assign rating = block.settings.icon_star | split: '_' | first | plus: 0
+          assign related_product = block.settings.product
+          assign link_label = block.settings.related_link_label | default: related_product.title
+          assign link_url = block.settings.related_link | default: related_product.url
+        -%}
+        <figure class="atelier-correspondence__review" {{ block.shopify_attributes }}>
+          {% if rating > 0 %}
+            <div class="atelier-correspondence__rating" role="img" aria-label="{{ 'sections.atelier_correspondence.rating' | t: rating: rating | escape }}">
+              {% for star in (1..5) %}
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="{% if star <= rating %}currentColor{% else %}none{% endif %}" aria-hidden="true" focusable="false">
+                  <path d="m12 2.5 2.94 5.96 6.58.96-4.76 4.64 1.12 6.55L12 17.52l-5.88 3.09 1.12-6.55L2.48 9.42l6.58-.96Z" stroke="currentColor" stroke-linejoin="round"/>
+                </svg>
+              {% endfor %}
+            </div>
+          {% endif %}
+          {% if block.settings.title != blank %}
+            <h3 class="atelier-correspondence__review-title">{{ block.settings.title | escape }}</h3>
+          {% endif %}
+          {% if block.settings.text != blank %}
+            <blockquote class="atelier-correspondence__quote">{{ block.settings.text }}</blockquote>
+          {% endif %}
+          {% if block.settings.author != blank or block.settings.author_note != blank %}
+            <figcaption class="atelier-correspondence__author">
+              {{ block.settings.author | escape }}
+              {% if block.settings.author_note != blank %}<div>{{ block.settings.author_note }}</div>{% endif %}
+            </figcaption>
+          {% endif %}
+          {% if link_label != blank %}
+            {% if link_url != blank %}
+              <a class="atelier-correspondence__link" href="{{ link_url }}">{{ link_label | escape }}</a>
+            {% else %}
+              <span class="atelier-correspondence__link">{{ link_label | escape }}</span>
+            {% endif %}
+          {% endif %}
+        </figure>
+      {% endfor %}
+    </div>
+  </div>
+</div>

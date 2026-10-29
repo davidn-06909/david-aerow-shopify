@@ -1,0 +1,66 @@
+{%- assign body_font = section.settings.atelier_body_font -%}
+{% style %}
+  {{ body_font | font_face: font_display: 'swap' }}
+  #atelier-services-{{ section.id }} {
+    --services-body-font: {{ body_font.family }}, {{ body_font.fallback_families }};
+    --services-body-weight: {{ body_font.weight }};
+    {% unless section.settings.background_color_light.alpha == 0 %}--services-background: {{ section.settings.background_color_light }};{% endunless %}
+    {% unless section.settings.heading_light.alpha == 0 %}--services-text: {{ section.settings.heading_light }};{% endunless %}
+    {% unless section.settings.text_light.alpha == 0 %}--services-soft: {{ section.settings.text_light }};{% endunless %}
+    {% unless section.settings.color_icon_light.alpha == 0 %}--services-icon: {{ section.settings.color_icon_light }};{% endunless %}
+    --services-icon-size: {{ section.settings.icon_size }}px;
+    --services-top: {{ section.settings.padding_top }}px;
+    --services-bottom: {{ section.settings.padding_bottom }}px;
+    --services-top-mobile: {{ section.settings.padding_top_mobile }}px;
+    --services-bottom-mobile: {{ section.settings.padding_bottom_mobile }}px;
+  }
+  .dark #atelier-services-{{ section.id }} {
+    {% unless section.settings.background_color_dark.alpha == 0 %}--services-background: {{ section.settings.background_color_dark }};{% endunless %}
+    {% unless section.settings.heading_dark.alpha == 0 %}--services-text: {{ section.settings.heading_dark }};{% endunless %}
+    {% unless section.settings.text_dark.alpha == 0 %}--services-soft: {{ section.settings.text_dark }};{% endunless %}
+    {% unless section.settings.color_icon_dark.alpha == 0 %}--services-icon: {{ section.settings.color_icon_dark }};{% endunless %}
+  }
+{% endstyle %}
+{%- if section.settings.show_section_divider or section.settings.show_section_divider_mobile -%}
+  {% render 'section-divider' %}
+{%- endif -%}
+<div id="atelier-services-{{ section.id }}" class="atelier-services">
+  <div class="atelier-services__page">
+    {% if section.settings.title != blank %}
+      <{{ section.settings.heading_tag }} class="atelier-services__heading">{{ section.settings.title | escape }}</{{ section.settings.heading_tag }}>
+    {% else %}
+      <h2 class="sr-only">{{ 'sections.atelier_services.heading' | t }}</h2>
+    {% endif %}
+    <ul class="atelier-services__grid" role="list">
+      {% for block in section.blocks %}
+        <li class="atelier-services__item" {{ block.shopify_attributes }}>
+          {% if block.settings.icon != 'none' %}
+            <span class="atelier-services__icon" aria-hidden="true">
+              {% if block.settings.custom_image != blank %}
+                {{ block.settings.custom_image | image_url: width: 160 | image_tag: loading: 'lazy', widths: '40, 80, 160', sizes: '40px', alt: '' }}
+              {% elsif block.settings.custom_icon != blank %}
+                {{ block.settings.custom_icon }}
+              {% elsif block.settings.icon == 'another_icon' and block.settings.another_icon != blank %}
+                {% render 'icon-new-alls', icon: block.settings.another_icon %}
+              {% else %}
+                {% render 'icon-labels-bags', icon: block.settings.icon %}
+              {% endif %}
+            </span>
+          {% endif %}
+          {% if block.settings.title != blank %}
+            <h3 class="atelier-services__title" style="--services-title-scale: {{ block.settings.heading_size | divided_by: 100.0 }};">
+              {% if block.settings.title_link != blank %}
+                <a href="{{ block.settings.title_link }}"{% if block.settings.open_new_window %} target="_blank" rel="noopener noreferrer"{% endif %}>{{ block.settings.title | escape }}</a>
+              {% else %}
+                {{ block.settings.title | escape }}
+              {% endif %}
+            </h3>
+          {% endif %}
+          {% if block.settings.text != blank %}
+            <div class="atelier-services__text">{{ block.settings.text }}</div>
+          {% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>

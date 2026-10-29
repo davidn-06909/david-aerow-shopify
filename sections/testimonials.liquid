@@ -1,3 +1,6 @@
+{%- if section.settings.atelier_correspondence -%}
+  {% render 'atelier-correspondence', section: section %}
+{%- else -%}
 {{ 'testimonials.css' | asset_url | stylesheet_tag }}
 {%- liquid
   assign base_size_heading = settings.heading_base_size | times: 0.0225
@@ -427,6 +430,7 @@
     </div>
   </div>
 </div>
+{%- endif -%}
 {% schema %}
 {
   "name": "t:sections.testimonials.name",
@@ -440,6 +444,33 @@
     ]
   },
   "settings": [
+    {
+      "type": "checkbox",
+      "id": "atelier_correspondence",
+      "default": false,
+      "label": "t:sections.atelier_correspondence.enabled"
+    },
+    {
+      "type": "font_picker",
+      "id": "atelier_heading_font",
+      "default": "oswald_n7",
+      "label": "t:sections.atelier_story_index.heading_font",
+      "visible_if": "{{ section.settings.atelier_correspondence }}"
+    },
+    {
+      "type": "font_picker",
+      "id": "atelier_body_font",
+      "default": "archivo_n4",
+      "label": "t:sections.atelier_story_index.body_font",
+      "visible_if": "{{ section.settings.atelier_correspondence }}"
+    },
+    {
+      "type": "color",
+      "id": "atelier_accent_color",
+      "default": "#79A6FF",
+      "label": "t:sections.atelier_story_index.accent_color",
+      "visible_if": "{{ section.settings.atelier_correspondence }}"
+    },
     {
       "type": "paragraph",
       "content": "t:sections.user_guide_link.section_and_blocks.testimonial"
@@ -784,6 +815,16 @@
       "type": "testimonial",
       "name": "t:sections.testimonials.block_testimonial.name",
       "settings": [
+        {
+          "type": "text",
+          "id": "related_link_label",
+          "label": "t:sections.atelier_correspondence.link_label"
+        },
+        {
+          "type": "url",
+          "id": "related_link",
+          "label": "t:sections.atelier_correspondence.link"
+        },
         {
           "type": "select",
           "id": "icon_star",

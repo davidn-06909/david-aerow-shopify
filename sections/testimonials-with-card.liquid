@@ -1,3 +1,6 @@
+{%- if section.settings.atelier_clients -%}
+  {% render 'atelier-clients', section: section %}
+{%- else -%}
 {% liquid
   assign base_size_heading = settings.heading_base_size | times: 0.0225
   assign size_heading = section.settings.heading_size | times: 0.01 | times: base_size_heading
@@ -523,6 +526,7 @@
     </div>
   </div>
 </div>
+{%- endif -%}
 {% schema %}
 {
   "name": "t:sections.testimonials-with-card.name",
@@ -536,6 +540,30 @@
     ]
   },
   "settings": [
+    {
+      "type": "checkbox",
+      "id": "atelier_clients",
+      "default": false,
+      "label": "t:sections.atelier_clients.photo_stack"
+    },
+    {
+      "type": "font_picker",
+      "id": "atelier_heading_font",
+      "default": "oswald_n7",
+      "label": "t:sections.atelier_story_index.heading_font"
+    },
+    {
+      "type": "font_picker",
+      "id": "atelier_body_font",
+      "default": "archivo_n4",
+      "label": "t:sections.atelier_story_index.body_font"
+    },
+    {
+      "type": "color",
+      "id": "atelier_accent_color",
+      "default": "#79A6FF",
+      "label": "t:sections.atelier_story_index.accent_color"
+    },
     {
       "type": "paragraph",
       "content": "t:sections.user_guide_link.section_and_blocks.testimonial_with_cards"
@@ -769,7 +797,7 @@
       "type": "range",
       "id": "top_padding",
       "min": 0,
-      "max": 100,
+      "max": 200,
       "step": 4,
       "unit": "px",
       "label": "t:sections.all.padding.padding_top",
@@ -779,7 +807,7 @@
       "type": "range",
       "id": "bottom_padding",
       "min": 0,
-      "max": 100,
+      "max": 200,
       "step": 4,
       "unit": "px",
       "label": "t:sections.all.padding.padding_bottom",
@@ -827,6 +855,12 @@
       "type": "testimonial",
       "name": "t:sections.testimonials.block_testimonial.name",
       "settings": [
+        {
+          "type": "url",
+          "id": "client_image_url",
+          "label": "t:sections.atelier_clients.image_url",
+          "info": "t:sections.atelier_clients.image_url_info"
+        },
         {
           "type": "image_picker",
           "id": "cards_image",

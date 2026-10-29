@@ -1,3 +1,6 @@
+{%- if section.settings.atelier_journal -%}
+  {% render 'atelier-journal', section: section %}
+{%- else -%}
 {%- liquid
   assign heading_size =  section.settings.heading_size | times: settings.heading_base_size | times: 0.000225
   assign sub_heading =  section.settings.title_size | times: settings.text_base_size | times: 0.0000875
@@ -438,6 +441,7 @@
   {%- endif -%}
 </div>
 <script src="{{ 'featured-blog.js' | asset_url }}" defer></script>
+{%- endif -%}
 
 {% schema %}
 {
@@ -452,6 +456,14 @@
     ]
   },
   "settings": [
+    { "type": "checkbox", "id": "atelier_journal", "default": false, "label": "t:sections.atelier_journal.enabled" },
+    { "type": "font_picker", "id": "atelier_heading_font", "default": "oswald_n7", "label": "t:sections.atelier_story_index.heading_font", "visible_if": "{{ section.settings.atelier_journal }}" },
+    { "type": "font_picker", "id": "atelier_body_font", "default": "archivo_n4", "label": "t:sections.atelier_story_index.body_font", "visible_if": "{{ section.settings.atelier_journal }}" },
+    { "type": "color", "id": "atelier_background", "default": "#0B0E28", "label": "t:sections.atelier_story_index.background_color", "visible_if": "{{ section.settings.atelier_journal }}" },
+    { "type": "color", "id": "atelier_text", "default": "#F2F6FB", "label": "t:sections.atelier_story_index.text_color", "visible_if": "{{ section.settings.atelier_journal }}" },
+    { "type": "color", "id": "atelier_soft", "default": "#A9C3E2", "label": "t:sections.atelier_story_index.soft_color", "visible_if": "{{ section.settings.atelier_journal }}" },
+    { "type": "color", "id": "atelier_accent", "default": "#6E9BFF", "label": "t:sections.atelier_story_index.accent_color", "visible_if": "{{ section.settings.atelier_journal }}" },
+    { "type": "url", "id": "atelier_blog_link", "label": "t:sections.atelier_journal.blog_link", "visible_if": "{{ section.settings.atelier_journal }}" },
     {
       "type": "paragraph",
       "content": "t:sections.user_guide_link.section_and_blocks.blog_post"
@@ -882,6 +894,23 @@
       "step": 4,
       "default": 28,
       "label": "t:sections.all.padding.padding_bottom"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "story",
+      "name": "t:sections.atelier_journal.story",
+      "limit": 8,
+      "settings": [
+        { "type": "article", "id": "article", "label": "t:sections.atelier_journal.article", "info": "t:sections.atelier_journal.article_info" },
+        { "type": "text", "id": "title", "label": "t:sections.all.text.title" },
+        { "type": "textarea", "id": "excerpt", "label": "t:sections.atelier_journal.excerpt" },
+        { "type": "image_picker", "id": "image", "label": "t:sections.all.image.label" },
+        { "type": "url", "id": "image_url", "label": "t:sections.atelier_journal.image_url" },
+        { "type": "text", "id": "image_alt", "label": "t:sections.atelier_journal.image_alt" },
+        { "type": "url", "id": "link", "label": "t:sections.atelier_story_index.link" },
+        { "type": "text", "id": "date", "label": "t:sections.atelier_journal.date", "info": "t:sections.atelier_journal.date_info" }
+      ]
     }
   ],
   "presets": [

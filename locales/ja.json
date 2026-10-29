@@ -415,6 +415,24 @@
     }
   },
   "sections": {
+    "atelier_journal": {
+      "view_all": "すべてのストーリー"
+    },
+    "atelier_correspondence": {
+      "rating": "{{ rating }} out of 5 stars"
+    },
+    "atelier_services": {
+      "heading": "Atelier services"
+    },
+    "atelier_clients": {
+      "carousel": "carousel",
+      "slide": "slide",
+      "slide_label": "{{ index }} of {{ total }}",
+      "slide_status": "Photo {{ index }} of {{ total }}: {{ name }}",
+      "photos": "Client photos",
+      "instructions": "Drag or swipe the photo to browse. Use the previous and next buttons, or focus the photos and use the left and right arrow keys. Home shows the first photo; End shows the last.",
+      "pause": "Pause automatic photo changes"
+    },
     "atelier_education": {
       "carousel_label": "Explore diamonds, our craft, and ring settings"
     },
