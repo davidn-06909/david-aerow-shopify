@@ -358,6 +358,86 @@
         "padding_bottom_mobile": 56
       }
     },
+    "atelier_commission": {
+      "type": "atelier-media-story",
+      "blocks": {
+        "setting": {
+          "type": "step",
+          "settings": {
+            "title": "Choose a setting",
+            "text": "Nine silhouettes, each made to hold a stone differently."
+          }
+        },
+        "stone": {
+          "type": "step",
+          "settings": {
+            "title": "Choose a stone",
+            "text": "Lab-grown or natural, every one certified."
+          }
+        },
+        "personalize": {
+          "type": "step",
+          "settings": {
+            "title": "Make it yours",
+            "text": "Metal, size, and an inscription only the two of you will read."
+          }
+        }
+      },
+      "block_order": [
+        "setting",
+        "stone",
+        "personalize"
+      ],
+      "settings": {
+        "heading_font": "oswald_n7",
+        "body_font": "archivo_n4",
+        "enable_video_autoplay": true,
+        "text_color": "#F2F6FB",
+        "soft_color": "#A9C3E2",
+        "accent_color": "#6E9BFF",
+        "button_color": "#F2F6FB",
+        "button_text_color": "#101740",
+        "layout": "overlap",
+        "eyebrow": "The commission",
+        "heading": "Begin with a feeling.",
+        "text": "<p>Choose a setting, a metal and a stone, and watch the ring take shape as you go. Nothing is committed until you are ready.</p>",
+        "video_file_url": "https://cdn.shopify.com/videos/c/vp/54980ad0da8f45888c3f33435c7fa575/54980ad0da8f45888c3f33435c7fa575.HD-720p-1.6Mbps-92731055.mp4",
+        "poster_url": "https://aevow.myshopify.com/cdn/shop/files/mn_15_sketch_to_ring_portrait.png?v=1787752275&width=1600",
+        "video_alt_text": "A ring design being sketched by hand",
+        "video_ratio": "4 / 5",
+        "video_ratio_mobile": "4 / 5",
+        "background_color": "#101740",
+        "padding_top": 92,
+        "padding_bottom": 92,
+        "button_label": "Design your ring",
+        "button_link": "/pages/design-your-ring"
+      }
+    },
+    "atelier_workshop": {
+      "type": "atelier-media-story",
+      "settings": {
+        "heading_font": "oswald_n7",
+        "body_font": "archivo_n4",
+        "enable_video_autoplay": true,
+        "text_color": "#F2F6FB",
+        "soft_color": "#A9C3E2",
+        "accent_color": "#6E9BFF",
+        "button_color": "#F2F6FB",
+        "button_text_color": "#101740",
+        "layout": "split",
+        "eyebrow": "In the workshop",
+        "heading": "Made by hand, slowly",
+        "text": "<p>Each setting is raised from a single piece of metal, filed by hand and polished until the light moves cleanly across it. It is unhurried work, and it shows.</p>",
+        "video_file_url": "https://cdn.shopify.com/videos/c/vp/925de3ce0baa42c4afa0b6f9e8dded55/925de3ce0baa42c4afa0b6f9e8dded55.HD-720p-1.6Mbps-92731056.mp4",
+        "poster_url": "https://aevow.myshopify.com/cdn/shop/files/mn_26_jeweler_hands_portrait.png?v=1787752288&width=1600",
+        "video_alt_text": "A jeweler carefully finishing a ring by hand",
+        "video_ratio": "16 / 9",
+        "video_ratio_mobile": "16 / 9",
+        "background_color": "#0B0E28",
+        "padding_top": 132,
+        "padding_bottom": 132
+      }
+    },
     "featured_category_FKqynG": {
       "type": "featured-category",
       "blocks": {
@@ -2424,6 +2504,8 @@
     "4c9e1af5-c4c0-48cf-b771-49029eedd24f",
     "atelier_story_index",
     "e32885d8-0a8f-4c4f-8801-377d01cb7656",
+    "atelier_commission",
+    "atelier_workshop",
     "featured_category_FKqynG",
     "collage_D4GGTK",
     "promotion_banner_ijXatP",
