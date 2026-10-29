@@ -1,0 +1,141 @@
+{%- liquid
+  assign heading_font = section.settings.atelier_heading_font
+  assign body_font = section.settings.atelier_body_font
+  assign total = section.blocks.size
+-%}
+{% style %}
+  {{ heading_font | font_face: font_display: 'swap' }}
+  {{ body_font | font_face: font_display: 'swap' }}
+  #atelier-clients-{{ section.id }} {
+    --clients-heading-font: {{ heading_font.family }}, {{ heading_font.fallback_families }};
+    --clients-heading-weight: {{ heading_font.weight }};
+    --clients-body-font: {{ body_font.family }}, {{ body_font.fallback_families }};
+    --clients-body-weight: {{ body_font.weight }};
+    --clients-background: {{ section.settings.background_color_light }};
+    --clients-card: {{ section.settings.item_background_color_light }};
+    --clients-border: {{ section.settings.item_border_color_light }};
+    --clients-text: {{ section.settings.heading_and_title_light }};
+    --clients-soft: {{ section.settings.item_text_color_light }};
+    --clients-accent: {{ section.settings.atelier_accent_color }};
+    --clients-top: {{ section.settings.top_padding }}px;
+    --clients-bottom: {{ section.settings.bottom_padding }}px;
+    --clients-top-mobile: {{ section.settings.top_padding_mobile }}px;
+    --clients-bottom-mobile: {{ section.settings.bottom_padding_mobile }}px;
+    --clients-heading-scale: {{ section.settings.heading_size | divided_by: 100.0 }};
+  }
+  .dark #atelier-clients-{{ section.id }} {
+    --clients-background: {{ section.settings.background_color_dark }};
+    --clients-card: {{ section.settings.item_background_color_dark }};
+    --clients-border: {{ section.settings.item_border_color_dark }};
+    --clients-text: {{ section.settings.heading_and_title_dark }};
+    --clients-soft: {{ section.settings.item_text_color_dark }};
+  }
+{% endstyle %}
+{%- if section.settings.show_section_divider or section.settings.show_section_divider_mobile -%}
+  {% render 'section-divider' %}
+{%- endif -%}
+<div
+  id="atelier-clients-{{ section.id }}"
+  class="atelier-clients"
+  x-data="xAtelierClients"
+  role="region"
+  aria-roledescription="{{ 'sections.atelier_clients.carousel' | t | escape }}"
+  {% if section.settings.heading != blank %}aria-labelledby="atelier-clients-heading-{{ section.id }}"{% else %}aria-label="{{ 'sections.atelier_clients.photos' | t | escape }}"{% endif %}
+  data-autoplay="{{ section.settings.auto_play }}"
+  data-interval="{{ section.settings.change_slides_speed | times: 1000 }}"
+  data-status-template="{{ 'sections.atelier_clients.slide_status' | t: index: '[index]', total: '[total]', name: '[name]' | escape }}"
+  @shopify:block:select.document="selectBlock($event)"
+>
+  <div class="atelier-clients__page">
+    <div class="atelier-clients__copy">
+      {%- if section.settings.subheading != blank -%}
+        <p class="atelier-clients__eyebrow">{{ section.settings.subheading | escape }}</p>
+      {%- endif -%}
+      <{{ section.settings.heading_tag }} id="atelier-clients-heading-{{ section.id }}" class="atelier-clients__heading">
+        {{- section.settings.heading | escape -}}
+      </{{ section.settings.heading_tag }}>
+      {%- if section.settings.text != blank -%}
+        <div class="atelier-clients__text">{{ section.settings.text }}</div>
+      {%- endif -%}
+      {%- if total > 1 -%}
+        <div class="atelier-clients__controls" x-cloak>
+          <button type="button" class="atelier-clients__arrow" @click="step(-1)" aria-label="{{ 'general.global.prev' | t }}" aria-controls="atelier-clients-deck-{{ section.id }}">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true" focusable="false"><path d="M21 12H4M10 6l-6 6 6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <span class="atelier-clients__counter" aria-hidden="true"><span x-text="formattedIndex">01</span> / {% if total < 10 %}0{% endif %}{{ total }}</span>
+          <button type="button" class="atelier-clients__arrow" @click="step(1)" aria-label="{{ 'general.global.next' | t }}" aria-controls="atelier-clients-deck-{{ section.id }}">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true" focusable="false"><path d="M3 12h17M14 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          {%- if section.settings.auto_play -%}
+            <button type="button" class="atelier-clients__arrow atelier-clients__play" @click="toggleAutoplay()" :aria-pressed="autoplayStopped.toString()" aria-label="{{ 'sections.atelier_clients.pause' | t | escape }}">
+              <svg x-show="!autoplayStopped" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true" focusable="false"><path d="M9 6v12M15 6v12"/></svg>
+              <svg x-show="autoplayStopped" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true" focusable="false"><path d="m9 6 9 6-9 6Z"/></svg>
+            </button>
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+    </div>
+    <div
+      id="atelier-clients-deck-{{ section.id }}"
+      class="atelier-clients__deck"
+      x-ref="deck"
+      {% if total > 1 %}tabindex="0"{% endif %}
+      role="group"
+      aria-label="{{ 'sections.atelier_clients.photos' | t | escape }}"
+      aria-describedby="atelier-clients-help-{{ section.id }}"
+      @pointerdown="pointerDown($event)"
+      @pointermove="pointerMove($event)"
+      @pointerup="pointerUp($event)"
+      @pointercancel="cancelDrag($event)"
+      @lostpointercapture="cancelDrag($event)"
+      @dragstart.prevent
+      @click.capture="preventDragClick($event)"
+      @keydown="onKeydown($event)"
+    >
+      {%- for block in section.blocks -%}
+        {%- liquid
+          assign tilt = forloop.index0 | modulo: 5 | minus: 2 | times: 2.2
+          assign image = block.settings.cards_image | default: block.settings.author_image
+          assign image_alt = image.alt | default: block.settings.author
+          assign image_loading = 'lazy'
+          if section.index <= 2 and forloop.first
+            assign image_loading = 'eager'
+          endif
+        -%}
+        <figure
+          class="atelier-clients__card{% if forloop.first %} is-top{% elsif forloop.index == 2 %} is-next{% elsif forloop.index == 3 %} is-under{% endif %}"
+          data-client-card
+          data-block-id="{{ block.id }}"
+          data-name="{{ block.settings.author | escape }}"
+          style="--clients-tilt: {{ tilt }}deg;"
+          role="group"
+          aria-roledescription="{{ 'sections.atelier_clients.slide' | t | escape }}"
+          aria-label="{{ 'sections.atelier_clients.slide_label' | t: index: forloop.index, total: total | escape }}"
+          aria-hidden="{% if forloop.first %}false{% else %}true{% endif %}"
+          {% unless forloop.first %}inert{% endunless %}
+          {{ block.shopify_attributes }}
+        >
+          <div class="atelier-clients__photo"{% if image != blank %} style="--clients-image-position: {{ image.presentation.focal_point | default: '50% 50%' }};"{% endif %}>
+            {%- if image != blank -%}
+              {{ image | image_url: width: 1000 | image_tag: widths: '300, 440, 660, 880, 1000', sizes: '(min-width: 990px) 418px, (min-width: 500px) 418px, 85vw', loading: image_loading, alt: image_alt, draggable: false }}
+            {%- elsif block.settings.client_image_url != blank -%}
+              <img src="{{ block.settings.client_image_url | escape }}" width="1000" height="1500" alt="{{ block.settings.author | escape }}" loading="{{ image_loading }}" decoding="async" draggable="false">
+            {%- else -%}
+              {{ 'image' | placeholder_svg_tag: 'atelier-clients__placeholder' }}
+            {%- endif -%}
+          </div>
+          <figcaption class="atelier-clients__caption">
+            <span class="atelier-clients__names">{{ block.settings.author | escape }}</span>
+            {%- if block.settings.author_note != blank -%}
+              <div class="atelier-clients__handle">{{ block.settings.author_note }}</div>
+            {%- endif -%}
+          </figcaption>
+        </figure>
+      {%- else -%}
+        <div class="atelier-clients__empty">{{ 'image' | placeholder_svg_tag: 'atelier-clients__placeholder' }}</div>
+      {%- endfor -%}
+    </div>
+    <p id="atelier-clients-help-{{ section.id }}" class="sr-only">{{ 'sections.atelier_clients.instructions' | t }}</p>
+    <p class="sr-only" aria-live="polite" aria-atomic="true" x-ref="status"></p>
+  </div>
+</div>
