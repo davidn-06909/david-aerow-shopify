@@ -8,6 +8,10 @@
  * ------------------------------------------------------------
  */
 {
+  "atelier_footer": {
+    "policies": "Store policies",
+    "payment_methods": "Accepted payment methods"
+  },
   "general": {
     "theme-mode": {
       "light": "Terang",

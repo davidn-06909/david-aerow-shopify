@@ -8,6 +8,20 @@
  * ------------------------------------------------------------
  */
 {
+  "atelier_footer": {
+    "footer_layout": "Use atelier footer layout",
+    "heading_font": "Heading font",
+    "body_font": "Body font",
+    "brand_name": "Brand name",
+    "tagline": "Brand tagline",
+    "tagline_default": "Cut in carbon, written in light.",
+    "background": "Background",
+    "text_color": "Text",
+    "accent_color": "Accent",
+    "menu_fallback_info": "Select a Shopify menu, or add individual links below for the atelier footer.",
+    "link_label": "Link label",
+    "link_url": "Link destination"
+  },
   "categories": {
     "additional_information": "Lisätiedot",
     "basics": "Perusasiat",

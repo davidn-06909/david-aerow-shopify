@@ -1,0 +1,96 @@
+.atelier-footer {
+  -webkit-font-smoothing: antialiased;
+  text-align: start;
+}
+
+.atelier-footer {
+  padding-block: var(--footer-top-mobile, 56px) var(--footer-bottom-mobile, 28px);
+  color: var(--footer-text, #f5f6fc);
+  background: var(--footer-background, #070913);
+  font-family: var(--footer-body-font, sans-serif);
+  font-weight: var(--footer-body-weight, 400);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.atelier-footer__page { width: calc(100% - 48px); max-width: 1400px; margin-inline: auto; }
+.atelier-footer__brand { padding-block-end: 36px; }
+
+.atelier-footer .atelier-footer__wordmark {
+  display: inline-block;
+  color: inherit;
+  font-family: var(--footer-heading-font, sans-serif);
+  font-size: clamp(68px, 7vw, 108px);
+  font-weight: var(--footer-heading-weight, 700);
+  line-height: 1.05;
+  letter-spacing: -0.045em;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+.atelier-footer__tagline { margin: 4px 0 0; color: var(--footer-accent, #aac2e0); font-size: 16px; font-style: italic; line-height: 1.5; }
+.atelier-footer__columns { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 30px 24px; padding-block: 32px; border-block: 1px solid #292c37; }
+.atelier-footer__column { min-width: 0; }
+.atelier-footer__column:last-child:nth-child(odd) { grid-column: 1 / -1; }
+
+.atelier-footer .atelier-footer__heading {
+  margin: 0 0 10px;
+  color: var(--footer-accent, #aac2e0);
+  font-family: inherit;
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1.6;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.atelier-footer :is(ul, li) { margin: 0; padding: 0; list-style: none; }
+.atelier-footer__links { display: flex; flex-direction: column; align-items: flex-start; gap: 0; }
+.atelier-footer .atelier-footer__link { position: relative; display: inline-flex; align-items: center; min-height: 44px; padding-block: 7px; color: inherit; line-height: 1.5; text-decoration: none; overflow-wrap: anywhere; transition: color 200ms ease; }
+
+.atelier-footer__link::after {
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  inset-block-end: 4px;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 280ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.atelier-footer .atelier-footer__link:is(:hover, :focus-visible) { color: var(--footer-accent, #aac2e0); }
+.atelier-footer__link:is(:hover, :focus-visible)::after { transform: scaleX(1); transform-origin: left; }
+.atelier-footer a:focus-visible { outline: 2px solid var(--footer-accent, #aac2e0); outline-offset: 4px; }
+.atelier-footer__text { padding-block-start: 7px; color: var(--footer-accent, #aac2e0); }
+.atelier-footer__text p { margin: 0; }
+.atelier-footer__text p + p { margin-block-start: 12px; }
+.atelier-footer__text a { color: inherit; text-underline-offset: 4px; }
+.atelier-footer__bottom { display: flex; flex-direction: column; gap: 22px; padding-block-start: 20px; }
+.atelier-footer__legal { display: flex; flex-direction: column; align-items: flex-start; gap: 6px 16px; font-size: 10px; }
+.atelier-footer__copyright { margin: 0; color: var(--footer-accent, #aac2e0); }
+.atelier-footer .atelier-footer__policies { display: flex; flex-wrap: wrap; gap: 0 16px; }
+.atelier-footer .atelier-footer__payments { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; }
+.atelier-footer__payments svg { display: block; width: 30px; height: auto; }
+
+@media (min-width: 768px) {
+  .atelier-footer { padding-block: var(--footer-top, 88px) var(--footer-bottom, 16px); }
+  .atelier-footer__page { width: calc(100% - clamp(80px, 10.4vw, 160px)); }
+  .atelier-footer__brand { padding: 0 28px 44px; }
+  .atelier-footer__columns { grid-template-columns: repeat(var(--footer-columns, 3), minmax(0, 1fr)); gap: 36px; padding: 34px 28px 40px; }
+  .atelier-footer__column:last-child:nth-child(odd) { grid-column: auto; }
+  .atelier-footer__links { gap: 0; }
+  .atelier-footer .atelier-footer__link { min-height: 0; padding-block: 5px; }
+  .atelier-footer__bottom { flex-direction: row; justify-content: space-between; align-items: center; padding: 16px 28px 0; gap: 16px; }
+  .atelier-footer__legal { flex-direction: row; align-items: center; flex-wrap: wrap; }
+  .atelier-footer__payments { flex-shrink: 0; }
+}
+
+@media (max-width: 379px) {
+  .atelier-footer__columns { column-gap: 16px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .atelier-footer .atelier-footer__link, .atelier-footer__link::after { transition: none; }
+}
