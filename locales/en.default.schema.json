@@ -9,9 +9,12 @@
  */
 {
   "atelier_footer": {
+    "newsletter_layout": "Use atelier newsletter layout",
     "footer_layout": "Use atelier footer layout",
     "heading_font": "Heading font",
     "body_font": "Body font",
+    "privacy_note": "Privacy note",
+    "privacy_default": "We write rarely, and never share your address.",
     "brand_name": "Brand name",
     "tagline": "Brand tagline",
     "tagline_default": "Cut in carbon, written in light.",

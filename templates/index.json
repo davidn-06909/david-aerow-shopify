@@ -2479,18 +2479,18 @@
         "heading_mdT9U7": {
           "type": "heading",
           "settings": {
-            "heading": "Subscribe to our emails",
+            "heading": "Correspondence",
             "highlight_type": "font_highlight",
             "heading_size": 100,
             "heading_tag": "h2",
-            "text": "<p>Be the first to know about new collections and exclusive offers.</p>",
+            "text": "<p>Occasional letters on new work, and the stories behind it.</p>",
             "text_size": 100
           }
         },
         "email_form_4BJWqq": {
           "type": "email_form",
           "settings": {
-            "button_label": "Submit"
+            "button_label": "Subscribe"
           }
         }
       },
@@ -2501,11 +2501,11 @@
       "settings": {
         "overlay_opacity": 0,
         "form_width": "large",
-        "content_layout": "horizontal",
-        "background_color_light": "rgba(0,0,0,0)",
+        "content_layout": "vertical",
+        "background_color_light": "#101116",
         "heading_light": "rgba(0,0,0,0)",
         "color_heading_highlight_light": "rgba(0,0,0,0)",
-        "text_light": "rgba(0,0,0,0)",
+        "text_light": "#FAF9F6",
         "button_light": "rgba(0,0,0,0)",
         "button_text_light": "rgba(0,0,0,0)",
         "button_hover_light": "rgba(0,0,0,0)",
@@ -2522,12 +2522,16 @@
         "line_border_dark": "rgba(0,0,0,0)",
         "desktop_height": "450px",
         "show_section_divider": false,
-        "padding_top": 48,
-        "padding_bottom": 48,
+        "padding_top": 72,
+        "padding_bottom": 76,
         "mobile_height": "300px",
         "show_section_divider_mobile": false,
-        "padding_top_mobile": 48,
-        "padding_bottom_mobile": 48
+        "padding_top_mobile": 60,
+        "padding_bottom_mobile": 60,
+        "atelier_newsletter": true,
+        "atelier_heading_font": "oswald_n7",
+        "atelier_body_font": "archivo_n4",
+        "atelier_privacy_note": "We write rarely, and never share your address."
       }
     }
   },

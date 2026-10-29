@@ -8,6 +8,9 @@
  * ------------------------------------------------------------
  */
 {
+  "atelier_newsletter": {
+    "email_placeholder": "Email address"
+  },
   "atelier_footer": {
     "policies": "Store policies",
     "payment_methods": "Accepted payment methods"
