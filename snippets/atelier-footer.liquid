@@ -1,22 +1,31 @@
 {%- liquid
   assign heading_font = section.settings.atelier_heading_font
   assign body_font = section.settings.atelier_body_font
+  assign body_font_bold = body_font | font_modify: 'weight', 'bold'
+  assign body_font_italic = body_font | font_modify: 'style', 'italic'
   assign brand_name = section.settings.atelier_brand_name | default: shop.name
   assign policy_types = 'shipping_policy,refund_policy,privacy_policy,terms_of_service' | split: ','
+  assign enabled_payment_types = shop.enabled_payment_types
+  if section.settings.custom_payment != blank
+    assign enabled_payment_types = section.settings.custom_payment | remove: ' ' | split: ','
+  endif
 -%}
 {% style %}
   {{ heading_font | font_face: font_display: 'swap' }}
   {{ body_font | font_face: font_display: 'swap' }}
+  {{ body_font_bold | font_face: font_display: 'swap' }}
+  {{ body_font_italic | font_face: font_display: 'swap' }}
   #atelier-footer-{{ section.id }} {
     --footer-heading-font: {{ heading_font.family }}, {{ heading_font.fallback_families }};
     --footer-heading-weight: {{ heading_font.weight }};
     --footer-body-font: {{ body_font.family }}, {{ body_font.fallback_families }};
     --footer-body-weight: {{ body_font.weight }};
+    --footer-label-weight: {{ body_font_bold.weight }};
     --footer-background: {{ section.settings.atelier_background }};
     --footer-text: {{ section.settings.atelier_text }};
     --footer-accent: {{ section.settings.atelier_accent }};
-    --footer-columns: {{ section.settings.columns_desktop }};
     --footer-top: {{ section.settings.top_padding }}px;
+    --footer-top-change: {{ section.settings.top_padding | minus: section.settings.top_padding_mobile }};
     --footer-bottom: {{ section.settings.bottom_padding }}px;
     --footer-top-mobile: {{ section.settings.top_padding_mobile }}px;
     --footer-bottom-mobile: {{ section.settings.bottom_padding_mobile }}px;
@@ -38,7 +47,7 @@
               <nav class="atelier-footer__column" aria-labelledby="FooterHeading-{{ block.id }}" {{ block.shopify_attributes }}>
                 <h2 id="FooterHeading-{{ block.id }}" class="atelier-footer__heading">{{ block.settings.heading_menu | default: block.settings.menu.title | escape }}</h2>
                 <ul class="atelier-footer__links" role="list">
-                  {%- if block.settings.menu != blank -%}
+                  {%- if block.settings.menu.links.size > 0 -%}
                     {%- for link in block.settings.menu.links -%}
                       <li><a class="atelier-footer__link" href="{{ link.url }}"{% if link.current %} aria-current="page"{% endif %}>{{ link.title | escape }}</a></li>
                     {%- endfor -%}
@@ -83,8 +92,8 @@
       </div>
       {%- if section.settings.payment_enable -%}
         <ul class="atelier-footer__payments" role="list" aria-label="{{ 'atelier_footer.payment_methods' | t }}">
-          {%- for type in shop.enabled_payment_types -%}
-            <li>{{ type | payment_type_svg_tag }}</li>
+          {%- for type in enabled_payment_types -%}
+            <li>{{ type | payment_type_svg_tag: class: 'atelier-footer__payment' }}</li>
           {%- endfor -%}
         </ul>
       {%- endif -%}
