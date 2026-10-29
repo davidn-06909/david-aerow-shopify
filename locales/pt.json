@@ -121,6 +121,9 @@
     "button_label": "Assinar"
   },
   "accessibility": {
+    "announcements": "Announcements",
+    "pause_announcements": "Pause announcements",
+    "play_announcements": "Play announcements",
     "pause_video": "Pause video",
     "skip_to_text": "Pular para o conteúdo",
     "skip_to_product_info": "Pular para informações do produto",
@@ -412,6 +415,9 @@
     }
   },
   "sections": {
+    "atelier_story_index": {
+      "pieces": "{{ count }} peças"
+    },
     "fast-order": {
       "search_placeholder": "Pesquisar por SKU ou nome do produto",
       "search_results_heading": "Resultados da pesquisa",

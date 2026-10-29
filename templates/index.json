@@ -100,6 +100,55 @@
         "atelier_stamp_end": "Every stone certified"
       }
     },
+    "atelier_story_index": {
+      "type": "atelier-story-index",
+      "blocks": {
+        "engagement": {
+          "type": "collection",
+          "settings": {
+            "title": "Engagement rings",
+            "link": "/collections/engagement-rings",
+            "piece_count": "13"
+          }
+        },
+        "diamonds": {
+          "type": "collection",
+          "settings": {
+            "title": "Diamonds",
+            "link": "/collections/diamonds",
+            "piece_count": "40"
+          }
+        },
+        "wedding": {
+          "type": "collection",
+          "settings": {
+            "title": "Wedding bands",
+            "link": "/collections/wedding-bands",
+            "piece_count": "2"
+          }
+        }
+      },
+      "block_order": ["engagement", "diamonds", "wedding"],
+      "settings": {
+        "heading_font": "oswald_n7",
+        "body_font": "archivo_n4",
+        "eyebrow": "The house",
+        "heading_first": "Every stone",
+        "heading_second": "carries a story",
+        "heading_third": "told in light.",
+        "text": "<p>Aevow sets lab-grown and natural diamonds in pieces built at one bench, by the hands that will resize them decades from now. No vaulted showroom, no middle men — an atelier, a certificate, and a stone that outlasts both of us.</p>",
+        "story_label": "Our story",
+        "story_link": "/pages/about",
+        "index_label": "The index",
+        "background_color": "#0B0E28",
+        "text_color": "#F2F6FB",
+        "soft_color": "#A9C3E2",
+        "accent_color": "#6E9BFF",
+        "padding_top": 116,
+        "index_spacing": 184,
+        "padding_bottom": 116
+      }
+    },
     "e32885d8-0a8f-4c4f-8801-377d01cb7656": {
       "type": "featured-collection",
       "blocks": {
@@ -2368,6 +2417,7 @@
   },
   "order": [
     "4c9e1af5-c4c0-48cf-b771-49029eedd24f",
+    "atelier_story_index",
     "e32885d8-0a8f-4c4f-8801-377d01cb7656",
     "featured_category_FKqynG",
     "collage_D4GGTK",

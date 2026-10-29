@@ -121,6 +121,9 @@
     "button_label": "Abonneren"
   },
   "accessibility": {
+    "announcements": "Announcements",
+    "pause_announcements": "Pause announcements",
+    "play_announcements": "Play announcements",
     "pause_video": "Pause video",
     "skip_to_text": "Naar inhoud springen",
     "skip_to_product_info": "Naar productinformatie springen",
@@ -412,6 +415,9 @@
     }
   },
   "sections": {
+    "atelier_story_index": {
+      "pieces": "{{ count }} stuks"
+    },
     "fast-order": {
       "search_placeholder": "Zoeken op SKU of productnaam",
       "search_results_heading": "Zoekresultaten",

@@ -121,6 +121,9 @@
     "button_label": "구독"
   },
   "accessibility": {
+    "announcements": "Announcements",
+    "pause_announcements": "Pause announcements",
+    "play_announcements": "Play announcements",
     "pause_video": "Pause video",
     "skip_to_text": "본문으로 건너뛰기",
     "skip_to_product_info": "제품 정보로 건너뛰기",
@@ -412,6 +415,9 @@
     }
   },
   "sections": {
+    "atelier_story_index": {
+      "pieces": "{{ count }}개"
+    },
     "fast-order": {
       "search_placeholder": "SKU 또는 제품명으로 검색",
       "search_results_heading": "검색 결과",

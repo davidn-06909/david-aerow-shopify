@@ -121,6 +121,9 @@
     "button_label": "Підписатися"
   },
   "accessibility": {
+    "announcements": "Announcements",
+    "pause_announcements": "Pause announcements",
+    "play_announcements": "Play announcements",
     "pause_video": "Pause video",
     "skip_to_text": "Перейти до вмісту",
     "skip_to_product_info": "Перейти до інформації про продукт",
@@ -412,6 +415,9 @@
     }
   },
   "sections": {
+    "atelier_story_index": {
+      "pieces": "{{ count }} виробів"
+    },
     "fast-order": {
       "search_placeholder": "Пошук за SKU або назвою товару",
       "search_results_heading": "Результати пошуку",

@@ -121,6 +121,9 @@
     "button_label": "Prihlásiť sa"
   },
   "accessibility": {
+    "announcements": "Announcements",
+    "pause_announcements": "Pause announcements",
+    "play_announcements": "Play announcements",
     "pause_video": "Pause video",
     "skip_to_text": "Preskočiť na obsah",
     "skip_to_product_info": "Preskočiť na informácie o produkte",
@@ -412,6 +415,9 @@
     }
   },
   "sections": {
+    "atelier_story_index": {
+      "pieces": "{{ count }} kusov"
+    },
     "fast-order": {
       "search_placeholder": "Hľadať podľa SKU alebo názvu produktu",
       "search_results_heading": "Výsledky hľadania",

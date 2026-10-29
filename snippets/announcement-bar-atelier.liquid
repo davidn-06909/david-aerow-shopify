@@ -1,0 +1,119 @@
+{% comment %}
+  Atelier layout for the existing announcement section. Reuses message blocks,
+  icons, links, colors, visibility, sticky, and rotation settings.
+{% endcomment %}
+{%- liquid
+  assign show_bar = section.settings.enable
+  if section.settings.show_only_on_homepage and template.name != 'index'
+    assign show_bar = false
+  endif
+  assign messages = section.blocks | where: 'type', 'announcement' | reject: 'settings.text', blank
+  assign announcement_font = section.settings.atelier_font
+-%}
+{%- if show_bar and messages.size > 0 -%}
+  {% style %}
+    {{ announcement_font | font_face: font_display: 'swap' }}
+    #shopify-section-{{ section.id }} {
+      {% if section.settings.enable_sticky_bar %}
+        position: sticky;
+        top: 0;
+        z-index: var(--annoucement-z, 60);
+      {% endif %}
+    }
+    #shopify-section-{{ section.id }}.top-header {
+      top: var(--header-height);
+    }
+    #shopify-section-{{ section.id }} .atelier-announcement {
+      --announcement-font: {{ announcement_font.family }}, {{ announcement_font.fallback_families }};
+      --announcement-weight: {{ announcement_font.weight }};
+      --announcement-background: {{ section.settings.backgound_color }};
+      --announcement-color: {{ section.settings.text_color }};
+    }
+    .dark #shopify-section-{{ section.id }} .atelier-announcement {
+      --announcement-background: {{ section.settings.backgound_color_dark }};
+      --announcement-color: {{ section.settings.text_color_dark }};
+    }
+  {% endstyle %}
+  <div
+    id="x-announcement"
+    class="atelier-announcement"
+    x-data="xAtelierAnnouncement"
+    :class="{ 'is-ready': ready }"
+    data-autoplay="{{ section.settings.auto_switch_bar }}"
+    data-interval="{{ section.settings.change_bar_every | times: 1000 }}"
+    {% if section.settings.enable_sticky_bar %}
+      data-is-sticky="true"
+      data-section-index="{{ section.index }}"
+      {% if request.design_mode %}x-init="$dispatch('announcement:sticky-change')"{% endif %}
+    {% endif %}
+    @mouseenter="stop()"
+    @focusin="stop()"
+    @keydown.left.prevent="go(-1)"
+    @keydown.right.prevent="go(1)"
+  >
+    <div class="atelier-announcement__inner">
+      {%- if messages.size > 1 and section.settings.show_navigation -%}
+        <button type="button" class="atelier-announcement__nav" @click="go(-1)" aria-label="{{ 'accessibility.previous_slide' | t }}" aria-controls="atelier-announcements-{{ section.id }}">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true" focusable="false"><path d="M15 5l-7 7 7 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      {%- endif -%}
+      <div
+        id="atelier-announcements-{{ section.id }}"
+        class="atelier-announcement__viewport"
+        role="region"
+        aria-label="{{ 'accessibility.announcements' | t }}"
+        aria-live="off"
+        :aria-live="playing ? 'off' : 'polite'"
+        aria-atomic="true"
+      >
+        {%- for block in messages -%}
+          <div
+            class="atelier-announcement__item{% if forloop.first %} is-active{% endif %}"
+            data-announcement-item
+            :class="{ 'is-active': active === {{ forloop.index0 }} }"
+            :aria-hidden="active !== {{ forloop.index0 }}"
+            :inert="active !== {{ forloop.index0 }}"
+            {% unless forloop.first %}aria-hidden="true" inert{% endunless %}
+            {{ block.shopify_attributes }}
+          >
+            {%- if block.settings.link != blank -%}
+              <a class="atelier-announcement__text" href="{{ block.settings.link }}"{% if block.settings.open_new_window %} target="_blank" rel="noopener"{% endif %}>
+            {%- else -%}
+              <span class="atelier-announcement__text">
+            {%- endif -%}
+              {%- if block.settings.icon != 'none' -%}
+                <span class="atelier-announcement__icon" aria-hidden="true">
+                  {%- if block.settings.custom_icon != blank -%}
+                    {{ block.settings.custom_icon }}
+                  {%- elsif block.settings.icon == 'another_icon' and block.settings.another_icon != blank -%}
+                    {% render 'icon-new-alls', icon: block.settings.another_icon %}
+                  {%- else -%}
+                    {% render 'icon-labels-bags', icon: block.settings.icon, enable_announcement: true %}
+                  {%- endif -%}
+                </span>
+              {%- endif -%}
+              <span>{{ block.settings.text }}</span>
+            {%- if block.settings.link != blank -%}
+              </a>
+            {%- else -%}
+              </span>
+            {%- endif -%}
+          </div>
+        {%- endfor -%}
+      </div>
+      {%- if messages.size > 1 -%}
+        {%- if section.settings.show_navigation -%}
+          <button type="button" class="atelier-announcement__nav" @click="go(1)" aria-label="{{ 'accessibility.next_slide' | t }}" aria-controls="atelier-announcements-{{ section.id }}">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true" focusable="false"><path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+        {%- endif -%}
+        {%- if section.settings.auto_switch_bar -%}
+          <button type="button" class="atelier-announcement__pause" @click="togglePlayback()" :aria-label="playing ? {{ 'accessibility.pause_announcements' | t | json | escape }} : {{ 'accessibility.play_announcements' | t | json | escape }}">
+            <span x-text="playing ? {{ 'accessibility.pause_announcements' | t | json | escape }} : {{ 'accessibility.play_announcements' | t | json | escape }}">{{ 'accessibility.pause_announcements' | t }}</span>
+          </button>
+        {%- endif -%}
+      {%- endif -%}
+    </div>
+  </div>
+  <script src="{{ 'announcement-bar-atelier.js' | asset_url }}" defer></script>
+{%- endif -%}

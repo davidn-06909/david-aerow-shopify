@@ -121,6 +121,9 @@
     "button_label": "Berlangganan"
   },
   "accessibility": {
+    "announcements": "Announcements",
+    "pause_announcements": "Pause announcements",
+    "play_announcements": "Play announcements",
     "pause_video": "Pause video",
     "skip_to_text": "Lewati ke konten",
     "skip_to_product_info": "Lewati ke informasi produk",
@@ -412,6 +415,9 @@
     }
   },
   "sections": {
+    "atelier_story_index": {
+      "pieces": "{{ count }} perhiasan"
+    },
     "fast-order": {
       "search_placeholder": "Cari berdasarkan SKU atau nama produk",
       "search_results_heading": "Hasil pencarian",

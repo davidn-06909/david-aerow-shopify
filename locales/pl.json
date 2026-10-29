@@ -121,6 +121,9 @@
     "button_label": "Subskrybuj"
   },
   "accessibility": {
+    "announcements": "Announcements",
+    "pause_announcements": "Pause announcements",
+    "play_announcements": "Play announcements",
     "pause_video": "Pause video",
     "skip_to_text": "Przejdź do treści",
     "skip_to_product_info": "Przejdź do informacji o produkcie",
@@ -412,6 +415,9 @@
     }
   },
   "sections": {
+    "atelier_story_index": {
+      "pieces": "{{ count }} sztuk"
+    },
     "fast-order": {
       "search_placeholder": "Szukaj według SKU lub nazwy produktu",
       "search_results_heading": "Wyniki wyszukiwania",

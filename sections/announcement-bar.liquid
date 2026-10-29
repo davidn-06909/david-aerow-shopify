@@ -153,7 +153,9 @@
     }
   {% endif %}
 {%- endstyle -%}
-{%- if show -%}
+{%- if show and section.settings.atelier_bar -%}
+  {% render 'announcement-bar-atelier', section: section %}
+{%- elsif show -%}
   <div 
     id="x-announcement" 
     class="announcement-bar_container-{{ section.id }} ltr mr-auto ml-auto flex items-center{% if section.settings.menu != blank %} has-menu-announcement{% endif -%}
@@ -579,6 +581,20 @@
   "class": "section-announcement",
   "max_blocks": 12,
   "settings": [
+    {
+      "type": "checkbox",
+      "id": "atelier_bar",
+      "label": "t:sections.announcement-bar.settings.atelier_bar.label",
+      "info": "t:sections.announcement-bar.settings.atelier_bar.info",
+      "default": false
+    },
+    {
+      "type": "font_picker",
+      "id": "atelier_font",
+      "label": "t:sections.announcement-bar.settings.atelier_font.label",
+      "default": "archivo_n4",
+      "visible_if": "{{ section.settings.atelier_bar }}"
+    },
     {
       "type": "paragraph",
       "content": "t:sections.user_guide_link.header.announcement_bar"

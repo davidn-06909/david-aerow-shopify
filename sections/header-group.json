@@ -17,10 +17,10 @@
         "announcement_GewciB": {
           "type": "announcement",
           "settings": {
-            "icon": "none",
+            "icon": "another_icon",
             "another_icon": "",
-            "custom_icon": "",
-            "text": "Hurry up! 30% OFF Sale Ends Soon {count_down}",
+            "custom_icon": "<svg width=\"15\" height=\"15\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.2\" aria-hidden=\"true\" focusable=\"false\"><path d=\"M2.5 7h11v10h-11z\"/><path d=\"M13.5 10.5h4l4 3.5V17h-8z\"/><circle cx=\"7\" cy=\"18.5\" r=\"1.8\"/><circle cx=\"17.5\" cy=\"18.5\" r=\"1.8\"/></svg>",
+            "text": "Complimentary insured delivery, worldwide",
             "text_size": 80,
             "link": "",
             "open_new_window": false,
@@ -48,10 +48,10 @@
         "announcement_Y3F3cU": {
           "type": "announcement",
           "settings": {
-            "icon": "none",
+            "icon": "another_icon",
             "another_icon": "",
-            "custom_icon": "",
-            "text": "Hurry up! 30% OFF Sale Ends Soon {count_down}",
+            "custom_icon": "<svg width=\"15\" height=\"15\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.2\" aria-hidden=\"true\" focusable=\"false\"><circle cx=\"12\" cy=\"9.5\" r=\"5.5\"/><path d=\"M8.8 14.4 7.5 21l4.5-2.3L16.5 21l-1.3-6.6\" stroke-linejoin=\"round\"/></svg>",
+            "text": "Every center stone certified and traceable",
             "text_size": 80,
             "link": "",
             "open_new_window": false,
@@ -78,12 +78,11 @@
         },
         "announcement_iVTKpX": {
           "type": "announcement",
-          "disabled": true,
           "settings": {
-            "icon": "none",
+            "icon": "another_icon",
             "another_icon": "",
-            "custom_icon": "",
-            "text": "Hurry up! 30% OFF Sale Ends Soon {count_down}",
+            "custom_icon": "<svg width=\"15\" height=\"15\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.2\" aria-hidden=\"true\" focusable=\"false\"><circle cx=\"12\" cy=\"15\" r=\"6\"/><path d=\"M9.4 8.2 12 3.2l2.6 5\" stroke-linejoin=\"round\"/><path d=\"M9.4 8.2h5.2L12 11.2Z\" stroke-linejoin=\"round\"/></svg>",
+            "text": "Design your ring with us, from anywhere",
             "text_size": 80,
             "link": "",
             "open_new_window": false,
@@ -115,197 +114,28 @@
         "announcement_iVTKpX"
       ],
       "settings": {
-        "enable": false,
+        "enable": true,
         "show_only_on_homepage": false,
         "enable_sticky_bar": false,
-        "show_social_icons": true,
-        "backgound_color": "rgba(0,0,0,0)",
-        "text_color": "rgba(0,0,0,0)",
+        "show_social_icons": false,
+        "backgound_color": "#060814",
+        "text_color": "#f2f6fb",
         "textlink_color_light": "rgba(0,0,0,0)",
-        "backgound_color_dark": "rgba(0,0,0,0)",
-        "text_color_dark": "rgba(0,0,0,0)",
+        "backgound_color_dark": "#060814",
+        "text_color_dark": "#f2f6fb",
         "textlink_color_dark": "rgba(0,0,0,0)",
         "menu": "",
         "menu_position": "right",
         "enable_carousel_on_desktop": true,
         "auto_switch_bar": true,
-        "change_bar_every": 5,
+        "change_bar_every": 6,
         "show_navigation": true,
         "alignment": "right",
         "show_language_selector": false,
         "show_currency_selector": false,
-        "text_size_toolbar": 80
-      }
-    },
-    "scrolling_banner_p9eXUt": {
-      "type": "scrolling-banner",
-      "blocks": {
-        "icon_tgHQ7D": {
-          "type": "icon",
-          "settings": {
-            "icon": "zap",
-            "another_icon": "",
-            "custom_icon": "",
-            "height_icon": 20,
-            "spacing_left": 0,
-            "spacing_right": 0,
-            "spacing_left_mobile": 0,
-            "spacing_right_mobile": 0
-          }
-        },
-        "text_aHayqK": {
-          "type": "text",
-          "settings": {
-            "text": "Talk about your brand",
-            "highlight_type": "underline",
-            "text_size": 90,
-            "text_color": "primary",
-            "spacing_left": 0,
-            "spacing_right": 0,
-            "spacing_left_mobile": 0,
-            "spacing_right_mobile": 0
-          }
-        },
-        "icon_taMfXz": {
-          "type": "icon",
-          "settings": {
-            "icon": "zap",
-            "another_icon": "",
-            "custom_icon": "",
-            "height_icon": 20,
-            "spacing_left": 0,
-            "spacing_right": 0,
-            "spacing_left_mobile": 0,
-            "spacing_right_mobile": 0
-          }
-        },
-        "text_LgqbpF": {
-          "type": "text",
-          "settings": {
-            "text": "Talk about your brand",
-            "highlight_type": "underline",
-            "text_size": 90,
-            "text_color": "primary",
-            "spacing_left": 0,
-            "spacing_right": 0,
-            "spacing_left_mobile": 0,
-            "spacing_right_mobile": 0
-          }
-        },
-        "icon_7BUq7k": {
-          "type": "icon",
-          "settings": {
-            "icon": "zap",
-            "another_icon": "",
-            "custom_icon": "",
-            "height_icon": 20,
-            "spacing_left": 0,
-            "spacing_right": 0,
-            "spacing_left_mobile": 0,
-            "spacing_right_mobile": 0
-          }
-        },
-        "text_Natbq3": {
-          "type": "text",
-          "settings": {
-            "text": "Talk about your brand",
-            "highlight_type": "underline",
-            "text_size": 90,
-            "text_color": "primary",
-            "spacing_left": 0,
-            "spacing_right": 0,
-            "spacing_left_mobile": 0,
-            "spacing_right_mobile": 0
-          }
-        },
-        "icon_KJAbNi": {
-          "type": "icon",
-          "settings": {
-            "icon": "zap",
-            "another_icon": "",
-            "custom_icon": "",
-            "height_icon": 20,
-            "spacing_left": 0,
-            "spacing_right": 0,
-            "spacing_left_mobile": 0,
-            "spacing_right_mobile": 0
-          }
-        },
-        "text_R3NYMK": {
-          "type": "text",
-          "settings": {
-            "text": "Talk about your brand",
-            "highlight_type": "underline",
-            "text_size": 90,
-            "text_color": "primary",
-            "spacing_left": 0,
-            "spacing_right": 0,
-            "spacing_left_mobile": 0,
-            "spacing_right_mobile": 0
-          }
-        },
-        "icon_dm8PN7": {
-          "type": "icon",
-          "settings": {
-            "icon": "zap",
-            "another_icon": "",
-            "custom_icon": "",
-            "height_icon": 20,
-            "spacing_left": 0,
-            "spacing_right": 0,
-            "spacing_left_mobile": 0,
-            "spacing_right_mobile": 0
-          }
-        },
-        "text_bh6JqP": {
-          "type": "text",
-          "settings": {
-            "text": "Talk about your brand",
-            "highlight_type": "underline",
-            "text_size": 90,
-            "text_color": "primary",
-            "spacing_left": 0,
-            "spacing_right": 0,
-            "spacing_left_mobile": 0,
-            "spacing_right_mobile": 0
-          }
-        }
-      },
-      "block_order": [
-        "icon_tgHQ7D",
-        "text_aHayqK",
-        "icon_taMfXz",
-        "text_LgqbpF",
-        "icon_7BUq7k",
-        "text_Natbq3",
-        "icon_KJAbNi",
-        "text_R3NYMK",
-        "icon_dm8PN7",
-        "text_bh6JqP"
-      ],
-      "settings": {
-        "show_border": false,
-        "speed": 30,
-        "direction": "right",
-        "pause_hover": true,
-        "enable_rotating_effect": false,
-        "overlay_opacity": 0,
-        "bg_light": "rgba(0,0,0,0)",
-        "color_text_light": "rgba(0,0,0,0)",
-        "color_text_light_2": "rgba(0,0,0,0)",
-        "color_heading_highlight_light": "rgba(0,0,0,0)",
-        "bg_dark": "rgba(0,0,0,0)",
-        "color_text_dark": "rgba(0,0,0,0)",
-        "color_text_dark_2": "rgba(0,0,0,0)",
-        "color_heading_highlight_dark": "rgba(0,0,0,0)",
-        "space_block": 60,
-        "desktop_height": "750px",
-        "padding_top": 12,
-        "padding_bottom": 12,
-        "space_block_mobile": 40,
-        "mobile_height": "500px",
-        "padding_top_mobile": 8,
-        "padding_bottom_mobile": 8
+        "text_size_toolbar": 80,
+        "atelier_bar": true,
+        "atelier_font": "archivo_n4"
       }
     },
     "header": {
@@ -1218,7 +1048,6 @@
   },
   "order": [
     "announcement-bar",
-    "scrolling_banner_p9eXUt",
     "header",
     "mobile-navigation",
     "menu-drawer"

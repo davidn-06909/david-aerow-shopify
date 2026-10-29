@@ -121,6 +121,9 @@
     "button_label": "購読する"
   },
   "accessibility": {
+    "announcements": "Announcements",
+    "pause_announcements": "Pause announcements",
+    "play_announcements": "Play announcements",
     "pause_video": "Pause video",
     "skip_to_text": "コンテンツへスキップ",
     "skip_to_product_info": "商品情報へスキップ",
@@ -412,6 +415,9 @@
     }
   },
   "sections": {
+    "atelier_story_index": {
+      "pieces": "{{ count }} 点"
+    },
     "fast-order": {
       "search_placeholder": "SKUまたは商品名で検索",
       "search_results_heading": "検索結果",

@@ -121,6 +121,9 @@
     "button_label": "訂閱"
   },
   "accessibility": {
+    "announcements": "Announcements",
+    "pause_announcements": "Pause announcements",
+    "play_announcements": "Play announcements",
     "pause_video": "Pause video",
     "skip_to_text": "跳到內容",
     "skip_to_product_info": "跳到產品資訊",
@@ -412,6 +415,9 @@
     }
   },
   "sections": {
+    "atelier_story_index": {
+      "pieces": "{{ count }} 件"
+    },
     "fast-order": {
       "search_placeholder": "以 SKU 或商品名稱搜尋",
       "search_results_heading": "搜尋結果",

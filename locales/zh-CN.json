@@ -121,6 +121,9 @@
     "button_label": "订阅"
   },
   "accessibility": {
+    "announcements": "Announcements",
+    "pause_announcements": "Pause announcements",
+    "play_announcements": "Play announcements",
     "pause_video": "Pause video",
     "skip_to_text": "忽略内容",
     "skip_to_product_info": "忽略产品信息",
@@ -412,6 +415,9 @@
     }
   },
   "sections": {
+    "atelier_story_index": {
+      "pieces": "{{ count }} 件"
+    },
     "fast-order": {
       "search_placeholder": "按 SKU 或商品名称搜索",
       "search_results_heading": "搜索结果",

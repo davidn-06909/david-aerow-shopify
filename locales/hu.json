@@ -121,6 +121,9 @@
     "button_label": "Feliratkozás"
   },
   "accessibility": {
+    "announcements": "Announcements",
+    "pause_announcements": "Pause announcements",
+    "play_announcements": "Play announcements",
     "pause_video": "Pause video",
     "skip_to_text": "Ugrás a tartalomra",
     "skip_to_product_info": "Ugrás a termékinformációra",
@@ -412,6 +415,9 @@
     }
   },
   "sections": {
+    "atelier_story_index": {
+      "pieces": "{{ count }} darab"
+    },
     "fast-order": {
       "search_placeholder": "Keresés SKU vagy terméknév alapján",
       "search_results_heading": "Keresési eredmények",

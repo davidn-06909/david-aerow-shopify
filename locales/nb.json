@@ -121,6 +121,9 @@
     "button_label": "Abonner"
   },
   "accessibility": {
+    "announcements": "Announcements",
+    "pause_announcements": "Pause announcements",
+    "play_announcements": "Play announcements",
     "pause_video": "Pause video",
     "skip_to_text": "Gå til innhold",
     "skip_to_product_info": "Gå til produktinformasjon",
@@ -412,6 +415,9 @@
     }
   },
   "sections": {
+    "atelier_story_index": {
+      "pieces": "{{ count }} smykker"
+    },
     "fast-order": {
       "search_placeholder": "Søk etter SKU eller produktnavn",
       "search_results_heading": "Søkeresultater",

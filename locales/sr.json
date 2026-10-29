@@ -121,6 +121,9 @@
     "button_label": "Pretplati se"
   },
   "accessibility": {
+    "announcements": "Announcements",
+    "pause_announcements": "Pause announcements",
+    "play_announcements": "Play announcements",
     "pause_video": "Pause video",
     "skip_to_text": "Preskoči na sadržaj",
     "skip_to_product_info": "Preskoči na informacije o proizvodu",
@@ -412,6 +415,9 @@
     }
   },
   "sections": {
+    "atelier_story_index": {
+      "pieces": "{{ count }} комада"
+    },
     "fast-order": {
       "search_placeholder": "Pretraga po SKU ili nazivu proizvoda",
       "search_results_heading": "Rezultati pretrage",

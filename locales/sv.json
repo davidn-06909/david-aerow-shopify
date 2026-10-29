@@ -121,6 +121,9 @@
     "button_label": "Prenumerera"
   },
   "accessibility": {
+    "announcements": "Announcements",
+    "pause_announcements": "Pause announcements",
+    "play_announcements": "Play announcements",
     "pause_video": "Pause video",
     "skip_to_text": "Hoppa till innehåll",
     "skip_to_product_info": "Hoppa till produktinformation",
@@ -412,6 +415,9 @@
     }
   },
   "sections": {
+    "atelier_story_index": {
+      "pieces": "{{ count }} smycken"
+    },
     "fast-order": {
       "search_placeholder": "Sök på SKU eller produktnamn",
       "search_results_heading": "Sökresultat",
