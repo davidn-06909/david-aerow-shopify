@@ -1,3 +1,6 @@
+{% if section.settings.atelier_gallery %}
+  {% render 'atelier-gallery' %}
+{% else %}
 {%- liquid
   assign heading_size = section.settings.heading_size | times: settings.heading_base_size | times: 0.000225
   assign max_columns = section.settings.max_columns
@@ -731,12 +734,19 @@
     {%- endif -%}
   </div>
 </div>
+{% endif %}
 {% schema %}
 {
   "name": "t:sections.media-gallery.name",
   "tag": "section",
   "class": "section-media-gallery x-section",
   "settings": [
+    {
+      "type": "checkbox",
+      "id": "atelier_gallery",
+      "label": "t:sections.media-gallery.atelier_gallery.label",
+      "default": false
+    },
     {
       "type": "paragraph",
       "content": "t:sections.user_guide_link.section_and_blocks.media_gallery"
@@ -1124,6 +1134,11 @@
       "type": "media",
       "name": "t:sections.featured-product.settings.header.content",
       "settings": [
+        {
+          "type": "url",
+          "id": "atelier_image_url",
+          "label": "t:sections.media-gallery.atelier_gallery.image_url"
+        },
         {
           "type": "image_picker",
           "id": "image",

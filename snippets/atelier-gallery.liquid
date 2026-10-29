@@ -1,0 +1,95 @@
+{%- liquid
+  assign gallery_label = 'products.modal.label' | t
+  assign background_color = '#0B0E28'
+  assign background_color_dark = background_color
+  if section.settings.background_color_light.alpha > 0
+    assign background_color = section.settings.background_color_light
+  endif
+  if section.settings.background_color_dark.alpha > 0
+    assign background_color_dark = section.settings.background_color_dark
+  else
+    assign background_color_dark = background_color
+  endif
+  assign image_loading = 'lazy'
+  if section.index <= 2
+    assign image_loading = 'eager'
+  endif
+-%}
+{% style %}
+  #atelier-gallery-{{ section.id }} {
+    --gallery-background: {{ background_color }};
+    --gallery-background-dark: {{ background_color_dark }};
+    --gallery-top: {{ section.settings.padding_top }}px;
+    --gallery-bottom: {{ section.settings.padding_bottom }}px;
+    --gallery-top-mobile: {{ section.settings.padding_top_mobile }}px;
+    --gallery-bottom-mobile: {{ section.settings.padding_bottom_mobile }}px;
+    --gallery-gap: {{ section.settings.spacing }}px;
+    --gallery-gap-mobile: {{ section.settings.spacing_mobile }}px;
+  }
+{% endstyle %}
+<div id="atelier-gallery-{{ section.id }}" class="atelier-gallery" x-data="xAtelierGallery">
+  <div class="atelier-gallery__head">
+    <div class="atelier-gallery__intro">
+      {%- if section.settings.subheading != blank -%}
+        <p>{{ section.settings.subheading | escape }}</p>
+      {%- endif -%}
+      {%- if section.settings.heading != blank -%}
+        <{{ section.settings.heading_tag }} class="atelier-gallery__heading">{{ section.settings.heading | escape }}</{{ section.settings.heading_tag }}>
+      {%- endif -%}
+      {%- if section.settings.text != blank -%}
+        <div class="rte">{{ section.settings.text }}</div>
+      {%- endif -%}
+    </div>
+    <div class="atelier-gallery__nav" x-cloak x-show="canScroll">
+      <button type="button" class="atelier-gallery__arrow" @click="step(-1)"
+        aria-controls="atelier-gallery-track-{{ section.id }}" aria-label="{{ 'accessibility.previous_slide' | t | escape }}">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true" focusable="false"><path d="M21 12H4M10 6l-6 6 6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <button type="button" class="atelier-gallery__arrow" @click="step(1)"
+        aria-controls="atelier-gallery-track-{{ section.id }}" aria-label="{{ 'accessibility.next_slide' | t | escape }}">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true" focusable="false"><path d="M3 12h17M14 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
+  </div>
+  <ul id="atelier-gallery-track-{{ section.id }}" class="atelier-gallery__track" x-ref="track"
+    tabindex="0" aria-label="{{ section.settings.heading | default: gallery_label | escape }}" @keydown="onKeydown($event)">
+    {%- for block in section.blocks -%}
+      {%- if block.type == 'media' -%}
+        {%- liquid
+          assign image = block.settings.image
+          assign mobile_image = block.settings.image_mobile | default: image
+          assign image_alt = image.alt | default: block.settings.title | default: gallery_label
+        -%}
+        <li class="atelier-gallery__card" {{ block.shopify_attributes }}>
+          {%- if block.settings.image_link != blank -%}
+            <a class="atelier-gallery__frame" href="{{ block.settings.image_link }}"
+              {% if block.settings.open_new_window %}target="_blank" rel="noopener"{% endif %}>
+          {%- else -%}
+            <div class="atelier-gallery__frame">
+          {%- endif -%}
+            {%- if image != blank or mobile_image != blank or block.settings.atelier_image_url != blank -%}
+              <picture style="--gallery-image-position: {{ image.presentation.focal_point | default: '50% 50%' }}; --gallery-mobile-image-position: {{ mobile_image.presentation.focal_point | default: '50% 50%' }};">
+                {%- if block.settings.image_mobile != blank -%}
+                  <source media="(max-width: 749px)" srcset="{{ mobile_image | image_url: width: 400 }} 400w, {{ mobile_image | image_url: width: 600 }} 600w, {{ mobile_image | image_url: width: 800 }} 800w" sizes="78vw">
+                {%- endif -%}
+                {%- if image != blank -%}
+                  {{ image | image_url: width: 1200 | image_tag: widths: '300, 400, 600, 800, 1200', sizes: '(min-width: 750px) 380px, 78vw', loading: image_loading, alt: image_alt, style: 'object-position: var(--gallery-current-position);' }}
+                {%- elsif block.settings.atelier_image_url != blank -%}
+                  <img src="{{ block.settings.atelier_image_url | escape }}" width="1200" height="1600" loading="{{ image_loading }}" alt="{{ image_alt | escape }}">
+                {%- else -%}
+                  {{ mobile_image | image_url: width: 1200 | image_tag: widths: '300, 400, 600, 800, 1200', sizes: '(min-width: 750px) 380px, 78vw', loading: image_loading, alt: image_alt, style: 'object-position: var(--gallery-current-position);' }}
+                {%- endif -%}
+              </picture>
+            {%- else -%}
+              {{ 'collection-1' | placeholder_svg_tag: 'atelier-gallery__placeholder' }}
+            {%- endif -%}
+          {%- if block.settings.image_link != blank -%}
+            </a>
+          {%- else -%}
+            </div>
+          {%- endif -%}
+        </li>
+      {%- endif -%}
+    {%- endfor -%}
+  </ul>
+</div>
