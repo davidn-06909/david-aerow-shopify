@@ -3819,6 +3819,11 @@
       }
     },
     "image-comparison": {
+      "atelier_comparison": {
+        "label": "Enable workshop comparison layout",
+        "before_url": "Before image URL (optional alternative to uploading)",
+        "after_url": "After image URL (optional alternative to uploading)"
+      },
       "name": "Porovnání obrázků",
       "settings": {
         "label_edges_type": "Okraje popisků obrázků",

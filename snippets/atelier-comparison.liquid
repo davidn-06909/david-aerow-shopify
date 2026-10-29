@@ -1,0 +1,107 @@
+{%- liquid
+  assign heading_font = section.settings.atelier_heading_font
+  assign body_font = section.settings.atelier_body_font
+  assign background_color = '#070A1E'
+  assign background_color_dark = background_color
+  assign text_color = '#F2F6FB'
+  assign text_color_dark = text_color
+  if section.settings.text_background_light.alpha > 0
+    assign background_color = section.settings.text_background_light
+  endif
+  if section.settings.text_background_dark.alpha > 0
+    assign background_color_dark = section.settings.text_background_dark
+  else
+    assign background_color_dark = background_color
+  endif
+  if section.settings.heading_color.alpha > 0
+    assign text_color = section.settings.heading_color
+  endif
+  if section.settings.heading_color_dark.alpha > 0
+    assign text_color_dark = section.settings.heading_color_dark
+  else
+    assign text_color_dark = text_color
+  endif
+  assign image_loading = 'lazy'
+  if section.index <= 2 or settings.enable_lazy_loading_image == false
+    assign image_loading = 'eager'
+  endif
+-%}
+{% style %}
+  {{ heading_font | font_face: font_display: 'swap' }}
+  {{ body_font | font_face: font_display: 'swap' }}
+  #atelier-comparison-{{ section.id }} {
+    --comparison-heading-font: {{ heading_font.family }}, {{ heading_font.fallback_families }};
+    --comparison-heading-weight: {{ heading_font.weight }};
+    --comparison-body-font: {{ body_font.family }}, {{ body_font.fallback_families }};
+    --comparison-body-weight: {{ body_font.weight }};
+    --comparison-background: {{ background_color }};
+    --comparison-background-dark: {{ background_color_dark }};
+    --comparison-text: {{ text_color }};
+    --comparison-text-dark: {{ text_color_dark }};
+    --comparison-top: {{ section.settings.top_padding }}px;
+    --comparison-bottom: {{ section.settings.bottom_padding }}px;
+    --comparison-top-mobile: {{ section.settings.top_padding_mobile }}px;
+    --comparison-bottom-mobile: {{ section.settings.bottom_padding_mobile }}px;
+  }
+{% endstyle %}
+{%- if section.settings.show_section_divider or section.settings.show_section_divider_mobile -%}
+  {% render 'section-divider' %}
+{%- endif -%}
+<div id="atelier-comparison-{{ section.id }}" class="atelier-comparison">
+  <div class="atelier-comparison__page">
+    <div class="atelier-comparison__inner">
+      <div class="atelier-comparison__body">
+        {%- if section.settings.heading != blank -%}
+          <{{ section.settings.heading_tag }} class="atelier-comparison__heading" style="--comparison-heading-scale: {{ section.settings.heading_base_size | divided_by: 100.0 }};">{{ section.settings.heading | escape }}</{{ section.settings.heading_tag }}>
+        {%- endif -%}
+        {%- for block in section.blocks -%}
+          {%- case block.type -%}
+            {%- when 'heading' -%}
+              <div class="atelier-comparison__copy" style="--comparison-heading-scale: {{ block.settings.heading_base_size | divided_by: 100.0 }};{% if block.settings.text_light.alpha > 0 %} --comparison-soft: {{ block.settings.text_light }};{% endif %}" {{ block.shopify_attributes }}>
+                {%- if block.settings.subheading != blank -%}
+                  <p class="atelier-comparison__eyebrow">{{ block.settings.subheading | escape }}</p>
+                {%- endif -%}
+                {%- if block.settings.heading != blank -%}
+                  <{{ block.settings.heading_tag }} class="atelier-comparison__heading">{{ block.settings.heading | escape }}</{{ block.settings.heading_tag }}>
+                {%- endif -%}
+                {%- if block.settings.text != blank -%}
+                  <div class="atelier-comparison__text">{{ block.settings.text }}</div>
+                {%- endif -%}
+              </div>
+            {%- when 'button' -%}
+              {%- if block.settings.button_label != blank -%}
+                <a class="atelier-comparison__link" {% if block.settings.button_link != blank %}href="{{ block.settings.button_link }}"{% else %}role="link" aria-disabled="true"{% endif %}{% if block.settings.open_new_window %} target="_blank" rel="noopener"{% endif %} {{ block.shopify_attributes }}>{{ block.settings.button_label | escape }}</a>
+              {%- endif -%}
+          {%- endcase -%}
+        {%- endfor -%}
+      </div>
+      <div class="atelier-comparison__stage{% if section.settings.layout_comparison == 'vertical' %} atelier-comparison__stage--vertical{% endif %}"
+        x-data="xAtelierComparison('{{ section.settings.layout_comparison }}')" style="--position: {{ section.settings.default_scroll_position }}%;">
+        <div id="comparison-media-{{ section.id }}" class="atelier-comparison__media" x-ref="media" @pointerdown="startDrag($event)" @dragstart.prevent>
+          <div class="atelier-comparison__layer atelier-comparison__layer--after" style="--comparison-image-position: {{ section.settings.image_after.presentation.focal_point | default: '50% 50%' }}; --comparison-mobile-position: {{ section.settings.image_mobile_after.presentation.focal_point | default: section.settings.image_after.presentation.focal_point | default: '50% 50%' }};">
+            {% render 'atelier-comparison-image', image: section.settings.image_after, mobile_image: section.settings.image_mobile_after, image_url: section.settings.atelier_after_url, label: section.settings.heading_after_image, loading: image_loading %}
+            {%- if section.settings.heading_after_image != blank -%}
+              <span class="atelier-comparison__tag atelier-comparison__tag--after">{{ section.settings.heading_after_image | escape }}</span>
+            {%- endif -%}
+          </div>
+          <div class="atelier-comparison__layer atelier-comparison__layer--before" style="--comparison-image-position: {{ section.settings.image.presentation.focal_point | default: '50% 50%' }}; --comparison-mobile-position: {{ section.settings.image_mobile.presentation.focal_point | default: section.settings.image.presentation.focal_point | default: '50% 50%' }};">
+            {% render 'atelier-comparison-image', image: section.settings.image, mobile_image: section.settings.image_mobile, image_url: section.settings.atelier_before_url, label: section.settings.heading_before_image, loading: image_loading %}
+            {%- if section.settings.heading_before_image != blank -%}
+              <span class="atelier-comparison__tag atelier-comparison__tag--before">{{ section.settings.heading_before_image | escape }}</span>
+            {%- endif -%}
+          </div>
+          <div class="atelier-comparison__handle" aria-hidden="true">
+            <span class="atelier-comparison__grip">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" focusable="false"><path d="M15 5l-7 7 7 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" focusable="false"><path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+          </div>
+        </div>
+        <input id="comparison-range-{{ section.id }}" class="atelier-comparison__range" x-ref="range" @input="setPosition($el.value)"
+          type="range" min="0" max="100" step="1" value="{{ section.settings.default_scroll_position }}"
+          aria-label="{{ 'accessibility.image_comparison_slider' | t | escape }}" aria-controls="comparison-media-{{ section.id }}" aria-valuetext="{{ section.settings.default_scroll_position }}%">
+      </div>
+    </div>
+  </div>
+</div>
+<script src="{{ 'image-comparison.js' | asset_url }}" defer></script>
