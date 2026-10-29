@@ -17281,6 +17281,191 @@
     transform: none;
   }
 }
+.atelier-education {
+  --education-gutter: clamp(18px, 11.31px + 1.7143vw, 36px);
+  --education-ease: cubic-bezier(0.16, 1, 0.3, 1);
+  padding-block: var(--education-top) var(--education-bottom);
+  background: var(--education-background);
+  color: var(--education-heading);
+  font-family: var(--education-body-font);
+  font-weight: var(--education-body-weight);
+  font-size: clamp(13px, 12.64px + 0.11vw, 14px);
+  line-height: 1.62;
+  letter-spacing: normal;
+  -webkit-font-smoothing: antialiased;
+}
+.atelier-education__page {
+  width: 100%;
+  max-width: 1720px;
+  margin-inline: auto;
+  padding-inline: var(--education-gutter);
+}
+.atelier-education .atelier-education__heading, .atelier-education .atelier-education__title {
+  margin: 0;
+  color: var(--education-heading);
+  font-family: var(--education-heading-font);
+  font-weight: var(--education-heading-weight);
+  line-height: 0.9;
+  letter-spacing: -0.02em;
+  text-transform: none;
+}
+.atelier-education .atelier-education__heading {
+  margin-block-end: 56px;
+  font-size: clamp(24px, 20.48px + 1.05vw, 34px);
+}
+.atelier-education__list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(max(240px, calc((100% - 2 * var(--education-gap)) / 3)), 1fr));
+  align-items: start;
+  gap: 38px var(--education-gap);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.atelier-education__card {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  gap: 12px;
+}
+.atelier-education__media {
+  display: block;
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  overflow: hidden;
+  margin-block-end: 8px;
+  background: var(--education-text);
+  @supports (color: color-mix(in lab, red, red)) {
+    background: color-mix(in srgb, var(--education-text) 8%, var(--education-background));
+  }
+}
+.atelier-education__media img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: var(--image-position, center);
+  transition: transform 700ms var(--education-ease);
+}
+.atelier-education .atelier-education__title {
+  font-size: clamp(18px, 16.8px + 0.37vw, 22px);
+}
+.atelier-education__text {
+  color: var(--education-text);
+  overflow-wrap: anywhere;
+}
+.atelier-education__text p {
+  margin: 0 0 12px;
+}
+.atelier-education__text > :last-child {
+  margin-block-end: 0;
+}
+.atelier-education__text a {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.atelier-education .atelier-education__link {
+  position: relative;
+  display: inline-flex;
+  align-self: flex-start;
+  align-items: center;
+  min-height: 44px;
+  max-width: 100%;
+  margin-block-start: 4px;
+  padding: 14px 0;
+  border: 1px solid transparent;
+  color: var(--education-heading);
+  font: inherit;
+  letter-spacing: 0.14em;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+.atelier-education__link::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  inset-block-end: -2px;
+  height: 1px;
+  background: currentColor;
+}
+.atelier-education__link:focus-visible::after {
+  animation: atelier-education-underline 420ms var(--education-ease);
+}
+.atelier-education :is(a, .atelier-education__list):focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 5px;
+}
+.atelier-education .atelier-education__media:focus-visible {
+  outline-color: #6e9bff;
+  outline-offset: -3px;
+}
+@media (hover: hover) and (pointer: fine) {
+  .atelier-education__card:hover .atelier-education__media img {
+    transform: scale(1.035);
+  }
+  .atelier-education__link:hover::after {
+    animation: atelier-education-underline 420ms var(--education-ease);
+  }
+}
+.atelier-education__card:focus-within .atelier-education__media img {
+  transform: scale(1.035);
+}
+@keyframes atelier-education-underline {
+  0% {
+    transform: scaleX(1);
+    transform-origin: 100% 50%;
+  }
+  49% {
+    transform: scaleX(0);
+    transform-origin: 100% 50%;
+  }
+  50% {
+    transform: scaleX(0);
+    transform-origin: 0 50%;
+  }
+  100% {
+    transform: scaleX(1);
+    transform-origin: 0 50%;
+  }
+}
+@media (max-width: 749px) {
+  .atelier-education {
+    padding-block: var(--education-top-mobile) var(--education-bottom-mobile);
+  }
+  .atelier-education .atelier-education__heading {
+    margin-block-end: 38px;
+  }
+  .atelier-education__list {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--education-gap-mobile);
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: var(--education-gutter);
+    margin-inline: calc(-1 * var(--education-gutter));
+    padding-inline: var(--education-gutter);
+    padding-block-end: 4px;
+    scrollbar-width: none;
+  }
+  .atelier-education__list::-webkit-scrollbar {
+    display: none;
+  }
+  .atelier-education__card {
+    flex: 0 0 min(74vw, 320px);
+    scroll-snap-align: start;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .atelier-education__media img {
+    transition: none;
+    transform: none !important;
+  }
+  .atelier-education__link::after {
+    animation: none !important;
+  }
+}
 .atelier-media-story {
   --media-story-xs: clamp(11px, 10.64px + 0.11vw, 12px);
   --media-story-small: clamp(13px, 12.64px + 0.11vw, 14px);

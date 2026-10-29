@@ -1027,6 +1027,14 @@
     }
   },
   "sections": {
+    "atelier_education": {
+      "enabled": "Use atelier education layout",
+      "illustration": "Atelier illustration",
+      "illustration_info": "Shown when no image is selected. Choose an image above to replace it.",
+      "stone": "Diamond facets",
+      "workshop": "Inside the atelier",
+      "setting": "Ring setting"
+    },
     "atelier_cuts": {
       "enable": "Use atelier diamond cuts layout",
       "eyebrow": "Section caption",
