@@ -22,80 +22,86 @@
     --newsletter-bottom: {{ section.settings.padding_bottom }}px;
     --newsletter-top-mobile: {{ section.settings.padding_top_mobile }}px;
     --newsletter-bottom-mobile: {{ section.settings.padding_bottom_mobile }}px;
+    --newsletter-overlay: {{ section.settings.overlay_opacity | divided_by: 100.0 }};
+    {% if section.settings.image != blank %}--newsletter-image-position: {{ section.settings.image.presentation.focal_point }};{% endif %}
   }
 {% endstyle %}
 <div id="atelier-newsletter-{{ section.id }}" class="atelier-newsletter">
-  {%- if section.settings.image != blank -%}
-    <picture class="atelier-newsletter__background">
-      {%- if section.settings.image_mobile != blank -%}
-        <source media="(max-width: 767px)" srcset="{{ section.settings.image_mobile | image_url: width: 900 }}">
-      {%- endif -%}
-      {{ section.settings.image | image_url: width: 2000 | image_tag: loading: 'lazy', widths: '750, 1100, 1500, 2000', sizes: '100vw', alt: '' }}
-    </picture>
-  {%- endif -%}
-  <div class="atelier-newsletter__content">
-    {%- for block in section.blocks -%}
-      {%- case block.type -%}
-        {%- when 'heading' -%}
-          <div class="atelier-newsletter__header" {{ block.shopify_attributes }}>
-            {%- if block.settings.heading != blank -%}
-              <{{ block.settings.heading_tag }} class="atelier-newsletter__heading" style="--newsletter-heading-scale: {{ block.settings.heading_size | divided_by: 100.0 }};">{{ block.settings.heading | escape }}</{{ block.settings.heading_tag }}>
-            {%- endif -%}
-            {%- if block.settings.text != blank -%}
-              <div class="atelier-newsletter__intro">{{ block.settings.text }}</div>
-            {%- endif -%}
-          </div>
-        {%- when 'paragraph' -%}
-          <div class="atelier-newsletter__intro" {{ block.shopify_attributes }}>{{ block.settings.text }}</div>
-        {%- when 'name_input_form' -%}
-          <div class="atelier-newsletter__names" {{ block.shopify_attributes }}>
-            <label>
-              <span class="sr-only">{{ block.settings.first_name_label | escape }}</span>
-              <input form="{{ form_id }}" type="text" name="contact[first_name]" autocomplete="given-name" placeholder="{{ block.settings.first_name_label | escape }}">
-            </label>
-            <label>
-              <span class="sr-only">{{ block.settings.last_name_label | escape }}</span>
-              <input form="{{ form_id }}" type="text" name="contact[last_name]" autocomplete="family-name" placeholder="{{ block.settings.last_name_label | escape }}">
-            </label>
-          </div>
-        {%- when 'email_form' -%}
-          <div class="atelier-newsletter__signup" {{ block.shopify_attributes }}>
-            {%- form 'customer', id: form_id, class: 'atelier-newsletter__form' -%}
-              <input type="hidden" name="contact[tags]" value="newsletter">
-              <div class="atelier-newsletter__fields">
-                <label class="sr-only" for="{{ input_id }}">{{ 'newsletter.label' | t }}</label>
-                <input
-                  id="{{ input_id }}"
-                  type="email"
-                  name="contact[email]"
-                  value="{{ form.email | escape }}"
-                  placeholder="{{ 'atelier_newsletter.email_placeholder' | t }}"
-                  autocomplete="email"
-                  autocapitalize="off"
-                  spellcheck="false"
-                  required
-                  {% if form.errors %}aria-invalid="true"{% endif %}
-                  aria-describedby="{{ note_id }}{% if form.errors %} {{ error_id }}{% elsif form.posted_successfully? %} {{ success_id }}{% endif %}"
-                >
-                <button type="submit" name="commit" class="atelier-newsletter__submit">
-                  {%- if block.settings.button_label != blank -%}
-                    {{ block.settings.button_label | escape }}
-                  {%- else -%}
-                    {{ 'newsletter.button_label' | t }}
-                  {%- endif -%}
-                </button>
-              </div>
-              {%- if form.errors -%}
-                <p id="{{ error_id }}" class="atelier-newsletter__message atelier-newsletter__message--error" role="alert">
-                  {{ form.errors.translated_fields.email | capitalize }} {{ form.errors.messages.email }}
-                </p>
-              {%- elsif form.posted_successfully? -%}
-                <p id="{{ success_id }}" class="atelier-newsletter__message" role="status">{{ 'newsletter.success' | t }}</p>
+  <picture class="atelier-newsletter__background" aria-hidden="true">
+    {%- if section.settings.image_mobile != blank -%}
+      <source media="(max-width: 767px)" srcset="{{ section.settings.image_mobile | image_url: width: 900 }}">
+    {%- endif -%}
+    {%- if section.settings.image != blank -%}
+      {{ section.settings.image | image_url: width: 2200 | image_tag: loading: 'lazy', widths: '750, 1100, 1500, 1800, 2200', sizes: '100vw', alt: '' }}
+    {%- else -%}
+      <img src="{{ 'atelier-newsletter-background.png' | asset_url }}" width="1024" height="1536" alt="" loading="lazy" decoding="async">
+    {%- endif -%}
+  </picture>
+  <div class="atelier-newsletter__page">
+    <div class="atelier-newsletter__content">
+      {%- for block in section.blocks -%}
+        {%- case block.type -%}
+          {%- when 'heading' -%}
+            <div class="atelier-newsletter__header" {{ block.shopify_attributes }}>
+              {%- if block.settings.heading != blank -%}
+                <{{ block.settings.heading_tag }} class="atelier-newsletter__heading" style="--newsletter-heading-scale: {{ block.settings.heading_size | divided_by: 100.0 }};">{{ block.settings.heading | escape }}</{{ block.settings.heading_tag }}>
               {%- endif -%}
-            {%- endform -%}
-          </div>
-      {%- endcase -%}
-    {%- endfor -%}
-    <p id="{{ note_id }}" class="atelier-newsletter__note">{{ section.settings.atelier_privacy_note | escape }}</p>
+              {%- if block.settings.text != blank -%}
+                <div class="atelier-newsletter__intro">{{ block.settings.text }}</div>
+              {%- endif -%}
+            </div>
+          {%- when 'paragraph' -%}
+            <div class="atelier-newsletter__intro" {{ block.shopify_attributes }}>{{ block.settings.text }}</div>
+          {%- when 'name_input_form' -%}
+            <div class="atelier-newsletter__names" {{ block.shopify_attributes }}>
+              <label>
+                <span class="sr-only">{{ block.settings.first_name_label | escape }}</span>
+                <input form="{{ form_id }}" type="text" name="contact[first_name]" autocomplete="given-name" placeholder="{{ block.settings.first_name_label | escape }}">
+              </label>
+              <label>
+                <span class="sr-only">{{ block.settings.last_name_label | escape }}</span>
+                <input form="{{ form_id }}" type="text" name="contact[last_name]" autocomplete="family-name" placeholder="{{ block.settings.last_name_label | escape }}">
+              </label>
+            </div>
+          {%- when 'email_form' -%}
+            <div class="atelier-newsletter__signup" {{ block.shopify_attributes }}>
+              {%- form 'customer', id: form_id, class: 'atelier-newsletter__form' -%}
+                <input type="hidden" name="contact[tags]" value="newsletter">
+                <div class="atelier-newsletter__fields">
+                  <label class="sr-only" for="{{ input_id }}">{{ 'newsletter.label' | t }}</label>
+                  <input
+                    id="{{ input_id }}"
+                    type="email"
+                    name="contact[email]"
+                    value="{{ form.email | escape }}"
+                    placeholder="{{ 'atelier_newsletter.email_placeholder' | t }}"
+                    autocomplete="email"
+                    autocapitalize="off"
+                    spellcheck="false"
+                    required
+                    {% if form.errors %}aria-invalid="true"{% endif %}
+                    aria-describedby="{{ note_id }}{% if form.errors %} {{ error_id }}{% elsif form.posted_successfully? %} {{ success_id }}{% endif %}"
+                  >
+                  <button type="submit" name="commit" class="atelier-newsletter__submit">
+                    {%- if block.settings.button_label != blank -%}
+                      {{ block.settings.button_label | escape }}
+                    {%- else -%}
+                      {{ 'newsletter.button_label' | t }}
+                    {%- endif -%}
+                  </button>
+                </div>
+                {%- if form.errors -%}
+                  <p id="{{ error_id }}" class="atelier-newsletter__message atelier-newsletter__message--error" role="alert">
+                    {{ form.errors.translated_fields.email | capitalize }} {{ form.errors.messages.email }}
+                  </p>
+                {%- elsif form.posted_successfully? -%}
+                  <p id="{{ success_id }}" class="atelier-newsletter__message" role="status">{{ 'newsletter.success' | t }}</p>
+                {%- endif -%}
+              {%- endform -%}
+            </div>
+        {%- endcase -%}
+      {%- endfor -%}
+      <p id="{{ note_id }}" class="atelier-newsletter__note">{{ section.settings.atelier_privacy_note | escape }}</p>
+    </div>
   </div>
 </div>
