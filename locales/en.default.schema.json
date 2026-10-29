@@ -1092,6 +1092,9 @@
     },
     "atelier_latest_work": {
       "enable": "Use atelier latest work layout",
+      "layout": "Product layout",
+      "layout_editorial": "Editorial stagger",
+      "layout_grid": "Uniform grid (Most loved)",
       "info": "Uses selected products in their chosen order, or the first collection block when no products are selected. Uses the grid columns, spacing, colors and padding below. Engagement products tagged setting link to the ring builder. Other products use Quick view when enabled on the collection block.",
       "heading_font": "Atelier heading font",
       "body_font": "Atelier body font",

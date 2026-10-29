@@ -583,152 +583,6 @@
         "atelier_hover_color": "#10142F"
       }
     },
-    "collage_D4GGTK": {
-      "type": "collage",
-      "blocks": {
-        "image_T4EY8F": {
-          "type": "image",
-          "settings": {
-            "overlay_opacity": 0,
-            "image_link": "",
-            "open_new_window": false,
-            "image_padding": false,
-            "number_of_columns": 3,
-            "number_of_row": 2,
-            "title": "",
-            "highlight_type": "underline",
-            "title_size": 80,
-            "text": "",
-            "text_size": 100,
-            "button_label": "",
-            "button_link": "",
-            "show_button_style": "primary",
-            "open_new_window_button": false,
-            "text_align": "center",
-            "content_position": "center",
-            "title_color": "rgba(0,0,0,0)",
-            "text_color": "rgba(0,0,0,0)",
-            "color_heading_highlight_light": "rgba(0,0,0,0)",
-            "color_button": "rgba(0,0,0,0)",
-            "color_text_button": "rgba(0,0,0,0)",
-            "color_button_hover": "rgba(0,0,0,0)",
-            "color_text_button_hover": "rgba(0,0,0,0)",
-            "color_button_secondary": "rgba(0,0,0,0)",
-            "secondary_button_text": "rgba(0,0,0,0)",
-            "colors_text_link": "rgba(0,0,0,0)"
-          }
-        },
-        "product_6Thrrw": {
-          "type": "product",
-          "settings": {
-            "product": "",
-            "show_quickview": true,
-            "info_alignment": "center",
-            "desktop_size": "large",
-            "number_of_columns": 1,
-            "number_of_row": 1
-          }
-        },
-        "product_7kcKhg": {
-          "type": "product",
-          "settings": {
-            "product": "",
-            "show_quickview": true,
-            "info_alignment": "center",
-            "desktop_size": "large",
-            "number_of_columns": 1,
-            "number_of_row": 1
-          }
-        },
-        "product_q7FQym": {
-          "type": "product",
-          "settings": {
-            "product": "",
-            "show_quickview": true,
-            "info_alignment": "center",
-            "desktop_size": "large",
-            "number_of_columns": 1,
-            "number_of_row": 1
-          }
-        },
-        "product_eAg7Ny": {
-          "type": "product",
-          "settings": {
-            "product": "",
-            "show_quickview": true,
-            "info_alignment": "center",
-            "desktop_size": "large",
-            "number_of_columns": 1,
-            "number_of_row": 1
-          }
-        },
-        "product_TmrakG": {
-          "type": "product",
-          "settings": {
-            "product": "",
-            "show_quickview": true,
-            "info_alignment": "center",
-            "desktop_size": "large",
-            "number_of_columns": 1,
-            "number_of_row": 1
-          }
-        },
-        "product_FGNyUf": {
-          "type": "product",
-          "settings": {
-            "product": "",
-            "show_quickview": true,
-            "info_alignment": "center",
-            "desktop_size": "large",
-            "number_of_columns": 1,
-            "number_of_row": 1
-          }
-        }
-      },
-      "block_order": [
-        "image_T4EY8F",
-        "product_6Thrrw",
-        "product_7kcKhg",
-        "product_q7FQym",
-        "product_eAg7Ny",
-        "product_TmrakG",
-        "product_FGNyUf"
-      ],
-      "name": "t:sections.collage.name",
-      "settings": {
-        "heading": "Collage [Heading]",
-        "highlight_type": "font_highlight",
-        "heading_size": 100,
-        "heading_tag": "h2",
-        "heading_alignment": "center",
-        "subheading": "",
-        "text": "<p>Tell your brand's story through images</p>",
-        "background_color_light": "rgba(0,0,0,0)",
-        "heading_color_light": "rgba(0,0,0,0)",
-        "heading_highlight_color_light": "rgba(0,0,0,0)",
-        "text_color_light": "rgba(0,0,0,0)",
-        "background_color_dark": "rgba(0,0,0,0)",
-        "heading_color_dark": "rgba(0,0,0,0)",
-        "text_color_dark": "rgba(0,0,0,0)",
-        "heading_highlight_color_dark": "rgba(0,0,0,0)",
-        "show_vendor": false,
-        "show_rating": false,
-        "show_highlighted_features": true,
-        "show_highlighted_attributes": true,
-        "max_columns": 6,
-        "spacing": 20,
-        "full_width": true,
-        "show_section_divider": true,
-        "padding_top": 100,
-        "padding_bottom": 100,
-        "min_columns_mobile": "2",
-        "spacing_mobile": 16,
-        "full_width_mobile": false,
-        "show_section_divider_mobile": true,
-        "padding_top_mobile": 48,
-        "padding_bottom_mobile": 48
-      }
-    },
     "promotion_banner_ijXatP": {
       "type": "promotion-banner",
       "blocks": {
@@ -1400,6 +1254,46 @@
       "block_order": [
         "workshop_heading"
       ]
+    },
+    "atelier_most_loved": {
+      "type": "featured-collection",
+      "blocks": {
+        "most_loved_products": {
+          "type": "collection",
+          "settings": {
+            "collection": "most-loved",
+            "show_rating": true,
+            "show_quickview": true
+          }
+        }
+      },
+      "block_order": ["most_loved_products"],
+      "settings": {
+        "atelier_latest_work": true,
+        "atelier_layout": "grid",
+        "atelier_products": ["the-orbit", "classic-court-band", "the-trilogy", "the-heirloom"],
+        "atelier_heading_font": "oswald_n7",
+        "atelier_body_font": "archivo_n4",
+        "atelier_builder_url": "/pages/design-your-ring",
+        "title": "Most loved",
+        "heading_tag": "h2",
+        "heading_alignment": "left",
+        "subheading": "Chosen again and again",
+        "show_view_all": true,
+        "color_background": "#0B0E28",
+        "color_text": "#F2F6FB",
+        "enable_desktop_slider": false,
+        "swiper_on_mobile": false,
+        "columns_desktop": 4,
+        "rows_desktop": 1,
+        "spacing": 26,
+        "columns_mobile": "2",
+        "spacing_mobile": 18,
+        "padding_top": 92,
+        "padding_bottom": 92,
+        "padding_top_mobile": 56,
+        "padding_bottom_mobile": 56
+      }
     },
     "video_looping_ijQzex": {
       "type": "video-looping",
@@ -2656,7 +2550,7 @@
     "featured_category_FKqynG",
     "media_gallery_B3NkJH",
     "6c240d5b-c5b1-4370-96f5-adff063eb83e",
-    "collage_D4GGTK",
+    "atelier_most_loved",
     "promotion_banner_ijXatP",
     "products_bundle_6P93z8",
     "scrolling_banner_r6XXtc",

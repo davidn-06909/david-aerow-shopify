@@ -1091,6 +1091,9 @@
       }
     },
     "atelier_latest_work": {
+      "layout": "제품 레이아웃",
+      "layout_editorial": "엇갈린 그리드",
+      "layout_grid": "균일한 그리드",
       "enable": "Use atelier latest work layout",
       "info": "Uses selected products in their chosen order, or the first collection block when no products are selected. Uses the grid columns, spacing, colors and padding below. Engagement products tagged setting link to the ring builder. Other products use Quick view when enabled on the collection block.",
       "heading_font": "Atelier heading font",
