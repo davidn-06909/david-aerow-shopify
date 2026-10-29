@@ -415,6 +415,14 @@
     }
   },
   "sections": {
+    "atelier_latest_work": {
+      "view_all": "{{ collection }}をすべて見る",
+      "design_ring": "このリングをデザイン",
+      "quick_view": "{{ product }}のクイックビュー",
+      "from": "最低価格",
+      "empty": "最新の作品を表示するには、商品を含むコレクションを選択してください。",
+      "default_collection": "新着商品"
+    },
     "atelier_story_index": {
       "pieces": "{{ count }} 点"
     },

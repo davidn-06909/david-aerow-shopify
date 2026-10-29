@@ -415,6 +415,14 @@
     }
   },
   "sections": {
+    "atelier_latest_work": {
+      "view_all": "Zobacz wszystko: {{ collection }}",
+      "design_ring": "Zaprojektuj ten pierścionek",
+      "quick_view": "Szybki podgląd: {{ product }}",
+      "from": "Od",
+      "empty": "Wybierz kolekcję z produktami, aby wyświetlić najnowsze prace.",
+      "default_collection": "Nowości"
+    },
     "atelier_story_index": {
       "pieces": "{{ count }} sztuk"
     },

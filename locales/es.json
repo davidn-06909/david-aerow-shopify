@@ -415,6 +415,14 @@
     }
   },
   "sections": {
+    "atelier_latest_work": {
+      "view_all": "Ver todo: {{ collection }}",
+      "design_ring": "Diseña este anillo",
+      "quick_view": "Vista rápida de {{ product }}",
+      "from": "Desde",
+      "empty": "Selecciona una colección con productos para mostrar las últimas creaciones.",
+      "default_collection": "Novedades"
+    },
     "atelier_story_index": {
       "pieces": "{{ count }} piezas"
     },

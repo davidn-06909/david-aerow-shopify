@@ -415,6 +415,14 @@
     }
   },
   "sections": {
+    "atelier_latest_work": {
+      "view_all": "Vezi toate: {{ collection }}",
+      "design_ring": "Creează acest inel",
+      "quick_view": "Vizualizare rapidă: {{ product }}",
+      "from": "De la",
+      "empty": "Selectați o colecție cu produse pentru a afișa cele mai recente creații.",
+      "default_collection": "Noutăți"
+    },
     "atelier_story_index": {
       "pieces": "{{ count }} piese"
     },

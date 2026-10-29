@@ -415,6 +415,14 @@
     }
   },
   "sections": {
+    "atelier_latest_work": {
+      "view_all": "Прикажи све: {{ collection }}",
+      "design_ring": "Дизајнирајте овај прстен",
+      "quick_view": "Брзи преглед: {{ product }}",
+      "from": "Од",
+      "empty": "Изаберите колекцију са производима да бисте приказали најновије радове.",
+      "default_collection": "Ново у понуди"
+    },
     "atelier_story_index": {
       "pieces": "{{ count }} комада"
     },

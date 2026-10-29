@@ -415,6 +415,14 @@
     }
   },
   "sections": {
+    "atelier_latest_work": {
+      "view_all": "{{ collection }} 모두 보기",
+      "design_ring": "이 반지 디자인하기",
+      "quick_view": "{{ product }} 빠른 보기",
+      "from": "시작 가격",
+      "empty": "최신 작품을 표시하려면 상품이 있는 컬렉션을 선택하세요.",
+      "default_collection": "신상품"
+    },
     "atelier_story_index": {
       "pieces": "{{ count }}개"
     },
