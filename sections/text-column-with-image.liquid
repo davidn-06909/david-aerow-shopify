@@ -1,3 +1,6 @@
+{% if section.settings.atelier_education %}
+  {% render 'atelier-education' %}
+{% else %}
 {%- liquid
   assign base_size_heading = settings.heading_base_size | times: 0.0225 
   assign font_size_heading = section.settings.heading_size | times: 0.01 | times: base_size_heading
@@ -515,6 +518,7 @@
     </div>
   </div>
 </div>
+{% endif %}
 {% schema %}
 {
   "name": "t:sections.text-column-image.name",
@@ -528,6 +532,26 @@
     ]
   },
   "settings": [
+    {
+      "type": "checkbox",
+      "id": "atelier_education",
+      "label": "t:sections.atelier_education.enabled",
+      "default": false
+    },
+    {
+      "type": "font_picker",
+      "id": "atelier_heading_font",
+      "label": "t:sections.atelier_story_index.heading_font",
+      "default": "oswald_n7",
+      "visible_if": "{{ section.settings.atelier_education }}"
+    },
+    {
+      "type": "font_picker",
+      "id": "atelier_body_font",
+      "label": "t:sections.atelier_story_index.body_font",
+      "default": "archivo_n4",
+      "visible_if": "{{ section.settings.atelier_education }}"
+    },
     {
       "type": "paragraph",
       "content": "t:sections.user_guide_link.section_and_blocks.text_columns_with_images"
@@ -991,6 +1015,19 @@
       "name": "t:sections.multicolumn.settings.line_border.options__2.label",
       "settings": [
         {
+          "type": "select",
+          "id": "atelier_illustration",
+          "label": "t:sections.atelier_education.illustration",
+          "info": "t:sections.atelier_education.illustration_info",
+          "default": "stone",
+          "visible_if": "{{ section.settings.atelier_education }}",
+          "options": [
+            { "value": "stone", "label": "t:sections.atelier_education.stone" },
+            { "value": "workshop", "label": "t:sections.atelier_education.workshop" },
+            { "value": "setting", "label": "t:sections.atelier_education.setting" }
+          ]
+        },
+        {
           "type": "image_picker",
           "id": "image",
           "label": "t:sections.all.image.label",
@@ -1112,4 +1149,3 @@
   ]
 }
 {% endschema %}
-  

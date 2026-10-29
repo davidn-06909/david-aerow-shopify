@@ -1027,6 +1027,37 @@
     }
   },
   "sections": {
+    "atelier_education": {
+      "enabled": "Use atelier education layout",
+      "illustration": "Atelier illustration",
+      "illustration_info": "Shown when no image is selected. Choose an image above to replace it.",
+      "stone": "Diamond facets",
+      "workshop": "Inside the atelier",
+      "setting": "Ring setting"
+    },
+    "atelier_cuts": {
+      "enable": "Use atelier diamond cuts layout",
+      "eyebrow": "Section caption",
+      "hover_color": "Card hover background",
+      "shape": "Diamond cut icon",
+      "shapes": {
+        "round": "Round",
+        "oval": "Oval",
+        "emerald": "Emerald",
+        "pear": "Pear",
+        "cushion": "Cushion",
+        "radiant": "Radiant",
+        "marquise": "Marquise",
+        "princess": "Princess",
+        "asscher": "Asscher",
+        "heart": "Heart"
+      },
+      "defaults": {
+        "eyebrow": "The cuts",
+        "text": "<p>The outline you choose is the one you will see every day for the rest of your life. Start there.</p>",
+        "button_label": "Design your ring"
+      }
+    },
     "atelier_media_story": {
       "name": "Atelier video with text",
       "commission": "Atelier commission",
@@ -1068,6 +1099,9 @@
       }
     },
     "atelier_latest_work": {
+      "layout": "商品のレイアウト",
+      "layout_editorial": "段違いグリッド",
+      "layout_grid": "均等グリッド",
       "enable": "Use atelier latest work layout",
       "info": "Uses selected products in their chosen order, or the first collection block when no products are selected. Uses the grid columns, spacing, colors and padding below. Engagement products tagged setting link to the ring builder. Other products use Quick view when enabled on the collection block.",
       "heading_font": "Atelier heading font",
@@ -3819,6 +3853,11 @@
       }
     },
     "image-comparison": {
+      "atelier_comparison": {
+        "label": "Enable workshop comparison layout",
+        "before_url": "Before image URL (optional alternative to uploading)",
+        "after_url": "After image URL (optional alternative to uploading)"
+      },
       "name": "イメージ比較",
       "settings": {
         "label_edges_type": "イメージラベルの端",

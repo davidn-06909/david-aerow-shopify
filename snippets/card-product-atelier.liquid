@@ -19,7 +19,7 @@
     assign design_url = builder_url | append: separator | append: 'setting=' | append: product_handle
   endif
   assign card_id = section_id | append: '-' | append: card_product.id | append: '-' | append: index
-  assign image_sizes = '(min-width: 1720px) 532px, (min-width: 990px) 33vw, 50vw'
+  assign image_sizes = image_sizes | default: '(min-width: 1720px) 532px, (min-width: 990px) 33vw, 50vw'
   assign image_alt = card_product.featured_image.alt | default: card_product.title
 -%}
 <article class="atelier-work-card{% if card_product.images[1] != blank %} atelier-work-card--alternate{% endif %}">

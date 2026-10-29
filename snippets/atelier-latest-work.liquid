@@ -3,6 +3,11 @@
   assign featured_collection = collection_block.settings.collection
   assign featured_products = section.settings.atelier_products | default: featured_collection.products
   assign product_limit = section.settings.columns_desktop | times: section.settings.rows_desktop
+  assign image_width = 1648 | divided_by: section.settings.columns_desktop
+  assign image_column = 100 | divided_by: section.settings.columns_desktop
+  capture image_sizes
+    echo '(min-width: 1720px) ' | append: image_width | append: 'px, (min-width: 990px) ' | append: image_column | append: 'vw, 50vw'
+  endcapture
   assign heading_font = section.settings.atelier_heading_font
   assign body_font = section.settings.atelier_body_font
   assign background_color = '#070A1E'
@@ -39,7 +44,7 @@
 {% endstyle %}
 <div
   id="atelier-work-{{ section.id }}"
-  class="atelier-work"
+  class="atelier-work{% if section.settings.atelier_layout == 'grid' %} atelier-work--grid{% endif %}"
   x-data="{ quickViewTrigger: null }"
   x-init="$watch('$store.xQuickView?.show', visible => {
     if (!visible && quickViewTrigger) {
@@ -73,6 +78,7 @@
             card_product: product,
             section_id: section.id,
             index: forloop.index,
+            image_sizes: image_sizes,
             builder_url: section.settings.atelier_builder_url,
             show_rating: collection_block.settings.show_rating,
             show_quickview: collection_block.settings.show_quickview

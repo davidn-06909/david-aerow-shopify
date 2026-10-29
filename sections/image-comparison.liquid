@@ -1,3 +1,6 @@
+{% if section.settings.atelier_comparison %}
+  {% render 'atelier-comparison' %}
+{% else %}
 {%- liquid
   assign url_collection = collection
   if settings.disable_collection_context_url
@@ -920,6 +923,7 @@
   </div>
 </div>
 <script src="{{ 'image-comparison.js' | asset_url }}" defer></script>
+{% endif %}
 {% schema %}
 {
   "name": "t:sections.image-comparison.name",
@@ -933,6 +937,38 @@
     ]
   },
   "settings": [
+    {
+      "type": "checkbox",
+      "id": "atelier_comparison",
+      "label": "t:sections.image-comparison.atelier_comparison.label",
+      "default": false
+    },
+    {
+      "type": "font_picker",
+      "id": "atelier_heading_font",
+      "label": "t:sections.atelier_story_index.heading_font",
+      "default": "oswald_n7",
+      "visible_if": "{{ section.settings.atelier_comparison }}"
+    },
+    {
+      "type": "font_picker",
+      "id": "atelier_body_font",
+      "label": "t:sections.atelier_story_index.body_font",
+      "default": "archivo_n4",
+      "visible_if": "{{ section.settings.atelier_comparison }}"
+    },
+    {
+      "type": "url",
+      "id": "atelier_before_url",
+      "label": "t:sections.image-comparison.atelier_comparison.before_url",
+      "visible_if": "{{ section.settings.atelier_comparison }}"
+    },
+    {
+      "type": "url",
+      "id": "atelier_after_url",
+      "label": "t:sections.image-comparison.atelier_comparison.after_url",
+      "visible_if": "{{ section.settings.atelier_comparison }}"
+    },
     {
       "type": "paragraph",
       "content": "t:sections.user_guide_link.section_and_blocks.image_comparison"

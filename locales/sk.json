@@ -415,6 +415,23 @@
     }
   },
   "sections": {
+    "atelier_education": {
+      "carousel_label": "Explore diamonds, our craft, and ring settings"
+    },
+    "atelier_cuts": {
+      "shapes": {
+        "round": "Round",
+        "oval": "Oval",
+        "emerald": "Emerald",
+        "pear": "Pear",
+        "cushion": "Cushion",
+        "radiant": "Radiant",
+        "marquise": "Marquise",
+        "princess": "Princess",
+        "asscher": "Asscher",
+        "heart": "Heart"
+      }
+    },
     "atelier_latest_work": {
       "view_all": "Zobraziť všetko: {{ collection }}",
       "design_ring": "Navrhnúť tento prsteň",

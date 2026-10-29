@@ -1,0 +1,104 @@
+{%- liquid
+  assign heading_font = section.settings.atelier_heading_font
+  assign body_font = section.settings.atelier_body_font
+  assign background_color = section.settings.background_color_light | default: '#E9F2FA'
+  assign heading_color = section.settings.heading_light | default: '#0B0E28'
+  assign text_color = section.settings.text_light | default: '#3A4B66'
+  if background_color.alpha == 0
+    assign background_color = '#E9F2FA'
+  endif
+  if heading_color.alpha == 0
+    assign heading_color = '#0B0E28'
+  endif
+  if text_color.alpha == 0
+    assign text_color = '#3A4B66'
+  endif
+-%}
+{% style %}
+  {{ heading_font | font_face: font_display: 'swap' }}
+  {{ body_font | font_face: font_display: 'swap' }}
+  #atelier-education-{{ section.id }} {
+    --education-heading-font: {{ heading_font.family }}, {{ heading_font.fallback_families }};
+    --education-heading-weight: {{ heading_font.weight }};
+    --education-body-font: {{ body_font.family }}, {{ body_font.fallback_families }};
+    --education-body-weight: {{ body_font.weight }};
+    --education-background: {{ background_color }};
+    --education-heading: {{ heading_color }};
+    --education-text: {{ text_color }};
+    --education-top: {{ section.settings.padding_top }}px;
+    --education-bottom: {{ section.settings.padding_bottom }}px;
+    --education-top-mobile: {{ section.settings.padding_top_mobile }}px;
+    --education-bottom-mobile: {{ section.settings.padding_bottom_mobile }}px;
+    --education-gap: {{ section.settings.spacing_desktop }}px;
+    --education-gap-mobile: {{ section.settings.spacing_mobile }}px;
+  }
+{% endstyle %}
+<div id="atelier-education-{{ section.id }}" class="atelier-education">
+  <div class="atelier-education__page">
+    {%- if section.settings.title != blank -%}
+      <h2 id="atelier-education-heading-{{ section.id }}" class="atelier-education__heading">{{ section.settings.title | escape }}</h2>
+    {%- endif -%}
+    <ul
+      class="atelier-education__list"
+      role="list"
+      tabindex="0"
+      {% if section.settings.title != blank %}
+        aria-labelledby="atelier-education-heading-{{ section.id }}"
+      {% else %}
+        aria-label="{{ 'sections.atelier_education.carousel_label' | t | escape }}"
+      {% endif %}
+    >
+      {%- for block in section.blocks -%}
+        {%- liquid
+          assign image = block.settings.image
+          assign fallback_width = 1536
+          assign fallback_height = 1024
+          assign image_alt = image.alt | default: block.settings.title
+          assign image_link = block.settings.image_link | default: block.settings.button_link
+          assign image_new_window = block.settings.open_new_window
+          if block.settings.image_link != blank
+            assign image_new_window = block.settings.open_new_window_image
+          endif
+          case block.settings.atelier_illustration
+            when 'workshop'
+              assign fallback_image = 'atelier-education-workshop.jpg'
+            when 'setting'
+              assign fallback_image = 'atelier-education-setting.jpg'
+              assign fallback_width = 1402
+              assign fallback_height = 1122
+            else
+              assign fallback_image = 'atelier-education-stone.jpg'
+          endcase
+        -%}
+        <li class="atelier-education__card" {{ block.shopify_attributes }}>
+          {% if image_link != blank %}
+            <a class="atelier-education__media" href="{{ image_link }}" aria-label="{{ block.settings.title | escape }}"{% if image_new_window %} target="_blank" rel="noopener noreferrer"{% endif %}>
+          {% else %}
+            <div class="atelier-education__media">
+          {% endif %}
+            {%- if image != blank -%}
+              {{ image | image_url: width: 1600 | image_tag: widths: '320, 480, 640, 800, 1100, 1600', sizes: '(min-width: 1720px) 532px, (min-width: 750px) 33vw, (min-width: 433px) 320px, 74vw', loading: 'lazy', alt: image_alt }}
+            {%- else -%}
+              <img src="{{ fallback_image | asset_url }}" width="{{ fallback_width }}" height="{{ fallback_height }}" alt="{{ block.settings.title | escape }}" loading="lazy">
+            {%- endif -%}
+          {% if image_link != blank %}
+            </a>
+          {% else %}
+            </div>
+          {% endif %}
+          {%- if block.settings.title != blank -%}
+            <h3 class="atelier-education__title">{{ block.settings.title | escape }}</h3>
+          {%- endif -%}
+          {%- if block.settings.text != blank -%}
+            <div class="atelier-education__text">{{ block.settings.text }}</div>
+          {%- endif -%}
+          {%- if block.settings.button_label != blank and block.settings.button_link != blank -%}
+            <a class="atelier-education__link" href="{{ block.settings.button_link }}"{% if block.settings.open_new_window %} target="_blank" rel="noopener noreferrer"{% endif %}>
+              {{ block.settings.button_label | escape }}
+            </a>
+          {%- endif -%}
+        </li>
+      {%- endfor -%}
+    </ul>
+  </div>
+</div>

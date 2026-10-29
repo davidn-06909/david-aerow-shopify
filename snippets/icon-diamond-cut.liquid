@@ -1,0 +1,51 @@
+<svg class="atelier-cuts__icon" width="52" height="52" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linejoin="round" aria-hidden="true" focusable="false">
+  {%- case shape -%}
+    {%- when 'round' -%}
+      <circle cx="24" cy="24" r="19" />
+      <circle cx="24" cy="24" r="14.4" stroke-opacity=".75" />
+      <path d="M24 9.6 33.6 24 24 38.4 14.4 24Z" stroke-opacity=".55" />
+      <path d="M13.6 13.6 24 24m10.4-10.4L24 24m10.4 10.4L24 24M13.6 34.4 24 24" stroke-opacity=".35" />
+    {%- when 'oval' -%}
+      <ellipse cx="24" cy="24" rx="13.4" ry="19" />
+      <ellipse cx="24" cy="24" rx="9.6" ry="13.6" stroke-opacity=".7" />
+      <path d="M24 10.4 31.4 24 24 37.6 16.6 24Z" stroke-opacity=".5" />
+      <path d="M24 5v5.4M24 37.6V43" stroke-opacity=".35" />
+    {%- when 'emerald' -%}
+      <path d="M16.4 5h15.2L43 16.4v15.2L31.6 43H16.4L5 31.6V16.4Z" />
+      <path d="M18.6 9.4h10.8L38.6 18v12L29.4 38.6H18.6L9.4 30V18Z" stroke-opacity=".7" />
+      <path d="M20.8 13.8h6.4L34.2 19.6v8.8L27.2 34.2h-6.4L13.8 28.4v-8.8Z" stroke-opacity=".45" />
+    {%- when 'pear' -%}
+      <path d="M24 4c7.6 9.6 14 17.2 14 23.4a14 14 0 0 1-28 0C10 21.2 16.4 13.6 24 4Z" />
+      <path d="M24 11.6c5.2 6.8 9.6 12.2 9.6 16.4a9.6 9.6 0 0 1-19.2 0c0-4.2 4.4-9.6 9.6-16.4Z" stroke-opacity=".68" />
+      <path d="M24 17.6 31 27.6 24 37.2 17 27.6Z" stroke-opacity=".45" />
+    {%- when 'cushion' -%}
+      <path d="M16 5h16a11 11 0 0 1 11 11v16a11 11 0 0 1-11 11H16A11 11 0 0 1 5 32V16A11 11 0 0 1 16 5Z" />
+      <path d="M18.4 11h11.2A7.4 7.4 0 0 1 37 18.4v11.2A7.4 7.4 0 0 1 29.6 37H18.4A7.4 7.4 0 0 1 11 29.6V18.4A7.4 7.4 0 0 1 18.4 11Z" stroke-opacity=".7" />
+      <path d="M24 13.6 34.4 24 24 34.4 13.6 24Z" stroke-opacity=".5" />
+      <path d="M13.2 13.2 24 24l10.8-10.8M13.2 34.8 24 24l10.8 10.8" stroke-opacity=".3" />
+    {%- when 'radiant' -%}
+      <path d="M15 5h18l10 10v18L33 43H15L5 33V15Z" />
+      <path d="M17.6 10.4h12.8L37.6 17.6v12.8L30.4 37.6H17.6L10.4 30.4V17.6Z" stroke-opacity=".7" />
+      <path d="M10.4 17.6 24 24l13.6-6.4M10.4 30.4 24 24l13.6 6.4" stroke-opacity=".45" />
+      <path d="M24 10.4v27.2" stroke-opacity=".3" />
+    {%- when 'marquise' -%}
+      <path d="M24 3.4c8.4 8.8 12 15.6 12 20.6s-3.6 11.8-12 20.6C15.6 35.8 12 29 12 24s3.6-11.8 12-20.6Z" />
+      <path d="M24 11.4c5 5.6 7.2 9.6 7.2 12.6s-2.2 7-7.2 12.6c-5-5.6-7.2-9.6-7.2-12.6s2.2-7 7.2-12.6Z" stroke-opacity=".68" />
+      <path d="M12 24h24" stroke-opacity=".42" />
+      <path d="M24 3.4v41.2" stroke-opacity=".28" />
+    {%- when 'princess' -%}
+      <path d="M6 6h36v36H6Z" />
+      <path d="M13.2 13.2h21.6v21.6H13.2Z" stroke-opacity=".7" />
+      <path d="M6 6l7.2 7.2M42 6l-7.2 7.2M42 42l-7.2-7.2M6 42l7.2-7.2" stroke-opacity=".5" />
+      <path d="M24 13.2v21.6M13.2 24h21.6" stroke-opacity=".3" />
+    {%- when 'asscher' -%}
+      <path d="M15.6 5h16.8L43 15.6v16.8L32.4 43H15.6L5 32.4V15.6Z" />
+      <path d="M17.8 9.8h12.4L38.2 17.8v12.4L30.2 38.2H17.8L9.8 30.2V17.8Z" stroke-opacity=".7" />
+      <path d="M20 14.6h8L33.4 20v8L28 33.4h-8L14.6 28v-8Z" stroke-opacity=".5" />
+      <path d="M22.2 19.4h3.6l2.8 2.8v3.6l-2.8 2.8h-3.6l-2.8-2.8v-3.6Z" stroke-opacity=".32" />
+    {%- when 'heart' -%}
+      <path d="M24 43.4C11.4 34 5.4 26.6 5.4 19.8A10.4 10.4 0 0 1 24 13.4a10.4 10.4 0 0 1 18.6 6.4c0 6.8-6 14.2-18.6 23.6Z" />
+      <path d="M24 36.6c-8.6-6.6-12.8-11.8-12.8-16.4A6.4 6.4 0 0 1 24 17.4a6.4 6.4 0 0 1 12.8 2.8c0 4.6-4.2 9.8-12.8 16.4Z" stroke-opacity=".66" />
+      <path d="M24 13.4v23.2" stroke-opacity=".4" />
+  {%- endcase -%}
+</svg>

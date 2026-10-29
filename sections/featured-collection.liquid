@@ -295,6 +295,23 @@
       "limit": 24
     },
     {
+      "type": "select",
+      "id": "atelier_layout",
+      "label": "t:sections.atelier_latest_work.layout",
+      "default": "editorial",
+      "options": [
+        {
+          "value": "editorial",
+          "label": "t:sections.atelier_latest_work.layout_editorial"
+        },
+        {
+          "value": "grid",
+          "label": "t:sections.atelier_latest_work.layout_grid"
+        }
+      ],
+      "visible_if": "{{ section.settings.atelier_latest_work }}"
+    },
+    {
       "type": "font_picker",
       "id": "atelier_heading_font",
       "label": "t:sections.atelier_latest_work.heading_font",
