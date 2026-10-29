@@ -583,150 +583,172 @@
         "atelier_hover_color": "#10142F"
       }
     },
-    "promotion_banner_ijXatP": {
-      "type": "promotion-banner",
+    "atelier_correspondence": {
+      "type": "testimonials",
+      "name": "Correspondence",
       "blocks": {
-        "image_banner_HYLK68": {
-          "type": "image_banner",
+        "claire": {
+          "type": "testimonial",
           "settings": {
-            "heading": "Flash Sale 70% Off",
-            "highlight_type": "underline",
-            "heading_size": 140,
-            "heading_tag": "h2",
-            "subheading": "",
-            "subheading_size": 100,
-            "text": "Give customers details about the banner image(s) or content on the template.",
-            "text_size": 100,
-            "content_box_type": "square",
-            "add_frame": false,
-            "color_content_box_light": "rgba(0,0,0,0)",
-            "color_content_box_dark": "rgba(0,0,0,0)"
+            "icon_star": "5_star",
+            "title": "",
+            "text": "<p>The knife-edge band catches light in a way the photographs could not show. Resized once, free, in four days.</p>",
+            "author": "Claire D. — Paris",
+            "author_note": "",
+            "related_link_label": "The Aevow Solitaire, Knife Edge",
+            "related_link": "/products/the-aevow-solitaire"
           }
         },
-        "countdown_timer_MNe8Kp": {
-          "type": "countdown_timer",
+        "tom_ilse": {
+          "type": "testimonial",
           "settings": {
-            "countdown_type": "evergreen",
-            "countdown_interval": 30,
-            "interval_unit": "day",
-            "timezone": "-4",
-            "end_year": 2025,
-            "end_month": "6",
-            "end_day": "27",
-            "end_hour": "0",
-            "end_minute": "45",
-            "timer_style": "square",
-            "border_style": "none",
-            "overlay_opacity": 100,
-            "timer_color_countdown": "rgba(0,0,0,0)",
-            "text_color_countdown": "rgba(0,0,0,0)",
-            "bg_color_countdown": "rgba(0,0,0,0)",
-            "spacing_col": 12,
-            "spacing_col_mobile": 8
+            "icon_star": "5_star",
+            "title": "",
+            "text": "<p>We chose the eternal bands together at the atelier. The engraving inside is exactly her handwriting — they scanned it from a card.</p>",
+            "author": "Tom and Ilse — Amsterdam",
+            "author_note": "",
+            "related_link_label": "The Eternal Bands — Pair",
+            "related_link": "/products/the-eternal-bands"
           }
         },
-        "buttons_EyUERK": {
-          "type": "buttons",
+        "mei": {
+          "type": "testimonial",
           "settings": {
-            "button_label": "Button label",
-            "button_link": "",
-            "open_new_window_button": false,
-            "show_button_style_1": "primary",
-            "button_label_2": "",
-            "button_link_2": "",
-            "open_new_window_button_2": false,
-            "show_button_style_2": "primary",
-            "color_button": "rgba(0,0,0,0)",
-            "color_text_button": "rgba(0,0,0,0)",
-            "color_button_hover": "rgba(0,0,0,0)",
-            "color_text_button_hover": "rgba(0,0,0,0)",
-            "color_button_secondary": "rgba(0,0,0,0)",
-            "secondary_button_text": "rgba(0,0,0,0)",
-            "colors_text_link": "rgba(0,0,0,0)"
+            "icon_star": "4_star",
+            "title": "",
+            "text": "<p>The ring care plan is the reason I still wear it every day: cleaned, tightened, checked, twice a year, without asking.</p>",
+            "author": "Mei L. — Singapore",
+            "author_note": "",
+            "related_link_label": "Ring Care Plan",
+            "related_link": ""
           }
         }
       },
       "block_order": [
-        "image_banner_HYLK68",
-        "countdown_timer_MNe8Kp",
-        "buttons_EyUERK"
+        "claire",
+        "tom_ilse",
+        "mei"
       ],
-      "name": "t:sections.promotion-banner.name",
       "settings": {
-        "heading": "Promotion Banner",
-        "image_link": "",
-        "open_new_window": false,
-        "image_overlay_opacity": 30,
-        "content_position": "center",
-        "content_horizontal": 50,
-        "content_vertical": 50,
-        "position_content_mobile": "center",
-        "content_alignment": "center",
-        "show_hero": false,
-        "full_width": true,
-        "padding_full_width": false,
-        "adapt_corners_desktop": false,
-        "rounded_corner_image": false,
-        "desktop_height": "550px",
-        "padding_top": 0,
-        "padding_bottom": 0,
-        "full_width_mobile": true,
-        "adapt_corners_mobile": false,
-        "rounded_corner_image_mobile": false,
-        "mobile_height": "400px",
-        "padding_top_mobile": 0,
-        "padding_bottom_mobile": 0
+        "atelier_correspondence": true,
+        "atelier_heading_font": "oswald_n7",
+        "atelier_body_font": "archivo_n4",
+        "atelier_accent_color": "#79A6FF",
+        "heading": "What they wrote back",
+        "subheading": "Correspondence",
+        "text": "",
+        "heading_tag": "h2",
+        "heading_size": 100,
+        "heading_alignment": "center",
+        "text_alignment": "center",
+        "testimonial_items_view": "multiple",
+        "show_arrow": false,
+        "show_pagination": false,
+        "auto_play": false,
+        "show_author_image": false,
+        "background_color_light": "#0B0D24",
+        "background_color_dark": "#0B0D24",
+        "heading_and_title_light": "#F2F6FB",
+        "heading_and_title_dark": "#F2F6FB",
+        "item_text_color_light": "#9FB9DA",
+        "item_text_color_dark": "#9FB9DA",
+        "show_section_divider": false,
+        "show_section_divider_mobile": false,
+        "top_padding": 84,
+        "bottom_padding": 76,
+        "top_padding_mobile": 56,
+        "bottom_padding_mobile": 56
       }
     },
-    "products_bundle_6P93z8": {
-      "type": "products-bundle",
+    "atelier_services": {
+      "type": "multicolumn",
+      "name": "Atelier services",
+      "blocks": {
+        "delivery": {
+          "type": "column",
+          "settings": {
+            "icon": "truck",
+            "custom_icon": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.25\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M1 6h12v12H1zM13 10h5l4 4v4h-9\"/><circle cx=\"5.5\" cy=\"18.5\" r=\"2.5\"/><circle cx=\"18.5\" cy=\"18.5\" r=\"2.5\"/></svg>",
+            "title": "Insured delivery",
+            "heading_size": 100,
+            "text": "<p>Complimentary, tracked and insured, worldwide.</p>",
+            "title_link": "",
+            "open_new_window": false
+          }
+        },
+        "stones": {
+          "type": "column",
+          "settings": {
+            "icon": "award",
+            "custom_icon": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.25\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"12\" cy=\"8\" r=\"6.5\"/><path d=\"m7.5 13-1 9 5.5-3 5.5 3-1-9\"/></svg>",
+            "title": "Certified stones",
+            "heading_size": 100,
+            "text": "<p>Every center stone certified and traceable.</p>",
+            "title_link": "",
+            "open_new_window": false
+          }
+        },
+        "resizing": {
+          "type": "column",
+          "settings": {
+            "icon": "rulers",
+            "custom_icon": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.25\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"1\" y=\"8\" width=\"22\" height=\"8\" rx=\"1\"/><path d=\"M5 8v5m4-5v3m4-3v5m4-5v3m3-3v5\"/></svg>",
+            "title": "Free resizing",
+            "heading_size": 100,
+            "text": "<p>One complimentary resize within the first year.</p>",
+            "title_link": "",
+            "open_new_window": false
+          }
+        },
+        "appointment": {
+          "type": "column",
+          "settings": {
+            "icon": "calendar",
+            "custom_icon": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.25\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"2\" y=\"4\" width=\"20\" height=\"18\" rx=\"1\"/><path d=\"M2 9h20M7 1v6M17 1v6\"/></svg>",
+            "title": "By appointment",
+            "heading_size": 100,
+            "text": "<p>Design it with us, in the atelier or from anywhere.</p>",
+            "title_link": "",
+            "open_new_window": false
+          }
+        }
+      },
+      "block_order": [
+        "delivery",
+        "stones",
+        "resizing",
+        "appointment"
+      ],
       "settings": {
-        "heading": "Product [bundles]",
-        "highlight_type": "font_highlight",
-        "heading_size": 100,
+        "atelier_services": true,
+        "atelier_body_font": "archivo_n4",
+        "title": "",
         "heading_tag": "h2",
-        "description": "Create a bundle and save up to 30%!",
-        "heading_alignment": "center",
-        "show_discount_value_label": false,
-        "label_type": "rounded",
-        "discount_value_label": "#c85809",
-        "discount_value_label_text": "#ffffff",
-        "button_atb_label": "Add to bundle",
-        "collection": "",
-        "product_to_show": 3,
-        "products": [],
-        "show_highlighted_features": false,
-        "each_product_can_added_to_bundle_once": true,
-        "minimum_items": 3,
-        "discount_type": "percentage",
-        "discount_value": "33",
-        "apply_discount_once_per_order": true,
-        "summary_position": "right",
-        "bundler_heading": "Bundle Contents",
-        "bundler_text": "<p>Add at least 3 items to get 33% Off</p>",
-        "background_color_light": "rgba(0,0,0,0)",
-        "title_color": "rgba(0,0,0,0)",
-        "text_light": "rgba(0,0,0,0)",
-        "button_light": "rgba(0,0,0,0)",
-        "button_text_light": "rgba(0,0,0,0)",
-        "button_hover_light": "rgba(0,0,0,0)",
-        "button_text_hover_light": "rgba(0,0,0,0)",
-        "line_border": "rgba(0,0,0,0)",
-        "background_color_dark": "rgba(0,0,0,0)",
-        "title_color_dark": "rgba(0,0,0,0)",
-        "text_dark": "rgba(0,0,0,0)",
-        "button_dark": "rgba(0,0,0,0)",
-        "button_text_dark": "rgba(0,0,0,0)",
-        "button_hover_dark": "rgba(0,0,0,0)",
-        "button_text_hover_dark": "rgba(0,0,0,0)",
-        "line_border_dark": "rgba(0,0,0,0)",
-        "spacing": 20,
+        "icon_size": 22,
+        "icon_position": "above",
+        "column_content_alignment": "center",
+        "secondary_background": "none",
+        "border_column": "none",
+        "background_color_light": "#070914",
+        "background_color_dark": "#070914",
+        "heading_light": "#F2F6FB",
+        "heading_dark": "#F2F6FB",
+        "text_light": "#9FB9DA",
+        "text_dark": "#9FB9DA",
+        "color_icon_light": "#F2F6FB",
+        "color_icon_dark": "#F2F6FB",
+        "column_layout_desktop": "lg:w-1/4",
+        "column_layout_mobile": "w-1/2",
+        "enable_desktop_slider": false,
+        "swiper_on_mobile": false,
+        "auto_play": false,
+        "full_width": true,
+        "full_width_mobile": true,
+        "padding_full_width": false,
         "show_section_divider": false,
-        "full_width": false,
-        "padding_top": 100,
-        "padding_bottom": 0,
-        "spacing_mobile": 16,
         "show_section_divider_mobile": false,
+        "padding_top": 100,
+        "padding_bottom": 48,
         "padding_top_mobile": 48,
         "padding_bottom_mobile": 48
       }
@@ -1819,12 +1841,13 @@
           "settings": {
             "icon_star": "quote",
             "custom_icon": "",
-            "title": "Testimonials",
-            "text": "<p>Add customer reviews and testimonials to showcase your store's happy customers</p>",
+            "title": "",
+            "text": "",
             "show_author_image": true,
-            "author": "Add a caption",
-            "author_note": "",
-            "product": ""
+            "author": "Elena & Theo",
+            "author_note": "<p>@elena.and.theo</p>",
+            "product": "",
+            "client_image_url": "https://aevow.myshopify.com/cdn/shop/files/c_client_01.png?v=1787798772&width=1000&format=jpg"
           }
         },
         "testimonial_EW34nf": {
@@ -1832,12 +1855,13 @@
           "settings": {
             "icon_star": "quote",
             "custom_icon": "",
-            "title": "Testimonials",
-            "text": "<p>Add customer reviews and testimonials to showcase your store's happy customers</p>",
+            "title": "",
+            "text": "",
             "show_author_image": true,
-            "author": "Add a caption",
-            "author_note": "",
-            "product": ""
+            "author": "Amara & Jules",
+            "author_note": "<p>@amara.writes.jules</p>",
+            "product": "",
+            "client_image_url": "https://aevow.myshopify.com/cdn/shop/files/c_client_02.png?v=1787798772&width=1000&format=jpg"
           }
         },
         "testimonial_4hQ7GW": {
@@ -1845,12 +1869,13 @@
           "settings": {
             "icon_star": "quote",
             "custom_icon": "",
-            "title": "Testimonials",
-            "text": "<p>Add customer reviews and testimonials to showcase your store's happy customers</p>",
+            "title": "",
+            "text": "",
             "show_author_image": true,
-            "author": "Add a caption",
-            "author_note": "",
-            "product": ""
+            "author": "Noor & Dev",
+            "author_note": "<p>@noor.and.dev</p>",
+            "product": "",
+            "client_image_url": "https://aevow.myshopify.com/cdn/shop/files/c_client_03.png?v=1787798773&width=1000&format=jpg"
           }
         },
         "testimonial_RgEp3i": {
@@ -1858,12 +1883,13 @@
           "settings": {
             "icon_star": "quote",
             "custom_icon": "",
-            "title": "Testimonials",
-            "text": "<p>Add customer reviews and testimonials to showcase your store's happy customers</p>",
+            "title": "",
+            "text": "",
             "show_author_image": true,
-            "author": "Add a caption",
-            "author_note": "",
-            "product": ""
+            "author": "Claire & Mathieu",
+            "author_note": "<p>@the.mathieus</p>",
+            "product": "",
+            "client_image_url": "https://aevow.myshopify.com/cdn/shop/files/c_client_04.png?v=1787798774&width=1000&format=jpg"
           }
         },
         "testimonial_GcDCFp": {
@@ -1871,12 +1897,23 @@
           "settings": {
             "icon_star": "quote",
             "custom_icon": "",
-            "title": "Testimonials",
-            "text": "<p>Add customer reviews and testimonials to showcase your store's happy customers</p>",
+            "title": "",
+            "text": "",
             "show_author_image": true,
-            "author": "Add a caption",
-            "author_note": "",
-            "product": ""
+            "author": "Ivy & Sam",
+            "author_note": "<p>@ivy.said.yes</p>",
+            "product": "",
+            "client_image_url": "https://aevow.myshopify.com/cdn/shop/files/c_client_05.png?v=1787798774&width=1000&format=jpg"
+          }
+        },
+        "testimonial_lena_marcus": {
+          "type": "testimonial",
+          "settings": {
+            "title": "",
+            "text": "",
+            "author": "Lena & Marcus",
+            "author_note": "<p>@lena.marcus.paris</p>",
+            "client_image_url": "https://aevow.myshopify.com/cdn/shop/files/c_client_06.png?v=1787798775&width=1000&format=jpg"
           }
         }
       },
@@ -1885,35 +1922,41 @@
         "testimonial_EW34nf",
         "testimonial_4hQ7GW",
         "testimonial_RgEp3i",
-        "testimonial_GcDCFp"
+        "testimonial_GcDCFp",
+        "testimonial_lena_marcus"
       ],
       "name": "t:sections.testimonials-with-card.name",
       "settings": {
-        "heading": "[Testimonial] with cards",
+        "heading": "Worn in the wild",
         "highlight_type": "font_highlight",
-        "subheading": "",
+        "subheading": "Our clients",
         "heading_alignment": "left",
         "heading_size": 100,
         "heading_tag": "h2",
-        "auto_play": true,
+        "auto_play": false,
         "change_slides_speed": 5,
         "image_ratio": "round",
-        "background_color_light": "rgba(0,0,0,0)",
-        "item_background_color_light": "rgba(0,0,0,0)",
-        "item_border_color_light": "rgba(0,0,0,0)",
-        "heading_and_title_light": "rgba(0,0,0,0)",
-        "item_text_color_light": "rgba(0,0,0,0)",
-        "background_color_dark": "rgba(0,0,0,0)",
-        "item_border_color_dark": "rgba(0,0,0,0)",
-        "item_background_color_dark": "rgba(0,0,0,0)",
-        "heading_and_title_dark": "rgba(0,0,0,0)",
-        "item_text_color_dark": "rgba(0,0,0,0)",
+        "background_color_light": "#070A1E",
+        "item_background_color_light": "#10142F",
+        "item_border_color_light": "#727584",
+        "heading_and_title_light": "#F2F6FB",
+        "item_text_color_light": "#9FB9DA",
+        "background_color_dark": "#070A1E",
+        "item_border_color_dark": "#727584",
+        "item_background_color_dark": "#10142F",
+        "heading_and_title_dark": "#F2F6FB",
+        "item_text_color_dark": "#9FB9DA",
         "show_section_divider": false,
-        "top_padding": 100,
-        "bottom_padding": 100,
+        "top_padding": 108,
+        "bottom_padding": 108,
         "show_section_divider_mobile": false,
-        "top_padding_mobile": 48,
-        "bottom_padding_mobile": 48
+        "top_padding_mobile": 64,
+        "bottom_padding_mobile": 64,
+        "atelier_clients": true,
+        "atelier_heading_font": "oswald_n7",
+        "atelier_body_font": "archivo_n4",
+        "atelier_accent_color": "#79A6FF",
+        "text": "<p>Rings we made, on the hands they were made for — from the engagement shoots our clients share with us.</p>"
       }
     },
     "video_with_text_gHrFbF": {
@@ -2506,8 +2549,9 @@
     "6c240d5b-c5b1-4370-96f5-adff063eb83e",
     "atelier_most_loved",
     "multicolumn_rxMYDJ",
-    "promotion_banner_ijXatP",
-    "products_bundle_6P93z8",
+    "testimonials_with_card_ErTtk4",
+    "atelier_correspondence",
+    "atelier_services",
     "scrolling_banner_r6XXtc",
     "shop_the_look_NWMFNg",
     "product_attribute_table_FLAaYe",
@@ -2515,7 +2559,6 @@
     "product_highlight_HiMF3x",
     "flow_ijDEpw",
     "highlight_text_with_image_nUBnKX",
-    "testimonials_with_card_ErTtk4",
     "video_with_text_gHrFbF",
     "image_with_text_EBVLU7",
     "timeline_eKFeL3",
