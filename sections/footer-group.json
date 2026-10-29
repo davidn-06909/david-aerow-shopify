@@ -16,6 +16,7 @@
       "blocks": {
         "footer-2": {
           "type": "text",
+          "disabled": true,
           "settings": {
             "open_by_default": false,
             "heading_text": "Custom text",
@@ -31,8 +32,8 @@
           "type": "link_list",
           "settings": {
             "open_by_default": false,
-            "heading_menu": "Menu",
-            "menu": "",
+            "heading_menu": "Explore",
+            "menu": "explore",
             "show_social_icons": false
           }
         },
@@ -40,13 +41,14 @@
           "type": "link_list",
           "settings": {
             "open_by_default": false,
-            "heading_menu": "Menu",
-            "menu": "",
+            "heading_menu": "Services",
+            "menu": "services",
             "show_social_icons": false
           }
         },
         "link_list_JMLJPG": {
           "type": "link_list",
+          "disabled": true,
           "settings": {
             "open_by_default": false,
             "heading_menu": "Menu",
@@ -58,8 +60,8 @@
           "type": "text",
           "settings": {
             "open_by_default": false,
-            "heading_text": "Custom text",
-            "subtext": "<p>Enter custom message or instruction.</p>",
+            "heading_text": "Atelier",
+            "subtext": "<p>By appointment, Tuesday to Saturday</p>",
             "show_social_icons": false,
             "icon_layout": "horizontal",
             "image_width": 100,
@@ -100,6 +102,7 @@
         "media_nMicMH": {
           "type": "media",
           "settings": {
+            "atelier_image_url": "",
             "image_link": "",
             "open_new_window": false,
             "show_sound_control": false,
@@ -146,6 +149,7 @@
       ],
       "disabled": true,
       "settings": {
+        "atelier_gallery": false,
         "heading": "",
         "highlight_type": "underline",
         "heading_size": 100,
@@ -161,6 +165,10 @@
         "heading_color_dark": "rgba(0,0,0,0)",
         "heading_highlight_color_dark": "rgba(0,0,0,0)",
         "text_color_dark": "rgba(0,0,0,0)",
+        "swiper_on_mobile": false,
+        "enable_arrow_mobile": false,
+        "auto_play": false,
+        "change_slides_speed": 5,
         "max_columns": 1,
         "spacing": 28,
         "height_desktop": 300,
@@ -168,15 +176,15 @@
         "show_section_divider": false,
         "full_width": true,
         "padding_full_width": false,
+        "edge_style": "adapt",
         "padding_top": 0,
         "padding_bottom": 0,
-        "swiper_on_mobile": false,
-        "enable_arrow_mobile": false,
         "min_columns_mobile": "1",
         "spacing_mobile": 0,
         "height_mobile": 250,
         "show_section_divider_mobile": false,
         "full_width_mobile": false,
+        "edge_style_mobile": "adapt",
         "padding_top_mobile": 0,
         "padding_bottom_mobile": 0
       }

@@ -1,0 +1,98 @@
+{%- liquid
+  assign heading_font = section.settings.atelier_heading_font
+  assign body_font = section.settings.atelier_body_font
+  assign image_loading = 'lazy'
+  if section.index <= 2
+    assign image_loading = 'eager'
+  endif
+-%}
+{% style %}
+  {{ heading_font | font_face: font_display: 'swap' }}
+  {{ body_font | font_face: font_display: 'swap' }}
+  #atelier-consultation-{{ section.id }} {
+    --consultation-heading-font: {{ heading_font.family }}, {{ heading_font.fallback_families }};
+    --consultation-heading-weight: {{ heading_font.weight }};
+    --consultation-body-font: {{ body_font.family }}, {{ body_font.fallback_families }};
+    --consultation-body-weight: {{ body_font.weight }};
+    --consultation-accent: {{ section.settings.atelier_accent }};
+    --consultation-top: {{ section.settings.top_padding }}px;
+    --consultation-bottom: {{ section.settings.bottom_padding }}px;
+    --consultation-top-mobile: {{ section.settings.top_padding_mobile }}px;
+    --consultation-bottom-mobile: {{ section.settings.bottom_padding_mobile }}px;
+    {% if section.settings.background_color_light.alpha != 0.0 %}--consultation-background: {{ section.settings.background_color_light }};{% endif %}
+    {% if section.settings.heading_color_light.alpha != 0.0 %}--consultation-heading: {{ section.settings.heading_color_light }};{% endif %}
+    {% if section.settings.text_color_light.alpha != 0.0 %}--consultation-soft: {{ section.settings.text_color_light }};{% endif %}
+  }
+  .dark #atelier-consultation-{{ section.id }} {
+    {% if section.settings.background_color_dark.alpha != 0.0 %}--consultation-background: {{ section.settings.background_color_dark }};{% endif %}
+    {% if section.settings.heading_color_dark.alpha != 0.0 %}--consultation-heading: {{ section.settings.heading_color_dark }};{% endif %}
+    {% if section.settings.text_color_dark.alpha != 0.0 %}--consultation-soft: {{ section.settings.text_color_dark }};{% endif %}
+  }
+  {% for block in section.blocks %}
+    #consultation-block-{{ block.id }} {
+      {% case block.type %}
+        {% when 'heading' %}
+          --consultation-heading-scale: {{ block.settings.heading_base_size | divided_by: 100.0 }};
+          {% if block.settings.heading_light.alpha != 0.0 %}--consultation-heading: {{ block.settings.heading_light }};{% endif %}
+          {% if block.settings.text_light.alpha != 0.0 %}--consultation-soft: {{ block.settings.text_light }};{% endif %}
+        {% when 'button' %}
+          {% if block.settings.button_light.alpha != 0.0 %}--consultation-button: {{ block.settings.button_light }};{% endif %}
+          {% if block.settings.button_text_light.alpha != 0.0 %}--consultation-button-text: {{ block.settings.button_text_light }};{% endif %}
+          {% if block.settings.button_hover_light.alpha != 0.0 %}--consultation-button-hover: {{ block.settings.button_hover_light }};{% endif %}
+          {% if block.settings.button_text_hover_light.alpha != 0.0 %}--consultation-button-hover-text: {{ block.settings.button_text_hover_light }};{% endif %}
+      {% endcase %}
+    }
+    .dark #consultation-block-{{ block.id }} {
+      {% case block.type %}
+        {% when 'heading' %}
+          {% if block.settings.heading_dark.alpha != 0.0 %}--consultation-heading: {{ block.settings.heading_dark }};{% endif %}
+          {% if block.settings.text_dark.alpha != 0.0 %}--consultation-soft: {{ block.settings.text_dark }};{% endif %}
+        {% when 'button' %}
+          {% if block.settings.button_dark.alpha != 0.0 %}--consultation-button: {{ block.settings.button_dark }};{% endif %}
+          {% if block.settings.button_text_dark.alpha != 0.0 %}--consultation-button-text: {{ block.settings.button_text_dark }};{% endif %}
+          {% if block.settings.button_hover_dark.alpha != 0.0 %}--consultation-button-hover: {{ block.settings.button_hover_dark }};{% endif %}
+          {% if block.settings.button_text_hover_dark.alpha != 0.0 %}--consultation-button-hover-text: {{ block.settings.button_text_hover_dark }};{% endif %}
+      {% endcase %}
+    }
+  {% endfor %}
+{% endstyle %}
+<div id="atelier-consultation-{{ section.id }}" class="atelier-consultation atelier-consultation--image-{{ section.settings.image_alignment }} atelier-consultation--mobile-{{ section.settings.image_alignment_mobile }} atelier-consultation--align-{{ section.settings.text_alignment }} atelier-consultation--position-{{ section.settings.text_position }}">
+  <div class="atelier-consultation__page">
+    <div class="atelier-consultation__layout">
+      <div class="atelier-consultation__media">
+        <div class="atelier-consultation__main">
+          {% render 'atelier-consultation-image', image: section.settings.image, image_url: section.settings.atelier_image_url, alt: section.settings.atelier_image_alt, sizes: '(min-width: 1720px) 811px, (min-width: 990px) 48vw, 94vw', loading: image_loading %}
+        </div>
+        {%- if section.settings.image_second != blank or section.settings.atelier_inset_image_url != blank -%}
+          <div class="atelier-consultation__inset">
+            {% render 'atelier-consultation-image', image: section.settings.image_second, image_url: section.settings.atelier_inset_image_url, alt: section.settings.atelier_inset_image_alt, sizes: '(min-width: 1720px) 309px, (min-width: 990px) 19vw, 36vw', loading: image_loading %}
+          </div>
+        {%- endif -%}
+      </div>
+      <div class="atelier-consultation__body">
+        {%- for block in section.blocks -%}
+          {%- case block.type -%}
+            {%- when 'heading' -%}
+              <div id="consultation-block-{{ block.id }}" class="atelier-consultation__copy" {{ block.shopify_attributes }}>
+                {%- if block.settings.subheading != blank -%}
+                  <p class="atelier-consultation__eyebrow">{{ block.settings.subheading | escape }}</p>
+                {%- endif -%}
+                {%- if block.settings.heading != blank -%}
+                  <{{ block.settings.heading_tag }} class="atelier-consultation__heading">{{ block.settings.heading | escape }}</{{ block.settings.heading_tag }}>
+                {%- endif -%}
+                {%- if block.settings.text != blank -%}
+                  <div class="atelier-consultation__text">{{ block.settings.text }}</div>
+                {%- endif -%}
+              </div>
+            {%- when 'button' -%}
+              <div id="consultation-block-{{ block.id }}" class="atelier-consultation__buttons" {{ block.shopify_attributes }}>
+                {%- if block.settings.button_label != blank and block.settings.button_link != blank -%}
+                  <a class="atelier-consultation__button atelier-consultation__button--{{ block.settings.show_button_style }}" href="{{ block.settings.button_link | escape }}"{% if block.settings.open_new_window %} target="_blank" rel="noopener noreferrer"{% endif %}>{{ block.settings.button_label | escape }}</a>
+                {%- endif -%}
+              </div>
+          {%- endcase -%}
+        {%- endfor -%}
+      </div>
+    </div>
+  </div>
+</div>

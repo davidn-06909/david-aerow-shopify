@@ -1,0 +1,101 @@
+{%- liquid
+  assign heading_font = section.settings.atelier_heading_font
+  assign body_font = section.settings.atelier_body_font
+  assign form_id = 'NewsletterForm--' | append: section.id
+  assign input_id = 'NewsletterEmail--' | append: section.id
+  assign note_id = 'NewsletterNote--' | append: section.id
+  assign error_id = 'NewsletterError--' | append: section.id
+  assign success_id = 'NewsletterSuccess--' | append: section.id
+-%}
+{% style %}
+  {{ heading_font | font_face: font_display: 'swap' }}
+  {{ body_font | font_face: font_display: 'swap' }}
+  #atelier-newsletter-{{ section.id }} {
+    --newsletter-heading-font: {{ heading_font.family }}, {{ heading_font.fallback_families }};
+    --newsletter-heading-weight: {{ heading_font.weight }};
+    --newsletter-body-font: {{ body_font.family }}, {{ body_font.fallback_families }};
+    --newsletter-body-weight: {{ body_font.weight }};
+    {% if section.settings.background_color_light != blank and section.settings.background_color_light.alpha != 0.0 %}--newsletter-background: {{ section.settings.background_color_light }};{% endif %}
+    {% if section.settings.text_light != blank and section.settings.text_light.alpha != 0.0 %}--newsletter-text: {{ section.settings.text_light }};{% endif %}
+    {% if section.settings.heading_light != blank and section.settings.heading_light.alpha != 0.0 %}--newsletter-heading: {{ section.settings.heading_light }};{% endif %}
+    --newsletter-top: {{ section.settings.padding_top }}px;
+    --newsletter-bottom: {{ section.settings.padding_bottom }}px;
+    --newsletter-top-mobile: {{ section.settings.padding_top_mobile }}px;
+    --newsletter-bottom-mobile: {{ section.settings.padding_bottom_mobile }}px;
+  }
+{% endstyle %}
+<div id="atelier-newsletter-{{ section.id }}" class="atelier-newsletter">
+  {%- if section.settings.image != blank -%}
+    <picture class="atelier-newsletter__background">
+      {%- if section.settings.image_mobile != blank -%}
+        <source media="(max-width: 767px)" srcset="{{ section.settings.image_mobile | image_url: width: 900 }}">
+      {%- endif -%}
+      {{ section.settings.image | image_url: width: 2000 | image_tag: loading: 'lazy', widths: '750, 1100, 1500, 2000', sizes: '100vw', alt: '' }}
+    </picture>
+  {%- endif -%}
+  <div class="atelier-newsletter__content">
+    {%- for block in section.blocks -%}
+      {%- case block.type -%}
+        {%- when 'heading' -%}
+          <div class="atelier-newsletter__header" {{ block.shopify_attributes }}>
+            {%- if block.settings.heading != blank -%}
+              <{{ block.settings.heading_tag }} class="atelier-newsletter__heading" style="--newsletter-heading-scale: {{ block.settings.heading_size | divided_by: 100.0 }};">{{ block.settings.heading | escape }}</{{ block.settings.heading_tag }}>
+            {%- endif -%}
+            {%- if block.settings.text != blank -%}
+              <div class="atelier-newsletter__intro">{{ block.settings.text }}</div>
+            {%- endif -%}
+          </div>
+        {%- when 'paragraph' -%}
+          <div class="atelier-newsletter__intro" {{ block.shopify_attributes }}>{{ block.settings.text }}</div>
+        {%- when 'name_input_form' -%}
+          <div class="atelier-newsletter__names" {{ block.shopify_attributes }}>
+            <label>
+              <span class="sr-only">{{ block.settings.first_name_label | escape }}</span>
+              <input form="{{ form_id }}" type="text" name="contact[first_name]" autocomplete="given-name" placeholder="{{ block.settings.first_name_label | escape }}">
+            </label>
+            <label>
+              <span class="sr-only">{{ block.settings.last_name_label | escape }}</span>
+              <input form="{{ form_id }}" type="text" name="contact[last_name]" autocomplete="family-name" placeholder="{{ block.settings.last_name_label | escape }}">
+            </label>
+          </div>
+        {%- when 'email_form' -%}
+          <div class="atelier-newsletter__signup" {{ block.shopify_attributes }}>
+            {%- form 'customer', id: form_id, class: 'atelier-newsletter__form' -%}
+              <input type="hidden" name="contact[tags]" value="newsletter">
+              <div class="atelier-newsletter__fields">
+                <label class="sr-only" for="{{ input_id }}">{{ 'newsletter.label' | t }}</label>
+                <input
+                  id="{{ input_id }}"
+                  type="email"
+                  name="contact[email]"
+                  value="{{ form.email | escape }}"
+                  placeholder="{{ 'atelier_newsletter.email_placeholder' | t }}"
+                  autocomplete="email"
+                  autocapitalize="off"
+                  spellcheck="false"
+                  required
+                  {% if form.errors %}aria-invalid="true"{% endif %}
+                  aria-describedby="{{ note_id }}{% if form.errors %} {{ error_id }}{% elsif form.posted_successfully? %} {{ success_id }}{% endif %}"
+                >
+                <button type="submit" name="commit" class="atelier-newsletter__submit">
+                  {%- if block.settings.button_label != blank -%}
+                    {{ block.settings.button_label | escape }}
+                  {%- else -%}
+                    {{ 'newsletter.button_label' | t }}
+                  {%- endif -%}
+                </button>
+              </div>
+              {%- if form.errors -%}
+                <p id="{{ error_id }}" class="atelier-newsletter__message atelier-newsletter__message--error" role="alert">
+                  {{ form.errors.translated_fields.email | capitalize }} {{ form.errors.messages.email }}
+                </p>
+              {%- elsif form.posted_successfully? -%}
+                <p id="{{ success_id }}" class="atelier-newsletter__message" role="status">{{ 'newsletter.success' | t }}</p>
+              {%- endif -%}
+            {%- endform -%}
+          </div>
+      {%- endcase -%}
+    {%- endfor -%}
+    <p id="{{ note_id }}" class="atelier-newsletter__note">{{ section.settings.atelier_privacy_note | escape }}</p>
+  </div>
+</div>

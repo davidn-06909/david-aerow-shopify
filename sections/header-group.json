@@ -133,9 +133,7 @@
         "alignment": "right",
         "show_language_selector": false,
         "show_currency_selector": false,
-        "text_size_toolbar": 80,
-        "atelier_bar": true,
-        "atelier_font": "archivo_n4"
+        "text_size_toolbar": 80
       }
     },
     "header": {

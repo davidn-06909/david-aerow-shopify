@@ -1,3 +1,6 @@
+{%- if section.settings.atelier_newsletter -%}
+  {% render 'atelier-newsletter', section: section %}
+{%- else -%}
 {%- liquid
   assign image_url_mobile = section.settings.image_mobile | default: section.settings.image
   assign show_hero = false
@@ -400,6 +403,7 @@
     </div>
   </div>
 </div>
+{%- endif -%}
 {% schema %}
 {
   "name": "t:sections.newsletter.name",
@@ -412,6 +416,30 @@
     ]
   },
   "settings": [
+    {
+      "type": "checkbox",
+      "id": "atelier_newsletter",
+      "label": "t:atelier_footer.newsletter_layout",
+      "default": false
+    },
+    {
+      "type": "font_picker",
+      "id": "atelier_heading_font",
+      "label": "t:atelier_footer.heading_font",
+      "default": "oswald_n7"
+    },
+    {
+      "type": "font_picker",
+      "id": "atelier_body_font",
+      "label": "t:atelier_footer.body_font",
+      "default": "archivo_n4"
+    },
+    {
+      "type": "text",
+      "id": "atelier_privacy_note",
+      "label": "t:atelier_footer.privacy_note",
+      "default": "t:atelier_footer.privacy_default"
+    },
     {
       "type": "paragraph",
       "content": "t:sections.user_guide_link.section_and_blocks.email_signup"

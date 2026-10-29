@@ -8,6 +8,23 @@
  * ------------------------------------------------------------
  */
 {
+  "atelier_footer": {
+    "newsletter_layout": "Use atelier newsletter layout",
+    "footer_layout": "Use atelier footer layout",
+    "heading_font": "Heading font",
+    "body_font": "Body font",
+    "privacy_note": "Privacy note",
+    "privacy_default": "We write rarely, and never share your address.",
+    "brand_name": "Brand name",
+    "tagline": "Brand tagline",
+    "tagline_default": "Cut in carbon, written in light.",
+    "background": "Background",
+    "text_color": "Text",
+    "accent_color": "Accent",
+    "menu_fallback_info": "Select a Shopify menu, or add individual links below for the atelier footer.",
+    "link_label": "Link label",
+    "link_url": "Link destination"
+  },
   "categories": {
     "additional_information": "Informasi tambahan",
     "basics": "Dasar",
@@ -1027,6 +1044,21 @@
     }
   },
   "sections": {
+    "atelier_consultation": {
+      "name": "Atelier consultation",
+      "enabled": "Use atelier consultation layout",
+      "info": "Overlays the second image on a portrait image. Customize the images, heading and button blocks, fonts, colors, alignment and spacing below.",
+      "image_url": "Main image URL (when no image is selected)",
+      "inset_image_url": "Detail image URL (when no second image is selected)",
+      "image_alt": "Main image description",
+      "inset_image_alt": "Detail image description",
+      "defaults": {
+        "eyebrow": "Speak to a designer",
+        "heading": "Design it with us",
+        "text": "<p>In the atelier or by video, in your own time. Bring an idea, a photograph, or nothing at all — most people arrive with nothing at all.</p>",
+        "button_label": "Book an appointment"
+      }
+    },
     "atelier_journal": {
       "enabled": "Use atelier journal layout",
       "blog_link": "All stories link (when no blog is selected)",

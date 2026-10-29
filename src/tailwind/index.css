@@ -104,6 +104,7 @@
 @import "./components/atelier-gallery.css";
 @import "./components/atelier-clients.css";
 @import "./components/atelier-correspondence.css";
+@import "./components/atelier-footer.css";
 @import "./components/atelier-comparison.css";
 @import "./components/promotion-banner.css";
 @import "./components/map.css";
@@ -113,6 +114,7 @@
 @import "./components/video-with-text.css";
 @import "./components/blog-post.css";
 @import "./components/atelier-journal.css";
+@import "./components/atelier-consultation.css";
 @import "./components/main-register.css";
 @import "./components/style-app-cart.css";
 @import "./components/email-signup-banner.css";

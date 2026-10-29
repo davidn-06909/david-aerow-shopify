@@ -1,0 +1,93 @@
+{%- liquid
+  assign heading_font = section.settings.atelier_heading_font
+  assign body_font = section.settings.atelier_body_font
+  assign brand_name = section.settings.atelier_brand_name | default: shop.name
+  assign policy_types = 'shipping_policy,refund_policy,privacy_policy,terms_of_service' | split: ','
+-%}
+{% style %}
+  {{ heading_font | font_face: font_display: 'swap' }}
+  {{ body_font | font_face: font_display: 'swap' }}
+  #atelier-footer-{{ section.id }} {
+    --footer-heading-font: {{ heading_font.family }}, {{ heading_font.fallback_families }};
+    --footer-heading-weight: {{ heading_font.weight }};
+    --footer-body-font: {{ body_font.family }}, {{ body_font.fallback_families }};
+    --footer-body-weight: {{ body_font.weight }};
+    --footer-background: {{ section.settings.atelier_background }};
+    --footer-text: {{ section.settings.atelier_text }};
+    --footer-accent: {{ section.settings.atelier_accent }};
+    --footer-columns: {{ section.settings.columns_desktop }};
+    --footer-top: {{ section.settings.top_padding }}px;
+    --footer-bottom: {{ section.settings.bottom_padding }}px;
+    --footer-top-mobile: {{ section.settings.top_padding_mobile }}px;
+    --footer-bottom-mobile: {{ section.settings.bottom_padding_mobile }}px;
+  }
+{% endstyle %}
+<footer id="atelier-footer-{{ section.id }}" class="atelier-footer">
+  <div class="atelier-footer__page">
+    <div class="atelier-footer__brand">
+      <a class="atelier-footer__wordmark" href="{{ routes.root_url }}">{{ brand_name | escape }}</a>
+      {%- if section.settings.atelier_tagline != blank -%}
+        <p class="atelier-footer__tagline">{{ section.settings.atelier_tagline | escape }}</p>
+      {%- endif -%}
+    </div>
+    {%- if section.blocks.size > 0 -%}
+      <div class="atelier-footer__columns">
+        {%- for block in section.blocks -%}
+          {%- case block.type -%}
+            {%- when 'link_list' -%}
+              <nav class="atelier-footer__column" aria-labelledby="FooterHeading-{{ block.id }}" {{ block.shopify_attributes }}>
+                <h2 id="FooterHeading-{{ block.id }}" class="atelier-footer__heading">{{ block.settings.heading_menu | default: block.settings.menu.title | escape }}</h2>
+                <ul class="atelier-footer__links" role="list">
+                  {%- if block.settings.menu != blank -%}
+                    {%- for link in block.settings.menu.links -%}
+                      <li><a class="atelier-footer__link" href="{{ link.url }}"{% if link.current %} aria-current="page"{% endif %}>{{ link.title | escape }}</a></li>
+                    {%- endfor -%}
+                  {%- else -%}
+                    {%- for index in (1..4) -%}
+                      {%- liquid
+                        assign label_key = 'atelier_link_label_' | append: index
+                        assign url_key = 'atelier_link_url_' | append: index
+                      -%}
+                      {%- if block.settings[label_key] != blank and block.settings[url_key] != blank -%}
+                        <li><a class="atelier-footer__link" href="{{ block.settings[url_key] }}">{{ block.settings[label_key] | escape }}</a></li>
+                      {%- endif -%}
+                    {%- endfor -%}
+                  {%- endif -%}
+                </ul>
+              </nav>
+            {%- when 'text' -%}
+              <div class="atelier-footer__column" {{ block.shopify_attributes }}>
+                {%- if block.settings.heading_text != blank -%}<h2 class="atelier-footer__heading">{{ block.settings.heading_text | escape }}</h2>{%- endif -%}
+                <div class="atelier-footer__text">{{ block.settings.subtext }}</div>
+                {%- if block.settings.show_social_icons -%}
+                  {% render 'toolbar', enable_footer: true, show_social_icons: true, social_icons_layout: block.settings.icon_layout %}
+                {%- endif -%}
+              </div>
+          {%- endcase -%}
+        {%- endfor -%}
+      </div>
+    {%- endif -%}
+    <div class="atelier-footer__bottom">
+      <div class="atelier-footer__legal">
+        {%- if section.settings.show_copyright -%}
+          <p class="atelier-footer__copyright">&copy; {{ 'now' | date: '%Y' }} {{ brand_name | downcase | escape }}{% if section.settings.add_copyright_text != blank %} {{ section.settings.add_copyright_text }}{% endif %}</p>
+        {%- endif -%}
+        <ul class="atelier-footer__policies" role="list" aria-label="{{ 'atelier_footer.policies' | t }}">
+          {%- for policy_type in policy_types -%}
+            {%- assign policy = shop[policy_type] -%}
+            {%- if policy != blank -%}
+              <li><a class="atelier-footer__link" href="{{ policy.url }}">{{ policy.title | escape }}</a></li>
+            {%- endif -%}
+          {%- endfor -%}
+        </ul>
+      </div>
+      {%- if section.settings.payment_enable -%}
+        <ul class="atelier-footer__payments" role="list" aria-label="{{ 'atelier_footer.payment_methods' | t }}">
+          {%- for type in shop.enabled_payment_types -%}
+            <li>{{ type | payment_type_svg_tag }}</li>
+          {%- endfor -%}
+        </ul>
+      {%- endif -%}
+    </div>
+  </div>
+</footer>

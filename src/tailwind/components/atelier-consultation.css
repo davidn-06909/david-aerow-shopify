@@ -1,0 +1,185 @@
+.atelier-consultation {
+  --consultation-background: #060814;
+  --consultation-heading: #f2f6fb;
+  --consultation-soft: #9fb9da;
+  --consultation-row-gap: clamp(28px, 1.9vw + 20px, 38px);
+  --consultation-display: clamp(34px, 25.44px + 2.62vw, 60px);
+  --consultation-xs: clamp(11px, 10.64px + 0.11vw, 12px);
+  --consultation-small: clamp(13px, 12.64px + 0.11vw, 14px);
+  padding-block: var(--consultation-top-mobile) var(--consultation-bottom-mobile);
+  background: var(--consultation-background);
+  color: var(--consultation-heading);
+  font-family: var(--consultation-body-font);
+  font-weight: var(--consultation-body-weight);
+  font-size: clamp(15px, 14.592px + 0.13vw, 16px);
+  line-height: 1.62;
+  letter-spacing: normal;
+  -webkit-font-smoothing: antialiased;
+}
+
+.atelier-consultation__page {
+  width: 100%;
+  max-width: 1720px;
+  margin-inline: auto;
+  padding-inline: clamp(18px, 11.31px + 1.7143vw, 36px);
+}
+
+.atelier-consultation__layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: center;
+  gap: var(--consultation-row-gap) 26px;
+}
+
+.atelier-consultation__media {
+  position: relative;
+  min-width: 0;
+}
+
+.atelier-consultation__main {
+  overflow: hidden;
+  aspect-ratio: 4 / 5;
+  background: color-mix(in srgb, var(--consultation-heading) 6%, var(--consultation-background));
+}
+
+.atelier-consultation__image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.atelier-consultation__placeholder { fill: var(--consultation-soft); }
+
+.atelier-consultation__inset {
+  position: absolute;
+  inset-block-end: 12px;
+  inset-inline-end: 12px;
+  width: 38%;
+  aspect-ratio: 1;
+  overflow: hidden;
+  background: var(--consultation-background);
+  box-shadow: 0 0 0 4px var(--consultation-background), 0 24px 60px -34px color-mix(in srgb, var(--consultation-heading) 55%, transparent);
+}
+
+.atelier-consultation__body,
+.atelier-consultation__copy {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  gap: 18px;
+}
+
+.atelier-consultation .atelier-consultation__eyebrow {
+  margin: 0 0 12px;
+  color: var(--consultation-soft);
+  font-size: var(--consultation-xs);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.atelier-consultation .atelier-consultation__heading {
+  margin: 0;
+  color: var(--consultation-heading);
+  font-family: var(--consultation-heading-font);
+  font-weight: var(--consultation-heading-weight);
+  font-size: calc(var(--consultation-display) * var(--consultation-heading-scale, 1));
+  line-height: 0.9;
+  letter-spacing: -0.02em;
+  text-transform: none;
+  text-wrap: balance;
+  overflow-wrap: anywhere;
+}
+
+.atelier-consultation__text {
+  max-width: 62ch;
+  color: var(--consultation-soft);
+  overflow-wrap: anywhere;
+}
+
+.atelier-consultation__text p { margin: 0 0 1em; }
+.atelier-consultation__text > :last-child { margin-block-end: 0; }
+.atelier-consultation__text :is(ul, ol) { padding-inline-start: 1.25em; }
+.atelier-consultation__text li { list-style: revert; }
+.atelier-consultation__text a { text-decoration: underline; }
+
+.atelier-consultation__buttons {
+  display: flex;
+  flex-wrap: wrap;
+  margin-block-start: 8px;
+}
+
+.atelier-consultation .atelier-consultation__button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  max-width: 100%;
+  padding: 14px 30px;
+  border: 1px solid var(--consultation-button, var(--consultation-heading));
+  border-radius: 0;
+  background: var(--consultation-button, var(--consultation-heading));
+  color: var(--consultation-button-text, var(--consultation-background));
+  font-size: var(--consultation-small);
+  font-weight: inherit;
+  line-height: 1.62;
+  letter-spacing: 0.14em;
+  text-align: center;
+  text-decoration: none;
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+  transition: background-color 180ms ease, border-color 180ms ease, color 180ms ease;
+}
+
+.atelier-consultation .atelier-consultation__button--secondary {
+  background: transparent;
+  color: var(--consultation-button, var(--consultation-heading));
+}
+
+.atelier-consultation .atelier-consultation__button--text-link {
+  padding-inline: 0;
+  border-color: transparent;
+  background: transparent;
+  color: var(--consultation-button, var(--consultation-heading));
+  text-decoration: underline;
+  text-underline-offset: 0.25em;
+}
+
+.atelier-consultation .atelier-consultation__button:is(:hover, :focus-visible) {
+  border-color: var(--consultation-button-hover, var(--consultation-accent));
+  background: var(--consultation-button-hover, var(--consultation-accent));
+  color: var(--consultation-button-hover-text, var(--consultation-background));
+}
+
+.atelier-consultation a:focus-visible {
+  outline: 2px solid var(--consultation-accent);
+  outline-offset: 4px;
+}
+
+.atelier-consultation--align-center { text-align: center; }
+.atelier-consultation--align-center .atelier-consultation__text { align-self: center; }
+.atelier-consultation--align-center .atelier-consultation__buttons { justify-content: center; }
+.atelier-consultation--align-end { text-align: end; }
+.atelier-consultation--align-end .atelier-consultation__text { align-self: flex-end; }
+.atelier-consultation--align-end .atelier-consultation__buttons { justify-content: flex-end; }
+.atelier-consultation--mobile-right .atelier-consultation__body { order: -1; }
+
+@media (min-width: 750px) {
+  .atelier-consultation { padding-block: var(--consultation-top) var(--consultation-bottom); }
+}
+
+@media (min-width: 990px) {
+  .atelier-consultation__layout { grid-template-columns: repeat(12, minmax(0, 1fr)); }
+  .atelier-consultation__media { grid-column: 1 / span 6; grid-row: 1; }
+  .atelier-consultation__body { grid-column: 8 / span 5; grid-row: 1; order: 0; }
+  .atelier-consultation__inset { inset-block-end: calc(var(--consultation-row-gap) * -1); inset-inline-end: -26px; }
+  .atelier-consultation--image-right .atelier-consultation__media { grid-column: 7 / span 6; }
+  .atelier-consultation--image-right .atelier-consultation__body { grid-column: 1 / span 5; }
+  .atelier-consultation--image-right .atelier-consultation__inset { inset-inline-end: auto; inset-inline-start: -26px; }
+  .atelier-consultation--position-start .atelier-consultation__body { align-self: start; }
+  .atelier-consultation--position-end .atelier-consultation__body { align-self: end; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .atelier-consultation__button { transition: none; }
+}
