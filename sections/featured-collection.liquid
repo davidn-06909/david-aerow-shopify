@@ -1,3 +1,6 @@
+{% if section.settings.atelier_latest_work %}
+  {% render 'atelier-latest-work' %}
+{% else %}
 {% liquid
   assign heading_size =  section.settings.heading_size | times: settings.heading_base_size | times: 0.000225
   assign base_size =  section.settings.title_size | times: settings.text_base_size | times: 0.0000875
@@ -263,6 +266,7 @@
   {%- endif -%}
 </div>
 <script src="{{ 'featured-collection.js' | asset_url }}" defer></script>
+{% endif %}
 
 {% schema %}
 {
@@ -277,6 +281,39 @@
     ]
   },
   "settings": [
+    {
+      "type": "checkbox",
+      "id": "atelier_latest_work",
+      "label": "t:sections.atelier_latest_work.enable",
+      "info": "t:sections.atelier_latest_work.info",
+      "default": false
+    },
+    {
+      "type": "product_list",
+      "id": "atelier_products",
+      "label": "t:settings_schema.cart.product",
+      "limit": 24
+    },
+    {
+      "type": "font_picker",
+      "id": "atelier_heading_font",
+      "label": "t:sections.atelier_latest_work.heading_font",
+      "default": "oswald_n7",
+      "visible_if": "{{ section.settings.atelier_latest_work }}"
+    },
+    {
+      "type": "font_picker",
+      "id": "atelier_body_font",
+      "label": "t:sections.atelier_latest_work.body_font",
+      "default": "archivo_n4",
+      "visible_if": "{{ section.settings.atelier_latest_work }}"
+    },
+    {
+      "type": "url",
+      "id": "atelier_builder_url",
+      "label": "t:sections.atelier_latest_work.builder_url",
+      "visible_if": "{{ section.settings.atelier_latest_work }}"
+    },
     {
       "type": "paragraph",
       "content": "t:sections.user_guide_link.section_and_blocks.featured_collection"

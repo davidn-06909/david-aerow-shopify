@@ -1,0 +1,98 @@
+{%- liquid
+  assign collection_block = section.blocks.first
+  assign featured_collection = collection_block.settings.collection
+  assign featured_products = section.settings.atelier_products | default: featured_collection.products
+  assign product_limit = section.settings.columns_desktop | times: section.settings.rows_desktop
+  assign heading_font = section.settings.atelier_heading_font
+  assign body_font = section.settings.atelier_body_font
+  assign background_color = '#070A1E'
+  assign text_color = '#F2F6FB'
+  if section.settings.color_background.alpha > 0
+    assign background_color = section.settings.color_background
+  endif
+  if section.settings.color_text.alpha > 0
+    assign text_color = section.settings.color_text
+  endif
+  assign fallback_collection_title = 'sections.atelier_latest_work.default_collection' | t
+  assign collection_title = featured_collection.title | default: fallback_collection_title
+  assign view_all_label = 'sections.atelier_latest_work.view_all' | t: collection: collection_title
+-%}
+{% style %}
+  {{ heading_font | font_face: font_display: 'swap' }}
+  {{ body_font | font_face: font_display: 'swap' }}
+  #atelier-work-{{ section.id }} {
+    --work-heading-font: {{ heading_font.family }}, {{ heading_font.fallback_families }};
+    --work-heading-weight: {{ heading_font.weight }};
+    --work-body-font: {{ body_font.family }}, {{ body_font.fallback_families }};
+    --work-body-weight: {{ body_font.weight }};
+    --work-background: {{ background_color }};
+    --work-text: {{ text_color }};
+    --work-top: {{ section.settings.padding_top }}px;
+    --work-bottom: {{ section.settings.padding_bottom }}px;
+    --work-top-mobile: {{ section.settings.padding_top_mobile }}px;
+    --work-bottom-mobile: {{ section.settings.padding_bottom_mobile }}px;
+    --work-columns: {{ section.settings.columns_desktop }};
+    --work-columns-mobile: {{ section.settings.columns_mobile }};
+    --work-gap: {{ section.settings.spacing }}px;
+    --work-gap-mobile: {{ section.settings.spacing_mobile }}px;
+  }
+{% endstyle %}
+<div
+  id="atelier-work-{{ section.id }}"
+  class="atelier-work"
+  x-data="{ quickViewTrigger: null }"
+  x-init="$watch('$store.xQuickView?.show', visible => {
+    if (!visible && quickViewTrigger) {
+      $store.xFocusElement?.removeTrapFocus();
+      if (quickViewTrigger.isConnected) quickViewTrigger.focus({ preventScroll: true });
+      quickViewTrigger = null;
+    }
+  })"
+>
+  <div class="atelier-work__page">
+    <div class="atelier-work__head">
+      <div>
+        {%- if section.settings.subheading != blank -%}
+          <p class="atelier-work__eyebrow">{{ section.settings.subheading | escape }}</p>
+        {%- endif -%}
+        {%- if section.settings.title != blank -%}
+          <{{ section.settings.heading_tag }} class="atelier-work__heading">{{ section.settings.title | escape }}</{{ section.settings.heading_tag }}>
+        {%- endif -%}
+        {%- if section.settings.text != blank -%}
+          <div class="atelier-work__intro rte">{{ section.settings.text }}</div>
+        {%- endif -%}
+      </div>
+      {%- if section.settings.show_view_all and featured_collection != blank -%}
+        <a class="atelier-work__all" href="{{ featured_collection.url }}">{{ view_all_label | escape }}</a>
+      {%- endif -%}
+    </div>
+    <ul class="atelier-work__grid" role="list" {{ collection_block.shopify_attributes }}>
+      {%- for product in featured_products limit: product_limit -%}
+        <li class="atelier-work__cell">
+          {% render 'card-product-atelier',
+            card_product: product,
+            section_id: section.id,
+            index: forloop.index,
+            builder_url: section.settings.atelier_builder_url,
+            show_rating: collection_block.settings.show_rating,
+            show_quickview: collection_block.settings.show_quickview
+          %}
+        </li>
+      {%- else -%}
+        {%- if request.design_mode -%}
+          {%- for index in (1..product_limit) -%}
+            <li class="atelier-work__cell">
+              <div class="atelier-work__placeholder">{{ 'product-1' | placeholder_svg_tag }}</div>
+              <p class="atelier-work__empty">{{ 'sections.atelier_latest_work.empty' | t }}</p>
+            </li>
+          {%- endfor -%}
+        {%- endif -%}
+      {%- endfor -%}
+    </ul>
+    {%- if section.settings.show_view_all and featured_collection != blank -%}
+      <div class="atelier-work__foot">
+        <a class="atelier-work__all atelier-work__all--mobile" href="{{ featured_collection.url }}">{{ view_all_label | escape }}</a>
+      </div>
+    {%- endif -%}
+  </div>
+</div>

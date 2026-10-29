@@ -1,0 +1,107 @@
+{% comment %}
+  Editorial variant of the product card for the atelier featured collection.
+  Uses the theme's prices, review integration and Quick view store.
+  Engagement settings use the configured ring builder; other products use Quick view.
+{% endcomment %}
+{%- liquid
+  assign is_setting = false
+  if card_product.tags contains 'setting' or card_product.type == 'Engagement ring setting'
+    assign is_setting = true
+  endif
+  assign design_ring = false
+  if is_setting and builder_url != blank
+    assign design_ring = true
+    assign separator = '?'
+    if builder_url contains '?'
+      assign separator = '&'
+    endif
+    assign product_handle = card_product.handle | url_encode
+    assign design_url = builder_url | append: separator | append: 'setting=' | append: product_handle
+  endif
+  assign card_id = section_id | append: '-' | append: card_product.id | append: '-' | append: index
+  assign image_sizes = '(min-width: 1720px) 532px, (min-width: 990px) 33vw, 50vw'
+  assign image_alt = card_product.featured_image.alt | default: card_product.title
+-%}
+<article class="atelier-work-card{% if card_product.images[1] != blank %} atelier-work-card--alternate{% endif %}">
+  <div class="atelier-work-card__media">
+    <a class="atelier-work-card__link" href="{{ card_product.url }}" aria-label="{{ card_product.title | escape }}">
+      <div class="atelier-work-card__image">
+        {%- if card_product.featured_image != blank -%}
+          {{ card_product.featured_image | image_url: width: 1200 | image_tag: widths: '180, 300, 400, 500, 600, 800, 1000, 1200', sizes: image_sizes, loading: 'lazy', alt: image_alt }}
+        {%- else -%}
+          {{ 'product-1' | placeholder_svg_tag }}
+        {%- endif -%}
+      </div>
+      {%- if card_product.images[1] != blank -%}
+        <div class="atelier-work-card__image atelier-work-card__image--alternate" aria-hidden="true">
+          {{ card_product.images[1] | image_url: width: 1200 | image_tag: widths: '180, 300, 400, 500, 600, 800, 1000, 1200', sizes: image_sizes, loading: 'lazy', alt: '' }}
+        </div>
+      {%- endif -%}
+    </a>
+    {%- if design_ring or show_quickview -%}
+      <div class="atelier-work-card__actions">
+        {%- if design_ring -%}
+          <a class="atelier-work-card__action" href="{{ design_url }}">{{ 'sections.atelier_latest_work.design_ring' | t }}</a>
+        {%- else -%}
+          <button
+            type="button"
+            class="atelier-work-card__action"
+            data-product-url="{{ card_product.url | escape }}"
+            aria-label="{{ 'sections.atelier_latest_work.quick_view' | t: product: card_product.title | escape }}"
+            aria-haspopup="dialog"
+            aria-controls="QuickView"
+            @click="if ($store.xQuickView?.enabled) {
+              quickViewTrigger = $el;
+              $store.xQuickView.load($el.dataset.productUrl, $el, {{ card_id | json | escape }});
+              $store.xQuickView.open();
+              $nextTick(() => document.getElementById('QuickViewClose')?.focus({ preventScroll: true }));
+            } else {
+              window.location.assign($el.dataset.productUrl);
+            }"
+          >{{ 'products.product.quick_view_label' | t }}</button>
+        {%- endif -%}
+      </div>
+    {%- endif -%}
+  </div>
+  <div class="atelier-work-card__body">
+    <h3 class="atelier-work-card__title"><a href="{{ card_product.url }}">{{ card_product.title | escape }}</a></h3>
+    {%- if show_rating and card_product.metafields.reviews.rating.value != blank -%}
+      <div class="atelier-work-card__rating">{% render 'review-product', product: card_product, card_product: true, content_alignment: 'left' %}</div>
+    {%- endif -%}
+    <div class="atelier-work-card__price">
+      {%- if is_setting and card_product.price_varies == false -%}
+        <span>{{ 'sections.atelier_latest_work.from' | t }}</span>
+      {%- endif -%}
+      {% render 'price', product: card_product, price_id: card_id, align_left: true %}
+    </div>
+    {%- for option in card_product.options_with_values -%}
+      {%- assign option_name = option.name | downcase -%}
+      {%- if option_name == 'metal' -%}
+        <div class="atelier-work-card__swatches" role="group" aria-label="{{ option.name | escape }}">
+          {%- for value in option.values -%}
+            {%- liquid
+              assign value_label = value.name | default: value
+              assign option_key = 'option' | append: option.position
+              assign matching_variants = card_product.variants | where: option_key, value_label
+              assign metal_variant = matching_variants | where: 'available', true | first | default: matching_variants.first
+              assign metal_name = value_label | downcase
+              assign swatch_color = value.swatch.color | default: '#C9CACB'
+              if metal_name contains 'yellow'
+                assign swatch_color = '#C7AD86'
+              elsif metal_name contains 'rose'
+                assign swatch_color = '#B98C84'
+              elsif metal_name contains 'platinum'
+                assign swatch_color = '#D5D6D7'
+              endif
+            -%}
+            {%- if metal_variant != blank -%}
+              <a class="atelier-work-card__swatch" href="{{ card_product.url }}?variant={{ metal_variant.id }}" title="{{ value_label | escape }}" style="--swatch-color: {{ swatch_color }};">
+                <span class="sr-only">{{ value_label | escape }}</span>
+              </a>
+            {%- endif -%}
+          {%- endfor -%}
+        </div>
+      {%- endif -%}
+    {%- endfor -%}
+  </div>
+</article>
