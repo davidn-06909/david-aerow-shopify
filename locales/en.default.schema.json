@@ -1027,6 +1027,18 @@
     }
   },
   "sections": {
+    "atelier_journal": {
+      "enabled": "Use atelier journal layout",
+      "blog_link": "All stories link (when no blog is selected)",
+      "story": "Journal story",
+      "article": "Article",
+      "article_info": "Choose an article, or use the fields below. Stories are shown when the selected blog has no articles. Available in the atelier journal layout.",
+      "excerpt": "Excerpt",
+      "image_url": "Image URL (when no image is selected)",
+      "image_alt": "Image description",
+      "date": "Publication date",
+      "date_info": "Use YYYY-MM-DD, for example 2026-08-11."
+    },
     "atelier_correspondence": {
       "enabled": "Use atelier correspondence layout",
       "link_label": "Related link label",

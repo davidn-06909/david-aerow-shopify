@@ -1,0 +1,59 @@
+{%- liquid
+  assign story_title = article.title | default: block.settings.title
+  assign story_image = article.image | default: block.settings.image
+  assign story_url = article.url | default: block.settings.link
+  assign story_excerpt = article.excerpt_or_content | default: block.settings.excerpt | strip_html | strip | truncatewords: 24
+  assign story_date = article.published_at | default: block.settings.date
+  assign story_alt = story_image.alt | default: block.settings.image_alt | default: story_title
+  assign remote_image_url = block.settings.image_url
+  assign responsive_remote_image = false
+  if remote_image_url contains '.myshopify.com/cdn/shop/' or remote_image_url contains 'cdn.shopify.com/'
+    assign responsive_remote_image = true
+    assign remote_image_url = remote_image_url | split: '&width=' | first | split: '?width=' | first
+    assign query_separator = '?'
+    if remote_image_url contains '?'
+      assign query_separator = '&'
+    endif
+    assign image_widths = '300,400,600,800,1000,1200,1600' | split: ','
+  endif
+  assign image_sizes = '(min-width: 1720px) 532px, (min-width: 990px) calc((100vw - 124px) / 3), (min-width: 750px) calc((100vw - 62px) / 2), 78vw'
+  if index == 0
+    assign image_sizes = '(min-width: 1720px) 878px, (min-width: 990px) calc((100vw - 110px) * 0.5455), (min-width: 750px) calc((100vw - 62px) / 2), 78vw'
+  endif
+-%}
+<article class="atelier-journal__card"{% if block != blank %} {{ block.shopify_attributes }}{% endif %}>
+  {% if story_url != blank %}<a class="atelier-journal__story" href="{{ story_url }}">{% else %}<div class="atelier-journal__story">{% endif %}
+    {%- if section.settings.show_image -%}
+      <div class="atelier-journal__media">
+        {%- if story_image != blank -%}
+          {{ story_image | image_url: width: 1800 | image_tag: widths: '300, 400, 600, 800, 1000, 1200, 1600, 1800', sizes: image_sizes, loading: 'lazy', class: 'atelier-journal__image', alt: story_alt }}
+        {%- elsif block.settings.image_url != blank -%}
+          <img
+            class="atelier-journal__image"
+            {% if responsive_remote_image %}
+              src="{{ remote_image_url | escape }}{{ query_separator }}width=1600"
+              srcset="{% for image_width in image_widths %}{{ remote_image_url | escape }}{{ query_separator }}width={{ image_width }} {{ image_width }}w{% unless forloop.last %}, {% endunless %}{% endfor %}"
+              sizes="{{ image_sizes }}"
+            {% else %}
+              src="{{ remote_image_url | escape }}"
+            {% endif %}
+            width="1600" height="1067" alt="{{ story_alt | escape }}" loading="lazy" decoding="async"
+          >
+        {%- else -%}
+          {{ 'image' | placeholder_svg_tag: 'atelier-journal__image atelier-journal__placeholder' }}
+        {%- endif -%}
+      </div>
+    {%- endif -%}
+    <div class="atelier-journal__body">
+      {%- if section.settings.show_name and story_title != blank -%}
+        <h3 class="atelier-journal__title">{{ story_title | escape }}</h3>
+      {%- endif -%}
+      {%- if section.settings.show_excerpt and story_excerpt != blank -%}
+        <p class="atelier-journal__excerpt">{{ story_excerpt | escape }}</p>
+      {%- endif -%}
+      {%- if section.settings.show_date and story_date != blank -%}
+        <time class="atelier-journal__date" datetime="{{ story_date | date: '%Y-%m-%d' }}">{{ story_date | date: format: 'date' }}</time>
+      {%- endif -%}
+    </div>
+  {% if story_url != blank %}</a>{% else %}</div>{% endif %}
+</article>

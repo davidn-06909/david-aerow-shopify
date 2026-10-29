@@ -1,0 +1,81 @@
+{%- liquid
+  assign heading_font = section.settings.atelier_heading_font
+  assign body_font = section.settings.atelier_body_font
+  assign journal_blog = section.settings.blog
+  assign journal_url = journal_blog.url | default: section.settings.atelier_blog_link
+  assign tag_array = section.settings.blog_with_tag | newline_to_br | strip_newlines | split: '<br />'
+-%}
+{% style %}
+  {{ heading_font | font_face: font_display: 'swap' }}
+  {{ body_font | font_face: font_display: 'swap' }}
+  #atelier-journal-{{ section.id }} {
+    --journal-heading-font: {{ heading_font.family }}, {{ heading_font.fallback_families }};
+    --journal-heading-weight: {{ heading_font.weight }};
+    --journal-body-font: {{ body_font.family }}, {{ body_font.fallback_families }};
+    --journal-body-weight: {{ body_font.weight }};
+    --journal-background: {{ section.settings.atelier_background }};
+    --journal-text: {{ section.settings.atelier_text }};
+    --journal-soft: {{ section.settings.atelier_soft }};
+    --journal-accent: {{ section.settings.atelier_accent }};
+    --journal-top: {{ section.settings.padding_top }}px;
+    --journal-bottom: {{ section.settings.padding_bottom }}px;
+    --journal-top-mobile: {{ section.settings.padding_top_mobile }}px;
+    --journal-bottom-mobile: {{ section.settings.padding_bottom_mobile }}px;
+  }
+{% endstyle %}
+{%- if section.settings.show_section_divider or section.settings.show_section_divider_mobile -%}
+  {% render 'section-divider' %}
+{%- endif -%}
+<div id="atelier-journal-{{ section.id }}" class="atelier-journal">
+  <div class="atelier-journal__page">
+    <div class="atelier-journal__header">
+      <div>
+        {%- if section.settings.subheading != blank -%}
+          <p class="atelier-journal__eyebrow">{{ section.settings.subheading | escape }}</p>
+        {%- endif -%}
+        {%- if section.settings.heading != blank -%}
+          <{{ section.settings.heading_tag }} class="atelier-journal__heading">{{ section.settings.heading | escape }}</{{ section.settings.heading_tag }}>
+        {%- endif -%}
+      </div>
+      {%- if section.settings.show_view_all and journal_url != blank -%}
+        <a class="atelier-journal__all atelier-journal__all--desktop" href="{{ journal_url }}">{{ 'sections.atelier_journal.view_all' | t }}</a>
+      {%- endif -%}
+    </div>
+    <div class="atelier-journal__grid">
+      {%- if journal_blog.articles_count > 0 -%}
+        {%- assign displayed_articles = 0 -%}
+        {%- for article in journal_blog.articles -%}
+          {%- liquid
+            if displayed_articles >= section.settings.post_limit
+              break
+            endif
+            assign matches_tag = true
+            if section.settings.blog_with_tag != blank
+              assign matches_tag = false
+              for tag in tag_array
+                assign clean_tag = tag | strip
+                if article.tags contains clean_tag
+                  assign matches_tag = true
+                  break
+                endif
+              endfor
+            endif
+          -%}
+          {%- if matches_tag -%}
+            {% render 'atelier-journal-card', article: article, section: section, index: displayed_articles %}
+            {%- assign displayed_articles = displayed_articles | plus: 1 -%}
+          {%- endif -%}
+        {%- endfor -%}
+      {%- else -%}
+        {%- for block in section.blocks limit: section.settings.post_limit -%}
+          {% render 'atelier-journal-card', article: block.settings.article, block: block, section: section, index: forloop.index0 %}
+        {%- endfor -%}
+      {%- endif -%}
+    </div>
+    {%- if section.settings.show_view_all and journal_url != blank -%}
+      <div class="atelier-journal__footer">
+        <a class="atelier-journal__all atelier-journal__all--mobile" href="{{ journal_url }}"><span>{{ 'sections.atelier_journal.view_all' | t }}</span></a>
+      </div>
+    {%- endif -%}
+  </div>
+</div>
