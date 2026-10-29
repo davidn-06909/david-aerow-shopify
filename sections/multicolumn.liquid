@@ -1,3 +1,6 @@
+{%- if section.settings.atelier_services -%}
+  {% render 'atelier-services', section: section %}
+{%- else -%}
 {%- liquid
   assign base_size_heading = settings.heading_base_size | times: 0.0225 
   assign font_size_heading = section.settings.heading_size | times: 0.01 | times: base_size_heading
@@ -488,6 +491,7 @@
 {% if section.settings.padding_full_width and section.settings.full_width %}
   </div>
 {% endif %}
+{%- endif -%}
 {% schema %}
 {
   "name": "t:sections.multicolumn.name",
@@ -500,6 +504,19 @@
     ]
   },
   "settings": [
+    {
+      "type": "checkbox",
+      "id": "atelier_services",
+      "default": false,
+      "label": "t:sections.atelier_services.enabled"
+    },
+    {
+      "type": "font_picker",
+      "id": "atelier_body_font",
+      "default": "archivo_n4",
+      "label": "t:sections.atelier_story_index.body_font",
+      "visible_if": "{{ section.settings.atelier_services }}"
+    },
     {
       "type": "paragraph",
       "content": "t:sections.user_guide_link.section_and_blocks.text_columns_with_icons"

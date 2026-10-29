@@ -415,6 +415,12 @@
     }
   },
   "sections": {
+    "atelier_correspondence": {
+      "rating": "{{ rating }} out of 5 stars"
+    },
+    "atelier_services": {
+      "heading": "Atelier services"
+    },
     "atelier_clients": {
       "carousel": "carousel",
       "slide": "slide",

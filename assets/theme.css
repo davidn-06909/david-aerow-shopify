@@ -18255,6 +18255,261 @@
     transition: none;
   }
 }
+.atelier-correspondence, .atelier-services {
+  letter-spacing: normal;
+  text-align: center;
+  -webkit-font-smoothing: antialiased;
+}
+.atelier-correspondence {
+  padding-block: var(--correspondence-top-mobile) var(--correspondence-bottom-mobile);
+  color: var(--correspondence-text, #f2f6fb);
+  background: var(--correspondence-background, #0b0d24);
+  font-family: var(--correspondence-body-font);
+  font-weight: var(--correspondence-body-weight);
+}
+.atelier-correspondence__page, .atelier-services__page {
+  max-width: 1720px;
+  margin-inline: auto;
+  padding-inline: clamp(20px, 2vw, 36px);
+}
+.atelier-correspondence__header {
+  margin-block-end: 52px;
+}
+.atelier-correspondence .atelier-correspondence__eyebrow {
+  margin: 0 0 18px;
+  color: var(--correspondence-soft, #9fb9da);
+  font-size: 12px;
+  line-height: 1.6;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.atelier-correspondence .atelier-correspondence__heading {
+  margin: 0;
+  color: inherit;
+  font-family: var(--correspondence-heading-font);
+  font-size: calc(clamp(28px, 2.2vw, 34px) * var(--correspondence-heading-scale, 1));
+  font-weight: var(--correspondence-heading-weight);
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  text-transform: none;
+  text-wrap: balance;
+}
+.atelier-correspondence__intro {
+  max-width: 55ch;
+  margin: 18px auto 0;
+  color: var(--correspondence-soft, #9fb9da);
+  font-size: 16px;
+  line-height: 1.6;
+}
+.atelier-correspondence__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 48px;
+}
+.atelier-correspondence__review {
+  min-width: 0;
+  width: 100%;
+  max-width: 410px;
+  margin: 0 auto;
+}
+.atelier-correspondence__rating {
+  display: flex;
+  justify-content: center;
+  gap: 2px;
+  margin-block-end: 20px;
+  color: var(--correspondence-accent, #79a6ff);
+}
+.atelier-correspondence__rating svg {
+  flex: 0 0 16px;
+}
+.atelier-correspondence__rating svg[fill="none"], .atelier-services__icon svg[fill="none"] {
+  fill: none;
+}
+.atelier-correspondence .atelier-correspondence__review-title {
+  margin: 0 0 12px;
+  color: inherit;
+  font: inherit;
+  font-weight: 600;
+}
+.atelier-correspondence__quote {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-size: 16px;
+  font-style: italic;
+  line-height: 1.4;
+}
+.atelier-correspondence__quote p, .atelier-correspondence__author p, .atelier-correspondence__intro p, .atelier-services__text p {
+  margin: 0;
+}
+.atelier-correspondence__quote p + p, .atelier-correspondence__intro p + p, .atelier-services__text p + p {
+  margin-block-start: 12px;
+}
+.atelier-correspondence__author {
+  margin-block-start: 18px;
+  color: var(--correspondence-soft, #9fb9da);
+  font-size: 12px;
+  font-style: normal;
+  line-height: 1.6;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.atelier-correspondence__link {
+  position: relative;
+  display: inline-block;
+  max-width: 100%;
+  margin-block-start: 28px;
+  padding-block: 12px 16px;
+  border-block-end: 1px solid transparent;
+  color: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.5;
+  letter-spacing: 0.1em;
+  text-decoration: none;
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+}
+.atelier-correspondence__link::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  inset-block-end: -1px;
+  height: 1px;
+  background: var(--correspondence-text, #f2f6fb);
+  @supports (color: color-mix(in lab, red, red)) {
+    background: color-mix(in srgb, var(--correspondence-text, #f2f6fb) 44%, transparent);
+  }
+}
+.atelier-correspondence a.atelier-correspondence__link:is(:hover, :focus-visible) {
+  color: inherit;
+}
+a.atelier-correspondence__link:focus-visible::after {
+  animation: atelier-correspondence-underline 420ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.atelier-correspondence a:not(.atelier-correspondence__link):hover, .atelier-services a:hover {
+  color: var(--correspondence-accent, #79a6ff);
+}
+.atelier-correspondence a:focus-visible, .atelier-services a:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 6px;
+}
+.atelier-services {
+  padding-block: var(--services-top-mobile) var(--services-bottom-mobile);
+  color: var(--services-text, #f2f6fb);
+  background: var(--services-background, #070914);
+  font-family: var(--services-body-font);
+  font-weight: var(--services-body-weight);
+}
+.atelier-services .atelier-services__heading {
+  margin: 0 0 40px;
+  color: inherit;
+  font: inherit;
+  font-size: 24px;
+  font-weight: 600;
+}
+.atelier-services__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 36px 24px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.atelier-services__item {
+  min-width: 0;
+}
+.atelier-services__icon {
+  display: block;
+  width: var(--services-icon-size, 22px);
+  height: var(--services-icon-size, 22px);
+  margin: 0 auto 16px;
+  color: var(--services-icon, #f2f6fb);
+}
+.atelier-services__icon :is(svg, img) {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.atelier-services .atelier-services__title {
+  margin: 0 0 4px;
+  color: inherit;
+  font-family: inherit;
+  font-size: calc(14px * var(--services-title-scale, 1));
+  font-weight: 700;
+  line-height: 1.4;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+}
+.atelier-services__text {
+  max-width: 270px;
+  margin-inline: auto;
+  color: var(--services-soft, #9fb9da);
+  font-size: 14px;
+  line-height: 1.6;
+}
+.atelier-services__title a {
+  text-decoration: none;
+}
+.atelier-services__text a, .atelier-correspondence__intro a, .atelier-correspondence__quote a {
+  text-decoration: underline;
+}
+@media (hover: hover) and (pointer: fine) {
+  a.atelier-correspondence__link:hover::after {
+    animation: atelier-correspondence-underline 420ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+}
+@keyframes atelier-correspondence-underline {
+  0% {
+    transform: scaleX(1);
+    transform-origin: 100% 50%;
+  }
+  49% {
+    transform: scaleX(0);
+    transform-origin: 100% 50%;
+  }
+  50% {
+    transform: scaleX(0);
+    transform-origin: 0 50%;
+  }
+  100% {
+    transform: scaleX(1);
+    transform-origin: 0 50%;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .atelier-correspondence__link::after {
+    animation: none !important;
+  }
+}
+@media (min-width: 768px) {
+  .atelier-correspondence {
+    padding-block: var(--correspondence-top) var(--correspondence-bottom);
+  }
+  .atelier-correspondence__header {
+    margin-block-end: 56px;
+  }
+  .atelier-correspondence__grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    column-gap: 28px;
+  }
+  .atelier-services {
+    padding-block: var(--services-top) var(--services-bottom);
+  }
+  .atelier-services__grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  .atelier-services .atelier-services__title {
+    font-size: calc(16px * var(--services-title-scale, 1));
+  }
+}
+@media (max-width: 359px) {
+  .atelier-services__grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
 .atelier-comparison {
   --comparison-soft: #9fb9da;
   --comparison-current-background: var(--comparison-background);

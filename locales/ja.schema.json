@@ -1027,6 +1027,14 @@
     }
   },
   "sections": {
+    "atelier_correspondence": {
+      "enabled": "Use atelier correspondence layout",
+      "link_label": "Related link label",
+      "link": "Related link"
+    },
+    "atelier_services": {
+      "enabled": "Use atelier services layout"
+    },
     "atelier_clients": {
       "photo_stack": "Use atelier client photo stack",
       "image_url": "Client photo URL (optional)",
