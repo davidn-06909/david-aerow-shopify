@@ -415,6 +415,14 @@
     }
   },
   "sections": {
+    "atelier_latest_work": {
+      "view_all": "Zobraziť všetko: {{ collection }}",
+      "design_ring": "Navrhnúť tento prsteň",
+      "quick_view": "Rýchly náhľad: {{ product }}",
+      "from": "Od",
+      "empty": "Vyberte kolekciu s produktmi na zobrazenie najnovšej tvorby.",
+      "default_collection": "Novinky"
+    },
     "atelier_story_index": {
       "pieces": "{{ count }} kusov"
     },

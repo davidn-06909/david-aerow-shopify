@@ -415,6 +415,14 @@
     }
   },
   "sections": {
+    "atelier_latest_work": {
+      "view_all": "Переглянути всі: {{ collection }}",
+      "design_ring": "Створити цю каблучку",
+      "quick_view": "Швидкий перегляд: {{ product }}",
+      "from": "Від",
+      "empty": "Виберіть колекцію з товарами, щоб показати останні роботи.",
+      "default_collection": "Новинки"
+    },
     "atelier_story_index": {
       "pieces": "{{ count }} виробів"
     },

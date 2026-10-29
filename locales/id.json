@@ -415,6 +415,14 @@
     }
   },
   "sections": {
+    "atelier_latest_work": {
+      "view_all": "Lihat semua {{ collection }}",
+      "design_ring": "Desain cincin ini",
+      "quick_view": "Tampilan cepat {{ product }}",
+      "from": "Mulai dari",
+      "empty": "Pilih koleksi dengan produk untuk menampilkan karya terbaru.",
+      "default_collection": "Produk baru"
+    },
     "atelier_story_index": {
       "pieces": "{{ count }} perhiasan"
     },

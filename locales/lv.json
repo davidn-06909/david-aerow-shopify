@@ -415,6 +415,14 @@
     }
   },
   "sections": {
+    "atelier_latest_work": {
+      "view_all": "Skatīt visu: {{ collection }}",
+      "design_ring": "Izveidot šo gredzenu",
+      "quick_view": "{{ product }} ātrais skats",
+      "from": "No",
+      "empty": "Atlasiet kolekciju ar produktiem, lai parādītu jaunākos darbus.",
+      "default_collection": "Jaunumi"
+    },
     "atelier_story_index": {
       "pieces": "{{ count }} izstrādājumi"
     },

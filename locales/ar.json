@@ -415,6 +415,14 @@
     }
   },
   "sections": {
+    "atelier_latest_work": {
+      "view_all": "عرض كل {{ collection }}",
+      "design_ring": "صمّم هذا الخاتم",
+      "quick_view": "عرض سريع لـ {{ product }}",
+      "from": "ابتداءً من",
+      "empty": "اختر مجموعة تحتوي على منتجات لعرض أحدث الأعمال.",
+      "default_collection": "وصل حديثًا"
+    },
     "atelier_story_index": {
       "pieces": "{{ count }} قطعة"
     },

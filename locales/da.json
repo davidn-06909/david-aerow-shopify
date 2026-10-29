@@ -415,6 +415,14 @@
     }
   },
   "sections": {
+    "atelier_latest_work": {
+      "view_all": "Se alle {{ collection }}",
+      "design_ring": "Design denne ring",
+      "quick_view": "Hurtig visning af {{ product }}",
+      "from": "Fra",
+      "empty": "Vælg en kollektion med produkter for at vise de nyeste værker.",
+      "default_collection": "Nyheder"
+    },
     "atelier_story_index": {
       "pieces": "{{ count }} smykker"
     },

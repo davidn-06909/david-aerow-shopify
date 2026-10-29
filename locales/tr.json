@@ -415,6 +415,14 @@
     }
   },
   "sections": {
+    "atelier_latest_work": {
+      "view_all": "Tüm {{ collection }} ürünlerini gör",
+      "design_ring": "Bu yüzüğü tasarla",
+      "quick_view": "{{ product }} hızlı görünümü",
+      "from": "Başlangıç fiyatı",
+      "empty": "En yeni çalışmaları göstermek için ürün içeren bir koleksiyon seçin.",
+      "default_collection": "Yeni gelenler"
+    },
     "atelier_story_index": {
       "pieces": "{{ count }} parça"
     },

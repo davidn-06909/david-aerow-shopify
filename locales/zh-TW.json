@@ -415,6 +415,14 @@
     }
   },
   "sections": {
+    "atelier_latest_work": {
+      "view_all": "查看全部{{ collection }}",
+      "design_ring": "設計這枚戒指",
+      "quick_view": "快速查看{{ product }}",
+      "from": "起價",
+      "empty": "請選擇包含商品的系列以展示最新作品。",
+      "default_collection": "新品"
+    },
     "atelier_story_index": {
       "pieces": "{{ count }} 件"
     },
