@@ -1,3 +1,6 @@
+{% if section.settings.atelier_cuts %}
+  {% render 'atelier-cuts' %}
+{% else %}
 {% liquid
   assign heading_base_size = settings.heading_base_size | times: 0.0225
   assign heading_size = section.settings.heading_size | times: 0.01 | times: heading_base_size
@@ -153,6 +156,7 @@
   </div>
 </div>
 
+{% endif %}
 {% schema %}
 {
   "name": "t:sections.featured-category.name",
@@ -166,6 +170,60 @@
     ]
   },
   "settings": [
+    {
+      "type": "checkbox",
+      "id": "atelier_cuts",
+      "default": false,
+      "label": "t:sections.atelier_cuts.enable"
+    },
+    {
+      "type": "font_picker",
+      "id": "atelier_heading_font",
+      "default": "oswald_n7",
+      "label": "t:sections.atelier_story_index.heading_font",
+      "visible_if": "{{ section.settings.atelier_cuts }}"
+    },
+    {
+      "type": "font_picker",
+      "id": "atelier_body_font",
+      "default": "archivo_n4",
+      "label": "t:sections.atelier_story_index.body_font",
+      "visible_if": "{{ section.settings.atelier_cuts }}"
+    },
+    {
+      "type": "text",
+      "id": "atelier_eyebrow",
+      "label": "t:sections.atelier_cuts.eyebrow",
+      "default": "t:sections.atelier_cuts.defaults.eyebrow",
+      "visible_if": "{{ section.settings.atelier_cuts }}"
+    },
+    {
+      "type": "richtext",
+      "id": "atelier_text",
+      "label": "t:sections.all.text.text",
+      "default": "t:sections.atelier_cuts.defaults.text",
+      "visible_if": "{{ section.settings.atelier_cuts }}"
+    },
+    {
+      "type": "text",
+      "id": "atelier_button_label",
+      "label": "t:sections.atelier_media_story.button_label",
+      "default": "t:sections.atelier_cuts.defaults.button_label",
+      "visible_if": "{{ section.settings.atelier_cuts }}"
+    },
+    {
+      "type": "url",
+      "id": "atelier_builder_url",
+      "label": "t:sections.atelier_latest_work.builder_url",
+      "visible_if": "{{ section.settings.atelier_cuts }}"
+    },
+    {
+      "type": "color",
+      "id": "atelier_hover_color",
+      "label": "t:sections.atelier_cuts.hover_color",
+      "default": "#10142F",
+      "visible_if": "{{ section.settings.atelier_cuts }}"
+    },
     {
       "type": "paragraph",
       "content": "t:sections.user_guide_link.section_and_blocks.featured_category"
@@ -511,6 +569,29 @@
       "type": "featured_category",
       "name": "t:sections.featured-category.category_block.name",
       "settings": [
+        {
+          "type": "select",
+          "id": "cut_shape",
+          "label": "t:sections.atelier_cuts.shape",
+          "default": "round",
+          "options": [
+            { "value": "round", "label": "t:sections.atelier_cuts.shapes.round" },
+            { "value": "oval", "label": "t:sections.atelier_cuts.shapes.oval" },
+            { "value": "emerald", "label": "t:sections.atelier_cuts.shapes.emerald" },
+            { "value": "pear", "label": "t:sections.atelier_cuts.shapes.pear" },
+            { "value": "cushion", "label": "t:sections.atelier_cuts.shapes.cushion" },
+            { "value": "radiant", "label": "t:sections.atelier_cuts.shapes.radiant" },
+            { "value": "marquise", "label": "t:sections.atelier_cuts.shapes.marquise" },
+            { "value": "princess", "label": "t:sections.atelier_cuts.shapes.princess" },
+            { "value": "asscher", "label": "t:sections.atelier_cuts.shapes.asscher" },
+            { "value": "heart", "label": "t:sections.atelier_cuts.shapes.heart" }
+          ]
+        },
+        {
+          "type": "url",
+          "id": "cut_link",
+          "label": "t:sections.atelier_story_index.link"
+        },
         {
           "type": "text",
           "id": "category_title",

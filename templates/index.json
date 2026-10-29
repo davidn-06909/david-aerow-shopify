@@ -444,29 +444,91 @@
         "featured_category_Chzfxq": {
           "type": "featured_category",
           "settings": {
-            "category_title": "Category",
-            "category": ""
+            "category_title": "Round",
+            "category": "",
+            "cut_shape": "round",
+            "cut_link": ""
           }
         },
         "featured_category_3AWeCH": {
           "type": "featured_category",
           "settings": {
-            "category_title": "Category",
-            "category": ""
+            "category_title": "Oval",
+            "category": "",
+            "cut_shape": "oval",
+            "cut_link": ""
           }
         },
         "featured_category_n7hbmW": {
           "type": "featured_category",
           "settings": {
-            "category_title": "Category",
-            "category": ""
+            "category_title": "Emerald",
+            "category": "",
+            "cut_shape": "emerald",
+            "cut_link": ""
           }
         },
         "featured_category_iG8G7z": {
           "type": "featured_category",
           "settings": {
-            "category_title": "Category",
-            "category": ""
+            "category_title": "Pear",
+            "category": "",
+            "cut_shape": "pear",
+            "cut_link": ""
+          }
+        },
+        "cut_cushion": {
+          "type": "featured_category",
+          "settings": {
+            "category_title": "Cushion",
+            "category": "",
+            "cut_shape": "cushion",
+            "cut_link": ""
+          }
+        },
+        "cut_radiant": {
+          "type": "featured_category",
+          "settings": {
+            "category_title": "Radiant",
+            "category": "",
+            "cut_shape": "radiant",
+            "cut_link": ""
+          }
+        },
+        "cut_marquise": {
+          "type": "featured_category",
+          "settings": {
+            "category_title": "Marquise",
+            "category": "",
+            "cut_shape": "marquise",
+            "cut_link": ""
+          }
+        },
+        "cut_princess": {
+          "type": "featured_category",
+          "settings": {
+            "category_title": "Princess",
+            "category": "",
+            "cut_shape": "princess",
+            "cut_link": ""
+          }
+        },
+        "cut_asscher": {
+          "type": "featured_category",
+          "settings": {
+            "category_title": "Asscher",
+            "category": "",
+            "cut_shape": "asscher",
+            "cut_link": ""
+          }
+        },
+        "cut_heart": {
+          "type": "featured_category",
+          "settings": {
+            "category_title": "Heart",
+            "category": "",
+            "cut_shape": "heart",
+            "cut_link": ""
           }
         }
       },
@@ -474,37 +536,51 @@
         "featured_category_Chzfxq",
         "featured_category_3AWeCH",
         "featured_category_n7hbmW",
-        "featured_category_iG8G7z"
+        "featured_category_iG8G7z",
+        "cut_cushion",
+        "cut_radiant",
+        "cut_marquise",
+        "cut_princess",
+        "cut_asscher",
+        "cut_heart"
       ],
       "name": "t:sections.featured-category.name",
       "settings": {
-        "heading": "Featured categories",
+        "heading": "Ten ways to hold light",
         "highlight_type": "underline",
-        "heading_size": 50,
+        "heading_size": 100,
         "heading_tag": "h2",
-        "heading_alignment": "center",
+        "heading_alignment": "left",
         "image_style": "round",
         "image_ratio": "16/9",
         "content_alignment": "left",
         "content_position": "left",
         "image_width": 162,
         "image_width_mobile": 102,
-        "show_item_count": true,
-        "show_line_border": true,
-        "show_section_divider": true,
-        "padding_top": 100,
-        "padding_bottom": 100,
-        "show_section_divider_mobile": true,
-        "padding_top_mobile": 48,
-        "padding_bottom_mobile": 48,
-        "background_color_light": "rgba(0,0,0,0)",
-        "title_color": "rgba(0,0,0,0)",
-        "text_light": "rgba(0,0,0,0)",
+        "show_item_count": false,
+        "show_line_border": false,
+        "show_section_divider": false,
+        "padding_top": 92,
+        "padding_bottom": 92,
+        "show_section_divider_mobile": false,
+        "padding_top_mobile": 56,
+        "padding_bottom_mobile": 56,
+        "background_color_light": "#070A1E",
+        "title_color": "#F2F6FB",
+        "text_light": "#9FB9DA",
         "line_border": "rgba(0,0,0,0)",
         "background_color_dark": "rgba(0,0,0,0)",
         "title_color_dark": "rgba(0,0,0,0)",
         "text_dark": "rgba(0,0,0,0)",
-        "line_border_dark": "rgba(0,0,0,0)"
+        "line_border_dark": "rgba(0,0,0,0)",
+        "atelier_cuts": true,
+        "atelier_heading_font": "oswald_n7",
+        "atelier_body_font": "archivo_n4",
+        "atelier_eyebrow": "The cuts",
+        "atelier_text": "<p>The outline you choose is the one you will see every day for the rest of your life. Start there.</p>",
+        "atelier_button_label": "Design your ring",
+        "atelier_builder_url": "/pages/design-your-ring",
+        "atelier_hover_color": "#10142F"
       }
     },
     "collage_D4GGTK": {

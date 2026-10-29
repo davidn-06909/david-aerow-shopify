@@ -1027,6 +1027,29 @@
     }
   },
   "sections": {
+    "atelier_cuts": {
+      "enable": "Use atelier diamond cuts layout",
+      "eyebrow": "Section caption",
+      "hover_color": "Card hover background",
+      "shape": "Diamond cut icon",
+      "shapes": {
+        "round": "Round",
+        "oval": "Oval",
+        "emerald": "Emerald",
+        "pear": "Pear",
+        "cushion": "Cushion",
+        "radiant": "Radiant",
+        "marquise": "Marquise",
+        "princess": "Princess",
+        "asscher": "Asscher",
+        "heart": "Heart"
+      },
+      "defaults": {
+        "eyebrow": "The cuts",
+        "text": "<p>The outline you choose is the one you will see every day for the rest of your life. Start there.</p>",
+        "button_label": "Design your ring"
+      }
+    },
     "atelier_media_story": {
       "name": "Atelier video with text",
       "commission": "Atelier commission",

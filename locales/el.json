@@ -415,6 +415,20 @@
     }
   },
   "sections": {
+    "atelier_cuts": {
+      "shapes": {
+        "round": "Round",
+        "oval": "Oval",
+        "emerald": "Emerald",
+        "pear": "Pear",
+        "cushion": "Cushion",
+        "radiant": "Radiant",
+        "marquise": "Marquise",
+        "princess": "Princess",
+        "asscher": "Asscher",
+        "heart": "Heart"
+      }
+    },
     "atelier_latest_work": {
       "view_all": "Προβολή όλων: {{ collection }}",
       "design_ring": "Σχεδιάστε αυτό το δαχτυλίδι",

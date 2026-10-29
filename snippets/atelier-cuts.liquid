@@ -1,0 +1,87 @@
+{%- liquid
+  assign heading_font = section.settings.atelier_heading_font
+  assign body_font = section.settings.atelier_body_font
+  assign background_color = '#070A1E'
+  assign text_color = '#F2F6FB'
+  assign soft_color = '#9FB9DA'
+  if section.settings.background_color_light.alpha > 0
+    assign background_color = section.settings.background_color_light
+  endif
+  if section.settings.title_color.alpha > 0
+    assign text_color = section.settings.title_color
+  endif
+  if section.settings.text_light.alpha > 0
+    assign soft_color = section.settings.text_light
+  endif
+-%}
+{% style %}
+  {{ heading_font | font_face: font_display: 'swap' }}
+  {{ body_font | font_face: font_display: 'swap' }}
+  #atelier-cuts-{{ section.id }} {
+    --cuts-heading-font: {{ heading_font.family }}, {{ heading_font.fallback_families }};
+    --cuts-heading-weight: {{ heading_font.weight }};
+    --cuts-body-font: {{ body_font.family }}, {{ body_font.fallback_families }};
+    --cuts-body-weight: {{ body_font.weight }};
+    --cuts-background: {{ background_color }};
+    --cuts-text: {{ text_color }};
+    --cuts-soft: {{ soft_color }};
+    --cuts-hover: {{ section.settings.atelier_hover_color }};
+    --cuts-top: {{ section.settings.padding_top }}px;
+    --cuts-bottom: {{ section.settings.padding_bottom }}px;
+    --cuts-top-mobile: {{ section.settings.padding_top_mobile }}px;
+    --cuts-bottom-mobile: {{ section.settings.padding_bottom_mobile }}px;
+    --cuts-heading-scale: {{ section.settings.heading_size | divided_by: 100.0 }};
+  }
+{% endstyle %}
+<div id="atelier-cuts-{{ section.id }}" class="atelier-cuts">
+  <div class="atelier-cuts__page">
+    <div class="atelier-cuts__head">
+      {%- if section.settings.atelier_eyebrow != blank -%}
+        <p class="atelier-cuts__eyebrow">{{ section.settings.atelier_eyebrow | escape }}</p>
+      {%- endif -%}
+      {%- if section.settings.heading != blank -%}
+        <{{ section.settings.heading_tag }} class="atelier-cuts__heading">{{ section.settings.heading | escape }}</{{ section.settings.heading_tag }}>
+      {%- endif -%}
+      {%- if section.settings.atelier_text != blank -%}
+        <div class="atelier-cuts__text">{{ section.settings.atelier_text }}</div>
+      {%- endif -%}
+    </div>
+    {%- if section.blocks.size > 0 -%}
+      <ul class="atelier-cuts__list" role="list">
+        {%- for block in section.blocks -%}
+          {%- liquid
+            assign shape = block.settings.cut_shape | default: 'round'
+            assign label_key = 'sections.atelier_cuts.shapes.' | append: shape
+            assign label = block.settings.category_title
+            if label == blank or label == 'Category'
+              assign label = block.settings.category.title | default: label_key
+              if label == label_key
+                assign label = label_key | t
+              endif
+            endif
+            assign link = block.settings.cut_link | default: block.settings.category.url
+            if link == blank and section.settings.atelier_builder_url != blank
+              assign separator = '?'
+              if section.settings.atelier_builder_url contains '?'
+                assign separator = '&'
+              endif
+              assign shape_value = shape | capitalize | url_encode
+              assign link = section.settings.atelier_builder_url | append: separator | append: 'shape=' | append: shape_value
+            endif
+          -%}
+          <li class="atelier-cuts__item" {{ block.shopify_attributes }}>
+            <a class="atelier-cuts__card" {% if link != blank %}href="{{ link | escape }}"{% else %}role="link" aria-disabled="true"{% endif %}>
+              <span class="atelier-cuts__figure">{% render 'icon-diamond-cut', shape: shape %}</span>
+              <span class="atelier-cuts__label">{{ label | escape }}</span>
+            </a>
+          </li>
+        {%- endfor -%}
+      </ul>
+    {%- endif -%}
+    {%- if section.settings.atelier_button_label != blank and section.settings.atelier_builder_url != blank -%}
+      <div class="atelier-cuts__foot">
+        <a class="atelier-cuts__link" href="{{ section.settings.atelier_builder_url | escape }}">{{ section.settings.atelier_button_label | escape }}</a>
+      </div>
+    {%- endif -%}
+  </div>
+</div>
