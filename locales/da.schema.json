@@ -5656,6 +5656,10 @@
       }
     },
     "media-gallery": {
+      "atelier_gallery": {
+        "label": "Enable portrait image gallery",
+        "image_url": "Image URL (optional alternative to uploading an image)"
+      },
       "name": "Mediegalleri",
       "keep_ratio_on_different_width": {
         "label": "Behold blokforholdet på forskellige skærmbredder",

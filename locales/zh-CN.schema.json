@@ -5656,6 +5656,10 @@
       }
     },
     "media-gallery": {
+      "atelier_gallery": {
+        "label": "Enable portrait image gallery",
+        "image_url": "Image URL (optional alternative to uploading an image)"
+      },
       "name": "媒体库",
       "keep_ratio_on_different_width": {
         "label": "保持在不同宽度下的比例",

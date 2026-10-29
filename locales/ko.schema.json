@@ -5656,6 +5656,10 @@
       }
     },
     "media-gallery": {
+      "atelier_gallery": {
+        "label": "Enable portrait image gallery",
+        "image_url": "Image URL (optional alternative to uploading an image)"
+      },
       "name": "미디어 갤러리",
       "keep_ratio_on_different_width": {
         "label": "다른 화면 너비에서 블록 비율 유지",
