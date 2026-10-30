@@ -1,0 +1,143 @@
+{% render 'atelier-fonts' %}
+{%- liquid
+  assign sort_by = collection.sort_by | default: collection.default_sort_by
+  assign clear_url = collection.url | append: '?sort_by=' | append: sort_by
+  assign active_count = 0
+  for filter in collection.filters
+    assign active_count = active_count | plus: filter.active_values.size
+    if filter.type == 'price_range'
+      if filter.min_value.value != nil or filter.max_value.value != nil
+        assign active_count = active_count | plus: 1
+      endif
+    endif
+  endfor
+-%}
+<section
+  id="atelier-collection-{{ section.id }}"
+  class="atelier-work atelier-work--grid atelier-collection"
+  style="--collection-columns: {{ section.settings.columns_desktop }}; --work-background: {{ section.settings.background_color }}; --work-text: {{ section.settings.text_color }};"
+  x-data="xAtelierCollection"
+  data-section-id="{{ section.id }}"
+  data-loading-label="{{ 'sections.atelier_collection.loading' | t | escape }}"
+  @popstate.window="render(location.href, false)"
+  @resize.window.debounce.150ms="if (window.innerWidth >= 990) closeFilters()"
+>
+  <div class="atelier-collection__page">
+    <header class="atelier-collection__heading">
+      <nav class="atelier-collection__breadcrumbs" aria-label="{{ 'sections.atelier_collection.breadcrumb' | t }}">
+        <a href="{{ routes.root_url }}">{{ 'general.breadcrumbs.home' | t }}</a><span aria-hidden="true">/</span><span aria-current="page">{{ collection.title | escape }}</span>
+      </nav>
+      <h1>{{ collection.title | escape }}</h1>
+      {% if section.settings.show_description and collection.description != blank %}
+        <div class="atelier-collection__description rte">{{ collection.description }}</div>
+      {% endif %}
+    </header>
+    <div class="atelier-collection__toolbar">
+      <div class="atelier-collection__toolbar-start">
+        {% if section.settings.enable_filtering and collection.filters != empty %}
+          <button type="button" class="atelier-collection__filter-button" @click="openFilters($el)" aria-haspopup="dialog" aria-controls="CollectionFilters-{{ section.id }}" :aria-expanded="filtersOpen">
+            {% render 'atelier-header-icon', icon: 'filter' %}
+            {{ 'products.facets.filter_by_label' | t }} <span data-filter-badge {% if active_count == 0 %}hidden{% endif %}>{{ active_count }}</span>
+          </button>
+        {% endif %}
+        <p class="atelier-collection__count" data-collection-count>{{ 'sections.atelier_collection.pieces' | t: count: collection.products_count }}</p>
+      </div>
+      <div class="atelier-collection__toolbar-end">
+        <div class="atelier-collection__density" role="group" aria-label="{{ 'sections.atelier_collection.grid' | t }}">
+          {% for columns in (2..4) %}
+            <button type="button" data-columns="{{ columns }}" @click="setColumns({{ columns }})" :aria-pressed="columns === {{ columns }}" aria-label="{{ 'sections.atelier_collection.per_row' | t: count: columns }}">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true"><rect x="3" y="3" width="18" height="18"/>{% if columns == 2 %}<path d="M12 3v18"/>{% elsif columns == 3 %}<path d="M9 3v18M15 3v18"/>{% else %}<path d="M7.5 3v18M12 3v18M16.5 3v18"/>{% endif %}</svg>
+            </button>
+          {% endfor %}
+        </div>
+        {% if section.settings.enable_sorting %}
+          <form action="{{ collection.url }}" method="get" class="atelier-collection__sort" @submit.prevent="submitSort($el)">
+            {% for filter in collection.filters %}
+              {% for value in filter.active_values %}<input type="hidden" name="{{ value.param_name }}" value="{{ value.value | escape }}">{% endfor %}
+              {% if filter.type == 'price_range' %}
+                {% if filter.min_value.value != nil %}<input type="hidden" name="{{ filter.min_value.param_name }}" value="{{ filter.min_value.value | divided_by: 100.0 }}">{% endif %}
+                {% if filter.max_value.value != nil %}<input type="hidden" name="{{ filter.max_value.param_name }}" value="{{ filter.max_value.value | divided_by: 100.0 }}">{% endif %}
+              {% endif %}
+            {% endfor %}
+            <label class="sr-only" for="CollectionSort-{{ section.id }}">{{ 'products.facets.sort_by_label' | t }}</label>
+            <select id="CollectionSort-{{ section.id }}" name="sort_by" @change="submitSort($el.form)">
+              {% for option in collection.sort_options %}<option value="{{ option.value | escape }}"{% if option.value == sort_by %} selected{% endif %}>{{ option.name | escape }}</option>{% endfor %}
+            </select>
+            <svg width="12" height="8" viewBox="0 0 12 8" fill="none" stroke="currentColor" aria-hidden="true"><path d="m1 1 5 5 5-5"/></svg>
+            <noscript><button type="submit">{{ 'sections.atelier_collection.apply' | t }}</button></noscript>
+          </form>
+        {% endif %}
+      </div>
+    </div>
+    <p class="sr-only" role="status" aria-live="polite" x-text="announcement"></p>
+    <div data-collection-content :aria-busy="loading">
+      <s-view-event data-collection-event data-all-products-count="{{ collection.all_products_count }}" view-event-payload='{{ collection | standard_event_data: "view" | escape }}'></s-view-event>
+      {% if active_count > 0 %}
+        <div class="atelier-collection__chips" aria-label="{{ 'sections.atelier_collection.selected' | t }}">
+          {% for filter in collection.filters %}
+            {% for value in filter.active_values %}
+              <a href="{{ value.url_to_remove }}" @click.prevent="render($el.href)" class="atelier-collection__chip" aria-label="{{ 'sections.atelier_collection.remove_filter' | t: label: value.label | escape }}">{{ filter.label | escape }}: {{ value.label | escape }}<span aria-hidden="true">×</span></a>
+            {% endfor %}
+            {% if filter.type == 'price_range' %}
+              {% if filter.min_value.value != nil or filter.max_value.value != nil %}
+                <a href="{{ filter.url_to_remove }}" @click.prevent="render($el.href)" class="atelier-collection__chip" aria-label="{{ 'sections.atelier_collection.remove_filter' | t: label: filter.label | escape }}">{{ filter.min_value.value | default: 0 | money }} – {{ filter.max_value.value | default: filter.range_max | money }}<span aria-hidden="true">×</span></a>
+              {% endif %}
+            {% endif %}
+          {% endfor %}
+          {% if active_count >= 2 %}<a class="atelier-collection__clear" href="{{ clear_url }}" @click.prevent="render($el.href)">{{ 'templates.search.clear_all' | t }}</a>{% endif %}
+        </div>
+      {% endif %}
+      <div class="atelier-collection__layout{% unless section.settings.enable_filtering and collection.filters != empty %} atelier-collection__layout--full{% endunless %}">
+        {% if section.settings.enable_filtering and collection.filters != empty %}
+          <aside class="atelier-collection__sidebar" data-filter-home aria-label="{{ 'products.facets.filter_by_label' | t }}">
+            {% render 'atelier-collection-filters', collection: collection, section_id: section.id, sort_by: sort_by, clear_url: clear_url, active_count: active_count %}
+          </aside>
+        {% endif %}
+        <div class="atelier-collection__products">
+          {% paginate collection.products by section.settings.products_per_page %}
+            <ul class="atelier-collection__grid" data-collection-grid role="list">
+              {% for product in collection.products %}
+                <li data-collection-card>
+                  {% render 'card-product-atelier', card_product: product, section_id: section.id, index: forloop.index, show_rating: section.settings.show_rating, show_quickview: section.settings.show_quickview, image_sizes: '(min-width: 1720px) 530px, (min-width: 990px) 33vw, 50vw', collection_card: true %}
+                </li>
+              {% endfor %}
+            </ul>
+            {% if collection.products_count == 0 %}
+              <div class="atelier-collection__empty">
+                <h2>{{ 'sections.collection_template.empty' | t }}</h2>
+                <p>{{ 'sections.atelier_collection.empty_help' | t }}</p>
+                {% if active_count > 0 %}<a href="{{ clear_url }}" @click.prevent="render($el.href)">{{ 'sections.atelier_collection.reset_filters' | t }}</a>{% endif %}
+              </div>
+            {% endif %}
+            <div class="atelier-collection__pagination" data-collection-pagination>
+              {% if paginate.next %}<a href="{{ paginate.next.url }}" class="atelier-collection__more" @click.prevent="render($el.href, false, true)" :aria-disabled="loading">{{ 'general.global.load_more' | t }}</a>{% endif %}
+            </div>
+          {% endpaginate %}
+        </div>
+      </div>
+    </div>
+  </div>
+  <dialog class="atelier-collection__dialog" id="CollectionFilters-{{ section.id }}" x-ref="filtersDialog" aria-labelledby="CollectionFiltersTitle-{{ section.id }}" @cancel.prevent="closeFilters()" @keydown.tab="trapFilters($event)" @click="if ($event.target === $el) closeFilters()">
+    <div class="atelier-collection__drawer">
+      <header><h2 id="CollectionFiltersTitle-{{ section.id }}">{{ 'products.facets.filter_by_label' | t }}</h2><button type="button" @click="closeFilters()" aria-label="{{ 'accessibility.close' | t }}">{% render 'atelier-header-icon', icon: 'close' %}</button></header>
+      <div class="atelier-collection__drawer-body" x-ref="filtersBody"></div>
+    </div>
+  </dialog>
+</section>
+<script src="{{ 'atelier-collection.js' | asset_url }}" defer></script>
+{% schema %}
+{
+  "name": "t:sections.atelier_collection.name",
+  "settings": [
+    { "type": "checkbox", "id": "enable_filtering", "label": "t:sections.main-collection-product-grid.settings.enable_filtering.label", "default": true },
+    { "type": "checkbox", "id": "enable_sorting", "label": "t:sections.main-collection-product-grid.settings.enable_sorting.label", "default": true },
+    { "type": "checkbox", "id": "show_description", "label": "t:sections.main-collection-product-grid.settings.show_description_on_list_view", "default": true },
+    { "type": "checkbox", "id": "show_rating", "label": "t:sections.featured-collection.blocks.collection.settings.show_rating.label", "default": true },
+    { "type": "checkbox", "id": "show_quickview", "label": "t:sections.quick_view.show_quickview_button", "default": true },
+    { "type": "range", "id": "products_per_page", "label": "t:sections.atelier_collection.products_per_page", "min": 8, "max": 48, "step": 4, "default": 24 },
+    { "type": "range", "id": "columns_desktop", "label": "t:sections.collection-list.settings.columns_desktop.label", "min": 2, "max": 4, "step": 1, "default": 4 },
+    { "type": "color", "id": "background_color", "label": "t:sections.atelier_collection.background", "default": "#0B0E28" },
+    { "type": "color", "id": "text_color", "label": "t:sections.atelier_collection.text", "default": "#F2F6FB" }
+  ]
+}
+{% endschema %}
