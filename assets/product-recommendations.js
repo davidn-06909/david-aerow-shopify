@@ -67,7 +67,7 @@ if (!window.Eurus.loadedScript.has('product-recommendations.js')) {
         },
         load(el, url) {
           this.loading = true;
-          fetch(url)
+          return fetch(url)
             .then(response => response.text())
             .then(text => {
               const html = document.createElement('div');
@@ -81,7 +81,7 @@ if (!window.Eurus.loadedScript.has('product-recommendations.js')) {
                 if (recommendations.classList.contains('main-product')) {
                   el.className += ' mb-4 md:mb-6 border-y border-solid accordion empty:border-b-0';
                 }
-              } else if (recommendations.classList.contains('main-product')) {
+              } else if (recommendations?.classList.contains('main-product')) {
                 requestAnimationFrame(() => {
                   setTimeout(() => {
                     recommendations.classList.add("hidden");

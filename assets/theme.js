@@ -232,24 +232,27 @@ const getSectionInnerHTML = (html, selector = '.shopify-section') => {
 }
 
 const xParseJSON = (jsonString) => {
-  jsonString = String.raw`${jsonString}`;
-  jsonString = jsonString.replaceAll("\\","\\\\").replaceAll('\\"', '\"');
-  return JSON.parse(jsonString);
+  try {
+    return JSON.parse(jsonString);
+  } catch {
+    // Older data attributes contain unescaped backslashes, including regular expressions.
+    const legacyJSON = String(jsonString).replaceAll("\\", "\\\\").replaceAll('\\"', '\"');
+    return JSON.parse(legacyJSON);
+  }
 }
 
 window.addEventListener("pageshow", () => {
-  document.addEventListener('alpine:init', () => {
-    if (Alpine.store('xMiniCart')) {
-      if (Alpine.store('xMiniCart').needReload) {
-        Alpine.store('xMiniCart').reLoad();
-      }
-      const isCartPage = document.getElementById("main-cart-items");
-      if (isCartPage && Alpine.store('xMiniCart').needReload) {
-        location.reload();
-      }
-      Alpine.store('xMiniCart').needReload = true;
+  const refreshCart = () => {
+    const miniCart = Alpine.store('xMiniCart');
+    if (!miniCart) return;
+    if (miniCart.needReload) {
+      if (document.getElementById("main-cart-items")) location.reload();
+      else miniCart.reLoad();
     }
-  })
+    miniCart.needReload = true;
+  };
+  if (window.Alpine) refreshCart();
+  else document.addEventListener('alpine:init', refreshCart, { once: true });
 });
 
 requestAnimationFrame(() => {

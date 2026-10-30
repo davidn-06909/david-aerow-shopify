@@ -655,7 +655,11 @@
                       </div>
                     {% else %}
                       <div class="x-block-vendor w-full mb-2{% if show_content_center %} text-center{% endif %}" {{ block.shopify_attributes }}>
-                        <{% if block.settings.link != blank %}a href="{{ block.settings.link }}"{% if block.settings.open_new_window %} target="_blank"{% endif %} class="effect-inline {% else %}p class="{% endif %}relative italic p-break-words inline-block">{{ product.vendor | escape }}</{% if block.settings.link %}a{% else %}p{% endif %}>
+                        {% if block.settings.link != blank %}
+                          <a href="{{ block.settings.link }}"{% if block.settings.open_new_window %} target="_blank"{% endif %} class="effect-inline relative italic p-break-words inline-block">{{ product.vendor | escape }}</a>
+                        {% else %}
+                          <p class="relative italic p-break-words inline-block">{{ product.vendor | escape }}</p>
+                        {% endif %}
                       </div>
                     {%- endif -%}
                   {% endif %}
@@ -2639,7 +2643,7 @@
                 {%- when 'product_score' -%}
                   {% render 'product-score', product: product, block: block, show_content_center: show_content_center %}
                 {%- when 'shoppable_video' -%}
-                  {% render 'shoppable-video', block: block, show_content_center: show_content_center, loading: loading, is_rtl: is_rtl, loading: loading %}
+                  {% render 'shoppable-video', block: block, show_content_center: show_content_center, loading: loading, is_rtl: is_rtl %}
                 {%- when 'disclosures' -%}
                   {%- assign block_heading = block.settings.heading -%}
                   {%- assign disclosures = product.metafields.shopify.disclosure.value -%}

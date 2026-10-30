@@ -16,7 +16,7 @@
       this.columns = Number(this.root.style.getPropertyValue('--collection-columns')) || 4;
       try {
         const saved = Number(sessionStorage.getItem('atelier:collection-columns'));
-        if ([2, 3, 4].includes(saved)) this.setColumns(saved);
+        if (!this.root.hasAttribute('data-fixed-columns') && [2, 3, 4].includes(saved)) this.setColumns(saved);
       } catch { /* Storage can be unavailable in private browsing. */ }
       this.$watch('$store.xQuickView?.show', visible => {
         if (!visible && this.quickViewTrigger) {
@@ -134,6 +134,22 @@
       } else this.render(form.querySelector('[data-filter-clear]').href);
     },
     beginUpdate(url) {
+      const searchMarker = this.root.querySelector('[data-search-event]');
+      if (searchMarker) {
+        const Ctor = window.StandardEvents?.SearchUpdateEvent;
+        if (!Ctor) return null;
+        try {
+          const search = { query: searchMarker.dataset.query };
+          const productFilters = Ctor.parseProductFilters(url.searchParams);
+          const sortKey = Ctor.getSortKey(url.searchParams);
+          if (productFilters) search.productFilters = productFilters;
+          if (sortKey) search.sortKey = sortKey;
+          const deferred = Ctor.createPromise();
+          deferred.promise.catch(() => {});
+          this.root.dispatchEvent(new Ctor({ search, promise: deferred.promise }));
+          return deferred;
+        } catch { return null; }
+      }
       const Ctor = window.StandardEvents?.CollectionUpdateEvent;
       const marker = this.root.querySelector('[data-collection-event]');
       if (!Ctor || !marker) return null;
@@ -202,6 +218,8 @@
         if (update && marker) {
           const collection = JSON.parse(marker.getAttribute('view-event-payload')).collection;
           update.resolve({ productsCount: collection.productsCount });
+        } else if (update && content.querySelector('[data-search-event]')) {
+          update.resolve({ totalCount: Number(content.querySelector('[data-search-event]').dataset.totalCount) });
         }
         this.announcement = this.root.querySelector('[data-collection-count]').textContent.trim();
       } catch (error) {

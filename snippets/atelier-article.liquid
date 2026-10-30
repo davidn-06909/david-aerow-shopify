@@ -1,0 +1,175 @@
+{%- liquid
+  assign heading_font = section.settings.atelier_heading_font
+  assign body_font = section.settings.atelier_body_font
+  assign title_id = 'ArticleTitle-' | append: section.id
+  assign comment_form_id = 'ArticleCommentForm-' | append: section.id
+-%}
+{% style %}
+  {{ heading_font | font_face: font_display: 'swap' }}
+  {{ body_font | font_face: font_display: 'swap' }}
+  #atelier-article-{{ section.id }} {
+    --article-heading-font: {{ heading_font.family }}, {{ heading_font.fallback_families }};
+    --article-heading-weight: {{ heading_font.weight }};
+    --article-body-font: {{ body_font.family }}, {{ body_font.fallback_families }};
+    --article-body-weight: {{ body_font.weight }};
+    --article-background: {{ section.settings.atelier_background }};
+    --article-text: {{ section.settings.atelier_text }};
+    --article-soft: {{ section.settings.atelier_soft }};
+    --article-accent: {{ section.settings.atelier_accent }};
+  }
+{% endstyle %}
+<atelier-article id="atelier-article-{{ section.id }}" class="atelier-article">
+  <article aria-labelledby="{{ title_id }}">
+    {%- for block in section.blocks -%}
+      {%- case block.type -%}
+        {%- when 'breadcrumbs' -%}
+          <div class="atelier-article__page atelier-article__crumbs" {{ block.shopify_attributes }}>
+            <nav aria-label="{{ 'blogs.article.breadcrumb' | t | escape }}">
+              <ol class="atelier-article__breadcrumbs" role="list">
+                <li><a href="{{ routes.root_url }}">{{ 'general.breadcrumbs.home' | t }}</a></li>
+                <li><a href="{{ blog.url }}">{{ blog.title | escape }}</a></li>
+                <li><span aria-current="page">{{ article.title | escape }}</span></li>
+              </ol>
+            </nav>
+          </div>
+        {%- when 'featured_image' -%}
+          {%- if article.image -%}
+            <div class="atelier-article__hero" {{ block.shopify_attributes }}>
+              {{ article.image | image_url: width: 2200 | image_tag:
+                widths: '300, 400, 500, 600, 700, 800, 1000, 1200, 1500, 1800, 2200',
+                sizes: '100vw',
+                loading: 'eager',
+                fetchpriority: 'high',
+                class: 'atelier-article__image'
+              }}
+            </div>
+          {%- endif -%}
+        {%- when 'title' -%}
+          <header class="atelier-article__header" {{ block.shopify_attributes }}>
+            <div class="atelier-article__page atelier-article__reading atelier-article__title-block">
+              <h1 id="{{ title_id }}" class="atelier-article__title">{{ article.title | escape }}</h1>
+            </div>
+            {%- if block.settings.blog_show_date or block.settings.blog_show_author -%}
+              <div class="atelier-article__page atelier-article__reading atelier-article__meta-block">
+                <p class="atelier-article__meta atelier-article__numeral">
+                  {%- if block.settings.blog_show_date -%}
+                    <time datetime="{{ article.published_at | date: '%Y-%m-%d' }}">{{ article.published_at | date: format: 'atelier_article' }}</time>
+                  {%- endif -%}
+                  {%- if block.settings.blog_show_author -%}
+                    <span>{{ 'blogs.article.by_author' | t: author: article.author | escape }}</span>
+                  {%- endif -%}
+                </p>
+              </div>
+            {%- endif -%}
+          </header>
+        {%- when 'content' -%}
+          <div class="atelier-article__page atelier-article__reading atelier-article__body atelier-article__rte" {{ block.shopify_attributes }}>
+            {{ article.content }}
+          </div>
+        {%- when 'button' -%}
+          {%- if block.settings.blog_show_share_social -%}
+            <div class="atelier-article__page atelier-article__reading atelier-article__share" {{ block.shopify_attributes }}>
+              <button class="atelier-article__button atelier-article__button--text" type="button" data-article-share data-title="{{ article.title | escape }}" data-copied="{{ 'general.global.copied' | t | escape }}">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true" focusable="false"><path d="M12 3v13M7.5 7.5 12 3l4.5 4.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 13v6.5h14V13" stroke-linecap="round"/></svg>
+                <span data-article-share-label>{{ 'blogs.article.share_label' | t }}</span>
+              </button>
+              <p class="atelier-article__status" role="status" aria-live="polite" data-article-share-status></p>
+              <div class="atelier-article__copy" data-article-copy hidden>
+                <label for="ArticleUrl-{{ section.id }}">{{ 'blogs.article.copy_link' | t }}</label>
+                <input class="atelier-article__input" id="ArticleUrl-{{ section.id }}" type="url" value="{{ canonical_url | escape }}" readonly>
+              </div>
+            </div>
+          {%- endif -%}
+      {%- endcase -%}
+    {%- endfor -%}
+
+    {%- if section.settings.atelier_show_navigation -%}
+      {%- if blog.previous_article or blog.next_article -%}
+        <nav class="atelier-article__page atelier-article__nav" aria-label="{{ 'blogs.article.keep_reading' | t | escape }}">
+          {%- if blog.previous_article -%}
+            <a class="atelier-article__nav-link" href="{{ blog.previous_article.url }}" rel="prev">
+              {% render 'atelier-article-arrow' %}
+              <span><span class="atelier-article__numeral">{{ 'general.pagination.previous' | t }}</span><span class="atelier-article__nav-title">{{ blog.previous_article.title | escape }}</span></span>
+            </a>
+          {%- endif -%}
+          {%- if blog.next_article -%}
+            <a class="atelier-article__nav-link atelier-article__nav-link--next" href="{{ blog.next_article.url }}" rel="next">
+              <span><span class="atelier-article__numeral">{{ 'general.pagination.next' | t }}</span><span class="atelier-article__nav-title">{{ blog.next_article.title | escape }}</span></span>
+              {% render 'atelier-article-arrow' %}
+            </a>
+          {%- endif -%}
+        </nav>
+      {%- endif -%}
+    {%- endif -%}
+
+    {%- for block in section.blocks -%}
+      {%- if block.type == 'button' and block.settings.show_back_to_blog -%}
+        <div class="atelier-article__page atelier-article__reading atelier-article__back">
+          <a class="atelier-article__button atelier-article__button--text" href="{{ blog.url }}">
+            {% render 'atelier-article-arrow', size: 15 %}
+            <span>{{ 'blogs.article.all_stories' | t }}</span>
+          </a>
+        </div>
+      {%- endif -%}
+    {%- endfor -%}
+
+    {%- if blog.comments_enabled? -%}
+      <section class="atelier-article__page atelier-article__reading atelier-article__comments" id="comments" aria-labelledby="CommentsHeading-{{ section.id }}">
+        <h2 id="CommentsHeading-{{ section.id }}" class="atelier-article__subtitle">{{ 'blogs.article.comments_heading' | t }} <span class="atelier-article__numeral atelier-article__count">{{ article.comments_count }}</span></h2>
+        {%- if article.comments_count > 0 -%}
+          {%- paginate article.comments by 10 -%}
+            <ol class="atelier-article__comment-list" role="list">
+              {%- for comment in article.comments -%}
+                <li class="atelier-article__comment" id="comment-{{ comment.id }}">
+                  <div class="atelier-article__rte atelier-article__comment-body">{{ comment.content }}</div>
+                  <p class="atelier-article__comment-meta atelier-article__numeral"><span>{{ comment.author | escape }}</span><time datetime="{{ comment.created_at | date: '%Y-%m-%d' }}">{{ comment.created_at | date: format: 'atelier_article' }}</time></p>
+                </li>
+              {%- endfor -%}
+            </ol>
+            {%- if paginate.pages > 1 -%}
+              <nav class="atelier-article__pagination" aria-label="{{ 'blogs.article.comments_heading' | t | escape }}">
+                {%- if paginate.previous -%}<a href="{{ paginate.previous.url }}#comments">{{ 'general.pagination.previous' | t }}</a>{%- endif -%}
+                {%- for part in paginate.parts -%}
+                  {%- if part.is_link -%}<a href="{{ part.url }}#comments">{{ part.title }}</a>{%- else -%}<span{% if part.title == paginate.current_page %} aria-current="page"{% endif %}>{{ part.title }}</span>{%- endif -%}
+                {%- endfor -%}
+                {%- if paginate.next -%}<a href="{{ paginate.next.url }}#comments">{{ 'general.pagination.next' | t }}</a>{%- endif -%}
+              </nav>
+            {%- endif -%}
+          {%- endpaginate -%}
+        {%- endif -%}
+        {%- form 'new_comment', article, id: comment_form_id, class: 'atelier-article__comment-form' -%}
+          <h3 class="atelier-article__subtitle">{{ 'blogs.article.comment_form_title' | t }}</h3>
+          {%- if form.posted_successfully? -%}
+            <p class="atelier-article__message" role="status" tabindex="-1" autofocus>{% if blog.moderated? %}{{ 'blogs.article.success_moderated' | t }}{% else %}{{ 'blogs.article.success' | t }}{% endif %}</p>
+          {%- endif -%}
+          {%- if form.errors -%}
+            <div class="atelier-article__message" role="alert" tabindex="-1" autofocus>{{ form.errors | default_errors }}</div>
+          {%- endif -%}
+          <div class="atelier-article__comment-fields">
+            <div class="atelier-article__field">
+              <label for="CommentAuthor-{{ section.id }}">{{ 'blogs.article.name' | t }}</label>
+              <input class="atelier-article__input" id="CommentAuthor-{{ section.id }}" type="text" name="comment[author]" value="{{ form.author | escape }}" autocomplete="name" required{% if form.errors contains 'author' %} aria-invalid="true" aria-describedby="CommentAuthorError-{{ section.id }}"{% endif %}>
+              {%- if form.errors contains 'author' -%}<span class="atelier-article__error" id="CommentAuthorError-{{ section.id }}">{{ form.errors.translated_fields.author | capitalize }} {{ form.errors.messages.author }}</span>{%- endif -%}
+            </div>
+            <div class="atelier-article__field">
+              <label for="CommentEmail-{{ section.id }}">{{ 'blogs.article.email' | t }}</label>
+              <input class="atelier-article__input" id="CommentEmail-{{ section.id }}" type="email" name="comment[email]" value="{{ form.email | escape }}" autocomplete="email" autocorrect="off" autocapitalize="off" required{% if form.errors contains 'email' %} aria-invalid="true" aria-describedby="CommentEmailError-{{ section.id }}"{% endif %}>
+              {%- if form.errors contains 'email' -%}<span class="atelier-article__error" id="CommentEmailError-{{ section.id }}">{{ form.errors.translated_fields.email | capitalize }} {{ form.errors.messages.email }}</span>{%- endif -%}
+            </div>
+          </div>
+          <div class="atelier-article__field">
+            <label for="CommentBody-{{ section.id }}">{{ 'blogs.article.message' | t }}</label>
+            <textarea class="atelier-article__input atelier-article__textarea" id="CommentBody-{{ section.id }}" name="comment[body]" required{% if form.errors contains 'body' %} aria-invalid="true" aria-describedby="CommentBodyError-{{ section.id }}"{% endif %}>{{ form.body | escape }}</textarea>
+            {%- if form.errors contains 'body' -%}<span class="atelier-article__error" id="CommentBodyError-{{ section.id }}">{{ form.errors.translated_fields.body | capitalize }} {{ form.errors.messages.body }}</span>{%- endif -%}
+          </div>
+          {%- if blog.moderated? -%}<p class="atelier-article__note">{{ 'blogs.article.moderated' | t }}</p>{%- endif -%}
+          <button class="atelier-article__button atelier-article__button--solid" type="submit"><span>{{ 'blogs.article.post' | t }}</span></button>
+        {%- endform -%}
+      </section>
+    {%- endif -%}
+  </article>
+</atelier-article>
+{%- if section.settings.enable_microdata -%}
+  <script type="application/ld+json">{{ article | structured_data }}</script>
+{%- endif -%}
+<script src="{{ 'atelier-article.js' | asset_url }}" defer></script>

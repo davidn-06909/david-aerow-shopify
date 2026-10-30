@@ -90,9 +90,6 @@
 /* ---------------------------------------------------------------------------
  * Component CSS — unlayered (highest cascade priority, after Tailwind
  * utilities). Order preserved from the original v3 index.css.
- *
- * Note: app.scss (previous-tenant cruft) and popup-promotion.css (was never
- * imported in the original build) are intentionally excluded.
  * ------------------------------------------------------------------------- */
 @import "./components/confirmation-subcribe.css";
 @import "./components/slideshow.css";
@@ -115,6 +112,8 @@
 @import "./components/video-with-text.css";
 @import "./components/blog-post.css";
 @import "./components/atelier-journal.css";
+@import "./components/atelier-article.css";
+@import "./components/atelier-blog.css";
 @import "./components/atelier-consultation.css";
 @import "./components/atelier-about.css";
 @import "./components/main-register.css";
@@ -132,6 +131,7 @@
 @import "./components/atelier-cart.css";
 @import "./components/atelier-product.css";
 @import "./components/atelier-collection.css";
+@import "./components/atelier-search-page.css";
 @import "./components/atelier-quick-view.css";
 @import "./components/announcement-bar.css";
 @import "./components/app-product-options.css";

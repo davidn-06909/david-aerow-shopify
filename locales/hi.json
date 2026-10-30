@@ -48,6 +48,9 @@
       "shape": "Shape",
       "back": "Back"
     },
+    "search_page": {
+      "results_for": "\"{{ terms }}\" के लिए परिणाम"
+    },
     "search_modal": {
       "placeholder": "Search the shop",
       "help": "Results appear as you type.",
@@ -264,6 +267,13 @@
     "per_page": "प्रति पृष्ठ",
     "all_articles": "सभी लेख",
     "article": {
+      "breadcrumb": "Breadcrumb",
+      "by_author": "द्वारा {{ author }}",
+      "share_label": "शेयर करें",
+      "copy_link": "Copy this link",
+      "keep_reading": "Keep reading",
+      "all_stories": "सभी कहानियाँ",
+      "comments_heading": "Comments",
       "blog": "ब्लॉग",
       "read_more_title": "और पढ़ें: {{ title }}",
       "comments": {
@@ -970,7 +980,8 @@
     "day_month_year": "%b %d %Y को",
     "short_month": "%b",
     "short_month_day": "%b %d",
-    "abbreviated_month_day_year": "%b %d, %Y"
+    "abbreviated_month_day_year": "%b %d, %Y",
+    "atelier_article": "%B %e, %Y"
   },
   "recipient": {
     "form": {

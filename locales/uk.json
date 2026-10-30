@@ -48,6 +48,9 @@
       "shape": "Shape",
       "back": "Back"
     },
+    "search_page": {
+      "results_for": "Результати для «{{ terms }}»"
+    },
     "search_modal": {
       "placeholder": "Search the shop",
       "help": "Results appear as you type.",
@@ -264,6 +267,13 @@
     "per_page": "на сторінку",
     "all_articles": "Всі статті",
     "article": {
+      "breadcrumb": "Breadcrumb",
+      "by_author": "Від {{ author }}",
+      "share_label": "Поділитися",
+      "copy_link": "Copy this link",
+      "keep_reading": "Keep reading",
+      "all_stories": "Усі історії",
+      "comments_heading": "Comments",
       "blog": "Блог",
       "read_more_title": "Читати далі: {{ title }}",
       "comments": {
@@ -970,7 +980,8 @@
     "day_month_year": "%d %b %Y",
     "short_month": "%b",
     "short_month_day": "%d %b",
-    "abbreviated_month_day_year": "%d %b, %Y"
+    "abbreviated_month_day_year": "%d %b, %Y",
+    "atelier_article": "%B %e, %Y"
   },
   "recipient": {
     "form": {

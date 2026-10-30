@@ -76,9 +76,9 @@
             {%- if settings.show_cart_custom_field and settings.cart_custom_field_label != blank -%}
               {%- capture cart_fields_data -%}
                 {
-                  "custom_field_label": "{{ settings.cart_custom_field_label | escape }}",
+                  "custom_field_label": {{ settings.cart_custom_field_label | json }},
                   "custom_field_required": {{ settings.cart_custom_field_required | default: false }},
-                  "custom_field_pattern": "{{ settings.cart_custom_field_pattern | escape }}"
+                  "custom_field_pattern": {{ settings.cart_custom_field_pattern | default: '' | json }}
                 }
               {%- endcapture %}
               <div

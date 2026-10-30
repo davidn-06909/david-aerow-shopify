@@ -48,6 +48,9 @@
       "shape": "Shape",
       "back": "Back"
     },
+    "search_page": {
+      "results_for": "Hasil untuk \"{{ terms }}\""
+    },
     "search_modal": {
       "placeholder": "Search the shop",
       "help": "Results appear as you type.",
@@ -264,6 +267,13 @@
     "per_page": "per halaman",
     "all_articles": "Semua artikel",
     "article": {
+      "breadcrumb": "Breadcrumb",
+      "by_author": "Oleh {{ author }}",
+      "share_label": "Bagikan",
+      "copy_link": "Copy this link",
+      "keep_reading": "Keep reading",
+      "all_stories": "Semua cerita",
+      "comments_heading": "Comments",
       "blog": "Blog",
       "read_more_title": "Baca selengkapnya: {{ title }}",
       "comments": {
@@ -970,7 +980,8 @@
     "day_month_year": "pada %b %d %Y",
     "short_month": "%b",
     "short_month_day": "%b %d",
-    "abbreviated_month_day_year": "%b %d, %Y"
+    "abbreviated_month_day_year": "%b %d, %Y",
+    "atelier_article": "%B %e, %Y"
   },
   "recipient": {
     "form": {

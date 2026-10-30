@@ -1,4 +1,9 @@
-<form id="CollectionFacetForm-{{ section_id }}" action="{{ collection.url }}" method="get" class="atelier-collection__filters" @change="filterChanged($event)" @submit.prevent="applyFilters($el)">
+<form id="CollectionFacetForm-{{ section_id }}" action="{% if search_page %}{{ routes.search_url }}{% else %}{{ collection.url }}{% endif %}" method="get" class="atelier-collection__filters" @change="filterChanged($event)" @submit.prevent="applyFilters($el)">
+  {% if search_page %}
+    <input type="hidden" name="q" value="{{ collection.terms | escape }}">
+    <input type="hidden" name="type" value="{{ settings.search_type | remove: ',collection' | escape }}">
+    <input type="hidden" name="options[prefix]" value="last">
+  {% endif %}
   <input type="hidden" name="sort_by" value="{{ sort_by }}">
   {% for filter in collection.filters %}
     {% liquid

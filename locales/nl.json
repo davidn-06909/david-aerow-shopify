@@ -48,6 +48,9 @@
       "shape": "Shape",
       "back": "Back"
     },
+    "search_page": {
+      "results_for": "Resultaten voor ‘{{ terms }}’"
+    },
     "search_modal": {
       "placeholder": "Search the shop",
       "help": "Results appear as you type.",
@@ -264,6 +267,13 @@
     "per_page": "per pagina",
     "all_articles": "Alle artikelen",
     "article": {
+      "breadcrumb": "Breadcrumb",
+      "by_author": "Door {{ author }}",
+      "share_label": "Delen",
+      "copy_link": "Copy this link",
+      "keep_reading": "Keep reading",
+      "all_stories": "Alle verhalen",
+      "comments_heading": "Comments",
       "blog": "Blog",
       "read_more_title": "Lees meer: {{ title }}",
       "comments": {
@@ -970,7 +980,8 @@
     "day_month_year": "op %d %b %Y",
     "short_month": "%b",
     "short_month_day": "%d %b",
-    "abbreviated_month_day_year": "%d %b %Y"
+    "abbreviated_month_day_year": "%d %b %Y",
+    "atelier_article": "%B %e, %Y"
   },
   "recipient": {
     "form": {

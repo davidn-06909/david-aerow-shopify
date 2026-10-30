@@ -48,6 +48,9 @@
       "shape": "Shape",
       "back": "Back"
     },
+    "search_page": {
+      "results_for": "Results for \"{{ terms }}\""
+    },
     "search_modal": {
       "placeholder": "Search the shop",
       "help": "Results appear as you type.",
@@ -265,6 +268,13 @@
     "all_articles": "All articles",
     "article": {
       "blog": "Blog",
+      "breadcrumb": "Breadcrumb",
+      "by_author": "By {{ author }}",
+      "share_label": "Share",
+      "copy_link": "Copy this link",
+      "keep_reading": "Keep reading",
+      "all_stories": "All stories",
+      "comments_heading": "Comments",
       "read_more_title": "Read more: {{ title }}",
       "comments": {
         "one": "{{ count }} comment",
@@ -970,7 +980,8 @@
     "day_month_year": "on %b %d %Y",
     "short_month": "%b",
     "short_month_day": "%b %d",
-    "abbreviated_month_day_year": "%b %d, %Y"
+    "abbreviated_month_day_year": "%b %d, %Y",
+    "atelier_article": "%B %e, %Y"
   },
   "recipient": {
     "form": {

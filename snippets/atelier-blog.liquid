@@ -1,0 +1,118 @@
+{%- liquid
+  assign heading_font = section.settings.atelier_heading_font
+  assign body_font = section.settings.atelier_body_font
+  assign posts_per_page = section.settings.post_per_page | split: ';' | first | plus: 0
+  if posts_per_page < 1
+    assign posts_per_page = 12
+  endif
+  assign posts_per_page = posts_per_page | at_most: 50
+-%}
+{% style %}
+  {{ heading_font | font_face: font_display: 'swap' }}
+  {{ body_font | font_face: font_display: 'swap' }}
+  #atelier-blog-{{ section.id }} {
+    --blog-heading-font: {{ heading_font.family }}, {{ heading_font.fallback_families }};
+    --blog-heading-weight: {{ heading_font.weight }};
+    --blog-body-font: {{ body_font.family }}, {{ body_font.fallback_families }};
+    --blog-body-weight: {{ body_font.weight }};
+    --blog-background: {{ section.settings.atelier_background }};
+    --blog-text: {{ section.settings.atelier_text }};
+    --blog-soft: {{ section.settings.atelier_soft }};
+    --blog-accent: {{ section.settings.atelier_accent }};
+    --blog-columns: {{ section.settings.columns_desktop }};
+    --blog-columns-mobile: {{ section.settings.columns_mobile }};
+  }
+{% endstyle %}
+<div id="atelier-blog-{{ section.id }}" class="atelier-blog">
+  <header class="atelier-blog__page atelier-blog__head">
+    {%- if section.settings.show_breadcrumbs -%}
+      <nav aria-label="{{ 'blogs.article.breadcrumb' | t | escape }}">
+        <ol class="atelier-blog__breadcrumbs" role="list">
+          <li><a href="{{ routes.root_url }}">{{ 'general.breadcrumbs.home' | t }}</a></li>
+          <li><span aria-current="page">{{ blog.title | escape }}</span></li>
+        </ol>
+      </nav>
+    {%- endif -%}
+    <h1 class="atelier-blog__title">{{ blog.title | escape }}</h1>
+    {%- if section.settings.subtext != blank -%}
+      <div class="atelier-blog__intro rte">{{ section.settings.subtext }}</div>
+    {%- endif -%}
+    {%- if section.settings.show_all_tags and blog.all_tags != blank -%}
+      <nav class="atelier-blog__topics" aria-label="{{ 'accessibility.filter_by_tag' | t | escape }}">
+        <ul role="list">
+          <li><a href="{{ blog.url }}"{% if current_tags == blank %} aria-current="page"{% endif %}>{{ 'blogs.all_articles' | t }}</a></li>
+          {%- for tag in blog.all_tags -%}
+            <li><a href="{{ blog.url }}/tagged/{{ tag | handle }}"{% if current_tags contains tag %} aria-current="page"{% endif %}>{{ tag | escape }}</a></li>
+          {%- endfor -%}
+        </ul>
+      </nav>
+    {%- endif -%}
+  </header>
+  {%- paginate blog.articles by posts_per_page -%}
+    <div class="atelier-blog__page atelier-blog__body">
+      <div class="atelier-blog__grid">
+        {%- for article in blog.articles -%}
+          {%- liquid
+            assign title_id = 'BlogCardTitle-' | append: section.id | append: '-' | append: article.id
+            assign image_loading = 'lazy'
+            assign image_priority = 'auto'
+            if forloop.first
+              assign image_loading = 'eager'
+              assign image_priority = 'high'
+            endif
+          -%}
+          <article class="atelier-blog__card">
+            <a class="atelier-blog__story" href="{{ article.url }}" aria-labelledby="{{ title_id }}">
+              {%- if section.settings.show_image and article.image -%}
+                <div class="atelier-blog__media">
+                  {{ article.image | image_url: width: 1800 | image_tag:
+                    widths: '300, 400, 500, 600, 700, 800, 1000, 1200, 1500, 1800',
+                    sizes: '(min-width: 1720px) 540px, (min-width: 990px) 32vw, (min-width: 750px) 46vw, 94vw',
+                    loading: image_loading,
+                    fetchpriority: image_priority,
+                    class: 'atelier-blog__image'
+                  }}
+                </div>
+              {%- endif -%}
+              <div class="atelier-blog__card-body">
+                <h2 id="{{ title_id }}" class="atelier-blog__card-title{% unless section.settings.show_name %} visually-hidden{% endunless %}">{{ article.title | escape }}</h2>
+                {%- if section.settings.show_excerpt -%}
+                  <p class="atelier-blog__excerpt">{{ article.excerpt_or_content | strip_html | truncatewords: 24 | escape }}</p>
+                {%- endif -%}
+                {%- if section.settings.show_date or section.settings.show_author -%}
+                  <p class="atelier-blog__meta">
+                    {%- if section.settings.show_date -%}
+                      <time datetime="{{ article.published_at | date: '%Y-%m-%d' }}">{{ article.published_at | date: format: 'atelier_article' }}</time>
+                    {%- endif -%}
+                    {%- if section.settings.show_author -%}
+                      <span>{{ 'blogs.article.by_author' | t: author: article.author | escape }}</span>
+                    {%- endif -%}
+                  </p>
+                {%- endif -%}
+              </div>
+            </a>
+          </article>
+        {%- endfor -%}
+      </div>
+      {%- if paginate.pages > 1 -%}
+        <nav class="atelier-blog__pagination" aria-label="{{ 'general.pagination.label' | t | escape }}">
+          {%- if paginate.previous -%}
+            <a href="{{ paginate.previous.url }}">{{ 'general.pagination.previous' | t }}</a>
+          {%- endif -%}
+          {%- for part in paginate.parts -%}
+            {%- if part.is_link -%}
+              <a href="{{ part.url }}" aria-label="{{ 'general.pagination.page' | t: number: part.title | escape }}">{{ part.title }}</a>
+            {%- elsif part.title == paginate.current_page -%}
+              <span aria-current="page" aria-label="{{ 'general.pagination.page' | t: number: part.title | escape }}">{{ part.title }}</span>
+            {%- else -%}
+              <span>{{ part.title }}</span>
+            {%- endif -%}
+          {%- endfor -%}
+          {%- if paginate.next -%}
+            <a href="{{ paginate.next.url }}">{{ 'general.pagination.next' | t }}</a>
+          {%- endif -%}
+        </nav>
+      {%- endif -%}
+    </div>
+  {%- endpaginate -%}
+</div>

@@ -48,6 +48,9 @@
       "shape": "Shape",
       "back": "Back"
     },
+    "search_page": {
+      "results_for": "Rezultāti vaicājumam “{{ terms }}”"
+    },
     "search_modal": {
       "placeholder": "Search the shop",
       "help": "Results appear as you type.",
@@ -264,6 +267,13 @@
     "per_page": "uz lapu",
     "all_articles": "Visi raksti",
     "article": {
+      "breadcrumb": "Breadcrumb",
+      "by_author": "Autors {{ author }}",
+      "share_label": "Kopīgot",
+      "copy_link": "Copy this link",
+      "keep_reading": "Keep reading",
+      "all_stories": "Visi stāsti",
+      "comments_heading": "Comments",
       "blog": "Blogs",
       "read_more_title": "Lasīt vairāk: {{ title }}",
       "comments": {
@@ -970,7 +980,8 @@
     "day_month_year": "%Y. gada %d. %b.",
     "short_month": "%b",
     "short_month_day": "%d. %b.",
-    "abbreviated_month_day_year": "%Y. gada %d. %b."
+    "abbreviated_month_day_year": "%Y. gada %d. %b.",
+    "atelier_article": "%B %e, %Y"
   },
   "recipient": {
     "form": {

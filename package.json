@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
+    "test": "node --test tests/runtime.test.cjs",
     "tw:watch": "tailwindcss -i src/tailwind/index.css -o assets/theme.css --watch",
     "tw:build": "tailwindcss -i src/tailwind/index.css -o assets/theme.css",
     "dev": "shopify theme dev -e dev --theme-editor-sync",

@@ -1,0 +1,91 @@
+.atelier-blog {
+  --blog-gutter: clamp(18px, 11.31px + 1.7143vw, 36px);
+  --blog-xs: clamp(11px, 10.64px + 0.11vw, 12px);
+  --blog-small: clamp(13px, 12.64px + 0.11vw, 14px);
+  --blog-large: clamp(18px, 16.8px + 0.37vw, 22px);
+  --blog-display: clamp(34px, 25.44px + 2.62vw, 60px);
+  --blog-space-6: clamp(28px, 1.9vw + 20px, 38px);
+  --blog-space-7: clamp(38px, 3.2vw + 25px, 56px);
+  --blog-ease: cubic-bezier(0.16, 1, 0.3, 1);
+  padding-block: var(--blog-space-6) clamp(64px, 44.69px + 4.9524vw, 116px);
+  background: var(--blog-background);
+  color: var(--blog-text);
+  font-family: var(--blog-body-font);
+  font-size: clamp(15px, 14.592px + 0.13vw, 16px);
+  font-weight: var(--blog-body-weight);
+  font-style: normal;
+  line-height: 1.62;
+  letter-spacing: normal;
+  -webkit-font-smoothing: antialiased;
+}
+
+.atelier-blog *, .atelier-blog *::before, .atelier-blog *::after { box-sizing: border-box; }
+.atelier-blog__page { width: 100%; max-width: 1720px; margin-inline: auto; padding-inline: var(--blog-gutter); container-type: inline-size; container-name: atelier-blog-page; }
+.atelier-blog__head { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; justify-items: start; }
+.atelier-blog :is(h1, h2) { margin: 0; color: inherit; font-family: var(--blog-heading-font); font-weight: var(--blog-heading-weight); font-style: normal; line-height: 0.9; letter-spacing: -0.02em; text-transform: none; text-wrap: balance; overflow-wrap: anywhere; }
+.atelier-blog .atelier-blog__title { margin-block-start: 8px; font-size: var(--blog-display); }
+.atelier-blog a { color: inherit; text-decoration: none; }
+.atelier-blog a:focus-visible { outline: 2px solid var(--blog-accent); outline-offset: 4px; }
+.atelier-blog .atelier-blog__breadcrumbs { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0; color: var(--blog-soft); font-size: var(--blog-xs); list-style: none; }
+.atelier-blog__breadcrumbs li { display: flex; align-items: center; gap: 8px; list-style: none; }
+.atelier-blog__breadcrumbs li + li::before { content: '/'; opacity: 0.5; }
+.atelier-blog__intro { max-width: 62ch; color: var(--blog-soft); font-size: var(--blog-small); }
+.atelier-blog__topics { width: 100%; margin-block-start: 12px; }
+.atelier-blog__topics ul { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.atelier-blog__topics li { list-style: none; }
+.atelier-blog__topics a { display: inline-flex; align-items: center; min-height: 44px; padding: 8px 14px; border: 1px solid color-mix(in srgb, var(--blog-text) 22%, var(--blog-background)); color: var(--blog-soft); font-size: var(--blog-small); }
+.atelier-blog__topics [aria-current] { border-color: var(--blog-text); color: var(--blog-text); }
+.atelier-blog__body { margin-block-start: var(--blog-space-7); }
+.atelier-blog__grid { display: grid; grid-template-columns: repeat(var(--blog-columns-mobile, 1), minmax(0, 1fr)); gap: 26px 18px; }
+.atelier-blog__card { position: relative; min-width: 0; }
+.atelier-blog__story { display: flex; flex-direction: column; gap: 18px; }
+.atelier-blog__media { position: relative; aspect-ratio: 3 / 2; overflow: hidden; background: color-mix(in srgb, var(--blog-text) 6%, var(--blog-background)); }
+.atelier-blog__media::before { content: ''; position: absolute; inset-block-start: -60%; inset-inline-start: -80%; width: 55%; height: 220%; background: linear-gradient(100deg, transparent 0%, rgb(255 255 255 / 6%) 34%, rgb(255 255 255 / 44%) 50%, rgb(255 255 255 / 6%) 66%, transparent 100%); transform: translateX(-40%) rotate(8deg); opacity: 0; pointer-events: none; z-index: 1; }
+.atelier-blog__image { display: block; width: 100%; height: 100%; object-fit: cover; transition: transform 900ms var(--blog-ease); }
+.atelier-blog__card-body { display: grid; gap: 8px; min-width: 0; }
+.atelier-blog .atelier-blog__card-title { font-size: var(--blog-large); }
+.atelier-blog .atelier-blog__excerpt { margin: 0 0 1em; color: var(--blog-soft); font-size: var(--blog-small); }
+.atelier-blog .atelier-blog__excerpt:last-child { margin-block-end: 0; }
+.atelier-blog .atelier-blog__meta { display: flex; flex-wrap: wrap; gap: 12px; margin: 0; color: var(--blog-soft); font-size: var(--blog-xs); font-variant-numeric: tabular-nums; letter-spacing: 0.14em; }
+.atelier-blog__pagination { display: flex; justify-content: center; flex-wrap: wrap; gap: 8px; margin-block-start: var(--blog-space-7); font-size: var(--blog-small); }
+.atelier-blog__pagination > * { display: grid; place-items: center; min-width: 44px; min-height: 44px; padding: 8px; }
+.atelier-blog__pagination [aria-current] { text-decoration: underline; text-underline-offset: 0.22em; }
+.atelier-blog__story:focus-visible .atelier-blog__image { transform: scale(1.03); }
+.atelier-blog__story:focus-visible .atelier-blog__media::before { animation: blog-glint-sweep 900ms cubic-bezier(0.4, 0, 0.2, 1); }
+
+@container atelier-blog-page (min-width: 640px) {
+  .atelier-blog__grid { grid-template-columns: repeat(auto-fit, minmax(max(240px, calc((100% - (var(--blog-columns, 3) - 1) * 26px) / var(--blog-columns, 3))), 1fr)); gap: var(--blog-space-6) 26px; }
+}
+
+@supports not (container-type: inline-size) {
+  @media (min-width: 750px) {
+    .atelier-blog__grid { grid-template-columns: repeat(var(--blog-columns, 3), minmax(0, 1fr)); gap: var(--blog-space-6) 26px; }
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .atelier-blog__story:hover .atelier-blog__image { transform: scale(1.03); }
+  .atelier-blog__story:hover .atelier-blog__media::before { animation: blog-glint-sweep 900ms cubic-bezier(0.4, 0, 0.2, 1); }
+  .atelier-blog__card-title:hover { color: var(--blog-accent); }
+  .atelier-blog__breadcrumbs a:hover { color: var(--blog-text); }
+}
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .atelier-blog__card { animation: blog-fade linear both, blog-rise linear both; animation-timeline: view(); animation-range: entry 0% entry 12%, entry 5% cover 34%; }
+  }
+}
+
+@keyframes blog-glint-sweep {
+  0% { opacity: 0; transform: translateX(-40%) rotate(8deg); }
+  18% { opacity: 1; }
+  100% { opacity: 0; transform: translateX(340%) rotate(8deg); }
+}
+@keyframes blog-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes blog-rise { from { transform: translateY(22px); } to { transform: none; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .atelier-blog__image { transition: none; }
+  .atelier-blog__card, .atelier-blog__media::before { animation: none !important; }
+  .atelier-blog__story:is(:hover, :focus-visible) .atelier-blog__image { transform: none; }
+}

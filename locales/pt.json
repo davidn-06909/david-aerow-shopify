@@ -48,6 +48,9 @@
       "shape": "Shape",
       "back": "Back"
     },
+    "search_page": {
+      "results_for": "Resultados para \"{{ terms }}\""
+    },
     "search_modal": {
       "placeholder": "Search the shop",
       "help": "Results appear as you type.",
@@ -264,6 +267,13 @@
     "per_page": "por página",
     "all_articles": "Todos os artigos",
     "article": {
+      "breadcrumb": "Breadcrumb",
+      "by_author": "Por {{ author }}",
+      "share_label": "Compartilhar",
+      "copy_link": "Copy this link",
+      "keep_reading": "Keep reading",
+      "all_stories": "Todas as histórias",
+      "comments_heading": "Comments",
       "blog": "Blog",
       "read_more_title": "Leia mais: {{ title }}",
       "comments": {
@@ -970,7 +980,8 @@
     "day_month_year": "em %d de %b de %Y",
     "short_month": "%b",
     "short_month_day": "%d de %b",
-    "abbreviated_month_day_year": "%d de %b de %Y"
+    "abbreviated_month_day_year": "%d de %b de %Y",
+    "atelier_article": "%B %e, %Y"
   },
   "recipient": {
     "form": {
