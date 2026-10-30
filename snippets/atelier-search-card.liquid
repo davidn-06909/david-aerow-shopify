@@ -1,0 +1,18 @@
+<a class="atelier-search__product" href="{{ product.url }}" data-search-result>
+  <span class="atelier-search__product-image">
+    {% if product.featured_media != blank %}
+      {{ product.featured_media | image_url: width: 600 | image_tag: loading: 'lazy', widths: '180, 300, 450, 600', sizes: '(min-width: 990px) 240px, 45vw', alt: product.featured_media.alt }}
+    {% else %}
+      {{ 'product-1' | placeholder_svg_tag: 'atelier-search__placeholder' }}
+    {% endif %}
+  </span>
+  <span class="atelier-search__product-body">
+    <span class="atelier-search__product-title">{{ product.title | escape }}</span>
+    {% if settings.predictive_search_show_price %}
+      <span class="atelier-search__price">
+        {% if product.price_varies %}{{ 'products.product.price.from_price_html' | t: price: '' }} {% endif %}
+        {% if settings.currency_code_enable %}{{ product.price_min | money_with_currency }}{% else %}{{ product.price_min | money }}{% endif %}
+      </span>
+    {% endif %}
+  </span>
+</a>

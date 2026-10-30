@@ -1,0 +1,76 @@
+<div
+  x-data="xAtelierSearch"
+  data-search-url="{{ routes.search_url }}"
+  data-search-types="{{ settings.search_type | escape }}"
+  data-predictive="{{ settings.predictive_search_enabled }}"
+  data-desktop-limit="{{ settings.search_desktop_maximun_results }}"
+  data-mobile-limit="{{ settings.search_mobile_maximun_results }}"
+  @atelier-search:open.window="open($event.detail.trigger)"
+>
+  <dialog
+    id="AtelierSearch-{{ section.id }}"
+    x-ref="dialog"
+    class="atelier-search"
+    aria-label="{{ 'accessibility.search' | t }}"
+    @cancel.prevent="close()"
+    @close="afterClose()"
+    @click="rememberResult($event)"
+    @keydown="handleKeydown($event)"
+  >
+    <div class="atelier-search__panel">
+      <header class="atelier-search__head">
+        <form class="atelier-search__form" action="{{ routes.search_url }}" method="get" role="search" @submit="submit($event)">
+          <svg class="atelier-search__icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true" focusable="false"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.4 15.4 21 21" stroke-linecap="round"/></svg>
+          <label class="sr-only" for="AtelierSearchInput-{{ section.id }}">{{ 'accessibility.search' | t }}</label>
+          <input
+            id="AtelierSearchInput-{{ section.id }}"
+            x-ref="input"
+            type="search"
+            name="q"
+            placeholder="{{ 'general.search_modal.placeholder' | t }}"
+            autocomplete="off"
+            autocapitalize="off"
+            spellcheck="false"
+            enterkeyhint="search"
+            aria-describedby="AtelierSearchHelp-{{ section.id }}"
+            aria-controls="AtelierSearchResults-{{ section.id }}"
+            @input="onInput($event.target.value)"
+            @compositionstart="composing = true"
+            @compositionend="composing = false; onInput($event.target.value)"
+          >
+          <input type="hidden" name="type" value="{{ settings.search_type | remove: ',collection' }}">
+          <input type="hidden" name="options[prefix]" value="last">
+          <button type="button" class="atelier-search__clear" x-show="query.trim().length" x-cloak @click="clear()" aria-label="{{ 'general.search_modal.clear' | t }}">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true" focusable="false"><path d="M5.5 5.5l13 13M18.5 5.5l-13 13" stroke-linecap="round"/></svg>
+          </button>
+          <button type="button" class="atelier-search__close" @click="close()" aria-label="{{ 'accessibility.close' | t }}">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true" focusable="false"><path d="M5.5 5.5l13 13M18.5 5.5l-13 13" stroke-linecap="round"/></svg>
+          </button>
+        </form>
+        <p id="AtelierSearchHelp-{{ section.id }}" class="sr-only">{{ 'general.search_modal.help' | t }}</p>
+      </header>
+      <div class="atelier-search__body" x-ref="body" :aria-busy="state === 'loading'">
+        <div x-show="state === 'initial' && recent.length" x-cloak class="atelier-search__recent">
+          <div class="atelier-search__recent-heading">
+            <h3 class="atelier-search__eyebrow">{{ 'general.search_modal.recent' | t }}</h3>
+            <button type="button" class="atelier-search__text-button" @click="clearRecent()">{{ 'general.search_modal.clear_recent' | t }}</button>
+          </div>
+          <ul class="atelier-search__recent-list">
+            <template x-for="term in recent" :key="term"><li><a :href="$root.dataset.searchUrl + '?q=' + encodeURIComponent(term)" @click="remember(term)" x-text="term"></a></li></template>
+          </ul>
+        </div>
+        <p x-show="state === 'loading'" x-cloak class="sr-only" role="status">{{ 'accessibility.loading' | t }}</p>
+        <div id="AtelierSearchResults-{{ section.id }}" x-ref="results" x-show="state === 'loading' || state === 'results' || state === 'empty'" x-cloak></div>
+        <div class="atelier-search__empty" x-show="state === 'error'" x-cloak role="alert">
+          <p class="atelier-search__empty-title">{{ 'general.search_modal.error_title' | t }}</p>
+          <p class="atelier-search__muted">{{ 'general.search_modal.error_help' | t }}</p>
+          <button type="button" class="atelier-search__button" @click="getResults(query.trim())">{{ 'general.search_modal.retry' | t }}</button>
+        </div>
+        <div class="atelier-search__empty" x-show="state === 'submit'" x-cloak>
+          <p class="atelier-search__muted">{{ 'general.search_modal.submit_help' | t }}</p>
+        </div>
+      </div>
+      <p class="sr-only" role="status" aria-live="polite" aria-atomic="true" x-text="announcement"></p>
+    </div>
+  </dialog>
+</div>

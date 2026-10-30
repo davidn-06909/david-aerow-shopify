@@ -33,8 +33,16 @@
           "settings": {
             "open_by_default": false,
             "heading_menu": "Explore",
-            "menu": "explore",
-            "show_social_icons": false
+            "menu": "",
+            "show_social_icons": false,
+            "atelier_link_label_1": "Engagement rings",
+            "atelier_link_url_1": "/collections/engagement-rings",
+            "atelier_link_label_2": "Diamonds",
+            "atelier_link_url_2": "/collections/diamonds",
+            "atelier_link_label_3": "Wedding bands",
+            "atelier_link_url_3": "/collections/wedding-bands",
+            "atelier_link_label_4": "Journal",
+            "atelier_link_url_4": "/blogs/journal"
           }
         },
         "footer-0": {
@@ -42,8 +50,16 @@
           "settings": {
             "open_by_default": false,
             "heading_menu": "Services",
-            "menu": "services",
-            "show_social_icons": false
+            "menu": "",
+            "show_social_icons": false,
+            "atelier_link_label_1": "Design your ring",
+            "atelier_link_url_1": "/pages/design-your-ring",
+            "atelier_link_label_2": "About the atelier",
+            "atelier_link_url_2": "/pages/about",
+            "atelier_link_label_3": "Contact",
+            "atelier_link_url_3": "/pages/contact",
+            "atelier_link_label_4": "Search",
+            "atelier_link_url_4": "/search"
           }
         },
         "link_list_JMLJPG": {
@@ -78,22 +94,30 @@
         "text_fa7UTa"
       ],
       "settings": {
-        "columns_desktop": 5,
-        "show_language_selector": true,
-        "show_currency_selector": true,
+        "columns_desktop": 3,
+        "show_language_selector": false,
+        "show_currency_selector": false,
         "show_social_icons": false,
         "payment_enable": true,
-        "custom_payment": "",
+        "custom_payment": "visa,master,american_express,paypal,diners_club,discover",
         "show_copyright": true,
         "add_copyright_text": "",
         "additional_layout": "horizontal",
-        "show_powered": true,
+        "show_powered": false,
         "enable_follow_on_shop": false,
         "horizontal_position": "right",
-        "top_padding": 0,
-        "bottom_padding": 20,
-        "top_padding_mobile": 0,
-        "bottom_padding_mobile": 28
+        "top_padding": 116,
+        "bottom_padding": 0,
+        "top_padding_mobile": 64,
+        "bottom_padding_mobile": 0,
+        "atelier_footer": true,
+        "atelier_heading_font": "oswald_n7",
+        "atelier_body_font": "archivo_n4",
+        "atelier_brand_name": "AEVOW",
+        "atelier_tagline": "Cut in carbon, written in light.",
+        "atelier_background": "#060814",
+        "atelier_text": "#F2F6FB",
+        "atelier_accent": "#9FB9DA"
       }
     },
     "media_gallery_AGU8KF": {

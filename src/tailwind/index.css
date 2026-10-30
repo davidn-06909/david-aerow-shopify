@@ -104,6 +104,7 @@
 @import "./components/atelier-gallery.css";
 @import "./components/atelier-clients.css";
 @import "./components/atelier-correspondence.css";
+@import "./components/atelier-newsletter.css";
 @import "./components/atelier-footer.css";
 @import "./components/atelier-comparison.css";
 @import "./components/promotion-banner.css";
@@ -125,6 +126,8 @@
 @import "./components/image-with-text.css";
 @import "./components/contact-form.css";
 @import "./components/header.css";
+@import "./components/atelier-search.css";
+@import "./components/atelier-cart.css";
 @import "./components/announcement-bar.css";
 @import "./components/app-product-options.css";
 @import "./components/flash-sale.css";

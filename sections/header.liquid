@@ -463,17 +463,9 @@
               </div>
             {% endif %}
             {%- if settings.search_enabled -%}
-              <div class="{% if settings.mobile_search_position == 'header' %}flex{% else %}hidden md:flex{% endif %}{% if section.settings.search_on_header %} hidden{% endif %} items-center justify-center mobile-{{ section.settings.mobile_header_layout }}" 
-                @init-run.window="$store.xHeaderMenu.renderAjax($el, 'header-search-block', '#ajax-loading-header-search');"
-              >
-                <a 
-                  id="SearchOpen"
-                  href="{{ routes.search_url }}" 
-                  aria-label="{{ 'accessibility.search' | t }}"
-                  class="flex items-center cursor-pointer justify-center link focus-inset bg-none" 
-                  @click.prevent="setTimeout(() => { $store.xModal.setActiveElement('SearchOpen'); }, 0)">
-                  <span class="w-11 h-10 pl-3 pr-3 pt-2.5 pb-2">{% render 'icon-alls', icon: 'icon-search', animation_class: 'icon-animation' %}</span>
-                </a>
+              <div class="{% if settings.mobile_search_position == 'header' %}flex{% else %}hidden md:flex{% endif %}{% if section.settings.search_on_header %} hidden{% endif %} items-center justify-center mobile-{{ section.settings.mobile_header_layout }}">
+                {% assign search_trigger_id = 'SearchOpenMobile-' | append: section.id %}
+                {% render 'header-search-block', trigger_id: search_trigger_id %}
               </div>
             {%- endif -%}
             {%- if shop.customer_accounts_enabled -%}
@@ -685,23 +677,17 @@
         {%- if settings.search_enabled -%}
           {% style %}
             @media (max-width: 767px) {
-              .mobile-center-left #SearchOpen {
+              .mobile-center-left [data-search-open] {
                 left: 3.5rem;
               }
-              .mobile-center-right #SearchOpen {
+              .mobile-center-right [data-search-open] {
                 right: 3.5rem;
               }
             }
           {% endstyle %}
-          <div class="x-header-icon-search{% unless section.settings.search_on_header %}{% if settings.mobile_search_position == 'header' %} flex{% else %} hidden md:flex{% endif %}{% else %} hidden{% endunless %} items-center justify-center mobile-{{ section.settings.mobile_header_layout }}" @init-run.window="$store.xHeaderMenu.renderAjax($el, 'header-search-block', '#ajax-loading-header-search');">
-            <a 
-              id="SearchOpen"
-              href="{{ routes.search_url }}" 
-              aria-label="{{ 'accessibility.search' | t }}"
-              class="flex items-center cursor-pointer justify-center link focus-inset bg-none" 
-              @click.prevent="setTimeout(() => { $store.xModal.setActiveElement('SearchOpen'); }, 0)">
-              <span class="w-11 h-10 pl-3 pr-3 pt-2.5 pb-2">{% render 'icon-alls', icon: 'icon-search', animation_class: 'icon-animation' %}</span>
-            </a>
+          <div class="x-header-icon-search{% unless section.settings.search_on_header %}{% if settings.mobile_search_position == 'header' %} flex{% else %} hidden md:flex{% endif %}{% else %} hidden{% endunless %} items-center justify-center mobile-{{ section.settings.mobile_header_layout }}">
+            {% assign search_trigger_id = 'SearchOpen-' | append: section.id %}
+            {% render 'header-search-block', trigger_id: search_trigger_id %}
           </div>
         {%- endif -%}
         {%- if shop.customer_accounts_enabled -%}
@@ -858,6 +844,7 @@
 {%- unless template == 'cart' or settings.cart_type == 'page' -%}
   <div id="x-cart-drawer-container" class="z-[70]{% if settings.cart_type == 'popup' %} fixed md:sticky{% if section.settings.sticky_header_type == 'on-scroll-up' %} scroll-sticky-popup-cart{% endif %}{% else %} fixed{% endif %}" @init-run.window="$store.xHeaderMenu.renderAjax($el, 'cart-drawer', '#ajax-loading-cart');"></div>
 {%- endunless -%}
+{% if settings.search_enabled %}{% render 'atelier-search-modal' %}{% endif %}
 <script src="{{ 'search-prompts.js' | asset_url }}" defer></script>                   
 <script type="application/ld+json">
   {

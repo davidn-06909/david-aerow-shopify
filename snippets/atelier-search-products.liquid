@@ -1,0 +1,32 @@
+{%- comment -%}Shared by recommendations and live results so hidden service products stay hidden.{%- endcomment -%}
+{%- liquid
+  assign excluded_handles = ''
+  if settings.hide_product_in_exclude_collections
+    for excluded_collection in settings.exclude_collections
+      for excluded_product in excluded_collection.products
+        assign excluded_handles = excluded_handles | append: excluded_product.handle | append: ','
+      endfor
+    endfor
+  endif
+  assign excluded_handles = excluded_handles | split: ','
+  assign visible_count = 0
+-%}
+{%- for product in products -%}
+  {%- liquid
+    assign hide_product = false
+    if settings.hide_gift_wrapping and settings.gift_wrapping_product == product
+      assign hide_product = true
+    endif
+    if settings.engraving_product == product or settings.product_shipping_insurance == product
+      assign hide_product = true
+    endif
+    if excluded_handles contains product.handle
+      assign hide_product = true
+    endif
+  -%}
+  {%- unless hide_product -%}
+    {% render 'atelier-search-card', product: product %}
+    {%- assign visible_count = visible_count | plus: 1 -%}
+    {%- if visible_count >= limit -%}{%- break -%}{%- endif -%}
+  {%- endunless -%}
+{%- endfor -%}

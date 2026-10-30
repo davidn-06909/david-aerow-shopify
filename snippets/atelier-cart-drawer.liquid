@@ -1,0 +1,87 @@
+{%- liquid
+  assign is_rtl = false
+  if settings.lang_direction contains request.locale.iso_code
+    assign is_rtl = true
+  endif
+-%}
+<div
+  id="CartDrawer"
+  class="drawer pointer-events-auto{% if is_rtl %} rtl{% endif %}"
+  x-data="xAtelierCart"
+  data-error-message="{{ 'sections.cart.cart_error' | t | escape }}"
+  x-show="$store.xMiniCart.open"
+  :class="$store.xMiniCart.open && 'cart-open'"
+  @keydown="onKeydown($event)"
+  x-cloak
+>
+  <s-view-event id="CartDrawerViewEvent" view-event-trigger="manual" view-event-payload='{{ cart | standard_event_data: "view", context: "dialog" | escape }}'></s-view-event>
+  <div class="drawer fixed z-20 md:z-20 typeDrawer md:fixed left-0 top-0 w-full h-full md:flex md:justify-end right-0 animate-goleft duration-300">
+    <div id="CartDrawer-Overlay" class="bg-black opacity-40 block md:block fixed top-0 right-0 bottom-0 left-0" @click="close()"></div>
+    <div
+      id="update-cart"
+      class="atelier-cart z-30 fixed bottom-0{% if is_rtl %} left-0 right-auto{% else %} right-0 left-auto{% endif %} md:relative md:z-auto"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="AtelierCartTitle"
+      tabindex="-1"
+      x-show="$store.xMiniCart.open"
+      :aria-busy="busy"
+      x-transition:enter="transition-all ease-in-out duration-500"
+      x-transition:enter-start="opacity-0 transform translate-y-1/3 md:translate-y-0{% if is_rtl %} md:-translate-x-1/3{% else %} md:translate-x-1/3{% endif %}"
+      x-transition:enter-end="opacity-100 transform translate-y-0 md:translate-x-0"
+      x-transition:leave="transition ease-in-out duration-500"
+      x-transition:leave-end="opacity-0 transform translate-y-1/3 md:translate-y-0{% if is_rtl %} md:-translate-x-1/3{% else %} md:translate-x-1/3{% endif %}"
+    >
+      <div class="atelier-cart__head">
+        <h2 id="AtelierCartTitle" class="atelier-cart__title">{{ 'general.atelier_cart.title' | t }} <span class="atelier-cart__count">{{ 'general.atelier_cart.items' | t: count: cart.item_count }}</span></h2>
+        <button id="CloseCart" type="button" class="atelier-cart__close" aria-label="{{ 'accessibility.close' | t }}" @click="close()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true" focusable="false"><path d="M5.5 5.5l13 13M18.5 5.5l-13 13" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+      {% if cart == empty %}
+      <div class="atelier-cart__body atelier-cart__empty" data-cart-body>
+        <div class="atelier-cart__empty-content">
+          <h2>{{ 'sections.cart.empty' | t }}</h2>
+          <p>{{ 'general.atelier_cart.empty_description' | t }}</p>
+          <a class="atelier-cart__button" href="{{ settings.continue_shopping | default: routes.all_products_collection_url }}" @click="close()"><span>{{ 'general.continue_shopping' | t }}</span></a>
+        </div>
+      </div>
+      {% else %}
+        <div class="atelier-cart__body" data-cart-body>
+          <ul class="atelier-cart__lines" role="list">
+            {% for item in cart.items %}
+              {% render 'atelier-cart-item', item: item %}
+            {% endfor %}
+          </ul>
+          <details class="atelier-cart__extra" data-cart-extra="gift">
+            <summary>{{ 'general.atelier_cart.gift_message' | t }}</summary>
+            <label class="sr-only" for="AtelierCartGift">{{ 'general.atelier_cart.gift_message' | t }}</label>
+            <textarea id="AtelierCartGift" name="attributes[Gift message]" form="AtelierCartForm" placeholder="{{ 'general.atelier_cart.gift_placeholder' | t }}" @input="scheduleNote('gift', $event.target.value)" @change="saveNotes()">{{ cart.attributes['Gift message'] | escape }}</textarea>
+          </details>
+          <details class="atelier-cart__extra" data-cart-extra="note">
+            <summary>{{ 'general.atelier_cart.add_note' | t }}</summary>
+            <label class="sr-only" for="AtelierCartNote">{{ 'general.atelier_cart.add_note' | t }}</label>
+            <textarea id="AtelierCartNote" name="note" form="AtelierCartForm" placeholder="{{ 'general.atelier_cart.note_placeholder' | t }}" @input="scheduleNote('note', $event.target.value)" @change="saveNotes()">{{ cart.note | escape }}</textarea>
+          </details>
+          <p class="atelier-cart__error" role="alert" x-show="error" x-text="error" x-cloak></p>
+        </div>
+        <div class="atelier-cart__foot">
+          {% if cart.cart_level_discount_applications.size > 0 %}
+            <ul class="atelier-cart__discounts" role="list">
+              {% for discount in cart.cart_level_discount_applications %}
+                <li><span>{{ discount.title | escape }}</span><span>-{{ discount.total_allocated_amount | money }}</span></li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+          <div class="atelier-cart__total"><span>{{ 'sections.cart.subtotal' | t }}</span><span>{{ cart.total_price | money_with_currency }}</span></div>
+          <p class="atelier-cart__tax">{% if cart.taxes_included %}{{ 'general.atelier_cart.tax_included' | t }}{% else %}{{ 'general.atelier_cart.tax_shipping' | t }}{% endif %}</p>
+          <form id="AtelierCartForm" action="{{ routes.cart_url }}" method="post" class="atelier-cart__actions" @submit="checkout($event)">
+            <button type="submit" name="checkout" class="atelier-cart__button" :disabled="busy || checkingOut"><span>{{ 'general.atelier_cart.checkout' | t }}</span></button>
+            <a class="atelier-cart__button atelier-cart__button--text atelier-cart__view" href="{{ routes.cart_url }}"><span>{{ 'general.atelier_cart.view_cart' | t }}</span></a>
+          </form>
+        </div>
+      {% endif %}
+      <p class="sr-only" role="status" aria-live="polite" aria-atomic="true" x-text="announcement"></p>
+    </div>
+  </div>
+</div>

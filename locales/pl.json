@@ -16,6 +16,39 @@
     "payment_methods": "Accepted payment methods"
   },
   "general": {
+    "search_modal": {
+      "placeholder": "Search the shop",
+      "help": "Results appear as you type.",
+      "clear": "Clear",
+      "recent": "Recent searches",
+      "clear_recent": "Clear recent searches",
+      "pieces": "Pieces",
+      "journal": "Journal",
+      "view_results": "View all results",
+      "no_results": "Nothing found for \"{{ terms }}\"",
+      "no_results_help": "Try fewer words, or let us show you everything.",
+      "browse_all": "Browse everything",
+      "error_title": "Search is taking a moment.",
+      "error_help": "Please try again, or press Enter to see all search results.",
+      "retry": "Try again",
+      "submit_help": "Press Enter to explore your search results."
+    },
+    "atelier_cart": {
+      "title": "Cart",
+      "items": {
+        "one": "{{ count }} item",
+        "other": "{{ count }} items"
+      },
+      "empty_description": "Every piece begins with a single choice. Start with a shape that stays with you.",
+      "checkout": "Checkout",
+      "view_cart": "View cart",
+      "gift_message": "Add a gift message",
+      "gift_placeholder": "Your message, written by hand onto our card.",
+      "add_note": "Add a note",
+      "note_placeholder": "Delivery instructions, a date to work toward, anything we should know.",
+      "tax_shipping": "Taxes and shipping calculated at checkout.",
+      "tax_included": "Taxes included. Shipping calculated at checkout."
+    },
     "theme-mode": {
       "light": "Jasny",
       "dark": "Ciemny"
