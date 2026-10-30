@@ -17508,6 +17508,12 @@
   .atelier-media-story--overlap .atelier-media-story__inner {
     gap: var(--media-story-overlap);
   }
+  .atelier-media-story--split-end .atelier-media-story__inner {
+    grid-template-columns: minmax(0, .85fr) minmax(0, 1.15fr);
+  }
+  .atelier-media-story--split-end .atelier-media-story__media {
+    order: 2;
+  }
   .atelier-media-story--overlap .atelier-media-story__body {
     position: relative;
     z-index: 1;

@@ -1083,6 +1083,9 @@
     }
   },
   "sections": {
+    "atelier_appointment": {
+      "split_end": "Split — media on the right"
+    },
     "atelier_lookbook": {
       "show_promotion": "Show promotion on the Lookbook page",
       "shapes": {
