@@ -19,18 +19,17 @@ if (!window.Eurus.loadedScript.has('estimate-shipping-rate.js')) {
         cachedResponse:[],
         load() {
           this.setSelectedOption(this.countryEl, this.countryEl.dataset.default);
-    
+          this.handleCountryChange();
+
           if (this.provinceEl.dataset.default && this.provinceEl.options.length > 0) {
             this.setSelectedOption(this.provinceEl, this.provinceEl.dataset.default);
           }
-    
-          this.handleCountryChange();
           this.countryEl.addEventListener('change', this.handleCountryChange.bind(this));
         },
         
         handleCountryChange() {
           const selectedOption = this.countryEl.options[this.countryEl.selectedIndex];
-          const provinces = JSON.parse(selectedOption.dataset.provinces);
+          const provinces = JSON.parse(selectedOption?.dataset.provinces || '[]');
     
           Array.from(this.provinceEl.options).forEach((option) => option.remove());
     
@@ -58,11 +57,16 @@ if (!window.Eurus.loadedScript.has('estimate-shipping-rate.js')) {
         async submit(e) {
           
           e?.preventDefault();
+          if (this.loadingShipping) return;
     
           this.errors.classList.add('hidden');
           this.rates.classList.add('hidden');
           
-          const params = `shipping_address[zip]=${this.zip.value}&shipping_address[country]=${this.countryEl.value}&shipping_address[province]=${this.provinceEl.value}`;
+          const params = new URLSearchParams({
+            'shipping_address[zip]': this.zip.value,
+            'shipping_address[country]': this.countryEl.value,
+            'shipping_address[province]': this.provinceEl.value
+          }).toString();
     
           if (this.cachedData[params]) {
             if ( this.cachedResponse[params]) {
@@ -92,6 +96,12 @@ if (!window.Eurus.loadedScript.has('estimate-shipping-rate.js')) {
           }
         },
     
+        escapeText(value) {
+          return String(value).replace(/[&<>"']/g, character => ({
+            '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+          })[character]);
+        },
+
         showRates(data) {
           const headingEl = this.rates.querySelector('.rates-heading');
     
@@ -101,14 +111,14 @@ if (!window.Eurus.loadedScript.has('estimate-shipping-rate.js')) {
             
             data.shipping_rates.forEach((rate) => {
               const formattedRate = rate.price + rate.currency;
-              rates += `<li class="pt-2">${rate.name}: ${formattedRate}</li>`;
+              rates += `<li class="pt-2">${this.escapeText(rate.name)}: ${this.escapeText(formattedRate)}</li>`;
             });
     
             headingEl.classList.remove('hidden');
             this.rates_text = `<ul class="list-disc pl-4">${rates}</ul>`;
           } else {
             headingEl.classList.add('hidden');
-            this.rates_text = `<p class="no-rate">${noRates}</p>`;
+            this.rates_text = `<p class="no-rate">${this.escapeText(noRates)}</p>`;
           }
     
           this.rates.classList.remove('hidden');
@@ -117,7 +127,7 @@ if (!window.Eurus.loadedScript.has('estimate-shipping-rate.js')) {
         showErrors(data) {
           let errors = '';
           Object.keys(data).forEach((key) => {
-            errors += `<li>${data[key]}</li>`;
+            errors += `<li>${this.escapeText(data[key])}</li>`;
           });
     
           this.errors_message = `<ul>${errors}</ul>`;
