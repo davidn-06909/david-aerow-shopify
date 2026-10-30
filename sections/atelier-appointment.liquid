@@ -1,0 +1,178 @@
+{%- liquid
+  assign form_id = 'AppointmentForm-' | append: section.id
+  assign appointment_image = section.settings.image
+  assign appointment_image_alt = section.settings.image_alt
+  assign start_date_seconds = section.settings.lead_days | times: 86400
+  assign start_date = 'now' | date: '%s' | plus: start_date_seconds | date: '%Y-%m-%d'
+  assign end_date_seconds = section.settings.horizon_days | times: 86400
+  assign end_date = 'now' | date: '%s' | plus: end_date_seconds | date: '%Y-%m-%d'
+-%}
+{% style %}
+  #AtelierAppointment-{{ section.id }} {
+    --appointment-background: {{ section.settings.background_color }};
+    --appointment-raised: {{ section.settings.panel_color }};
+    --appointment-text: {{ section.settings.text_color }};
+    --appointment-soft: {{ section.settings.soft_color }};
+    --appointment-accent: {{ section.settings.accent_color }};
+    --appointment-top: {{ section.settings.padding_top }}px;
+    --appointment-bottom: {{ section.settings.padding_bottom }}px;
+  }
+{% endstyle %}
+<div id="AtelierAppointment-{{ section.id }}" class="atelier-appointment"
+  x-data="xAtelierAppointment"
+  data-lead-days="{{ section.settings.lead_days }}"
+  data-horizon-days="{{ section.settings.horizon_days }}"
+  data-open-hour="{{ section.settings.open_hour }}"
+  data-close-hour="{{ section.settings.close_hour }}"
+  data-locale="{{ request.locale.iso_code }}"
+  data-choose-day="{{ 'atelier_appointment.choose_day_first' | t | escape }}"
+  data-choose-time="{{ 'atelier_appointment.choose_time_first' | t | escape }}"
+  @click="handleClick($event)"
+  @keydown="handleKeydown($event)"
+>
+  <div class="atelier-appointment__layout">
+    <div class="atelier-appointment__aside">
+      {% if section.settings.eyebrow != blank %}<p class="atelier-appointment__eyebrow">{{ section.settings.eyebrow | escape }}</p>{% endif %}
+      <h1 class="atelier-appointment__title">{{ section.settings.heading | default: page.title | escape }}</h1>
+      {% if section.settings.text != blank %}<div class="atelier-appointment__text">{{ section.settings.text }}</div>{% endif %}
+      {% if appointment_image != blank or section.settings.image_url != blank %}
+        <div class="atelier-appointment__figure">
+          {% if appointment_image != blank %}
+            {{ appointment_image | image_url: width: 1500 | image_tag: widths: '360, 540, 720, 960, 1200, 1500', sizes: '(min-width: 1720px) 666px, (min-width: 990px) 40vw, 100vw', loading: 'eager', alt: appointment_image_alt }}
+          {% else %}
+            <img src="{{ section.settings.image_url | escape }}" alt="{{ appointment_image_alt | escape }}" width="1000" height="1500" loading="eager">
+          {% endif %}
+        </div>
+      {% endif %}
+      {% if section.settings.hours != blank %}
+        <dl class="atelier-appointment__facts"><div>
+          <dt>{{ 'atelier_appointment.hours' | t }}</dt>
+          <dd>{{ section.settings.hours | escape }}</dd>
+        </div></dl>
+      {% endif %}
+    </div>
+    <div class="atelier-appointment__panel">
+      {%- form 'contact', id: form_id, class: 'atelier-appointment__form' -%}
+        {% if form.posted_successfully? %}
+          <div class="atelier-appointment__notice" role="status" tabindex="-1" autofocus>
+            {{ 'atelier_appointment.success' | t }}
+          </div>
+        {% else %}
+          {% if form.errors %}
+            <div class="atelier-appointment__notice" role="alert" tabindex="-1" autofocus>{{ form.errors | default_errors }}</div>
+          {% endif %}
+          <fieldset class="atelier-appointment__step">
+            <legend class="atelier-appointment__legend"><span aria-hidden="true">01</span>{{ 'atelier_appointment.type' | t }}</legend>
+            <div class="atelier-appointment__types">
+              {% for block in section.blocks %}
+                <div class="atelier-appointment__type" {{ block.shopify_attributes }}>
+                  <input class="atelier-appointment__radio sr-only" id="AppointmentType-{{ section.id }}-{{ block.id }}" type="radio" name="contact[Appointment type]" value="{{ block.settings.title | escape }}" required{% if forloop.first %} checked{% endif %}>
+                  <label class="atelier-appointment__type-label" for="AppointmentType-{{ section.id }}-{{ block.id }}">
+                    <span class="atelier-appointment__type-name">{{ block.settings.title | escape }}</span>
+                    <span class="atelier-appointment__type-meta">{{ 'atelier_appointment.minutes' | t: count: block.settings.duration }}</span>
+                    <span class="atelier-appointment__type-text">{{ block.settings.text | escape }}</span>
+                  </label>
+                </div>
+              {% endfor %}
+            </div>
+          </fieldset>
+          <fieldset class="atelier-appointment__step">
+            <legend class="atelier-appointment__legend"><span aria-hidden="true">02</span>{{ 'atelier_appointment.choose_day' | t }}</legend>
+            <div class="atelier-appointment__native" :hidden="enhanced">
+              <label class="sr-only" for="AppointmentDate-{{ section.id }}">{{ 'atelier_appointment.choose_day' | t }}</label>
+              <input class="atelier-appointment__input" type="date" id="AppointmentDate-{{ section.id }}" name="contact[Date]" min="{{ start_date }}" max="{{ end_date }}" required :required="!enhanced" x-ref="dateInput">
+            </div>
+            <div class="atelier-appointment__calendar" x-cloak x-show="enhanced" x-ref="calendar">
+              <div class="atelier-appointment__cal-head">
+                <button class="atelier-appointment__arrow" type="button" data-month-offset="-1" x-ref="previous" aria-label="{{ 'atelier_appointment.previous_month' | t | escape }}">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true"><path d="m14 6-6 6 6 6"/></svg>
+                </button>
+                <p class="atelier-appointment__month" aria-live="polite" aria-atomic="true" x-ref="month"></p>
+                <button class="atelier-appointment__arrow" type="button" data-month-offset="1" x-ref="next" aria-label="{{ 'atelier_appointment.next_month' | t | escape }}">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true"><path d="m10 6 6 6-6 6"/></svg>
+                </button>
+              </div>
+              <div class="atelier-appointment__weekdays" x-ref="weekdays" aria-hidden="true"></div>
+              <div class="atelier-appointment__grid" x-ref="days" role="group" aria-label="{{ 'atelier_appointment.choose_day' | t | escape }}"></div>
+            </div>
+          </fieldset>
+          <fieldset class="atelier-appointment__step">
+            <legend class="atelier-appointment__legend"><span aria-hidden="true">03</span>{{ 'atelier_appointment.choose_time' | t }}</legend>
+            <div class="atelier-appointment__native" :hidden="enhanced">
+              <label class="sr-only" for="AppointmentTime-{{ section.id }}">{{ 'atelier_appointment.choose_time' | t }}</label>
+              <select class="atelier-appointment__input" id="AppointmentTime-{{ section.id }}" name="contact[Time]" required x-ref="timeInput">
+                {% assign last_hour = section.settings.close_hour | minus: 1 %}
+                {% for hour in (section.settings.open_hour..last_hour) %}
+                  <option value="{% if hour < 10 %}0{% endif %}{{ hour }}:00">{% if hour < 10 %}0{% endif %}{{ hour }}:00</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="atelier-appointment__times" x-ref="times" x-cloak x-show="enhanced" role="group" aria-label="{{ 'atelier_appointment.choose_time' | t | escape }}"></div>
+          </fieldset>
+          <fieldset class="atelier-appointment__step">
+            <legend class="atelier-appointment__legend"><span aria-hidden="true">04</span>{{ 'atelier_appointment.details' | t }}</legend>
+            <div class="atelier-appointment__fields">
+              <div class="atelier-appointment__field">
+                <label for="AppointmentName-{{ section.id }}">{{ 'atelier_appointment.full_name' | t }}</label>
+                <input class="atelier-appointment__input" id="AppointmentName-{{ section.id }}" name="contact[Name]" type="text" autocomplete="name" value="{{ form.Name | default: customer.name | escape }}" required>
+              </div>
+              <div class="atelier-appointment__field">
+                <label for="AppointmentEmail-{{ section.id }}">{{ 'atelier_appointment.email' | t }}</label>
+                <input class="atelier-appointment__input" id="AppointmentEmail-{{ section.id }}" name="contact[email]" type="email" autocomplete="email" autocorrect="off" autocapitalize="off" value="{{ form.email | default: customer.email | escape }}" required{% if form.errors contains 'email' %} aria-invalid="true"{% endif %}>
+              </div>
+              <div class="atelier-appointment__field">
+                <label for="AppointmentPhone-{{ section.id }}">{{ 'atelier_appointment.telephone' | t }}</label>
+                <input class="atelier-appointment__input" id="AppointmentPhone-{{ section.id }}" name="contact[Phone]" type="tel" autocomplete="tel" value="{{ form.Phone | default: customer.phone | escape }}">
+              </div>
+              <div class="atelier-appointment__field atelier-appointment__field--wide">
+                <label for="AppointmentMessage-{{ section.id }}">{{ 'atelier_appointment.message' | t }}</label>
+                <textarea class="atelier-appointment__input" id="AppointmentMessage-{{ section.id }}" name="contact[body]" rows="3">{{ form.body | escape }}</textarea>
+              </div>
+            </div>
+          </fieldset>
+          <p class="atelier-appointment__error" role="alert" x-cloak x-show="error" x-text="error"></p>
+          <div class="atelier-appointment__foot">
+            <p class="atelier-appointment__note">{{ 'atelier_appointment.note' | t }}</p>
+            <button type="submit" class="atelier-appointment__submit"><span>{{ 'atelier_appointment.submit' | t }}</span></button>
+          </div>
+        {% endif %}
+      {%- endform -%}
+    </div>
+  </div>
+</div>
+{% schema %}
+{
+  "name": "t:sections.atelier_appointment.name",
+  "tag": "section",
+  "disabled_on": { "groups": ["header", "footer", "aside"] },
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "t:sections.atelier_story_index.eyebrow", "default": "By appointment" },
+    { "type": "text", "id": "heading", "label": "t:sections.all.text.heading", "default": "Come and see them in person" },
+    { "type": "richtext", "id": "text", "label": "t:sections.atelier_story_index.text", "default": "<p>An hour at the bench with one of our designers — bring a photograph, an heirloom, or nothing at all. Choose a day and a time that suit you, and we will write back to confirm.</p>" },
+    { "type": "image_picker", "id": "image", "label": "t:sections.atelier_appointment.image" },
+    { "type": "url", "id": "image_url", "label": "t:sections.atelier_appointment.image_url" },
+    { "type": "text", "id": "image_alt", "label": "t:sections.atelier_appointment.image_alt", "default": "The Aevow atelier with tall windows and a jeweler's bench" },
+    { "type": "text", "id": "hours", "label": "t:sections.atelier_appointment.hours", "default": "Tuesday to Saturday, 10am until 6pm" },
+    { "type": "range", "id": "lead_days", "label": "t:sections.atelier_appointment.lead_days", "min": 0, "max": 14, "step": 1, "default": 2 },
+    { "type": "range", "id": "horizon_days", "label": "t:sections.atelier_appointment.horizon_days", "min": 7, "max": 182, "step": 7, "default": 91 },
+    { "type": "range", "id": "open_hour", "label": "t:sections.atelier_appointment.open_hour", "min": 0, "max": 23, "step": 1, "default": 10 },
+    { "type": "range", "id": "close_hour", "label": "t:sections.atelier_appointment.close_hour", "min": 1, "max": 24, "step": 1, "default": 18 },
+    { "type": "color", "id": "background_color", "label": "t:sections.atelier_story_index.background_color", "default": "#0B0E28" },
+    { "type": "color", "id": "panel_color", "label": "t:sections.atelier_appointment.panel_color", "default": "#131843" },
+    { "type": "color", "id": "text_color", "label": "t:sections.atelier_story_index.text_color", "default": "#F2F6FB" },
+    { "type": "color", "id": "soft_color", "label": "t:sections.atelier_story_index.soft_color", "default": "#A9C3E2" },
+    { "type": "color", "id": "accent_color", "label": "t:sections.atelier_story_index.accent_color", "default": "#6E9BFF" },
+    { "type": "range", "id": "padding_top", "label": "t:sections.atelier_story_index.padding_top", "min": 0, "max": 200, "step": 4, "default": 92, "unit": "px" },
+    { "type": "range", "id": "padding_bottom", "label": "t:sections.atelier_story_index.padding_bottom", "min": 0, "max": 200, "step": 4, "default": 92, "unit": "px" }
+  ],
+  "max_blocks": 6,
+  "blocks": [{
+    "type": "appointment_type", "name": "t:sections.atelier_appointment.type", "settings": [
+      { "type": "text", "id": "title", "label": "t:sections.atelier_story_index.title", "default": "In the atelier" },
+      { "type": "range", "id": "duration", "label": "t:sections.atelier_appointment.duration", "min": 15, "max": 180, "step": 15, "default": 60, "unit": "min" },
+      { "type": "text", "id": "text", "label": "t:sections.atelier_story_index.text" }
+    ]
+  }],
+  "presets": [{ "name": "t:sections.atelier_appointment.name", "blocks": [{ "type": "appointment_type" }] }]
+}
+{% endschema %}

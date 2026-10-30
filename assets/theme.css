@@ -22087,6 +22087,473 @@ a.atelier-correspondence__link:focus-visible::after {
     transition: none;
   }
 }
+.atelier-appointment {
+  --appointment-xs: clamp(11px, 10.64px + .11vw, 12px);
+  --appointment-sm: clamp(13px, 12.64px + .11vw, 14px);
+  --appointment-body: clamp(15px, 14.592px + .13vw, 16px);
+  --appointment-md: clamp(15px, 14.592px + .13vw, 16px);
+  --appointment-lg: clamp(18px, 16.8px + .37vw, 22px);
+  --appointment-space: clamp(28px, 1.9vw + 20px, 38px);
+  --appointment-line: var(--appointment-text);
+  @supports (color: color-mix(in lab, red, red)) {
+    --appointment-line: color-mix(in srgb, var(--appointment-text) 22%, var(--appointment-background));
+  }
+  --appointment-line-strong: var(--appointment-text);
+  @supports (color: color-mix(in lab, red, red)) {
+    --appointment-line-strong: color-mix(in srgb, var(--appointment-text) 46%, var(--appointment-background));
+  }
+  --appointment-ease: cubic-bezier(.4, 0, .2, 1);
+  display: block;
+  padding-block: var(--appointment-top) var(--appointment-bottom);
+  background: var(--appointment-background);
+  color: var(--appointment-text);
+  font-family: "Atelier Search Body", sans-serif;
+  font-size: var(--appointment-body);
+  font-weight: 400;
+  line-height: 1.62;
+  letter-spacing: normal;
+  -webkit-font-smoothing: antialiased;
+}
+.atelier-appointment__layout {
+  display: grid;
+  align-items: start;
+  gap: var(--appointment-space);
+  width: 100%;
+  max-width: 1720px;
+  margin-inline: auto;
+  padding-inline: clamp(18px, 11.31px + 1.7143vw, 36px);
+}
+.atelier-appointment__aside {
+  display: grid;
+  min-width: 0;
+  gap: 12px;
+}
+.atelier-appointment .atelier-appointment__eyebrow {
+  margin: 0 0 12px;
+  color: var(--appointment-soft);
+  font-size: var(--appointment-xs);
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+.atelier-appointment .atelier-appointment__title {
+  margin: 0 0 8px;
+  color: inherit;
+  font-family: "Atelier Search Heading", sans-serif;
+  font-size: clamp(24px, 20.48px + 1.05vw, 34px);
+  font-style: normal;
+  font-weight: 700;
+  line-height: .9;
+  letter-spacing: -.02em;
+  text-transform: none;
+  text-wrap: balance;
+  overflow-wrap: normal;
+}
+.atelier-appointment__text {
+  max-width: 62ch;
+  color: var(--appointment-soft);
+}
+.atelier-appointment__text p {
+  margin: 0 0 1em;
+}
+.atelier-appointment__text > :last-child {
+  margin-bottom: 0;
+}
+.atelier-appointment__figure {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 4 / 5;
+  margin-block-start: 18px;
+  background: var(--appointment-raised);
+}
+.atelier-appointment__figure img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.atelier-appointment__figure::after {
+  content: "";
+  position: absolute;
+  inset: 12px;
+  border: 1px solid var(--appointment-line-strong);
+  clip-path: polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px);
+  pointer-events: none;
+}
+.atelier-appointment__facts {
+  display: grid;
+  gap: 12px;
+  margin: 18px 0 1em;
+}
+.atelier-appointment__facts dt {
+  margin-bottom: 3px;
+  color: var(--appointment-soft);
+  font-size: var(--appointment-xs);
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+.atelier-appointment__facts dd {
+  margin: 0;
+  font-size: var(--appointment-sm);
+}
+.atelier-appointment__panel {
+  min-width: 0;
+  padding: var(--appointment-space);
+  border: 1px solid var(--appointment-line);
+  background: var(--appointment-raised);
+}
+.atelier-appointment__form {
+  margin: 0;
+}
+.atelier-appointment__step {
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  margin: 0 0 var(--appointment-space);
+}
+.atelier-appointment__step:last-of-type {
+  margin-bottom: 26px;
+}
+.atelier-appointment__legend {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  width: 100%;
+  padding: 0;
+  margin-bottom: 18px;
+  color: var(--appointment-text);
+  font-size: var(--appointment-xs);
+  font-weight: 400;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+.atelier-appointment__legend > span {
+  color: var(--appointment-soft);
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+}
+.atelier-appointment__types {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(190px, 100%), 1fr));
+  gap: 8px;
+}
+.atelier-appointment__type {
+  position: relative;
+  min-width: 0;
+}
+.atelier-appointment__radio {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+.atelier-appointment__type-label {
+  display: grid;
+  align-content: start;
+  gap: 4px;
+  height: 100%;
+  min-height: 44px;
+  padding: 12px 18px;
+  border: 1px solid var(--appointment-line-strong);
+  cursor: pointer;
+  transition: border-color 180ms var(--appointment-ease), background-color 180ms var(--appointment-ease);
+}
+.atelier-appointment__type-label:hover {
+  border-color: var(--appointment-text);
+}
+.atelier-appointment__radio:checked + label {
+  border-color: var(--appointment-text);
+  background: var(--appointment-text);
+  @supports (color: color-mix(in lab, red, red)) {
+    background: color-mix(in srgb, var(--appointment-text) 5%, transparent);
+  }
+}
+.atelier-appointment__radio:focus-visible + label {
+  outline: 2px solid var(--appointment-accent);
+  outline-offset: 2px;
+}
+.atelier-appointment__type-name {
+  font-family: "Atelier Search Heading", sans-serif;
+  font-size: var(--appointment-md);
+}
+.atelier-appointment__type-meta {
+  color: var(--appointment-soft);
+  font-size: 10px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+.atelier-appointment__type-text {
+  color: var(--appointment-soft);
+  font-size: var(--appointment-xs);
+}
+.atelier-appointment__calendar {
+  margin-top: 12px;
+}
+.atelier-appointment__cal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.atelier-appointment .atelier-appointment__month {
+  margin: 0;
+  font-family: "Atelier Search Heading", sans-serif;
+  font-size: var(--appointment-lg);
+}
+.atelier-appointment__arrow {
+  display: grid;
+  place-items: center;
+  flex: 0 0 44px;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 50%;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+  transition: background-color 180ms var(--appointment-ease), border-color 180ms var(--appointment-ease);
+}
+.atelier-appointment__arrow:hover:not(:disabled) {
+  border-color: var(--appointment-accent);
+  background: var(--appointment-accent);
+  color: var(--appointment-background);
+}
+.atelier-appointment__arrow:disabled {
+  opacity: .45;
+  cursor: not-allowed;
+}
+.atelier-appointment__arrow svg {
+  fill: none;
+}
+.atelier-appointment__weekdays, .atelier-appointment__grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 4px;
+}
+.atelier-appointment__weekdays {
+  margin-bottom: 6px;
+  color: var(--appointment-soft);
+  font-size: 10px;
+  letter-spacing: .14em;
+  text-align: center;
+  text-transform: uppercase;
+}
+.atelier-appointment__day {
+  position: relative;
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1;
+  min-width: 0;
+  min-height: 40px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-size: var(--appointment-sm);
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+  transition: border-color 180ms var(--appointment-ease), background-color 180ms var(--appointment-ease), color 180ms var(--appointment-ease);
+}
+.atelier-appointment__day:hover:not(:disabled), .atelier-appointment__slot:hover {
+  border-color: var(--appointment-text);
+}
+.atelier-appointment__day:disabled {
+  color: var(--appointment-soft);
+  opacity: .35;
+  cursor: not-allowed;
+}
+.atelier-appointment :is(.atelier-appointment__day, .atelier-appointment__slot)[aria-pressed="true"] {
+  background: var(--appointment-text);
+  border-color: var(--appointment-text);
+  color: var(--appointment-background);
+}
+.atelier-appointment__day[aria-current="date"]:not([aria-pressed="true"])::after {
+  content: "";
+  position: absolute;
+  bottom: 6px;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: currentColor;
+}
+.atelier-appointment__times {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(84px, 1fr));
+  gap: 6px;
+}
+.atelier-appointment__slot {
+  min-height: 44px;
+  padding: 10px 8px;
+  border: 1px solid var(--appointment-line-strong);
+  border-radius: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-size: var(--appointment-sm);
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+  transition: border-color 180ms var(--appointment-ease), background-color 180ms var(--appointment-ease), color 180ms var(--appointment-ease);
+}
+.atelier-appointment .atelier-appointment__empty {
+  grid-column: 1 / -1;
+  margin: 0;
+  color: var(--appointment-soft);
+  font-size: var(--appointment-sm);
+}
+.atelier-appointment__fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+.atelier-appointment__field {
+  display: grid;
+  min-width: 0;
+  gap: 6px;
+}
+.atelier-appointment__field--wide {
+  grid-column: 1 / -1;
+}
+.atelier-appointment__field > label {
+  color: var(--appointment-soft);
+  font-size: var(--appointment-xs);
+  font-weight: 400;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+.atelier-appointment .atelier-appointment__input {
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  padding: 12px 14px;
+  margin: 0;
+  border: 1px solid var(--appointment-text);
+  @supports (color: color-mix(in lab, red, red)) {
+    border: 1px solid color-mix(in srgb, var(--appointment-text) 55%, var(--appointment-background));
+  }
+  border-radius: 0;
+  background: var(--appointment-background);
+  color: var(--appointment-text);
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: normal;
+  letter-spacing: normal;
+  box-shadow: none;
+  color-scheme: dark;
+  transition: border-color 180ms var(--appointment-ease);
+}
+.atelier-appointment .atelier-appointment__input:focus {
+  border-color: var(--appointment-text);
+}
+.atelier-appointment textarea {
+  resize: vertical;
+}
+.atelier-appointment__foot {
+  display: grid;
+  gap: 12px;
+  align-items: center;
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+.atelier-appointment .atelier-appointment__note {
+  margin: 0 0 1em;
+  color: var(--appointment-soft);
+  font-size: var(--appointment-xs);
+}
+.atelier-appointment__submit {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 14px 30px;
+  overflow: hidden;
+  border: 1px solid var(--appointment-text);
+  border-radius: 0;
+  background: var(--appointment-text);
+  color: var(--appointment-background);
+  font: inherit;
+  font-size: var(--appointment-sm);
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 180ms var(--appointment-ease);
+}
+.atelier-appointment__submit::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--appointment-accent);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 420ms cubic-bezier(.16, 1, .3, 1);
+}
+.atelier-appointment__submit > span {
+  position: relative;
+}
+.atelier-appointment__submit:is(:hover, :focus-visible) {
+  border-color: var(--appointment-accent);
+}
+.atelier-appointment__submit:is(:hover, :focus-visible)::before {
+  transform: scaleX(1);
+}
+[dir="rtl"] .atelier-appointment__submit::before {
+  transform-origin: right;
+}
+.atelier-appointment :is(button, input, textarea, select):focus-visible {
+  outline: 2px solid var(--appointment-accent);
+  outline-offset: 3px;
+}
+.atelier-appointment__error {
+  margin: 0 0 18px;
+  color: var(--appointment-text);
+}
+.atelier-appointment__notice {
+  padding-block: 38px;
+  text-align: center;
+}
+.atelier-appointment [hidden] {
+  display: none !important;
+}
+@media (min-width: 990px) {
+  .atelier-appointment__layout {
+    grid-template-columns: minmax(0, .85fr) minmax(0, 1.15fr);
+    gap: clamp(52px, 5.1vw + 32px, 80px);
+  }
+  .atelier-appointment__aside {
+    position: sticky;
+    top: calc(var(--header-height, 94px) + 26px);
+  }
+}
+@media (max-width: 749.98px) {
+  .atelier-appointment {
+    padding-block: calc(var(--appointment-top) * .6) calc(var(--appointment-bottom) * .6);
+  }
+  .atelier-appointment__panel {
+    padding: 18px;
+  }
+  .atelier-appointment__figure::after {
+    inset: 8px;
+  }
+  .atelier-appointment__fields, .atelier-appointment__foot {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .atelier-appointment__submit {
+    width: 100%;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .atelier-appointment *, .atelier-appointment *::before {
+    transition: none;
+  }
+}
 .atelier-about {
   --about-xs: clamp(11px, 10.64px + 0.11vw, 12px);
   --about-small: clamp(13px, 12.64px + 0.11vw, 14px);

@@ -1,17 +1,84 @@
 {
   "sections": {
     "main": {
-      "type": "main-page",
+      "type": "atelier-appointment",
+      "blocks": {
+        "atelier": {
+          "type": "appointment_type",
+          "settings": {
+            "title": "In the atelier",
+            "duration": 60,
+            "text": "Sit with a designer and try the settings on your own hand."
+          }
+        },
+        "virtual": {
+          "type": "appointment_type",
+          "settings": {
+            "title": "Virtual consultation",
+            "duration": 30,
+            "text": "A video call, wherever you are in the world."
+          }
+        },
+        "collection": {
+          "type": "appointment_type",
+          "settings": {
+            "title": "Collect a finished ring",
+            "duration": 30,
+            "text": "For rings already made and waiting."
+          }
+        }
+      },
+      "block_order": [
+        "atelier",
+        "virtual",
+        "collection"
+      ],
       "settings": {
-        "show_heading": true,
-        "heading_tag": "h1",
-        "show_breadcrumbs": true,
-        "padding_top": 60,
-        "padding_bottom": 80,
-        "padding_top_mobile": 36,
-        "padding_bottom_mobile": 48
+        "eyebrow": "By appointment",
+        "heading": "Come and see them in person",
+        "text": "<p>An hour at the bench with one of our designers — bring a photograph, an heirloom, or nothing at all. Choose a day and a time that suit you, and we will write back to confirm.</p>",
+        "image_url": "https://aevow.myshopify.com/cdn/shop/files/mn_21_atelier_portrait.png?v=1787752282&width=1200",
+        "image_alt": "The Aevow atelier with tall windows and a jeweler's bench",
+        "hours": "Tuesday to Saturday, 10am until 6pm",
+        "lead_days": 2,
+        "horizon_days": 91,
+        "open_hour": 10,
+        "close_hour": 18,
+        "background_color": "#0B0E28",
+        "panel_color": "#131843",
+        "text_color": "#F2F6FB",
+        "soft_color": "#A9C3E2",
+        "accent_color": "#6E9BFF",
+        "padding_top": 92,
+        "padding_bottom": 92
+      }
+    },
+    "silk-film": {
+      "type": "atelier-media-story",
+      "settings": {
+        "layout": "split-end",
+        "heading_font": "oswald_n7",
+        "body_font": "archivo_n4",
+        "eyebrow": "Unhurried, always",
+        "heading": "Take the time it takes",
+        "text": "<p>An appointment here is not a sales call. It is an hour of quiet with the stones, the settings, and someone who makes them.</p>",
+        "video_file_url": "https://cdn.shopify.com/videos/c/vp/129c19c35a8a4c2590dc196106554c3a/129c19c35a8a4c2590dc196106554c3a.HD-720p-1.6Mbps-92731063.mp4",
+        "poster_url": "https://aevow.myshopify.com/cdn/shop/files/mn_16_ring_on_silk.png?v=1787752277&width=1200",
+        "video_alt_text": "A diamond ring resting on deep blue silk",
+        "enable_video_autoplay": true,
+        "video_ratio": "16 / 9",
+        "video_ratio_mobile": "16 / 9",
+        "background_color": "#070A1E",
+        "text_color": "#F2F6FB",
+        "soft_color": "#A9C3E2",
+        "accent_color": "#6E9BFF",
+        "padding_top": 92,
+        "padding_bottom": 92
       }
     }
   },
-  "order": ["main"]
+  "order": [
+    "main",
+    "silk-film"
+  ]
 }
