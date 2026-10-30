@@ -10,6 +10,8 @@
   @param countdown_text_rem {number} Desktop label size in rem, derived from the block text size. Mobile is 0.9 of it.
   @param overlay {boolean} Whether the bar is stacked and pinned over the bottom of the bundle image instead of laid out as a full-width band.
   @param overlay_radius_md {string} Bottom corner radius of the overlay bar from 768px up, matched to the radius of the image behind it. Defaults to the mobile 0.375rem.
+  @param heading_alignment {string} Text and item alignment.
+  @param rtl_alignment {string} Text alignment for right-to-left languages.
 {% enddoc %}
 
 {%- liquid
@@ -180,7 +182,8 @@
             {%- unless countdown_ended %} x-text="countdownLoading ? textLoad : String({{ unit }}).padStart(2, '0')"{% endunless -%}
           >{% if countdown_ended %}00{% endif %}</span>
           <span class="countdown-label-{{ countdown_block.id }}{% if text_position == 'aside' %} -translate-y-2 ml-0.5{% else %} mt-1{% endif %}">
-            {{- 'sections.flash-sale.' | append: unit | t -}}
+            {%- assign unit_label = 'sections.flash-sale.' | append: unit -%}
+            {{- unit_label | t -}}
           </span>
         </div>
       {%- endfor -%}
