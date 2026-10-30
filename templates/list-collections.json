@@ -11,6 +11,7 @@
   "sections": {
     "main-collection-list-banner": {
       "type": "main-collection-list-banner",
+      "disabled": true,
       "settings": {
         "heading": "",
         "size_title": 170,
@@ -27,11 +28,19 @@
       }
     },
     "main": {
-      "type": "main-list-collections",
+      "type": "main-atelier-collections",
       "settings": {
         "title": "Collections",
         "sort": "alphabetical",
-        "image_ratio": "square"
+        "image_ratio": "portrait",
+        "show_collection": "all",
+        "columns_desktop": 3,
+        "columns_mobile": "2",
+        "show_item_count": true,
+        "background_color": "#0B0E28",
+        "title_color": "#F2F6FB",
+        "text_light": "#A9C3E2",
+        "accent_color": "#6E9BFF"
       }
     }
   },

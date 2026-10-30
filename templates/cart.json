@@ -29,14 +29,15 @@
       ],
       "settings": {
         "heading_tag": "h1",
-        "padding_top": 48,
-        "padding_bottom": 80,
-        "padding_top_mobile": 24,
-        "padding_bottom_mobile": 24
+        "padding_top": 38,
+        "padding_bottom": 116,
+        "padding_top_mobile": 28,
+        "padding_bottom_mobile": 64
       }
     },
     "cart-footer": {
       "type": "main-cart-footer",
+      "disabled": true,
       "blocks": {
         "subtotal": {
           "type": "subtotal",
@@ -64,6 +65,7 @@
     },
     "cart-upsell": {
       "type": "main-cart-upsell",
+      "disabled": true,
       "settings": {
         "heading_tag": "h2",
         "number_of_columns_on_desktop": 4,

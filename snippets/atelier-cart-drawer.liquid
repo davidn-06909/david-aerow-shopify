@@ -16,7 +16,7 @@
 >
   <s-view-event id="CartDrawerViewEvent" view-event-trigger="manual" view-event-payload='{{ cart | standard_event_data: "view", context: "dialog" | escape }}'></s-view-event>
   <div class="drawer fixed z-20 md:z-20 typeDrawer md:fixed left-0 top-0 w-full h-full md:flex md:justify-end right-0 animate-goleft duration-300">
-    <div id="CartDrawer-Overlay" class="bg-black opacity-40 block md:block fixed top-0 right-0 bottom-0 left-0" @click="close()"></div>
+    <div id="CartDrawer-Overlay" class="atelier-cart-overlay block md:block fixed top-0 right-0 bottom-0 left-0" @click="close()"></div>
     <div
       id="update-cart"
       class="atelier-cart z-30 fixed bottom-0{% if is_rtl %} left-0 right-auto{% else %} right-0 left-auto{% endif %} md:relative md:z-auto"
@@ -56,12 +56,12 @@
           <details class="atelier-cart__extra" data-cart-extra="gift">
             <summary>{{ 'general.atelier_cart.gift_message' | t }}</summary>
             <label class="sr-only" for="AtelierCartGift">{{ 'general.atelier_cart.gift_message' | t }}</label>
-            <textarea id="AtelierCartGift" name="attributes[Gift message]" form="AtelierCartForm" placeholder="{{ 'general.atelier_cart.gift_placeholder' | t }}" @input="scheduleNote('gift', $event.target.value)" @change="saveNotes()">{{ cart.attributes['Gift message'] | escape }}</textarea>
+            <textarea id="AtelierCartGift" name="attributes[Gift message]" form="AtelierCartForm" data-cart-note="gift" placeholder="{{ 'general.atelier_cart.gift_placeholder' | t }}" @input="scheduleNote('gift', $event.target.value)" @change="saveNotes()">{{ cart.attributes['Gift message'] | escape }}</textarea>
           </details>
           <details class="atelier-cart__extra" data-cart-extra="note">
             <summary>{{ 'general.atelier_cart.add_note' | t }}</summary>
             <label class="sr-only" for="AtelierCartNote">{{ 'general.atelier_cart.add_note' | t }}</label>
-            <textarea id="AtelierCartNote" name="note" form="AtelierCartForm" placeholder="{{ 'general.atelier_cart.note_placeholder' | t }}" @input="scheduleNote('note', $event.target.value)" @change="saveNotes()">{{ cart.note | escape }}</textarea>
+            <textarea id="AtelierCartNote" name="note" form="AtelierCartForm" data-cart-note="note" placeholder="{{ 'general.atelier_cart.note_placeholder' | t }}" @input="scheduleNote('note', $event.target.value)" @change="saveNotes()">{{ cart.note | escape }}</textarea>
           </details>
           <p class="atelier-cart__error" role="alert" x-show="error" x-text="error" x-cloak></p>
         </div>

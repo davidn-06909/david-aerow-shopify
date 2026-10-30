@@ -1083,6 +1083,21 @@
     }
   },
   "sections": {
+    "atelier_appointment": {
+      "name": "Appointment booking",
+      "image": "Atelier image",
+      "image_url": "Fallback image URL",
+      "image_alt": "Image description",
+      "hours": "Opening hours",
+      "lead_days": "Minimum notice (days)",
+      "horizon_days": "Booking window (days)",
+      "open_hour": "First appointment hour (24-hour clock)",
+      "close_hour": "Closing hour (24-hour clock)",
+      "panel_color": "Booking panel background",
+      "type": "Appointment type",
+      "duration": "Duration",
+      "split_end": "Split — media on the right"
+    },
     "atelier_lookbook": {
       "show_promotion": "Show promotion on the Lookbook page",
       "shapes": {

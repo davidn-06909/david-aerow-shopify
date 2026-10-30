@@ -1,0 +1,112 @@
+{%- liquid
+  assign sorted_collections = collections
+  case section.settings.sort
+    when 'products_high', 'products_low'
+      assign sorted_collections = collections | sort: 'all_products_count'
+    when 'date', 'date_reversed'
+      assign sorted_collections = collections | sort: 'published_at'
+  endcase
+  if section.settings.sort == 'products_high' or section.settings.sort == 'date_reversed' or section.settings.sort == 'alphabetical_reversed'
+    assign sorted_collections = sorted_collections | reverse
+  endif
+-%}
+
+{% style %}
+  #AtelierCollections-{{ section.id }} {
+    --collections-columns: {{ section.settings.columns_desktop }};
+    --collections-columns-mobile: {{ section.settings.columns_mobile }};
+    --collections-background: {{ section.settings.background_color }};
+    --collections-text: {{ section.settings.title_color }};
+    --collections-soft: {{ section.settings.text_light }};
+    --collections-accent: {{ section.settings.accent_color }};
+  }
+{% endstyle %}
+
+<div id="AtelierCollections-{{ section.id }}" class="atelier-collections">
+  {% if section.settings.title != blank %}
+    <header class="atelier-collections__page atelier-collections__head">
+      <h1 class="atelier-collections__title">{{ section.settings.title | escape }}</h1>
+    </header>
+  {% endif %}
+
+  <div class="atelier-collections__page atelier-collections__body">
+    <ul class="atelier-collections__grid" role="list">
+      {% if section.settings.show_collection == 'selected' %}
+        {% for block in section.blocks %}
+          {% assign card_collection = block.settings.collection %}
+          {% if card_collection != blank %}
+            <li class="atelier-collections__cell" {{ block.shopify_attributes }}>
+              {% render 'card-collection-atelier', card_collection: card_collection, image: block.settings.image, section: section, index: forloop.index %}
+            </li>
+          {% endif %}
+        {% endfor %}
+      {% else %}
+        {% for card_collection in sorted_collections %}
+          <li class="atelier-collections__cell">
+            {% render 'card-collection-atelier', card_collection: card_collection, section: section, index: forloop.index %}
+          </li>
+        {% endfor %}
+      {% endif %}
+    </ul>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "t:sections.main-list-collections.name",
+  "class": "section x-section-atelier-collections",
+  "settings": [
+    { "type": "text", "id": "title", "label": "t:sections.all.text.heading" },
+    {
+      "type": "radio", "id": "show_collection", "label": "t:sections.main-list-collections.settings.show_collection.label", "default": "all",
+      "options": [
+        { "value": "all", "label": "t:sections.main-list-collections.settings.show_collection.options__1.label" },
+        { "value": "selected", "label": "t:sections.main-list-collections.settings.show_collection.options__2.label" }
+      ]
+    },
+    {
+      "type": "select", "id": "sort", "label": "t:sections.main-list-collections.settings.sort.label", "default": "alphabetical",
+      "visible_if": "{{ section.settings.show_collection == 'all' }}",
+      "options": [
+        { "value": "alphabetical", "label": "t:sections.main-list-collections.settings.sort.options__1.label" },
+        { "value": "alphabetical_reversed", "label": "t:sections.main-list-collections.settings.sort.options__2.label" },
+        { "value": "date_reversed", "label": "t:sections.main-list-collections.settings.sort.options__3.label" },
+        { "value": "date", "label": "t:sections.main-list-collections.settings.sort.options__4.label" },
+        { "value": "products_high", "label": "t:sections.main-list-collections.settings.sort.options__5.label" },
+        { "value": "products_low", "label": "t:sections.main-list-collections.settings.sort.options__6.label" }
+      ]
+    },
+    {
+      "type": "select", "id": "image_ratio", "label": "t:sections.all.image_ratio.label_2", "default": "portrait",
+      "options": [
+        { "value": "portrait", "label": "4:5" },
+        { "value": "square", "label": "t:sections.all.image_ratio.options__2.label" },
+        { "value": "3/4", "label": "t:settings_schema.products.product_image_ratio.option__6.label" },
+        { "value": "auto", "label": "t:sections.all.image_ratio.options__1.label" }
+      ]
+    },
+    { "type": "checkbox", "id": "show_item_count", "label": "t:sections.collection-list.settings.show_item_count.label", "default": true },
+    { "type": "range", "id": "columns_desktop", "label": "t:sections.collection-list.settings.columns_desktop.label", "min": 2, "max": 5, "step": 1, "default": 3 },
+    {
+      "type": "select", "id": "columns_mobile", "label": "t:sections.collection-list.settings.columns_mobile.label", "default": "2",
+      "options": [
+        { "value": "1", "label": "1" },
+        { "value": "2", "label": "2" }
+      ]
+    },
+    { "type": "color", "id": "background_color", "label": "t:sections.atelier_collection.background", "default": "#0B0E28" },
+    { "type": "color", "id": "title_color", "label": "t:sections.all.text.colors_title_light", "default": "#F2F6FB" },
+    { "type": "color", "id": "text_light", "label": "t:sections.all.text.color", "default": "#A9C3E2" },
+    { "type": "color", "id": "accent_color", "label": "t:atelier_footer.accent_color", "default": "#6E9BFF" }
+  ],
+  "blocks": [
+    {
+      "type": "collection", "name": "t:sections.collage.blocks.collection.name",
+      "settings": [
+        { "type": "collection", "id": "collection", "label": "t:sections.collage.blocks.collection.name" },
+        { "type": "image_picker", "id": "image", "label": "t:sections.all.image.label" }
+      ]
+    }
+  ]
+}
+{% endschema %}

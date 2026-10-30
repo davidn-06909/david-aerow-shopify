@@ -8,6 +8,25 @@
  * ------------------------------------------------------------
  */
 {
+  "atelier_appointment": {
+    "hours": "Hours",
+    "type": "Type of appointment",
+    "minutes": "{{ count }} minutes",
+    "choose_day": "Choose a day",
+    "previous_month": "Previous month",
+    "next_month": "Next month",
+    "choose_time": "Choose a time",
+    "choose_day_first": "Choose a day first.",
+    "choose_time_first": "Choose an available time.",
+    "details": "Your details",
+    "full_name": "Full name",
+    "email": "Email address",
+    "telephone": "Telephone",
+    "message": "Anything we should know?",
+    "note": "This sends a request, not a confirmed booking. We will write back to confirm.",
+    "submit": "Request this appointment",
+    "success": "Thank you for your appointment request. We will write back to confirm your day and time."
+  },
   "atelier_membership": {
     "sign_in": "Login",
     "new_here": "Sei nuovo qui?",
@@ -80,6 +99,8 @@
     },
     "atelier_cart": {
       "title": "Cart",
+      "order_summary": "Order summary",
+      "update": "Update",
       "items": {
         "one": "{{ count }} item",
         "other": "{{ count }} items"

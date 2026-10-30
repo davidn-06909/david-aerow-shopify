@@ -116,6 +116,7 @@
 @import "./components/atelier-article.css";
 @import "./components/atelier-blog.css";
 @import "./components/atelier-consultation.css";
+@import "./components/atelier-appointment.css";
 @import "./components/atelier-about.css";
 @import "./components/main-register.css";
 @import "./components/style-app-cart.css";
@@ -131,8 +132,10 @@
 @import "./components/header.css";
 @import "./components/atelier-search.css";
 @import "./components/atelier-cart.css";
+@import "./components/atelier-cart-page.css";
 @import "./components/atelier-product.css";
 @import "./components/atelier-collection.css";
+@import "./components/atelier-collections.css";
 @import "./components/atelier-search-page.css";
 @import "./components/atelier-quick-view.css";
 @import "./components/announcement-bar.css";

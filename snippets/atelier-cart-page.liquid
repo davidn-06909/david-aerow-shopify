@@ -1,0 +1,86 @@
+<div
+  id="main-cart-items"
+  class="atelier-cart-page"
+  data-atelier-cart-page
+  data-section-id="{{ section.id }}"
+  data-error-message="{{ 'sections.cart.cart_error' | t | escape }}"
+  style="--cart-page-top: {{ section.settings.padding_top }}px; --cart-page-bottom: {{ section.settings.padding_bottom }}px; --cart-page-top-mobile: {{ section.settings.padding_top_mobile }}px; --cart-page-bottom-mobile: {{ section.settings.padding_bottom_mobile }}px;"
+  x-data="xAtelierCart('page')"
+  :aria-busy="busy"
+>
+  <s-view-event view-event-payload='{{ cart | standard_event_data: "view", context: "page" | escape }}'></s-view-event>
+  <div class="atelier-cart-page__page">
+    <div class="atelier-cart-page__head">
+      <{{ section.settings.heading_tag }} class="atelier-cart-page__title">{{ 'general.atelier_cart.title' | t }}</{{ section.settings.heading_tag }}>
+      <p class="atelier-cart-page__count" aria-live="polite">{{ 'general.atelier_cart.items' | t: count: cart.item_count }}</p>
+    </div>
+    {% if cart == empty %}
+      <div class="atelier-cart-page__empty">
+        <h2>{{ 'sections.cart.empty' | t }}</h2>
+        <p>{{ 'general.atelier_cart.empty_description' | t }}</p>
+        <a class="atelier-cart__button" href="{{ settings.continue_shopping | default: routes.all_products_collection_url }}"><span>{{ 'general.continue_shopping' | t }}</span></a>
+      </div>
+    {% else %}
+      <form id="AtelierCartPageForm" class="atelier-cart-page__layout" action="{{ routes.cart_url }}" method="post" @submit="submitPage($event)">
+        <div class="atelier-cart-page__items" data-cart-body>
+          <ul class="atelier-cart__lines" role="list">
+            {% for item in cart.items %}
+              {% render 'atelier-cart-item', item: item, cart_page: true %}
+            {% endfor %}
+          </ul>
+          <div class="atelier-cart-page__tools">
+            <button type="submit" name="update" class="atelier-cart__button atelier-cart-page__update" :disabled="busy || checkingOut"><span>{{ 'general.atelier_cart.update' | t }}</span></button>
+            <a class="atelier-cart__button atelier-cart__button--text" href="{{ settings.continue_shopping | default: routes.all_products_collection_url }}"><span>{{ 'general.continue_shopping' | t }}</span></a>
+          </div>
+          <details class="atelier-cart__extra" data-cart-extra="gift">
+            <summary>{{ 'general.atelier_cart.gift_message' | t }}</summary>
+            <label class="sr-only" for="AtelierCartPageGift">{{ 'general.atelier_cart.gift_message' | t }}</label>
+            <textarea id="AtelierCartPageGift" name="attributes[Gift message]" data-cart-note="gift" placeholder="{{ 'general.atelier_cart.gift_placeholder' | t }}" @input="scheduleNote('gift', $event.target.value)" @change="saveNotes()">{{ cart.attributes['Gift message'] | escape }}</textarea>
+          </details>
+          <details class="atelier-cart__extra" data-cart-extra="note">
+            <summary>{{ 'general.atelier_cart.add_note' | t }}</summary>
+            <label class="sr-only" for="AtelierCartPageNote">{{ 'general.atelier_cart.add_note' | t }}</label>
+            <textarea id="AtelierCartPageNote" name="note" data-cart-note="note" placeholder="{{ 'general.atelier_cart.note_placeholder' | t }}" @input="scheduleNote('note', $event.target.value)" @change="saveNotes()">{{ cart.note | escape }}</textarea>
+          </details>
+        </div>
+        <aside class="atelier-cart-page__summary" aria-labelledby="AtelierCartSummary">
+          <div class="atelier-cart-page__summary-inner">
+            <h2 id="AtelierCartSummary" class="atelier-cart-page__summary-title">{{ 'general.atelier_cart.order_summary' | t }}</h2>
+            {% for block in section.blocks %}
+              {% case block.type %}
+                {% when 'subtotal' %}
+                  {% if cart.cart_level_discount_applications.size > 0 %}
+                    <ul class="atelier-cart__discounts" role="list" {{ block.shopify_attributes }}>
+                      {% for discount in cart.cart_level_discount_applications %}
+                        <li><span>{{ discount.title | escape }}</span><span>-{{ discount.total_allocated_amount | money }}</span></li>
+                      {% endfor %}
+                    </ul>
+                  {% endif %}
+                  <div class="atelier-cart-page__total" {{ block.shopify_attributes }}><span>{{ 'sections.cart.subtotal' | t }}</span><span>{{ cart.total_price | money_with_currency }}</span></div>
+                  <p class="atelier-cart-page__tax">{% if cart.taxes_included %}{{ 'general.atelier_cart.tax_included' | t }}{% else %}{{ 'general.atelier_cart.tax_shipping' | t }}{% endif %}</p>
+                {% when 'buttons' %}
+                  <button type="submit" name="checkout" class="atelier-cart__button atelier-cart-page__checkout" :disabled="busy || checkingOut" {{ block.shopify_attributes }}><span>{{ 'general.atelier_cart.checkout' | t }}</span></button>
+                  <div class="atelier-cart-page__additional">
+                    {% if additional_checkout_buttons and block.settings.show_dynamic_checkout %}{{ content_for_additional_checkout_buttons }}{% endif %}
+                  </div>
+                {% when 'message' %}
+                  <div class="rte" style="text-align: {{ block.settings.text_alignment }}" {{ block.shopify_attributes }}>{{ block.settings.cart_custom_message }}</div>
+                {% when '@app' %}
+                  {% render block %}
+              {% endcase %}
+            {% endfor %}
+            {% if shop.enabled_payment_types.size > 0 %}
+              <ul class="atelier-cart-page__payments" role="list" aria-label="{{ 'atelier_footer.payment_methods' | t | escape }}">
+                {% for type in shop.enabled_payment_types %}
+                  <li>{{ type | payment_type_svg_tag: class: 'atelier-cart-page__payment' }}</li>
+                {% endfor %}
+              </ul>
+            {% endif %}
+          </div>
+        </aside>
+      </form>
+    {% endif %}
+    <p class="atelier-cart__error" role="alert" x-show="error" x-text="error" x-cloak></p>
+    <p class="sr-only" role="status" aria-live="polite" aria-atomic="true" x-text="announcement"></p>
+  </div>
+</div>
