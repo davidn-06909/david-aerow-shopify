@@ -1068,5 +1068,9 @@
     "nav_button_continue": "Nastavi",
     "nav_button_submit": "Pošalji odgovor",
     "select_options": "Izaberite opcije"
+  },
+  "lookbook": {
+    "look_number": "Изглед {{ number }}",
+    "view_product": "Прикажи {{ product }}"
   }
 }

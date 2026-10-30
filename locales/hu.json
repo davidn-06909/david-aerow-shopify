@@ -1068,5 +1068,9 @@
     "nav_button_continue": "Folytatás",
     "nav_button_submit": "Válasz elküldése",
     "select_options": "Válasszon lehetőségeket"
+  },
+  "lookbook": {
+    "look_number": "Look {{ number }}",
+    "view_product": "{{ product }} megtekintése"
   }
 }

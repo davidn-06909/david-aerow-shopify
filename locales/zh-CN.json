@@ -1068,5 +1068,9 @@
     "nav_button_continue": "继续",
     "nav_button_submit": "提交答案",
     "select_options": "选择选项"
+  },
+  "lookbook": {
+    "look_number": "造型 {{ number }}",
+    "view_product": "查看 {{ product }}"
   }
 }

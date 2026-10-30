@@ -1,0 +1,87 @@
+.atelier-lookbook {
+  --lookbook-gutter: clamp(18px, 11.31px + 1.7143vw, 36px);
+  --lookbook-xs: clamp(11px, 10.64px + 0.11vw, 12px);
+  --lookbook-sm: clamp(13px, 12.64px + 0.11vw, 14px);
+  --lookbook-space-6: clamp(28px, 1.9vw + 20px, 38px);
+  --lookbook-space-7: clamp(38px, 3.2vw + 25px, 56px);
+  --lookbook-ease: cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  background: var(--lookbook-background);
+  color: var(--lookbook-text);
+  font-family: var(--lookbook-body-font);
+  font-size: clamp(15px, 14.592px + 0.13vw, 16px);
+  font-weight: var(--lookbook-body-weight);
+  font-style: normal;
+  line-height: 1.62;
+  letter-spacing: normal;
+  -webkit-font-smoothing: antialiased;
+}
+
+.atelier-lookbook *, .atelier-lookbook *::before, .atelier-lookbook *::after { box-sizing: border-box; }
+.atelier-lookbook p { margin: 0; }
+.atelier-lookbook__head { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; justify-items: center; width: 100%; max-width: 1720px; margin: 0 auto var(--lookbook-space-7); padding-inline: var(--lookbook-gutter); text-align: center; }
+.atelier-lookbook .atelier-lookbook__eyebrow { display: block; margin-block-end: 12px; color: var(--lookbook-soft); font-size: var(--lookbook-xs); font-weight: 400; letter-spacing: 0.14em; text-transform: uppercase; }
+.atelier-lookbook .atelier-lookbook__title { margin: 0; color: inherit; font-family: var(--lookbook-heading-font); font-size: clamp(24px, 20.48px + 1.05vw, 34px); font-weight: var(--lookbook-heading-weight); font-style: normal; line-height: 0.9; letter-spacing: -0.02em; text-transform: none; text-wrap: balance; }
+.atelier-lookbook__intro { max-width: 62ch; color: var(--lookbook-soft); }
+.atelier-lookbook__intro p { margin: 0 0 1em; }
+.atelier-lookbook__intro p:last-child { margin-bottom: 0; }
+.atelier-lookbook__chapter { position: relative; display: grid; grid-template-columns: minmax(0, 1fr); align-content: center; min-height: 100svh; margin: 0; }
+.atelier-lookbook__media, .atelier-lookbook__caption { grid-area: 1 / 1; }
+.atelier-lookbook__media { position: relative; min-width: 0; }
+.atelier-lookbook__picture { display: block; aspect-ratio: 1.5; overflow: hidden; }
+.atelier-lookbook__image { display: block; width: 100%; height: 100%; object-fit: cover; }
+.atelier-lookbook__caption { position: relative; z-index: 1; align-self: end; display: grid; gap: 6px; padding: var(--lookbook-space-7) var(--lookbook-gutter) var(--lookbook-space-6); background: linear-gradient(to top, rgb(0 0 0 / 58%), rgb(0 0 0 / 20%) 55%, transparent); color: #fff; pointer-events: none; }
+.atelier-lookbook__caption .atelier-lookbook__eyebrow { color: inherit; opacity: 0.86; }
+.atelier-lookbook .atelier-lookbook__heading { margin: 0; color: inherit; font-family: var(--lookbook-heading-font); font-size: clamp(22.4px, 17.6px + 1.2vw, 35.2px); font-weight: 400; font-style: normal; line-height: 1.1; letter-spacing: normal; text-transform: none; }
+.atelier-lookbook__text { max-width: 46ch; opacity: 0.86; }
+.atelier-lookbook__spot { position: absolute; top: var(--spot-y); left: var(--spot-x); transform: translate(-50%, -50%); z-index: 2; }
+.atelier-lookbook__dot { position: relative; display: grid; place-items: center; width: 32px; height: 32px; padding: 0; border: 1px solid rgb(255 255 255 / 70%); border-radius: 50%; background: rgb(255 255 255 / 28%); color: #fcfaf7; cursor: pointer; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); transition: background-color 180ms ease, box-shadow 180ms ease; }
+.atelier-lookbook__dot::after { content: ''; position: absolute; inset: -6px; }
+.atelier-lookbook__pulse { position: absolute; inset: 0; border: 1px solid rgb(255 255 255 / 55%); border-radius: inherit; animation: lookbook-pulse 3.2s cubic-bezier(0.4, 0, 0.2, 1) infinite; pointer-events: none; }
+.atelier-lookbook__card { position: absolute; z-index: 4; width: max-content; min-width: 220px; max-width: min(320px, calc(100% - 24px)); padding: 12px; border: 1px solid color-mix(in srgb, var(--lookbook-text) 46%, var(--lookbook-background)); background: var(--lookbook-background); box-shadow: 0 18px 40px -24px rgb(0 0 0 / 35%); animation: lookbook-card-in 180ms var(--lookbook-ease); }
+.atelier-lookbook__card[hidden] { display: none; }
+.atelier-lookbook__product { display: grid; grid-template-columns: 60px minmax(0, 1fr); align-items: center; gap: 12px; color: var(--lookbook-text); text-decoration: none; }
+.atelier-lookbook__product img { display: block; width: 60px; height: 90px; object-fit: cover; transition: filter 420ms var(--lookbook-ease); }
+.atelier-lookbook__product-title { display: block; font-family: var(--lookbook-heading-font); font-size: var(--lookbook-sm); font-weight: 400; line-height: 1.62; transition: color 180ms ease; }
+.atelier-lookbook__price { display: block; font-size: var(--lookbook-sm); }
+.atelier-lookbook__note { display: block; margin-block-start: 3px; color: var(--lookbook-soft); font-size: var(--lookbook-xs); }
+.atelier-lookbook__counter { position: sticky; bottom: 18px; display: inline-flex; align-items: center; gap: 10px; margin: calc(var(--lookbook-space-6) * -1) 0 0 var(--lookbook-gutter) !important; color: var(--lookbook-text); font-size: 12.8px; font-variant-numeric: tabular-nums; letter-spacing: 0.14em; mix-blend-mode: difference; filter: invert(1); pointer-events: none; }
+.atelier-lookbook__counter-rule { width: 28px; height: 1px; background: currentColor; opacity: 0.6; }
+.atelier-lookbook__sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+.atelier-lookbook :is(button, a):focus-visible { outline: 2px solid var(--lookbook-accent); outline-offset: 4px; }
+:root:has(.atelier-lookbook--snap) { scroll-snap-type: y proximity; }
+.atelier-lookbook--snap .atelier-lookbook__chapter { scroll-snap-align: start; }
+
+@media (max-width: 749px) {
+  .atelier-lookbook__chapter { min-height: 0; align-content: start; }
+  .atelier-lookbook__caption { grid-area: auto; align-self: auto; padding: 18px var(--lookbook-gutter) var(--lookbook-space-7); background: none; color: var(--lookbook-text); }
+  .atelier-lookbook__caption .atelier-lookbook__eyebrow, .atelier-lookbook__text { opacity: 1; }
+  .atelier-lookbook__spot { top: var(--spot-mobile-y); left: var(--spot-mobile-x); }
+  .atelier-lookbook__dot { width: 16px; height: 16px; }
+  .atelier-lookbook__dot::after { inset: -14px; }
+  .atelier-lookbook__card { position: fixed; inset: auto 12px max(12px, env(safe-area-inset-bottom)); z-index: 60; width: auto; max-width: none; }
+  .atelier-lookbook--snap .atelier-lookbook__chapter { scroll-snap-align: none; }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .atelier-lookbook__dot:hover { background: rgb(255 255 255 / 45%); box-shadow: 0 0 0 4px rgb(255 255 255 / 12%); }
+  .atelier-lookbook__product:hover .atelier-lookbook__product-title { color: var(--lookbook-accent); }
+  .atelier-lookbook__product:hover img { filter: brightness(1.12); }
+}
+
+@keyframes lookbook-pulse { 0% { transform: scale(1); opacity: 0.8; } 70%, 100% { transform: scale(1.9); opacity: 0; } }
+@keyframes lookbook-card-in { from { opacity: 0; translate: 0 6px; } to { opacity: 1; translate: 0; } }
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .atelier-lookbook__head { animation: lookbook-fade linear both, lookbook-rise linear both; animation-timeline: view(); animation-range: entry 0% entry 12%, entry 5% cover 26%; }
+  }
+}
+
+@keyframes lookbook-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes lookbook-rise { from { transform: translateY(22px); } to { transform: none; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .atelier-lookbook *, .atelier-lookbook *::before, .atelier-lookbook *::after { animation: none; transition: none; }
+  :root:has(.atelier-lookbook--snap) { scroll-snap-type: none; }
+}

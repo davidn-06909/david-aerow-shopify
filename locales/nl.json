@@ -1068,5 +1068,9 @@
     "nav_button_continue": "Doorgaan",
     "nav_button_submit": "Antwoord indienen",
     "select_options": "Opties selecteren"
+  },
+  "lookbook": {
+    "look_number": "Look {{ number }}",
+    "view_product": "{{ product }} bekijken"
   }
 }

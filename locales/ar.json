@@ -1068,5 +1068,9 @@
     "nav_button_continue": "متابعة",
     "nav_button_submit": "إرسال الإجابة",
     "select_options": "اختر الخيارات"
+  },
+  "lookbook": {
+    "look_number": "الإطلالة {{ number }}",
+    "view_product": "عرض {{ product }}"
   }
 }

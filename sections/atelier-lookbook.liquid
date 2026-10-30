@@ -1,0 +1,287 @@
+{% render 'atelier-lookbook', section: section %}
+
+{% schema %}
+{
+  "name": "t:sections.atelier_lookbook.name",
+  "tag": "section",
+  "disabled_on": {
+    "groups": [
+      "header",
+      "footer",
+      "aside"
+    ]
+  },
+  "max_blocks": 10,
+  "settings": [
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "t:sections.atelier_lookbook.eyebrow",
+      "default": "After midnight"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "t:sections.atelier_lookbook.heading",
+      "default": "The Lookbook"
+    },
+    {
+      "type": "richtext",
+      "id": "intro",
+      "label": "t:sections.atelier_lookbook.intro",
+      "default": "<p>Ten shapes, ten settings, one light. Every ring here is built from a stone and a setting you can choose yourself.</p>"
+    },
+    {
+      "type": "font_picker",
+      "id": "heading_font",
+      "label": "t:sections.atelier_lookbook.heading_font",
+      "default": "oswald_n7"
+    },
+    {
+      "type": "font_picker",
+      "id": "body_font",
+      "label": "t:sections.atelier_lookbook.body_font",
+      "default": "archivo_n4"
+    },
+    {
+      "type": "color",
+      "id": "background",
+      "label": "t:sections.atelier_lookbook.background",
+      "default": "#0B0E28"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "t:sections.atelier_lookbook.text_color",
+      "default": "#F2F6FB"
+    },
+    {
+      "type": "color",
+      "id": "soft_color",
+      "label": "t:sections.atelier_lookbook.soft_color",
+      "default": "#A9C3E2"
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "t:sections.atelier_lookbook.accent_color",
+      "default": "#6E9BFF"
+    },
+    {
+      "type": "checkbox",
+      "id": "scroll_snap",
+      "label": "t:sections.atelier_lookbook.scroll_snap",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_counter",
+      "label": "t:sections.atelier_lookbook.show_counter",
+      "default": true
+    }
+  ],
+  "blocks": [
+    {
+      "type": "chapter",
+      "name": "t:sections.atelier_lookbook.chapter",
+      "settings": [
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "t:sections.atelier_lookbook.heading"
+        },
+        {
+          "type": "textarea",
+          "id": "text",
+          "label": "t:sections.atelier_lookbook.text"
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "t:sections.atelier_lookbook.image"
+        },
+        {
+          "type": "image_picker",
+          "id": "mobile_image",
+          "label": "t:sections.atelier_lookbook.mobile_image"
+        },
+        {
+          "type": "text",
+          "id": "image_alt",
+          "label": "t:sections.atelier_lookbook.image_alt"
+        },
+        {
+          "type": "select",
+          "id": "reference_image",
+          "label": "t:sections.atelier_lookbook.reference_image",
+          "default": "round",
+          "options": [
+            {
+              "value": "round",
+              "label": "t:sections.atelier_lookbook.shapes.round"
+            },
+            {
+              "value": "oval",
+              "label": "t:sections.atelier_lookbook.shapes.oval"
+            },
+            {
+              "value": "cushion",
+              "label": "t:sections.atelier_lookbook.shapes.cushion"
+            },
+            {
+              "value": "emerald",
+              "label": "t:sections.atelier_lookbook.shapes.emerald"
+            },
+            {
+              "value": "pear",
+              "label": "t:sections.atelier_lookbook.shapes.pear"
+            },
+            {
+              "value": "marquise",
+              "label": "t:sections.atelier_lookbook.shapes.marquise"
+            },
+            {
+              "value": "princess",
+              "label": "t:sections.atelier_lookbook.shapes.princess"
+            },
+            {
+              "value": "radiant",
+              "label": "t:sections.atelier_lookbook.shapes.radiant"
+            },
+            {
+              "value": "asscher",
+              "label": "t:sections.atelier_lookbook.shapes.asscher"
+            },
+            {
+              "value": "heart",
+              "label": "t:sections.atelier_lookbook.shapes.heart"
+            }
+          ]
+        },
+        {
+          "type": "header",
+          "content": "t:sections.atelier_lookbook.ring"
+        },
+        {
+          "type": "product",
+          "id": "product_1",
+          "label": "t:sections.atelier_lookbook.product"
+        },
+        {
+          "type": "text",
+          "id": "product_1_note",
+          "label": "t:sections.atelier_lookbook.note"
+        },
+        {
+          "type": "range",
+          "id": "product_1_x",
+          "label": "t:sections.atelier_lookbook.horizontal",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "unit": "%",
+          "default": 50
+        },
+        {
+          "type": "range",
+          "id": "product_1_y",
+          "label": "t:sections.atelier_lookbook.vertical",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "unit": "%",
+          "default": 50
+        },
+        {
+          "type": "range",
+          "id": "product_1_mobile_x",
+          "label": "t:sections.atelier_lookbook.mobile_horizontal",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "unit": "%",
+          "default": 50
+        },
+        {
+          "type": "range",
+          "id": "product_1_mobile_y",
+          "label": "t:sections.atelier_lookbook.mobile_vertical",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "unit": "%",
+          "default": 50
+        },
+        {
+          "type": "header",
+          "content": "t:sections.atelier_lookbook.diamond"
+        },
+        {
+          "type": "product",
+          "id": "product_2",
+          "label": "t:sections.atelier_lookbook.product"
+        },
+        {
+          "type": "text",
+          "id": "product_2_note",
+          "label": "t:sections.atelier_lookbook.note"
+        },
+        {
+          "type": "range",
+          "id": "product_2_x",
+          "label": "t:sections.atelier_lookbook.horizontal",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "unit": "%",
+          "default": 50
+        },
+        {
+          "type": "range",
+          "id": "product_2_y",
+          "label": "t:sections.atelier_lookbook.vertical",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "unit": "%",
+          "default": 50
+        },
+        {
+          "type": "range",
+          "id": "product_2_mobile_x",
+          "label": "t:sections.atelier_lookbook.mobile_horizontal",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "unit": "%",
+          "default": 50
+        },
+        {
+          "type": "range",
+          "id": "product_2_mobile_y",
+          "label": "t:sections.atelier_lookbook.mobile_vertical",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "unit": "%",
+          "default": 50
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.atelier_lookbook.name",
+      "blocks": [
+        {
+          "type": "chapter",
+          "settings": {
+            "heading": "Round"
+          }
+        }
+      ]
+    }
+  ],
+  "class": "section-atelier-lookbook"
+}
+{% endschema %}

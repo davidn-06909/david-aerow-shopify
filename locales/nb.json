@@ -1068,5 +1068,9 @@
     "nav_button_continue": "Fortsett",
     "nav_button_submit": "Send inn svar",
     "select_options": "Velg alternativer"
+  },
+  "lookbook": {
+    "look_number": "Antrekk {{ number }}",
+    "view_product": "Se {{ product }}"
   }
 }

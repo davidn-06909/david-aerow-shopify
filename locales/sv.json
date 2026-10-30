@@ -1068,5 +1068,9 @@
     "nav_button_continue": "Fortsätt",
     "nav_button_submit": "Skicka svar",
     "select_options": "Välj alternativ"
+  },
+  "lookbook": {
+    "look_number": "Look {{ number }}",
+    "view_product": "Visa {{ product }}"
   }
 }

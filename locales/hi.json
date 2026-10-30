@@ -1068,5 +1068,9 @@
     "nav_button_continue": "जारी रखें",
     "nav_button_submit": "उत्तर सबमिट करें",
     "select_options": "विकल्प चुनें"
+  },
+  "lookbook": {
+    "look_number": "लुक {{ number }}",
+    "view_product": "{{ product }} देखें"
   }
 }

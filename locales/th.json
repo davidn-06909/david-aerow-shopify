@@ -1068,5 +1068,9 @@
     "nav_button_continue": "ดำเนินการต่อ",
     "nav_button_submit": "ส่งคำตอบ",
     "select_options": "เลือกตัวเลือก"
+  },
+  "lookbook": {
+    "look_number": "ลุค {{ number }}",
+    "view_product": "ดู {{ product }}"
   }
 }

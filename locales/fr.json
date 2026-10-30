@@ -1068,5 +1068,9 @@
     "nav_button_continue": "Continuer",
     "nav_button_submit": "Soumettre la réponse",
     "select_options": "Sélectionner les options"
+  },
+  "lookbook": {
+    "look_number": "Look {{ number }}",
+    "view_product": "Voir {{ product }}"
   }
 }

@@ -1068,5 +1068,9 @@
     "nav_button_continue": "Turpināt",
     "nav_button_submit": "Iesniegt atbildi",
     "select_options": "Izvēlieties opcijas"
+  },
+  "lookbook": {
+    "look_number": "Tēls {{ number }}",
+    "view_product": "Skatīt {{ product }}"
   }
 }

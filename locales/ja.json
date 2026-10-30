@@ -1068,5 +1068,9 @@
     "nav_button_continue": "続ける",
     "nav_button_submit": "回答を送信する",
     "select_options": "オプションを選択"
+  },
+  "lookbook": {
+    "look_number": "ルック {{ number }}",
+    "view_product": "{{ product }}を見る"
   }
 }

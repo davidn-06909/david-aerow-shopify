@@ -1068,5 +1068,9 @@
     "nav_button_continue": "Lanjutkan",
     "nav_button_submit": "Kirim jawaban",
     "select_options": "Pilih opsi"
+  },
+  "lookbook": {
+    "look_number": "Gaya {{ number }}",
+    "view_product": "Lihat {{ product }}"
   }
 }

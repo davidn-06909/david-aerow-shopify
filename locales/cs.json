@@ -1068,5 +1068,9 @@
     "nav_button_continue": "Pokračovat",
     "nav_button_submit": "Odeslat odpověď",
     "select_options": "Vyberte možnosti"
+  },
+  "lookbook": {
+    "look_number": "Look {{ number }}",
+    "view_product": "Zobrazit {{ product }}"
   }
 }

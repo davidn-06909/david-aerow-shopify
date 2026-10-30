@@ -1068,5 +1068,9 @@
     "nav_button_continue": "Kontynuuj",
     "nav_button_submit": "Prześlij odpowiedź",
     "select_options": "Wybierz opcje"
+  },
+  "lookbook": {
+    "look_number": "Stylizacja {{ number }}",
+    "view_product": "Zobacz {{ product }}"
   }
 }

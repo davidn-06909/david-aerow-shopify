@@ -1068,5 +1068,9 @@
     "nav_button_continue": "Jatka",
     "nav_button_submit": "Lähetä vastaus",
     "select_options": "Valitse vaihtoehdot"
+  },
+  "lookbook": {
+    "look_number": "Tyyli {{ number }}",
+    "view_product": "Katso {{ product }}"
   }
 }

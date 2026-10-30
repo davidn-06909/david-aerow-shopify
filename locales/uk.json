@@ -1068,5 +1068,9 @@
     "nav_button_continue": "Продовжити",
     "nav_button_submit": "Відправити відповідь",
     "select_options": "Виберіть параметри"
+  },
+  "lookbook": {
+    "look_number": "Образ {{ number }}",
+    "view_product": "Переглянути {{ product }}"
   }
 }

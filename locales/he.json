@@ -1068,5 +1068,9 @@
     "nav_button_continue": "המשך",
     "nav_button_submit": "שלח תשובה",
     "select_options": "בחר אפשרויות"
+  },
+  "lookbook": {
+    "look_number": "לוק {{ number }}",
+    "view_product": "הצגת {{ product }}"
   }
 }

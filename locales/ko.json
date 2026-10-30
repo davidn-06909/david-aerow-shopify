@@ -1068,5 +1068,9 @@
     "nav_button_continue": "계속",
     "nav_button_submit": "답변 제출",
     "select_options": "옵션 선택"
+  },
+  "lookbook": {
+    "look_number": "룩 {{ number }}",
+    "view_product": "{{ product }} 보기"
   }
 }

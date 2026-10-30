@@ -1068,5 +1068,9 @@
     "nav_button_continue": "Continuă",
     "nav_button_submit": "Trimite răspunsul",
     "select_options": "Selectați opțiunile"
+  },
+  "lookbook": {
+    "look_number": "Ținuta {{ number }}",
+    "view_product": "Vezi {{ product }}"
   }
 }
