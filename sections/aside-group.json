@@ -482,6 +482,7 @@
         "enable_mobile": true,
         "default_style_mobile": "minimal",
         "minimal_title": "Write your store's popup content",
+        "show_on_about_page": false,
         "minimal_subtitle": ""
       }
     },
