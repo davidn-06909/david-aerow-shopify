@@ -1,15 +1,56 @@
 {
   "sections": {
     "main": {
-      "type": "main-page",
+      "type": "atelier-membership",
+      "blocks": {
+        "member": {
+          "type": "level",
+          "settings": {
+            "heading": "Member",
+            "minimum_spend": 0,
+            "perks": "First look at new settings and stones"
+          }
+        },
+        "silver": {
+          "type": "level",
+          "settings": {
+            "heading": "Silver",
+            "minimum_spend": 2500,
+            "perks": "First look at new settings and stones\nComplimentary cleaning and inspection, for life"
+          }
+        },
+        "gold": {
+          "type": "level",
+          "settings": {
+            "heading": "Gold",
+            "minimum_spend": 7500,
+            "perks": "First look at new settings and stones\nPriority studio appointments\nComplimentary resizing"
+          }
+        },
+        "diamond": {
+          "type": "level",
+          "settings": {
+            "heading": "Diamond",
+            "minimum_spend": 20000,
+            "perks": "First look at new settings and stones\nPrivate viewings of new diamonds\nA stylist who knows your collection"
+          }
+        }
+      },
+      "block_order": ["member", "silver", "gold", "diamond"],
       "settings": {
-        "show_heading": true,
-        "heading_tag": "h1",
-        "show_breadcrumbs": true,
-        "padding_top": 60,
-        "padding_bottom": 80,
-        "padding_top_mobile": 36,
-        "padding_bottom_mobile": 48
+        "eyebrow": "Membership",
+        "heading": "Your membership",
+        "guest_heading": "A more personal way to collect.",
+        "text": "Sign in to see your membership level, your lifetime purchases with the atelier and the benefits that come with them.",
+        "levels_heading": "Membership levels",
+        "background_color_light": "#0B0E28",
+        "text_color": "#F2F6FB",
+        "soft_color": "#A9C3E2",
+        "accent_color": "#6E9BFF",
+        "padding_top": 92,
+        "padding_bottom": 92,
+        "padding_top_mobile": 55,
+        "padding_bottom_mobile": 55
       }
     }
   },

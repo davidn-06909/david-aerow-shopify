@@ -8,6 +8,16 @@
  * ------------------------------------------------------------
  */
 {
+  "atelier_membership": {
+    "sign_in": "Prijavi se",
+    "new_here": "Нови сте овде?",
+    "create_account": "Kreirajte nalog",
+    "from_amount": "Од {{ amount }}",
+    "welcome": "Добро дошли, {{ name }}",
+    "your_level": "Ваш ниво",
+    "lifetime_purchases": "Укупне куповине",
+    "view_account": "Прикажи налог"
+  },
   "atelier_product": {
     "shipping_at_checkout": "Shipping calculated at checkout.",
     "gallery_help": "Product gallery. Use the arrow keys to browse images.",

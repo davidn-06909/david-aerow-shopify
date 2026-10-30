@@ -8,6 +8,16 @@
  * ------------------------------------------------------------
  */
 {
+  "atelier_membership": {
+    "sign_in": "Giriş yap",
+    "new_here": "Burada yeni misiniz?",
+    "create_account": "Hesap oluştur",
+    "from_amount": "{{ amount }} tutarından itibaren",
+    "welcome": "Hoş geldiniz, {{ name }}",
+    "your_level": "Seviyeniz",
+    "lifetime_purchases": "Toplam alışverişler",
+    "view_account": "Hesabı görüntüle"
+  },
   "atelier_product": {
     "shipping_at_checkout": "Shipping calculated at checkout.",
     "gallery_help": "Product gallery. Use the arrow keys to browse images.",

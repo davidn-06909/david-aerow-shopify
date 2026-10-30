@@ -8,6 +8,16 @@
  * ------------------------------------------------------------
  */
 {
+  "atelier_membership": {
+    "sign_in": "Log ind",
+    "new_here": "Ny her?",
+    "create_account": "Opret konto",
+    "from_amount": "Fra {{ amount }}",
+    "welcome": "Velkommen, {{ name }}",
+    "your_level": "Dit niveau",
+    "lifetime_purchases": "Samlede køb",
+    "view_account": "Se konto"
+  },
   "atelier_product": {
     "shipping_at_checkout": "Shipping calculated at checkout.",
     "gallery_help": "Product gallery. Use the arrow keys to browse images.",

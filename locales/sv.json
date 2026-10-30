@@ -8,6 +8,16 @@
  * ------------------------------------------------------------
  */
 {
+  "atelier_membership": {
+    "sign_in": "Logga in",
+    "new_here": "Ny här?",
+    "create_account": "Skapa konto",
+    "from_amount": "Från {{ amount }}",
+    "welcome": "Välkommen, {{ name }}",
+    "your_level": "Din nivå",
+    "lifetime_purchases": "Sammanlagda köp",
+    "view_account": "Visa konto"
+  },
   "atelier_product": {
     "shipping_at_checkout": "Shipping calculated at checkout.",
     "gallery_help": "Product gallery. Use the arrow keys to browse images.",

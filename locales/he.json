@@ -8,6 +8,16 @@
  * ------------------------------------------------------------
  */
 {
+  "atelier_membership": {
+    "sign_in": "התחבר",
+    "new_here": "חדשים כאן?",
+    "create_account": "צור חשבון",
+    "from_amount": "החל מ־{{ amount }}",
+    "welcome": "ברוכים הבאים, {{ name }}",
+    "your_level": "הרמה שלך",
+    "lifetime_purchases": "סך הרכישות",
+    "view_account": "הצגת החשבון"
+  },
   "atelier_product": {
     "shipping_at_checkout": "Shipping calculated at checkout.",
     "gallery_help": "Product gallery. Use the arrow keys to browse images.",

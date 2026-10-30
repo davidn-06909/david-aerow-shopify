@@ -8,6 +8,16 @@
  * ------------------------------------------------------------
  */
 {
+  "atelier_membership": {
+    "sign_in": "Autentificare",
+    "new_here": "Ești nou aici?",
+    "create_account": "Creați cont",
+    "from_amount": "De la {{ amount }}",
+    "welcome": "Bun venit, {{ name }}",
+    "your_level": "Nivelul tău",
+    "lifetime_purchases": "Totalul cumpărăturilor",
+    "view_account": "Vezi contul"
+  },
   "atelier_product": {
     "shipping_at_checkout": "Shipping calculated at checkout.",
     "gallery_help": "Product gallery. Use the arrow keys to browse images.",

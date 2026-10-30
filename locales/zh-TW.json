@@ -8,6 +8,16 @@
  * ------------------------------------------------------------
  */
 {
+  "atelier_membership": {
+    "sign_in": "登入",
+    "new_here": "新朋友？",
+    "create_account": "建立帳戶",
+    "from_amount": "{{ amount }}起",
+    "welcome": "歡迎，{{ name }}",
+    "your_level": "您的等級",
+    "lifetime_purchases": "累計購買金額",
+    "view_account": "查看帳戶"
+  },
   "atelier_product": {
     "shipping_at_checkout": "Shipping calculated at checkout.",
     "gallery_help": "Product gallery. Use the arrow keys to browse images.",

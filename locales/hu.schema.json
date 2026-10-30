@@ -8,6 +8,25 @@
  * ------------------------------------------------------------
  */
 {
+  "atelier_membership": {
+    "name": "Atelier membership",
+    "eyebrow_default": "Membership",
+    "heading_default": "Your membership",
+    "guest_heading": "Guest heading",
+    "guest_heading_default": "A more personal way to collect.",
+    "text_default": "Sign in to see your membership level, your lifetime purchases with the atelier and the benefits that come with them.",
+    "levels_heading": "Membership levels heading",
+    "levels_heading_default": "Membership levels",
+    "level": "Membership level",
+    "member_default": "Member",
+    "minimum_spend": "Minimum lifetime purchases",
+    "minimum_spend_info": "Amount in the store currency, without cents. For example, enter 2500 for a threshold of $2,500.00.",
+    "perks": "Benefits",
+    "perks_info": "Enter one benefit per line.",
+    "perks_default": "First look at new settings and stones",
+    "padding_top_mobile": "Mobile top padding",
+    "padding_bottom_mobile": "Mobile bottom padding"
+  },
   "atelier_contact": {
     "last_name": "Vezetéknév"
   },

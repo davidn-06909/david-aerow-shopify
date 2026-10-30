@@ -8,6 +8,16 @@
  * ------------------------------------------------------------
  */
 {
+  "atelier_membership": {
+    "sign_in": "ログイン",
+    "new_here": "初めての方へ",
+    "create_account": "アカウントを作成する",
+    "from_amount": "{{ amount }}から",
+    "welcome": "{{ name }}様、ようこそ",
+    "your_level": "会員ランク",
+    "lifetime_purchases": "累計購入金額",
+    "view_account": "アカウントを見る"
+  },
   "atelier_product": {
     "shipping_at_checkout": "Shipping calculated at checkout.",
     "gallery_help": "Product gallery. Use the arrow keys to browse images.",
