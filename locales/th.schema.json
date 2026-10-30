@@ -8,6 +8,9 @@
  * ------------------------------------------------------------
  */
 {
+  "atelier_product": {
+    "show_promotions_on_products": "Show promotion popup on product pages"
+  },
   "atelier_footer": {
     "newsletter_layout": "Use atelier newsletter layout",
     "footer_layout": "Use atelier footer layout",

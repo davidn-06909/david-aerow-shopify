@@ -472,6 +472,7 @@
         "trigger_intent": "delay",
         "delay": 10,
         "scroll_height": 25,
+        "show_on_product_pages": false,
         "show_for_guests_only": true,
         "show_on_mobile": true,
         "schedule_enabled": true,
