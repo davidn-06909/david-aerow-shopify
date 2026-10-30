@@ -94,7 +94,10 @@ document.addEventListener('alpine:init', () => {
         control: focus?.dataset.quantityStep || (focus?.matches('[data-remove-item]') ? 'remove' : 'input')
       };
       try {
-        await this.saveNotes();
+        if (await this.saveNotes() === false) {
+          item.querySelector('[data-cart-quantity]').value = item.dataset.quantity;
+          return;
+        }
         await helper.withCartLock(async standardEvent => {
           const response = await fetch(`${Shopify.routes.root}cart/change.js`, {
             method: 'POST',
@@ -160,7 +163,10 @@ document.addEventListener('alpine:init', () => {
         if (cart.errors || cart.status >= 400) throw new Error(cart.description || cart.message || this.root.dataset.errorMessage);
         if (window.Eurus) window.Eurus.cart_attributes = cart.attributes;
         standardEvent.settle(cart);
-      }, helper.describeCartUpdate(data)).then(() => true).catch(error => {
+      }, helper.describeCartUpdate(data)).then(() => {
+        this.error = '';
+        return true;
+      }).catch(error => {
         this.pendingNotes = { ...pending, ...this.pendingNotes };
         this.error = this.errorMessage(error);
         return false;
