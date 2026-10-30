@@ -24,13 +24,15 @@
 {%- if section.settings.show_section_divider or section.settings.show_section_divider_mobile -%}
   {% render 'section-divider' %}
 {%- endif -%}
-<div id="atelier-services-{{ section.id }}" class="atelier-services">
+<div id="atelier-services-{{ section.id }}" class="atelier-services{% if section.settings.atelier_about %} atelier-services--about{% endif %}">
   <div class="atelier-services__page">
+    {% if section.settings.atelier_about %}<header class="atelier-services__header">{% if section.settings.atelier_eyebrow != blank %}<p class="atelier-services__eyebrow">{{ section.settings.atelier_eyebrow | escape }}</p>{% endif %}{% endif %}
     {% if section.settings.title != blank %}
       <{{ section.settings.heading_tag }} class="atelier-services__heading">{{ section.settings.title | escape }}</{{ section.settings.heading_tag }}>
     {% else %}
       <h2 class="sr-only">{{ 'sections.atelier_services.heading' | t }}</h2>
     {% endif %}
+    {% if section.settings.atelier_about %}</header>{% endif %}
     <ul class="atelier-services__grid" role="list">
       {% for block in section.blocks %}
         <li class="atelier-services__item" {{ block.shopify_attributes }}>
