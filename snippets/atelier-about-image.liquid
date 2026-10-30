@@ -1,0 +1,8 @@
+{%- liquid
+  assign image_alt = image.alt | default: alt
+  assign image_loading = 'lazy'
+  if section.index <= 2
+    assign image_loading = 'eager'
+  endif
+-%}
+{% render 'atelier-consultation-image', image: image, image_url: image_url, alt: image_alt, sizes: sizes, loading: image_loading %}
