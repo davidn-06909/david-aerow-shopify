@@ -476,6 +476,7 @@
     },
     "contact": {
       "form": {
+        "optional": "Neobligāti",
         "phone": "Tālruņa numurs",
         "message": "Ziņa",
         "order_id": "Pasūtījuma ID",

@@ -476,6 +476,7 @@
     },
     "contact": {
       "form": {
+        "optional": "Опционо",
         "phone": "Broj telefona",
         "message": "Poruka",
         "order_id": "ID porudžbine",

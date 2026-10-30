@@ -476,6 +476,7 @@
     },
     "contact": {
       "form": {
+        "optional": "选填",
         "phone": "电话号码",
         "message": "短信",
         "order_id": "订单编号",

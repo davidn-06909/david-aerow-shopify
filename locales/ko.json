@@ -476,6 +476,7 @@
     },
     "contact": {
       "form": {
+        "optional": "선택 사항",
         "phone": "전화번호",
         "message": "메시지",
         "order_id": "주문 ID",

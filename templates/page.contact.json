@@ -47,7 +47,8 @@
         "mobile_height": "250px",
         "padding_top_mobile": 0,
         "padding_bottom_mobile": 0
-      }
+      },
+      "disabled": true
     },
     "main": {
       "type": "main-page",
@@ -66,16 +67,17 @@
         "padding_bottom": 0,
         "padding_top_mobile": 0,
         "padding_bottom_mobile": 0
-      }
+      },
+      "disabled": true
     },
     "form": {
-      "type": "contact-form",
+      "type": "atelier-contact",
       "blocks": {
         "name": {
           "type": "name",
           "settings": {
-            "heading": "Name",
-            "mark_as_required": false
+            "heading": "First name",
+            "mark_as_required": true
           }
         },
         "email": {
@@ -87,7 +89,7 @@
         "phone": {
           "type": "phone",
           "settings": {
-            "heading": "Phone number",
+            "heading": "Telephone",
             "mark_as_required": false
           }
         },
@@ -95,42 +97,34 @@
           "type": "message",
           "settings": {
             "heading": "Message",
+            "mark_as_required": true
+          }
+        },
+        "last_name": {
+          "type": "last_name",
+          "settings": {
+            "heading": "Last name",
             "mark_as_required": false
           }
         }
       },
       "block_order": [
         "name",
+        "last_name",
         "email",
         "phone",
         "message"
       ],
       "settings": {
-        "heading": "Questions? Send us an email",
-        "heading_size": 70,
-        "heading_alignment": "left",
+        "heading": "Contact",
+        "show_breadcrumbs": true,
         "text": "",
-        "background_color_light": "rgba(0,0,0,0)",
-        "background_color_dark": "rgba(0,0,0,0)",
         "button_label": "Send",
-        "button_alignment": "right",
         "success_message": "Thanks for contacting us. We'll get back to you as soon as possible.",
-        "show_content": "info",
-        "form_alignment": "left",
-        "contact_heading": "Contact infomation",
-        "infomation": "",
-        "address": "75 9th Ave, New York, NY 10011-7006",
-        "phone_nummber": "+1234567890",
-        "email_address": "info@yourstore.com",
-        "contact_text": "<p>Opening hours<\/p><p>Mon - Fri, 8:30am - 10:30pm,<br\/>Saturday, 8:30am - 10:30pm,<br\/>Sunday, 8:30am - 10:30pm<\/p>",
-        "full_width": false,
-        "show_section_divider": false,
-        "padding_top": 76,
-        "padding_bottom": 100,
-        "full_width_mobile": false,
-        "show_section_divider_mobile": false,
-        "padding_top_mobile": 48,
-        "padding_bottom_mobile": 60
+        "background_color_light": "#0B0E28",
+        "text_color": "#F2F6FB",
+        "soft_color": "#A9C3E2",
+        "accent_color": "#6E9BFF"
       }
     }
   },

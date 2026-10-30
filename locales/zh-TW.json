@@ -476,6 +476,7 @@
     },
     "contact": {
       "form": {
+        "optional": "選填",
         "phone": "電話號碼",
         "message": "訊息",
         "order_id": "訂單編號",

@@ -476,6 +476,7 @@
     },
     "contact": {
       "form": {
+        "optional": "任意",
         "phone": "電話番号",
         "message": "メッセージ",
         "order_id": "注文ID",

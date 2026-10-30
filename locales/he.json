@@ -476,6 +476,7 @@
     },
     "contact": {
       "form": {
+        "optional": "אופציונלי",
         "phone": "מספר טלפון",
         "message": "הודעה",
         "order_id": "מזהה הזמנה",

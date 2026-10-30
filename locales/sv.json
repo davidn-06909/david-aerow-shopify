@@ -476,6 +476,7 @@
     },
     "contact": {
       "form": {
+        "optional": "Valfritt",
         "phone": "Telefonnummer",
         "message": "Meddelande",
         "order_id": "Order-ID",

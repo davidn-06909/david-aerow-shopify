@@ -8,6 +8,9 @@
  * ------------------------------------------------------------
  */
 {
+  "atelier_contact": {
+    "last_name": "Achternaam"
+  },
   "atelier_product": {
     "enable_layout": "Use Atelier product layout",
     "layout_info": "Dark editorial layout with a stacked desktop gallery and a swipe gallery on mobile. Engraving blocks attach text to the product without a separate charge. Use product name, price, image index, variants, quantity, buy buttons, inventory, engraving, description, collapsible rows, trust, sharing, and app blocks.",
