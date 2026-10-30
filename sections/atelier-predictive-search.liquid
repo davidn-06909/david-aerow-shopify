@@ -1,0 +1,79 @@
+{%- if predictive_search.performed -%}
+  {%- liquid
+    assign result_count = 0
+    assign excluded_ids = settings.exclude_collections | map: 'id'
+    capture product_cards
+      render 'atelier-search-products', products: predictive_search.resources.products, limit: 10
+    endcapture
+    assign product_cards = product_cards | strip
+    assign product_count = product_cards | split: 'data-search-result' | size | minus: 1
+    if product_cards == blank
+      assign product_count = 0
+    endif
+    assign result_count = result_count | plus: product_count
+    capture other_results
+      assign resource_types = 'queries,collections,articles,pages' | split: ','
+      for resource_type in resource_types
+        capture resource_links
+          for resource in predictive_search.resources[resource_type]
+            if resource_type == 'collections' and excluded_ids contains resource.id
+              continue
+            endif
+            assign result_count = result_count | plus: 1
+            echo '<a href="'
+            echo resource.url | escape
+            echo '" data-search-result>'
+            if resource_type == 'queries'
+              echo resource.text | escape
+            else
+              echo resource.title | escape
+            endif
+            echo '</a>'
+          endfor
+        endcapture
+        assign resource_links = resource_links | strip
+        if resource_links != blank
+          case resource_type
+            when 'queries'
+              assign resource_heading = 'templates.search.suggestions' | t
+            when 'collections'
+              assign resource_heading = 'templates.search.collections' | t
+            when 'pages'
+              assign resource_heading = 'templates.search.pages' | t
+            when 'articles'
+              assign resource_heading = 'general.search_modal.journal' | t
+          endcase
+          echo '<div class="atelier-search__link-group"><h3 class="atelier-search__eyebrow">'
+          echo resource_heading
+          echo '</h3><div class="atelier-search__links">'
+          echo resource_links
+          echo '</div></div>'
+        endif
+      endfor
+    endcapture
+  -%}
+  <div data-search-response data-search-count="{{ result_count }}" data-search-announcement="{{ 'templates.search.results_with_count' | t: count: result_count | escape }}">
+    {% if result_count > 0 %}
+      <div class="atelier-search__results-layout">
+        {% if product_count > 0 %}
+          <div>
+            <h3 class="atelier-search__eyebrow">{{ 'general.search_modal.pieces' | t }}</h3>
+            <div class="atelier-search__products">{{ product_cards }}</div>
+          </div>
+        {% endif %}
+        {% if other_results != blank %}<aside class="atelier-search__aside">{{ other_results }}</aside>{% endif %}
+        {% if settings.search_show_view_more %}
+          <a class="atelier-search__text-button atelier-search__view-all" href="{{ routes.search_url }}?q={{ predictive_search.terms | url_encode }}&amp;type={{ settings.search_type | remove: ',collection' | url_encode }}&amp;options%5Bprefix%5D=last" data-search-result>
+            {{ 'general.search_modal.view_results' | t }}
+          </a>
+        {% endif %}
+      </div>
+    {% else %}
+      <div class="atelier-search__empty">
+        <p class="atelier-search__empty-title">{{ 'general.search_modal.no_results' | t: terms: predictive_search.terms }}</p>
+        <p class="atelier-search__muted">{{ 'general.search_modal.no_results_help' | t }}</p>
+        <a class="atelier-search__button" href="{{ routes.all_products_collection_url }}">{{ 'general.search_modal.browse_all' | t }}</a>
+      </div>
+    {% endif %}
+  </div>
+{%- endif -%}

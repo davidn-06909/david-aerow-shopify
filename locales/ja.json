@@ -16,6 +16,23 @@
     "payment_methods": "Accepted payment methods"
   },
   "general": {
+    "search_modal": {
+      "placeholder": "Search the shop",
+      "help": "Results appear as you type.",
+      "clear": "Clear",
+      "recent": "Recent searches",
+      "clear_recent": "Clear recent searches",
+      "pieces": "Pieces",
+      "journal": "Journal",
+      "view_results": "View all results",
+      "no_results": "Nothing found for \"{{ terms }}\"",
+      "no_results_help": "Try fewer words, or let us show you everything.",
+      "browse_all": "Browse everything",
+      "error_title": "Search is taking a moment.",
+      "error_help": "Please try again, or press Enter to see all search results.",
+      "retry": "Try again",
+      "submit_help": "Press Enter to explore your search results."
+    },
     "theme-mode": {
       "light": "明るい",
       "dark": "暗い"
