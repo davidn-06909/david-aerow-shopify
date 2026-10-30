@@ -47,6 +47,9 @@
 .atelier-product__image-link { display: block; aspect-ratio: 4 / 5; cursor: zoom-in; }
 .atelier-product__frame img, .atelier-product__frame video { display: block; width: 100%; height: auto; }
 .atelier-product__image-link img { height: 100%; object-fit: cover; }
+.atelier-product__zoom-hint { display: grid; place-items: center; position: absolute; inset-block-end: 12px; inset-inline-end: 12px; width: 36px; height: 36px; border-radius: 50%; color: var(--pdp-text); background: color-mix(in srgb, var(--pdp-bg) 80%, transparent); backdrop-filter: blur(8px); opacity: 0; transition: opacity 180ms; }
+.atelier-product__image-link:is(:hover, :focus-visible) .atelier-product__zoom-hint { opacity: 1; }
+.atelier-product__zoom-hint svg, .atelier-product__zoom-close svg { fill: none; stroke: currentColor; }
 .atelier-product__frame iframe, .atelier-product__frame model-viewer { display: block; width: 100%; aspect-ratio: 4 / 5; border: 0; }
 .atelier-product__placeholder svg { width: 100%; background: var(--pdp-line); }
 .atelier-product__details-inner { display: grid; gap: 18px; }
@@ -134,15 +137,16 @@
 .atelier-product__sticky-price { font-size: var(--pdp-xs); }
 .atelier-product__sticky .atelier-product__button { padding-inline: 18px; flex-shrink: 0; }
 body:has(.atelier-product__sticky:not([style*="display: none"])) .scroll_top { bottom: calc(86px + env(safe-area-inset-bottom, 0px)); }
-.atelier-product__zoom { position: fixed; inset: 0; width: 100%; max-width: none; height: 100%; max-height: none; margin: 0; padding: 56px 18px 18px; border: 0; color: var(--pdp-text); background: #070a18; overflow: auto; }
+.atelier-product__zoom { position: fixed; inset: 0; width: 100%; max-width: none; height: 100%; height: 100dvh; max-height: none; margin: 0; padding: 0; border: 0; color: var(--pdp-text); background: var(--pdp-bg); overflow: hidden; }
 .atelier-product__zoom:not([open]) { display: none; }
-.atelier-product__zoom::backdrop { background: rgb(0 0 0 / 85%); }
-.atelier-product__zoom-close { position: fixed; z-index: 1; inset-block-start: 12px; inset-inline-end: 18px; width: 44px; height: 44px; border: 1px solid var(--pdp-line-strong); background: var(--pdp-bg); font-size: 28px !important; }
-.atelier-product__zoom-content { display: grid; grid-template-columns: 44px minmax(0, 1fr) 44px; align-items: center; gap: 8px; max-width: 1300px; margin: auto; }
-.atelier-product__zoom-content > button { min-height: 44px; padding: 0; border: 1px solid var(--pdp-line-strong); background: transparent; }
-.atelier-product__zoom-content img { width: 100%; height: calc(100dvh - 130px); object-fit: contain; }
-.atelier-product__zoom-caption { margin-top: 12px !important; text-align: center; color: var(--pdp-soft); font-size: var(--pdp-sm); }
-body:has(.atelier-product__zoom[open]) { overflow: hidden; }
+.atelier-product__zoom::backdrop { background: var(--pdp-bg); }
+.atelier-product button.atelier-product__zoom-close { display: grid; place-items: center; position: absolute; z-index: 1; inset-block-start: max(18px, env(safe-area-inset-top, 0px)); inset-inline-end: max(18px, env(safe-area-inset-right, 0px)); width: 44px; height: 44px; padding: 0; border: 1px solid transparent; border-radius: 50%; color: var(--pdp-text); background: var(--pdp-bg); }
+.atelier-product__zoom-close:hover { border-color: var(--pdp-line-strong); }
+.atelier-product__zoom-body { height: 100%; overflow: auto; overscroll-behavior: contain; padding: 26px; }
+.atelier-product__zoom-body:focus-visible { outline: 2px solid var(--pdp-accent); outline-offset: -2px; }
+.atelier-product figure.atelier-product__zoom-figure { margin: 0 0 12px; }
+.atelier-product__zoom-figure img { display: block; width: 100%; height: auto; }
+html:has(.atelier-product__zoom[open]), body:has(.atelier-product__zoom[open]) { overflow: hidden; }
 .atelier-product-recommendations { display: block; padding-block: 0 var(--pdp-section); }
 .atelier-product-recommendations__page { max-width: 1720px; margin-inline: auto; padding-inline: clamp(18px, 11.31px + 1.7143vw, 36px); }
 .atelier-product-recommendations .atelier-product-recommendations__heading { margin: 0 0 26px; font: 700 clamp(24px, 20.48px + 1.05vw, 34px)/.9 "Atelier Search Heading", sans-serif; letter-spacing: -.02em; text-transform: none; color: inherit; }
@@ -153,7 +157,7 @@ body:has(.atelier-product__zoom[open]) { overflow: hidden; }
 @media (min-width: 990px) {
   .atelier-product__page { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: clamp(38px, 3.2vw + 25px, 56px); align-items: start; }
   .atelier-product__stage { display: grid; gap: 12px; overflow: visible; scroll-snap-type: none; }
-  .atelier-product__details { position: sticky; top: calc(var(--pdp-header-height, 94px) + 18px); }
+  .atelier-product__details { position: sticky; top: var(--pdp-details-top, calc(var(--pdp-header-height, 94px) + 18px)); }
   .atelier-product-recommendations__grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 28px; }
 }
 @media (max-width: 389px) {

@@ -34,9 +34,13 @@
       this.abortController = new AbortController();
       const signal = this.abortController.signal;
       const header = document.querySelector('.atelier-header');
+      this.details = this.root.querySelector('.atelier-product__details');
+      this.lastScrollY = window.scrollY;
       if (header && 'ResizeObserver' in window) {
         this.headerObserver = new ResizeObserver(() => {
-          this.root.style.setProperty('--pdp-header-height', `${header.getBoundingClientRect().height}px`);
+          this.headerHeight = header.getBoundingClientRect().height;
+          this.root.style.setProperty('--pdp-header-height', `${this.headerHeight}px`);
+          this.onScroll();
         });
         this.headerObserver.observe(header);
       }
@@ -45,6 +49,7 @@
         this.scrollFrame = requestAnimationFrame(() => {
           this.scrollFrame = null;
           this.trackMedia();
+          this.updateStickyDetails();
         });
       };
       this.stage.addEventListener('scroll', this.onScroll, { passive: true, signal });
@@ -53,21 +58,14 @@
       this.root.addEventListener('shopify:block:select', event => {
         event.target.scrollIntoView({ block: 'center', behavior: 'smooth' });
       }, { signal });
-      this.root.querySelector('[data-product-zoom]')?.addEventListener('keydown', event => {
-        if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') {
-          event.preventDefault();
-          this.stepZoom(event.key === 'ArrowRight' ? 1 : -1);
-        }
-      }, { signal });
+      // Observe the whole panel, including expandable details, app blocks and engraving.
+      if (this.details && 'ResizeObserver' in window) {
+        this.detailsObserver = new ResizeObserver(this.onScroll);
+        this.detailsObserver.observe(this.details);
+      }
+      this.$watch('stickyVisible', this.onScroll);
+      this.onScroll();
       this.$nextTick(() => {
-        const buy = this.root.querySelector('[data-atelier-form]');
-        if (buy && 'IntersectionObserver' in window) {
-          this.buyObserver = new IntersectionObserver(entries => {
-            const entry = entries[0];
-            this.stickyVisible = !entry.isIntersecting && entry.boundingClientRect.bottom < 0;
-          });
-          this.buyObserver.observe(buy);
-        }
         if (this.mobile.matches && this.variant?.mediaId) this.showVariantMedia(false);
       });
       this.onHistory = () => {
@@ -85,8 +83,8 @@
 
     destroy() {
       this.abortController?.abort();
-      this.buyObserver?.disconnect();
       this.headerObserver?.disconnect();
+      this.detailsObserver?.disconnect();
       cancelAnimationFrame(this.scrollFrame);
       if (this.zoom?.open) this.zoom.close();
     },
@@ -127,6 +125,32 @@
 
     updateCaption() {
       this.mediaCaption = this.frames[this.activeMedia]?.dataset.mediaCaption || '';
+    },
+
+    updateStickyDetails() {
+      const scrollY = Math.max(0, window.scrollY);
+      const delta = scrollY - this.lastScrollY;
+      this.lastScrollY = scrollY;
+      const buy = this.root.querySelector('[data-atelier-form]');
+      // Measure on scroll as well as resize so a fast jump past the form also reveals the bar.
+      this.stickyVisible = Boolean(buy && buy.getBoundingClientRect().bottom < 0);
+      if (!this.details || this.mobile.matches) {
+        this.stickyTop = null;
+        this.stickyMinimum = null;
+        this.details?.style.removeProperty('--pdp-details-top');
+        return;
+      }
+      const top = (this.headerHeight || 94) + 18;
+      const bar = this.root.querySelector('.atelier-product__sticky');
+      const bottom = 18 + (this.stickyVisible ? bar?.offsetHeight || 0 : 0);
+      const minimum = Math.min(top, window.innerHeight - bottom - this.details.offsetHeight);
+      // Tall panels move with the page, then stick at either edge as scroll direction changes.
+      // Keeping one sticky container avoids trapping scrolling in a second scrollable panel.
+      const wasAtBottom = this.stickyMinimum != null && this.stickyMinimum < top && Math.abs(this.stickyTop - this.stickyMinimum) < 1;
+      const previous = wasAtBottom && delta === 0 ? minimum : this.stickyTop ?? top;
+      this.stickyTop = Math.max(minimum, Math.min(top, previous - delta));
+      this.stickyMinimum = minimum;
+      this.details.style.setProperty('--pdp-details-top', `${this.stickyTop}px`);
     },
 
     trackMedia() {
@@ -191,37 +215,31 @@
       return Boolean(this.variant?.available && form?.reportValidity());
     },
 
-    openZoom(index, trigger) {
+    openZoom(trigger) {
       this.zoom = this.root.querySelector('[data-product-zoom]');
+      if (!this.zoom || this.zoom.open) return;
       this.zoomTrigger = trigger;
-      this.zoomIndex = this.frames.indexOf(trigger.closest('[data-media-id]'));
-      this.renderZoom();
+      const frame = trigger.closest('[data-media-id]');
+      const figure = [...this.zoom.querySelectorAll('[data-zoom-figure]')]
+        .find(item => item.dataset.zoomFigure === frame?.dataset.mediaId);
+      if (!figure) return;
+      this.zoom.querySelectorAll('[data-zoom-figure]').forEach(item => {
+        const source = this.frames.find(frame => frame.dataset.mediaId === item.dataset.zoomFigure);
+        if (source) item.querySelector('img').alt = source.dataset.mediaCaption;
+      });
+      // Load the selected image immediately; the remaining full-size images load as needed.
+      figure.querySelector('img').loading = 'eager';
       this.zoom.showModal();
-      this.zoom.querySelector('button').focus();
-    },
-
-    stepZoom(direction) {
-      let index = this.zoomIndex;
-      for (let count = 0; count < this.frames.length; count++) {
-        index = (index + direction + this.frames.length) % this.frames.length;
-        if (this.frames[index].querySelector('.atelier-product__image-link')) {
-          this.zoomIndex = index;
-          this.renderZoom();
-          return;
-        }
-      }
-    },
-
-    renderZoom() {
-      const frame = this.frames[this.zoomIndex];
-      const image = this.zoom.querySelector('[data-zoom-image]');
-      image.src = frame.querySelector('.atelier-product__image-link').href;
-      image.alt = frame.dataset.mediaCaption;
-      this.zoom.querySelector('[data-zoom-caption]').textContent = frame.dataset.mediaCaption;
+      this.zoom.querySelector('button').focus({ preventScroll: true });
+      const body = this.zoom.querySelector('[data-zoom-body]');
+      const top = figure === body.firstElementChild ? 0 : figure.getBoundingClientRect().top - body.getBoundingClientRect().top + body.scrollTop;
+      body.scrollTo({ top, behavior: 'instant' });
     },
 
     closeZoom() { this.zoom?.close(); },
-    restoreZoomFocus() { this.zoomTrigger?.focus({ preventScroll: true }); },
+    restoreZoomFocus() {
+      this.zoomTrigger?.focus({ preventScroll: true });
+    },
 
     async shareProduct() {
       const url = location.href;

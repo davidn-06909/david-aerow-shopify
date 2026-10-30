@@ -1,0 +1,42 @@
+<form id="CollectionFacetForm-{{ section_id }}" action="{{ collection.url }}" method="get" class="atelier-collection__filters" @change="filterChanged($event)" @submit.prevent="applyFilters($el)">
+  <input type="hidden" name="sort_by" value="{{ sort_by }}">
+  {% for filter in collection.filters %}
+    {% liquid
+      assign filter_id = section_id | append: '-facet-' | append: forloop.index
+      assign expanded = false
+      if forloop.index <= 2 or filter.active_values.size > 0 or filter.type == 'price_range'
+        assign expanded = true
+      endif
+    %}
+    <details class="atelier-collection__facet" data-filter-key="{{ filter.param_name | escape }}"{% if expanded %} open{% endif %}>
+      <summary>{{ filter.label | escape }}{% if filter.active_values.size > 0 %}<span class="atelier-collection__facet-count">{{ filter.active_values.size }}</span>{% endif %}<span class="atelier-collection__toggle" aria-hidden="true"></span></summary>
+      <div class="atelier-collection__facet-body">
+        {% if filter.type == 'price_range' %}
+          {% liquid
+            assign range_max = filter.range_max | divided_by: 100.0
+            assign min_value = filter.min_value.value | divided_by: 100.0
+            assign max_value = filter.max_value.value | divided_by: 100.0
+          %}
+          <div class="atelier-collection__price-fields">
+            <div><label for="{{ filter_id }}-min">{{ 'sections.atelier_collection.from' | t }} <span>({{ cart.currency.iso_code }})</span></label><input id="{{ filter_id }}-min" type="number" inputmode="decimal" step="0.01" min="0" max="{{ range_max }}" name="{{ filter.min_value.param_name }}" placeholder="0"{% if filter.min_value.value != nil %} value="{{ min_value }}"{% endif %} data-price-min></div>
+            <div><label for="{{ filter_id }}-max">{{ 'sections.atelier_collection.to' | t }} <span>({{ cart.currency.iso_code }})</span></label><input id="{{ filter_id }}-max" type="number" inputmode="decimal" step="0.01" min="0" max="{{ range_max }}" name="{{ filter.max_value.param_name }}" placeholder="{{ range_max }}"{% if filter.max_value.value != nil %} value="{{ max_value }}"{% endif %} data-price-max></div>
+          </div>
+          <p class="atelier-collection__price-hint">{{ 'products.facets.max_price' | t: price: '' }} {{ filter.range_max | money }}</p>
+        {% else %}
+          <ul role="list" class="atelier-collection__values">
+            {% for value in filter.values %}
+              <li><label class="atelier-collection__value{% if value.count == 0 and value.active == false %} is-unavailable{% endif %}" for="{{ filter_id }}-{{ forloop.index }}">
+                <input id="{{ filter_id }}-{{ forloop.index }}" type="checkbox" name="{{ value.param_name }}" value="{{ value.value | escape }}"{% if value.active %} checked{% endif %}{% if value.count == 0 and value.active == false %} disabled{% endif %}>
+                <span class="atelier-collection__value-label">{{ value.label | escape }}</span><span class="atelier-collection__value-count">{{ value.count }}</span>
+              </label></li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+      </div>
+    </details>
+  {% endfor %}
+  <div class="atelier-collection__filter-actions">
+    <a class="atelier-collection__clear" data-filter-clear href="{{ clear_url }}" @click.prevent="clearFilters()"{% if active_count < 2 %} hidden{% endif %}>{{ 'templates.search.clear_all' | t }}</a>
+    <button type="submit" class="atelier-collection__apply">{{ 'sections.atelier_collection.show_results' | t }}</button>
+  </div>
+</form>

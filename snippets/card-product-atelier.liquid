@@ -21,13 +21,22 @@
   assign card_id = section_id | append: '-' | append: card_product.id | append: '-' | append: index
   assign image_sizes = image_sizes | default: '(min-width: 1720px) 532px, (min-width: 990px) 33vw, 50vw'
   assign image_alt = card_product.featured_image.alt | default: card_product.title
+  assign heading_tag = 'h3'
+  assign image_loading = 'lazy'
+  if collection_card
+    assign heading_tag = 'h2'
+    if index <= 4
+      assign image_loading = 'eager'
+    endif
+  endif
 -%}
 <article class="atelier-work-card{% if card_product.images[1] != blank %} atelier-work-card--alternate{% endif %}">
+  {% if collection_card %}<s-view-event data-view-on-intersect view-event-trigger="manual" view-event-payload='{{ card_product | standard_event_data: "view", context: "collection" | escape }}'></s-view-event>{% endif %}
   <div class="atelier-work-card__media">
     <a class="atelier-work-card__link" href="{{ card_product.url }}" aria-label="{{ card_product.title | escape }}">
       <div class="atelier-work-card__image">
         {%- if card_product.featured_image != blank -%}
-          {{ card_product.featured_image | image_url: width: 1200 | image_tag: widths: '180, 300, 400, 500, 600, 800, 1000, 1200', sizes: image_sizes, loading: 'lazy', alt: image_alt }}
+          {{ card_product.featured_image | image_url: width: 1200 | image_tag: widths: '180, 300, 400, 500, 600, 800, 1000, 1200', sizes: image_sizes, loading: image_loading, alt: image_alt }}
         {%- else -%}
           {{ 'product-1' | placeholder_svg_tag }}
         {%- endif -%}
@@ -40,7 +49,17 @@
     </a>
     {%- if design_ring or show_quickview -%}
       <div class="atelier-work-card__actions">
-        {%- if design_ring -%}
+        {%- if collection_card and card_product.has_only_default_variant and card_product.gift_card? == false -%}
+          {% assign product_form_id = 'CollectionProduct-' | append: card_id %}
+          <div class="atelier-collection__product-form" x-data="xProductCart('', '')" @submit.prevent="if (!loading) { errorMessage = false; addToCart($event, false, false); }">
+          {% form 'product', card_product, id: product_form_id, x-ref: 'product_form' %}
+            <input type="hidden" name="id" value="{{ card_product.selected_or_first_available_variant.id }}">
+            <input type="hidden" name="quantity" value="{{ card_product.selected_or_first_available_variant.quantity_rule.min | default: 1 }}">
+            <button type="submit" class="atelier-work-card__action" :disabled="loading" :aria-busy="loading"{% unless card_product.available %} disabled{% endunless %}>{% if card_product.available %}{{ 'products.product.add_to_cart' | t }}{% else %}{{ 'products.product.sold_out' | t }}{% endif %}</button>
+            <p class="atelier-collection__cart-error" role="alert" x-show="errorMessage" x-text="errorMessage" x-cloak></p>
+          {% endform %}
+          </div>
+        {%- elsif design_ring -%}
           <a class="atelier-work-card__action" href="{{ design_url }}">{{ 'sections.atelier_latest_work.design_ring' | t }}</a>
         {%- else -%}
           <button
@@ -64,7 +83,7 @@
     {%- endif -%}
   </div>
   <div class="atelier-work-card__body">
-    <h3 class="atelier-work-card__title"><a href="{{ card_product.url }}">{{ card_product.title | escape }}</a></h3>
+    <{{ heading_tag }} class="atelier-work-card__title"><a href="{{ card_product.url }}">{{ card_product.title | escape }}</a></{{ heading_tag }}>
     {%- if show_rating and card_product.metafields.reviews.rating.value != blank -%}
       <div class="atelier-work-card__rating">{% render 'review-product', product: card_product, card_product: true, content_alignment: 'left' %}</div>
     {%- endif -%}
