@@ -19,6 +19,9 @@
   if template.name == 'page' and template.suffix == 'membership'
     assign show_popup = false
   endif
+  if request.page_type == 'list-collections'
+    assign show_popup = false
+  endif
   assign show_countdown = false
   for block in section.blocks
     if block.type == 'countdown_timer'
