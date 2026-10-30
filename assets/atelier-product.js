@@ -58,12 +58,6 @@
       this.root.addEventListener('shopify:block:select', event => {
         event.target.scrollIntoView({ block: 'center', behavior: 'smooth' });
       }, { signal });
-      this.root.querySelector('[data-product-zoom]')?.addEventListener('keydown', event => {
-        if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') {
-          event.preventDefault();
-          this.stepZoom(event.key === 'ArrowRight' ? 1 : -1);
-        }
-      }, { signal });
       // Observe the whole panel, including expandable details, app blocks and engraving.
       if (this.details && 'ResizeObserver' in window) {
         this.detailsObserver = new ResizeObserver(this.onScroll);
@@ -221,37 +215,31 @@
       return Boolean(this.variant?.available && form?.reportValidity());
     },
 
-    openZoom(index, trigger) {
+    openZoom(trigger) {
       this.zoom = this.root.querySelector('[data-product-zoom]');
+      if (!this.zoom || this.zoom.open) return;
       this.zoomTrigger = trigger;
-      this.zoomIndex = this.frames.indexOf(trigger.closest('[data-media-id]'));
-      this.renderZoom();
+      const frame = trigger.closest('[data-media-id]');
+      const figure = [...this.zoom.querySelectorAll('[data-zoom-figure]')]
+        .find(item => item.dataset.zoomFigure === frame?.dataset.mediaId);
+      if (!figure) return;
+      this.zoom.querySelectorAll('[data-zoom-figure]').forEach(item => {
+        const source = this.frames.find(frame => frame.dataset.mediaId === item.dataset.zoomFigure);
+        if (source) item.querySelector('img').alt = source.dataset.mediaCaption;
+      });
+      // Load the selected image immediately; the remaining full-size images load as needed.
+      figure.querySelector('img').loading = 'eager';
       this.zoom.showModal();
-      this.zoom.querySelector('button').focus();
-    },
-
-    stepZoom(direction) {
-      let index = this.zoomIndex;
-      for (let count = 0; count < this.frames.length; count++) {
-        index = (index + direction + this.frames.length) % this.frames.length;
-        if (this.frames[index].querySelector('.atelier-product__image-link')) {
-          this.zoomIndex = index;
-          this.renderZoom();
-          return;
-        }
-      }
-    },
-
-    renderZoom() {
-      const frame = this.frames[this.zoomIndex];
-      const image = this.zoom.querySelector('[data-zoom-image]');
-      image.src = frame.querySelector('.atelier-product__image-link').href;
-      image.alt = frame.dataset.mediaCaption;
-      this.zoom.querySelector('[data-zoom-caption]').textContent = frame.dataset.mediaCaption;
+      this.zoom.querySelector('button').focus({ preventScroll: true });
+      const body = this.zoom.querySelector('[data-zoom-body]');
+      const top = figure === body.firstElementChild ? 0 : figure.getBoundingClientRect().top - body.getBoundingClientRect().top + body.scrollTop;
+      body.scrollTo({ top, behavior: 'instant' });
     },
 
     closeZoom() { this.zoom?.close(); },
-    restoreZoomFocus() { this.zoomTrigger?.focus({ preventScroll: true }); },
+    restoreZoomFocus() {
+      this.zoomTrigger?.focus({ preventScroll: true });
+    },
 
     async shareProduct() {
       const url = location.href;
