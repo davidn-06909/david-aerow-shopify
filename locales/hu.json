@@ -16,6 +16,14 @@
     "payment_methods": "Accepted payment methods"
   },
   "general": {
+    "atelier_header": {
+      "open_menu": "Open menu",
+      "close_menu": "Close menu",
+      "primary": "Primary",
+      "show_menu": "Show the menu for {{ title }}",
+      "shape": "Shape",
+      "back": "Back"
+    },
     "search_modal": {
       "placeholder": "Search the shop",
       "help": "Results appear as you type.",

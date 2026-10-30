@@ -133,12 +133,113 @@
         "alignment": "right",
         "show_language_selector": false,
         "show_currency_selector": false,
-        "text_size_toolbar": 80
+        "text_size_toolbar": 80,
+        "atelier_bar": true,
+        "atelier_font": "archivo_n4"
       }
     },
     "header": {
       "type": "header",
       "blocks": {
+        "atelier_design": {
+          "type": "tree_menu",
+          "settings": {
+            "heading": "Design your ring",
+            "menu_item_link": "/pages/design-your-ring",
+            "open_new_window": false,
+            "menu": ""
+          }
+        },
+        "atelier_engagement": {
+          "type": "simple_menu",
+          "settings": {
+            "heading": "Engagement",
+            "menu_item_link": "/collections/engagement-rings",
+            "open_new_window": false,
+            "menu": "atelier-engagement",
+            "atelier_column_title": "By style",
+            "atelier_column_link": "/collections/engagement-rings",
+            "atelier_column_title_2": "Everything else",
+            "atelier_column_link_2": "/collections",
+            "atelier_show_shapes": true,
+            "show_image_collection": false,
+            "show_image_product": false,
+            "enable_quick_access_blocks": false,
+            "heading_1": "Not sure where to begin?",
+            "text_1": "Speak with a designer, in person or by video.",
+            "button_label_1": "Book an appointment",
+            "button_link_1": "/pages/book-an-appointment",
+            "atelier_mega_layout": "columns"
+          }
+        },
+        "atelier_diamonds": {
+          "type": "simple_menu",
+          "settings": {
+            "heading": "Diamonds",
+            "menu_item_link": "/collections/diamonds",
+            "open_new_window": false,
+            "menu": "atelier-diamonds",
+            "atelier_column_title": "By shape",
+            "atelier_column_link": "/collections/diamonds",
+            "atelier_column_title_2": "By origin",
+            "atelier_column_link_2": "/collections/diamonds",
+            "atelier_show_shapes": true,
+            "show_image_collection": false,
+            "show_image_product": false,
+            "enable_quick_access_blocks": false,
+            "heading_1": "",
+            "text_1": "",
+            "button_label_1": "",
+            "button_link_1": "",
+            "atelier_mega_layout": "editorial"
+          }
+        },
+        "atelier_wedding": {
+          "type": "tree_menu",
+          "settings": {
+            "heading": "Wedding bands",
+            "menu_item_link": "/collections/wedding-bands",
+            "open_new_window": false,
+            "menu": "",
+            "label": "New"
+          }
+        },
+        "atelier_journal": {
+          "type": "tree_menu",
+          "settings": {
+            "heading": "Journal",
+            "menu_item_link": "/blogs/journal",
+            "open_new_window": false,
+            "menu": ""
+          }
+        },
+        "atelier_about": {
+          "type": "tree_menu",
+          "settings": {
+            "heading": "About",
+            "menu_item_link": "/pages/about",
+            "open_new_window": false,
+            "menu": ""
+          }
+        },
+        "atelier_lookbook": {
+          "type": "tree_menu",
+          "settings": {
+            "heading": "Lookbook",
+            "menu_item_link": "/pages/lookbook",
+            "open_new_window": false,
+            "menu": ""
+          }
+        },
+        "atelier_membership": {
+          "type": "tree_menu",
+          "settings": {
+            "heading": "Membership",
+            "menu_item_link": "/pages/membership",
+            "open_new_window": false,
+            "menu": ""
+          }
+        },
         "product_menu_Tpahrr": {
           "type": "product_menu",
           "disabled": true,
@@ -585,7 +686,8 @@
             "color_button_secondary": "rgba(0,0,0,0)",
             "secondary_button_text": "rgba(0,0,0,0)",
             "colors_text_link": "rgba(0,0,0,0)"
-          }
+          },
+          "disabled": true
         },
         "sidebar_content_qNP6Vd": {
           "type": "sidebar_content",
@@ -612,10 +714,19 @@
             "color_button_secondary": "rgba(0,0,0,0)",
             "secondary_button_text": "rgba(0,0,0,0)",
             "colors_text_link": "rgba(0,0,0,0)"
-          }
+          },
+          "disabled": true
         }
       },
       "block_order": [
+        "atelier_design",
+        "atelier_engagement",
+        "atelier_diamonds",
+        "atelier_wedding",
+        "atelier_journal",
+        "atelier_about",
+        "atelier_lookbook",
+        "atelier_membership",
         "product_menu_Tpahrr",
         "simple_menu_TAHeat",
         "tabbed_menu_x83Crm",
@@ -625,7 +736,7 @@
         "sidebar_content_qNP6Vd"
       ],
       "settings": {
-        "menu": "main-menu",
+        "menu": "atelier-main-menu",
         "enable_hamburger_menu": false,
         "search_on_header": false,
         "select_motion": "hover",
@@ -633,11 +744,11 @@
         "logo_position": "left-center",
         "mobile_header_layout": "left-right",
         "sticky_header_type": "on-scroll-up",
-        "logo_width": 120,
-        "logo_width_mobile": 90,
+        "logo_width": 150,
+        "logo_width_mobile": 110,
         "logo_div_to_h1": true,
         "show_social_icons": false,
-        "enable_on_homepage": false,
+        "enable_on_homepage": true,
         "enable_on_collection_page": false,
         "shadow": 50,
         "text_color_light": "#ffffff",
@@ -646,13 +757,13 @@
         "textlink_color_dark": "rgba(0,0,0,0)",
         "shadow_color": "#3e2f28",
         "shadow_color_dark": "#000000",
-        "enable_sidebar": true,
+        "enable_sidebar": false,
         "icon_header_sidebar": "gift",
         "another_icon_header_sidebar": "",
         "custom_icon_header_sidebar": "",
         "sidebar_heading": "Check our seasonal deals!",
         "primary_menu_label_animation": true,
-        "enable_highlight": true,
+        "enable_highlight": false,
         "menus": "Product menu\nTabbed menu",
         "highlight_style": "bling_bling",
         "highlight_color_light": "#a94600",
@@ -674,7 +785,10 @@
         "padding_bottom": 24,
         "show_section_divider_mobile": false,
         "padding_top_mobile": 8,
-        "padding_bottom_mobile": 8
+        "padding_bottom_mobile": 8,
+        "atelier_layout": true,
+        "atelier_appointment_label": "Book an appointment",
+        "atelier_appointment_link": "/pages/book-an-appointment"
       }
     },
     "mobile-navigation": {
@@ -1037,11 +1151,13 @@
         "menu_label_icon": "none",
         "menu_label_another_icon": "",
         "menu_label_custom_icon": ""
-      }
+      },
+      "disabled": true
     },
     "menu-drawer": {
       "type": "menu-drawer",
-      "settings": {}
+      "settings": {},
+      "disabled": true
     }
   },
   "order": [
