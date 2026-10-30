@@ -1,3 +1,6 @@
+{% if section.settings.atelier_about %}
+  {% render 'atelier-about-faq', section: section %}
+{% else %}
 {{ 'faq.css' | asset_url | stylesheet_tag }}
 {% liquid
   assign heading_base_size = settings.heading_base_size | times: 0.0225
@@ -464,6 +467,8 @@
   </script>
 {% endif %}
 
+{% endif %}
+
 {% schema %}
 {
   "name": "t:sections.question_and_answer.name",
@@ -477,6 +482,15 @@
     ]
   },
   "settings": [
+    {"id":"atelier_about","type":"checkbox","default":false,"label":"t:sections.atelier_about.enable"},
+    {"id":"atelier_eyebrow","type":"text","label":"t:sections.atelier_story_index.eyebrow"},
+    {"id":"atelier_heading","type":"text","label":"t:sections.atelier_media_story.heading"},
+    {"id":"atelier_text","type":"richtext","label":"t:sections.atelier_story_index.text"},
+    {"id":"atelier_heading_font","type":"font_picker","default":"oswald_n7","label":"t:sections.atelier_story_index.heading_font"},
+    {"id":"atelier_body_font","type":"font_picker","default":"archivo_n4","label":"t:sections.atelier_story_index.body_font"},
+    {"id":"atelier_background","type":"color","default":"#0B0E28","label":"t:sections.atelier_story_index.background_color"},
+    {"id":"atelier_color","type":"color","default":"#F2F6FB","label":"t:sections.atelier_story_index.text_color"},
+    {"id":"atelier_soft","type":"color","default":"#A9C3E2","label":"t:sections.atelier_story_index.soft_color"},
     {
       "type": "paragraph",
       "content": "t:sections.user_guide_link.section_and_blocks.faq"

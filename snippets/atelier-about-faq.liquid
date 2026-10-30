@@ -1,0 +1,29 @@
+{% render 'atelier-about-style', section: section %}
+<div id="atelier-about-{{ section.id }}" class="atelier-about atelier-about--faq">
+  <div class="atelier-about__page">
+    <div class="atelier-about__faq-layout">
+      <header class="atelier-about__faq-head">{% render 'atelier-about-heading', section: section %}</header>
+      <div class="atelier-about__questions" x-data="{}">
+        {% for block in section.blocks %}
+          {% if block.type == 'frequently_asked_question' %}
+            <details class="atelier-about__question" id="about-question-{{ block.id }}" {{ block.shopify_attributes }}
+              {% if block.settings.open_by_default %}open{% endif %}
+              @toggle="if ($el.open) $el.parentElement.querySelectorAll('details').forEach(item => { if (item !== $el) item.open = false })"
+            >
+              <summary class="atelier-about__trigger"><span>{{ block.settings.heading | escape }}</span><span class="atelier-about__plus" aria-hidden="true"></span></summary>
+              <div class="atelier-about__answer atelier-about__rte">{{ block.settings.row_content }}</div>
+            </details>
+          {% endif %}
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+{% if section.settings.enable_microdata_schema %}
+  <script type="application/ld+json">
+    {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+      {% assign questions = section.blocks | where: 'type', 'frequently_asked_question' %}
+      {% for block in questions %}{% unless forloop.first %},{% endunless %}{"@type":"Question","name":{{ block.settings.heading | json }},"acceptedAnswer":{"@type":"Answer","text":{{ block.settings.row_content | strip_html | json }}}}{% endfor %}
+    ]}
+  </script>
+{% endif %}
