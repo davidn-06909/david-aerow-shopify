@@ -5,6 +5,7 @@ document.addEventListener('alpine:init', () => {
     error: '',
     announcement: '',
     noteTimer: null,
+    noteRequest: null,
     pendingNotes: {},
     trigger: null,
     root: null,
@@ -140,29 +141,31 @@ document.addEventListener('alpine:init', () => {
 
     async saveNotes() {
       clearTimeout(this.noteTimer);
+      // Keep newer edits pending until the current save has succeeded or restored its values.
+      while (this.noteRequest) {
+        if ((await this.noteRequest) === false) return false;
+      }
       const pending = { ...this.pendingNotes };
-      if (!Object.keys(pending).length) return;
+      if (!Object.keys(pending).length) return true;
       this.pendingNotes = {};
       const data = {};
       if ('note' in pending) data.note = pending.note;
       if ('gift' in pending) data.attributes = { 'Gift message': pending.gift };
       const helper = this.$store.xCartHelper;
-      try {
-        await helper.withCartLock(async standardEvent => {
-          const response = await fetch(`${Shopify.routes.root}cart/update.js`, {
-            method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify(data)
-          });
-          const cart = await helper.cartJson(response);
-          if (cart.errors || cart.status >= 400) throw new Error(cart.description || cart.message || this.root.dataset.errorMessage);
-          if (window.Eurus) window.Eurus.cart_attributes = cart.attributes;
-          standardEvent.settle(cart);
-        }, helper.describeCartUpdate(data));
-        return true;
-      } catch (error) {
+      this.noteRequest = helper.withCartLock(async standardEvent => {
+        const response = await fetch(`${Shopify.routes.root}cart/update.js`, {
+          method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify(data)
+        });
+        const cart = await helper.cartJson(response);
+        if (cart.errors || cart.status >= 400) throw new Error(cart.description || cart.message || this.root.dataset.errorMessage);
+        if (window.Eurus) window.Eurus.cart_attributes = cart.attributes;
+        standardEvent.settle(cart);
+      }, helper.describeCartUpdate(data)).then(() => true).catch(error => {
         this.pendingNotes = { ...pending, ...this.pendingNotes };
         this.error = this.errorMessage(error);
         return false;
-      }
+      }).finally(() => { this.noteRequest = null; });
+      return this.noteRequest;
     },
 
     errorMessage(error) {
