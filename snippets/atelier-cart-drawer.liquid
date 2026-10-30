@@ -9,6 +9,7 @@
   class="drawer pointer-events-auto{% if is_rtl %} rtl{% endif %}"
   x-data="xAtelierCart"
   data-error-message="{{ 'sections.cart.cart_error' | t | escape }}"
+  data-ring-error-message="{{ 'general.atelier_ring_cart.incomplete' | t | escape }}"
   x-show="$store.xMiniCart.open"
   :class="$store.xMiniCart.open && 'cart-open'"
   @keydown="onKeydown($event)"
@@ -49,9 +50,7 @@
       {% else %}
         <div class="atelier-cart__body" data-cart-body>
           <ul class="atelier-cart__lines" role="list">
-            {% for item in cart.items %}
-              {% render 'atelier-cart-item', item: item %}
-            {% endfor %}
+            {% render 'atelier-cart-lines' %}
           </ul>
           <details class="atelier-cart__extra" data-cart-extra="gift">
             <summary>{{ 'general.atelier_cart.gift_message' | t }}</summary>
@@ -77,7 +76,7 @@
           <p class="atelier-cart__tax">{% if cart.taxes_included %}{{ 'general.atelier_cart.tax_included' | t }}{% else %}{{ 'general.atelier_cart.tax_shipping' | t }}{% endif %}</p>
           <form id="AtelierCartForm" action="{{ routes.cart_url }}" method="post" class="atelier-cart__actions" @submit="checkout($event)">
             <button type="submit" name="checkout" class="atelier-cart__button" :disabled="busy || checkingOut"><span>{{ 'general.atelier_cart.checkout' | t }}</span></button>
-            <a class="atelier-cart__button atelier-cart__button--text atelier-cart__view" href="{{ routes.cart_url }}"><span>{{ 'general.atelier_cart.view_cart' | t }}</span></a>
+            <a class="atelier-cart__button atelier-cart__button--text atelier-cart__view" href="{{ routes.cart_url }}" data-cart-url="{{ routes.cart_url }}" :href="previewThemeUrl($el.dataset.cartUrl)"><span>{{ 'general.atelier_cart.view_cart' | t }}</span></a>
           </form>
         </div>
       {% endif %}

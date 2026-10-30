@@ -4,6 +4,7 @@
   data-atelier-cart-page
   data-section-id="{{ section.id }}"
   data-error-message="{{ 'sections.cart.cart_error' | t | escape }}"
+  data-ring-error-message="{{ 'general.atelier_ring_cart.incomplete' | t | escape }}"
   style="--cart-page-top: {{ section.settings.padding_top }}px; --cart-page-bottom: {{ section.settings.padding_bottom }}px; --cart-page-top-mobile: {{ section.settings.padding_top_mobile }}px; --cart-page-bottom-mobile: {{ section.settings.padding_bottom_mobile }}px;"
   x-data="xAtelierCart('page')"
   :aria-busy="busy"
@@ -22,11 +23,11 @@
       </div>
     {% else %}
       <form id="AtelierCartPageForm" class="atelier-cart-page__layout" action="{{ routes.cart_url }}" method="post" @submit="submitPage($event)">
+        {% comment %}Native Shopify forms require original line order, regardless of displayed groups.{% endcomment %}
+        {% for item in cart.items %}<input type="hidden" name="updates[]" value="{{ item.quantity }}" data-native-cart-key="{{ item.key | escape }}">{% endfor %}
         <div class="atelier-cart-page__items" data-cart-body>
           <ul class="atelier-cart__lines" role="list">
-            {% for item in cart.items %}
-              {% render 'atelier-cart-item', item: item, cart_page: true %}
-            {% endfor %}
+            {% render 'atelier-cart-lines', cart_page: true %}
           </ul>
           <div class="atelier-cart-page__tools">
             <button type="submit" name="update" class="atelier-cart__button atelier-cart-page__update" :disabled="busy || checkingOut"><span>{{ 'general.atelier_cart.update' | t }}</span></button>

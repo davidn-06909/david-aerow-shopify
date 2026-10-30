@@ -1,0 +1,61 @@
+{
+  "shop": "your-development-store.myshopify.com",
+  "sourceShop": "aevow.myshopify.com",
+  "settingProductId": "",
+  "sourceSettingHandle": "the-lumen",
+  "engravingVariantId": "",
+  "diamonds": [
+    {
+      "variantId": "",
+      "sourceVariantId": "55882564108361",
+      "shape": "Oval",
+      "origin": "Natural",
+      "carat": 1.1,
+      "color": "F",
+      "clarity": "VS1",
+      "cut": "Very good",
+      "certificateLab": "GIA",
+      "certificateNumber": "1455514122",
+      "certificateUrl": "https://pdf.gia.edu/?ReportNumber=57A611D10CEEBFA7AE99F1D381C203CE"
+    },
+    {
+      "variantId": "",
+      "sourceVariantId": "55882564042825",
+      "shape": "Oval",
+      "origin": "Lab grown",
+      "carat": 2,
+      "color": "E",
+      "clarity": "VVS2",
+      "cut": "Excellent",
+      "certificateLab": "IGI",
+      "certificateNumber": "515209703",
+      "certificateUrl": ""
+    },
+    {
+      "variantId": "",
+      "sourceVariantId": "55882563944521",
+      "shape": "Round",
+      "origin": "Natural",
+      "carat": 1,
+      "color": "G",
+      "clarity": "VS2",
+      "cut": "Very good",
+      "certificateLab": "GIA",
+      "certificateNumber": "1455514122",
+      "certificateUrl": "https://pdf.gia.edu/?ReportNumber=57A611D10CEEBFA7AE99F1D381C203CE"
+    },
+    {
+      "variantId": "",
+      "sourceVariantId": "55882563911753",
+      "shape": "Round",
+      "origin": "Lab grown",
+      "carat": 2,
+      "color": "F",
+      "clarity": "VS1",
+      "cut": "Excellent",
+      "certificateLab": "IGI",
+      "certificateNumber": "515209703",
+      "certificateUrl": ""
+    }
+  ]
+}

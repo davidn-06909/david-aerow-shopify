@@ -66,6 +66,27 @@
     "payment_methods": "Accepted payment methods"
   },
   "general": {
+    "atelier_ring_cart": {
+      "title": "Your configured ring",
+      "preview": "Preview of your configured ring",
+      "setting": "Setting",
+      "engraving": "Engraving service",
+      "quantity": "1 complete ring",
+      "edit": "Edit design",
+      "remove": "Remove ring",
+      "incomplete": "This ring configuration is incomplete. Edit your design or remove the ring before checking out.",
+      "invalid_quote": "Your design needs to be validated again. Review your selections and try again.",
+      "reconciliation_required": "We could not confirm the cart update. Check your cart before trying again. Edit or remove an incomplete ring before checkout.",
+      "configuration_missing": "This ring is no longer in your cart. Add the design as a new ring.",
+      "configuration_conflict": "This cart group belongs to a different saved design. Refresh your design and try again."
+    },
+    "atelier_ring_builder": {
+      "eyebrow": "The Aevow studio",
+      "title": "Design your ring",
+      "unavailable": "Our ring studio is being prepared. Contact us to begin your design.",
+      "contact": "Contact the atelier",
+      "editor_help": "Add the installed Aevow Ring Configurator app block to this section to enable the studio."
+    },
     "atelier_quick_view": {
       "load_error": "We couldn't load this preview. Please view the full product details."
     },

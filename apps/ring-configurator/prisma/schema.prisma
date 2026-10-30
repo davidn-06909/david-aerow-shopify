@@ -1,0 +1,78 @@
+generator client {
+  provider = "prisma-client-js"
+  binaryTargets = ["native", "rhel-openssl-3.0.x"]
+}
+datasource db {
+  provider = "postgresql"
+  url = env("DATABASE_URL")
+}
+model Session {
+  id String @id
+  shop String
+  state String
+  isOnline Boolean @default(false)
+  scope String?
+  expires DateTime?
+  accessToken String
+  userId BigInt?
+  firstName String?
+  lastName String?
+  email String?
+  accountOwner Boolean @default(false)
+  locale String?
+  collaborator Boolean? @default(false)
+  emailVerified Boolean? @default(false)
+  refreshToken String?
+  refreshTokenExpires DateTime?
+  @@index([shop])
+}
+model Quote {
+  id String @id @default(uuid())
+  shop String
+  snapshot Json
+  signature String
+  requestId String?
+  requestHash String?
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  designs Design[]
+  @@index([shop, expiresAt])
+  @@unique([shop, requestId])
+}
+model Design {
+  id String @id @default(uuid())
+  shop String
+  quoteId String
+  quote Quote @relation(fields: [quoteId], references: [id])
+  snapshot Json
+  previewUrl String?
+  previewData Bytes?
+  previewMime String?
+  createdAt DateTime @default(now())
+  orders OrderDesign[]
+  @@index([shop, createdAt])
+}
+model WebhookReceipt {
+  id String @id
+  shop String
+  topic String
+  payload Json
+  status String @default("pending")
+  attempts Int @default(0)
+  lastError String?
+  processedAt DateTime?
+  createdAt DateTime @default(now())
+  @@index([status, createdAt])
+}
+model OrderDesign {
+  id String @id @default(uuid())
+  shop String
+  orderId String
+  designId String
+  design Design @relation(fields: [designId], references: [id])
+  configurationId String
+  status String
+  discrepancies Json
+  createdAt DateTime @default(now())
+  @@unique([shop, orderId, configurationId])
+}

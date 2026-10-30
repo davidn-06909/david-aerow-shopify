@@ -14,6 +14,10 @@ document.addEventListener('alpine:init', () => {
       return this.root.querySelector(`[data-cart-note="${type}"]`);
     },
 
+    previewThemeUrl(url) {
+      return window.AevowRingPreviewUrl?.(url) || url;
+    },
+
     init() {
       this.root = this.$el;
       if (this.mode === 'page') {
@@ -86,6 +90,24 @@ document.addEventListener('alpine:init', () => {
 
     removeItem(button) {
       return this.updateQuantity(button.closest('[data-cart-item]'), 0, button);
+    },
+
+    async removeRing(button) {
+      if (this.busy) return;
+      this.busy = true;
+      this.error = '';
+      try {
+        if (await this.saveNotes() === false) return;
+        if (!window.AevowRingCart) throw new Error(this.root.dataset.errorMessage);
+        await window.AevowRingCart.removeConfiguration(button.closest('[data-ring-configuration]').dataset.ringConfiguration);
+        this.announcement = this.root.querySelector('.atelier-cart__count, .atelier-cart-page__count')?.textContent || '';
+        await this.$nextTick();
+        this.root.querySelector('#CloseCart, .atelier-cart-page__title')?.focus({ preventScroll: true });
+      } catch (error) {
+        this.error = this.errorMessage(error);
+      } finally {
+        this.busy = false;
+      }
     },
 
     async updateQuantity(item, quantity, focus) {
@@ -197,6 +219,15 @@ document.addEventListener('alpine:init', () => {
       if (event.submitter?.name === 'checkout') return this.checkout(event);
       // Keep Update as a native cart form submission, including all quantities and notes.
       if (this.busy || this.checkingOut) event.preventDefault();
+      else this.syncNativeQuantities(event.target);
+    },
+
+    syncNativeQuantities(form) {
+      form.querySelectorAll('[data-native-cart-key]').forEach(hidden => {
+        const row = [...this.root.querySelectorAll('[data-cart-item]')].find(item => item.dataset.key === hidden.dataset.nativeCartKey);
+        const quantity = row?.querySelector('[data-cart-quantity]');
+        if (quantity) hidden.value = quantity.value;
+      });
     },
 
     async checkout(event) {
@@ -206,6 +237,18 @@ document.addEventListener('alpine:init', () => {
       const saved = await this.saveNotes();
       await this.$store.xCartHelper.waitForCartUpdate();
       if (saved === false || Object.keys(this.pendingNotes).length) { this.checkingOut = false; return; }
+      try {
+        const hasRings = this.root.querySelector('[data-ring-configuration]');
+        if (hasRings) {
+          const adapter = window.AevowRingCart;
+          if (!adapter || !adapter.validateCart(await adapter.readCart())) throw new Error(this.root.dataset.ringErrorMessage);
+        }
+      } catch (error) {
+        this.error = this.errorMessage(error);
+        this.checkingOut = false;
+        return;
+      }
+      this.syncNativeQuantities(event.target);
       const input = document.createElement('input');
       input.type = 'hidden'; input.name = 'checkout'; input.value = 'checkout';
       event.target.append(input);

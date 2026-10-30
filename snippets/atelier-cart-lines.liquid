@@ -1,0 +1,13 @@
+{% comment %}Track exact delimited IDs: one configuration can contain several component lines.{% endcomment %}
+{% assign rendered_configurations = '' %}
+{% for item in cart.items %}
+  {% if item.properties._configuration_id != blank %}
+    {% assign configuration_token = item.properties._configuration_id | prepend: '|' | append: '|' %}
+    {% unless rendered_configurations contains configuration_token %}
+      {% render 'atelier-ring-cart-group', item: item %}
+      {% assign rendered_configurations = rendered_configurations | append: configuration_token %}
+    {% endunless %}
+  {% else %}
+    {% render 'atelier-cart-item', item: item, cart_page: cart_page %}
+  {% endif %}
+{% endfor %}

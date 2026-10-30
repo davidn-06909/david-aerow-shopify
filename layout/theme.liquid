@@ -301,6 +301,17 @@
       <script src="{{ 'atelier-search.js' | asset_url }}" defer></script>
       <script src="{{ 'atelier-header.js' | asset_url }}" defer></script>
       <script src="{{ 'atelier-cart.js' | asset_url }}" defer></script>
+      <script>
+        window.AevowRingCartMessages = {
+          error: {{ 'sections.cart.cart_error' | t | json }},
+          invalid_quote: {{ 'general.atelier_ring_cart.invalid_quote' | t | json }},
+          incomplete_configuration: {{ 'general.atelier_ring_cart.incomplete' | t | json }},
+          reconciliation_required: {{ 'general.atelier_ring_cart.reconciliation_required' | t | json }},
+          configuration_missing: {{ 'general.atelier_ring_cart.configuration_missing' | t | json }},
+          configuration_conflict: {{ 'general.atelier_ring_cart.configuration_conflict' | t | json }}
+        };
+      </script>
+      <script src="{{ 'atelier-ring-cart.js' | asset_url }}" defer></script>
       <script src="{{ 'atelier-product.js' | asset_url }}" defer></script>
       <script src="{{ 'truncate-text.js' | asset_url }}" defer></script>
       <script src="{{ 'variant-select-card.js' | asset_url }}" defer></script>

@@ -1,0 +1,63 @@
+import { METALS, SHAPES, STEPS, type Bootstrap, type SavedDesign, type Selection, type Step } from '../shared/contract';
+
+export const emptySelection = (): Selection => ({ style: 'Hidden halo', shank: 'High polish', metal: '', shape: '', diamondId: '', size: '', engraving: '', engravingEnabled: false });
+export const characterCount = (text: string) => Array.from(text).length;
+export function restoreSelection(url: URL, catalog: Bootstrap): { selection: Selection; step: Step; unsupported: boolean } {
+  const p = url.searchParams;
+  const selection = emptySelection();
+  const metal = p.get('metal');
+  const shape = p.get('shape');
+  if (METALS.includes(metal as typeof METALS[number])) selection.metal = metal as Selection['metal'];
+  if (SHAPES.includes(shape as typeof SHAPES[number])) selection.shape = shape as Selection['shape'];
+  const diamond = catalog.diamonds.find(d => d.id === p.get('diamond') || d.sourceVariantId === p.get('diamond'));
+  if (diamond && diamond.shape === selection.shape) selection.diamondId = diamond.id;
+  const size = p.get('size') || '';
+  if (catalog.setting.variants.some(v => v.metal === selection.metal && v.size === size)) selection.size = size;
+  selection.engraving = Array.from(p.get('engraving') || '').slice(0, catalog.engraving.maxLength).join('');
+  selection.engravingEnabled = Boolean(selection.engraving);
+  const requested = p.get('step') as Step;
+  const first = firstIncomplete(selection, catalog);
+  const step = STEPS.includes(requested) && canNavigate(requested, selection, catalog) ? requested : first;
+  const unsupported = Boolean((p.has('style') && p.get('style') !== 'Hidden halo') || (p.has('shank') && p.get('shank') !== 'High polish') || (p.has('setting') && p.get('setting') !== catalog.setting.handle));
+  return { selection, step, unsupported };
+}
+export function stepComplete(step: Step, s: Selection, b: Bootstrap): boolean {
+  switch (step) {
+    case 'style': case 'shank': return true;
+    case 'metal': return Boolean(s.metal && b.setting.variants.some(v => v.metal === s.metal && v.available));
+    case 'shape': return Boolean(s.shape);
+    case 'diamond': return b.diamonds.some(d => d.id === s.diamondId && d.shape === s.shape && d.available);
+    case 'size': return b.setting.variants.some(v => v.metal === s.metal && v.size === s.size && v.available);
+    case 'engraving': return !s.engravingEnabled || Boolean(s.engraving.trim() && characterCount(s.engraving) <= b.engraving.maxLength && b.engraving.available && !/[\u0000-\u001f\u007f]/.test(s.engraving));
+    case 'review': return STEPS.slice(0, -1).every(k => stepComplete(k, s, b));
+  }
+}
+export function firstIncomplete(s: Selection, b: Bootstrap): Step { return STEPS.slice(0, -1).find(step => !stepComplete(step, s, b)) || 'review'; }
+export function canNavigate(step: Step, s: Selection, b: Bootstrap): boolean { return STEPS.slice(0, STEPS.indexOf(step)).every(k => stepComplete(k, s, b)); }
+export function selectionUrl(base: URL, selection: Selection, step: Step): URL {
+  const url = new URL(base);
+  url.searchParams.delete('design');
+  Object.entries({ style: selection.style, shank: selection.shank, metal: selection.metal, shape: selection.shape, diamond: selection.diamondId, size: selection.size, engraving: selection.engravingEnabled ? selection.engraving : '', step }).forEach(([key, value]) => value ? url.searchParams.set(key, value) : url.searchParams.delete(key));
+  return url;
+}
+/** Preview sessions can hide their query parameter; the rendered theme is the fallback source of truth. */
+export function themePreviewUrl(target: URL, current: URL, theme?: { id?: string | number; role?: string }): URL {
+  const url = new URL(target);
+  if (url.origin !== current.origin) return url;
+  const explicit = current.searchParams.get('preview_theme_id');
+  const rendered = theme?.role && theme.role !== 'main' ? String(theme.id || '') : '';
+  const preview = explicit && /^\d+$/.test(explicit) ? explicit : rendered;
+  if (/^\d+$/.test(preview)) url.searchParams.set('preview_theme_id', preview);
+  return url;
+}
+export function reconcileSelection(s: Selection, b: Bootstrap): Selection {
+  const next = { ...s };
+  if (!b.diamonds.some(d => d.id === next.diamondId && d.shape === next.shape && d.available)) next.diamondId = '';
+  if (!b.setting.variants.some(v => v.metal === next.metal && v.size === next.size && v.available)) next.size = '';
+  return next;
+}
+/** A saved record describes history; current inventory only determines whether it can be purchased again. */
+export function savedDesignState(design: SavedDesign, catalog: Bootstrap) {
+  const selection = { ...design.selection };
+  return { selection, step: 'review' as Step, needsReplacement: !stepComplete('review', selection, catalog) };
+}

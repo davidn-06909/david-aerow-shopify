@@ -1,0 +1,417 @@
+{
+  "capturedAt": "2026-10-30T21:07:28.569Z",
+  "shop": "aerow-qdbfzxwi.myshopify.com",
+  "sourceShop": "aevow.myshopify.com",
+  "sourceCapturedAt": "2026-10-30T20:41:17.359Z",
+  "partnerDevelopment": true,
+  "existingProductsOnly": false,
+  "settingAndDiamondProductsReused": true,
+  "settingProductId": "gid://shopify/Product/15460741185784",
+  "settingVariants": [
+    {
+      "sourceVariantId": "55882549821513",
+      "targetVariantId": "gid://shopify/ProductVariant/67890587828472",
+      "metal": "14K white gold",
+      "size": "4"
+    },
+    {
+      "sourceVariantId": "55882549854281",
+      "targetVariantId": "gid://shopify/ProductVariant/67890587861240",
+      "metal": "14K white gold",
+      "size": "4.5"
+    },
+    {
+      "sourceVariantId": "55882549887049",
+      "targetVariantId": "gid://shopify/ProductVariant/67890587894008",
+      "metal": "14K white gold",
+      "size": "5"
+    },
+    {
+      "sourceVariantId": "55882549919817",
+      "targetVariantId": "gid://shopify/ProductVariant/67890587926776",
+      "metal": "14K white gold",
+      "size": "5.5"
+    },
+    {
+      "sourceVariantId": "55882549952585",
+      "targetVariantId": "gid://shopify/ProductVariant/67890587959544",
+      "metal": "14K white gold",
+      "size": "6"
+    },
+    {
+      "sourceVariantId": "55882549985353",
+      "targetVariantId": "gid://shopify/ProductVariant/67890587992312",
+      "metal": "14K white gold",
+      "size": "6.5"
+    },
+    {
+      "sourceVariantId": "55882550018121",
+      "targetVariantId": "gid://shopify/ProductVariant/67890588025080",
+      "metal": "14K white gold",
+      "size": "7"
+    },
+    {
+      "sourceVariantId": "55882550050889",
+      "targetVariantId": "gid://shopify/ProductVariant/67890588057848",
+      "metal": "14K white gold",
+      "size": "7.5"
+    },
+    {
+      "sourceVariantId": "55882550083657",
+      "targetVariantId": "gid://shopify/ProductVariant/67890588090616",
+      "metal": "14K white gold",
+      "size": "8"
+    },
+    {
+      "sourceVariantId": "55882550116425",
+      "targetVariantId": "gid://shopify/ProductVariant/67890588123384",
+      "metal": "14K white gold",
+      "size": "8.5"
+    },
+    {
+      "sourceVariantId": "55882550149193",
+      "targetVariantId": "gid://shopify/ProductVariant/67890588156152",
+      "metal": "14K white gold",
+      "size": "9"
+    },
+    {
+      "sourceVariantId": "55882549461065",
+      "targetVariantId": "gid://shopify/ProductVariant/67890588188920",
+      "metal": "14K yellow gold",
+      "size": "4"
+    },
+    {
+      "sourceVariantId": "55882549493833",
+      "targetVariantId": "gid://shopify/ProductVariant/67890588221688",
+      "metal": "14K yellow gold",
+      "size": "4.5"
+    },
+    {
+      "sourceVariantId": "55882549526601",
+      "targetVariantId": "gid://shopify/ProductVariant/67890588254456",
+      "metal": "14K yellow gold",
+      "size": "5"
+    },
+    {
+      "sourceVariantId": "55882549559369",
+      "targetVariantId": "gid://shopify/ProductVariant/67890588287224",
+      "metal": "14K yellow gold",
+      "size": "5.5"
+    },
+    {
+      "sourceVariantId": "55882549592137",
+      "targetVariantId": "gid://shopify/ProductVariant/67890588319992",
+      "metal": "14K yellow gold",
+      "size": "6"
+    },
+    {
+      "sourceVariantId": "55882549624905",
+      "targetVariantId": "gid://shopify/ProductVariant/67890588352760",
+      "metal": "14K yellow gold",
+      "size": "6.5"
+    },
+    {
+      "sourceVariantId": "55882549657673",
+      "targetVariantId": "gid://shopify/ProductVariant/67890588385528",
+      "metal": "14K yellow gold",
+      "size": "7"
+    },
+    {
+      "sourceVariantId": "55882549690441",
+      "targetVariantId": "gid://shopify/ProductVariant/67890588418296",
+      "metal": "14K yellow gold",
+      "size": "7.5"
+    },
+    {
+      "sourceVariantId": "55882549723209",
+      "targetVariantId": "gid://shopify/ProductVariant/67890588451064",
+      "metal": "14K yellow gold",
+      "size": "8"
+    },
+    {
+      "sourceVariantId": "55882549755977",
+      "targetVariantId": "gid://shopify/ProductVariant/67890588483832",
+      "metal": "14K yellow gold",
+      "size": "8.5"
+    },
+    {
+      "sourceVariantId": "55882549788745",
+      "targetVariantId": "gid://shopify/ProductVariant/67890588516600",
+      "metal": "14K yellow gold",
+      "size": "9"
+    },
+    {
+      "sourceVariantId": "55882550181961",
+      "targetVariantId": "gid://shopify/ProductVariant/67890588549368",
+      "metal": "14K rose gold",
+      "size": "4"
+    },
+    {
+      "sourceVariantId": "55882550214729",
+      "targetVariantId": "gid://shopify/ProductVariant/67890588582136",
+      "metal": "14K rose gold",
+      "size": "4.5"
+    },
+    {
+      "sourceVariantId": "55882550247497",
+      "targetVariantId": "gid://shopify/ProductVariant/67890588614904",
+      "metal": "14K rose gold",
+      "size": "5"
+    },
+    {
+      "sourceVariantId": "55882550280265",
+      "targetVariantId": "gid://shopify/ProductVariant/67890588647672",
+      "metal": "14K rose gold",
+      "size": "5.5"
+    },
+    {
+      "sourceVariantId": "55882550313033",
+      "targetVariantId": "gid://shopify/ProductVariant/67890588680440",
+      "metal": "14K rose gold",
+      "size": "6"
+    },
+    {
+      "sourceVariantId": "55882550345801",
+      "targetVariantId": "gid://shopify/ProductVariant/67890588713208",
+      "metal": "14K rose gold",
+      "size": "6.5"
+    },
+    {
+      "sourceVariantId": "55882550378569",
+      "targetVariantId": "gid://shopify/ProductVariant/67890588745976",
+      "metal": "14K rose gold",
+      "size": "7"
+    },
+    {
+      "sourceVariantId": "55882550411337",
+      "targetVariantId": "gid://shopify/ProductVariant/67890588778744",
+      "metal": "14K rose gold",
+      "size": "7.5"
+    },
+    {
+      "sourceVariantId": "55882550444105",
+      "targetVariantId": "gid://shopify/ProductVariant/67890588811512",
+      "metal": "14K rose gold",
+      "size": "8"
+    },
+    {
+      "sourceVariantId": "55882550476873",
+      "targetVariantId": "gid://shopify/ProductVariant/67890588844280",
+      "metal": "14K rose gold",
+      "size": "8.5"
+    },
+    {
+      "sourceVariantId": "55882550509641",
+      "targetVariantId": "gid://shopify/ProductVariant/67890588877048",
+      "metal": "14K rose gold",
+      "size": "9"
+    },
+    {
+      "sourceVariantId": "55882550542409",
+      "targetVariantId": "gid://shopify/ProductVariant/67890588909816",
+      "metal": "Platinum",
+      "size": "4"
+    },
+    {
+      "sourceVariantId": "55882550575177",
+      "targetVariantId": "gid://shopify/ProductVariant/67890588942584",
+      "metal": "Platinum",
+      "size": "4.5"
+    },
+    {
+      "sourceVariantId": "55882550607945",
+      "targetVariantId": "gid://shopify/ProductVariant/67890588975352",
+      "metal": "Platinum",
+      "size": "5"
+    },
+    {
+      "sourceVariantId": "55882550640713",
+      "targetVariantId": "gid://shopify/ProductVariant/67890589008120",
+      "metal": "Platinum",
+      "size": "5.5"
+    },
+    {
+      "sourceVariantId": "55882550673481",
+      "targetVariantId": "gid://shopify/ProductVariant/67890589040888",
+      "metal": "Platinum",
+      "size": "6"
+    },
+    {
+      "sourceVariantId": "55882550706249",
+      "targetVariantId": "gid://shopify/ProductVariant/67890589073656",
+      "metal": "Platinum",
+      "size": "6.5"
+    },
+    {
+      "sourceVariantId": "55882550739017",
+      "targetVariantId": "gid://shopify/ProductVariant/67890589106424",
+      "metal": "Platinum",
+      "size": "7"
+    },
+    {
+      "sourceVariantId": "55882550771785",
+      "targetVariantId": "gid://shopify/ProductVariant/67890589139192",
+      "metal": "Platinum",
+      "size": "7.5"
+    },
+    {
+      "sourceVariantId": "55882550804553",
+      "targetVariantId": "gid://shopify/ProductVariant/67890589171960",
+      "metal": "Platinum",
+      "size": "8"
+    },
+    {
+      "sourceVariantId": "55882550837321",
+      "targetVariantId": "gid://shopify/ProductVariant/67890589204728",
+      "metal": "Platinum",
+      "size": "8.5"
+    },
+    {
+      "sourceVariantId": "55882550870089",
+      "targetVariantId": "gid://shopify/ProductVariant/67890589237496",
+      "metal": "Platinum",
+      "size": "9"
+    }
+  ],
+  "diamonds": [
+    {
+      "sourceVariantId": "55882564108361",
+      "targetVariantId": "gid://shopify/ProductVariant/67890574524664",
+      "handle": "oval-natural-1-1-7",
+      "shape": "Oval",
+      "origin": "Natural",
+      "tracked": true,
+      "sellableOnlineQuantity": 1,
+      "shopifyAvailableForSale": true,
+      "inventoryPolicy": "DENY",
+      "inventoryQuantity": 1,
+      "price": {
+        "amount": 652000,
+        "currency": "USD"
+      },
+      "inventoryLevels": [
+        {
+          "locationId": "gid://shopify/Location/96363938040",
+          "available": 1
+        },
+        {
+          "locationId": "gid://shopify/Location/96363970808",
+          "available": 0
+        }
+      ],
+      "inventoryCheckedAt": "2026-10-30T21:52:00.499Z"
+    },
+    {
+      "sourceVariantId": "55882564042825",
+      "targetVariantId": "gid://shopify/ProductVariant/67890574557432",
+      "handle": "oval-lab-2-6",
+      "shape": "Oval",
+      "origin": "Lab grown",
+      "tracked": true,
+      "sellableOnlineQuantity": 1,
+      "shopifyAvailableForSale": true,
+      "inventoryPolicy": "DENY",
+      "inventoryQuantity": 1,
+      "price": {
+        "amount": 310000,
+        "currency": "USD"
+      },
+      "inventoryLevels": [
+        {
+          "locationId": "gid://shopify/Location/96363938040",
+          "available": 1
+        },
+        {
+          "locationId": "gid://shopify/Location/96363970808",
+          "available": 0
+        }
+      ],
+      "inventoryCheckedAt": "2026-10-30T21:52:00.499Z"
+    },
+    {
+      "sourceVariantId": "55882563944521",
+      "targetVariantId": "gid://shopify/ProductVariant/67890574655736",
+      "handle": "round-natural-1-3",
+      "shape": "Round",
+      "origin": "Natural",
+      "tracked": true,
+      "sellableOnlineQuantity": 1,
+      "shopifyAvailableForSale": true,
+      "inventoryPolicy": "DENY",
+      "inventoryQuantity": 1,
+      "price": {
+        "amount": 600000,
+        "currency": "USD"
+      },
+      "inventoryLevels": [
+        {
+          "locationId": "gid://shopify/Location/96363938040",
+          "available": 1
+        },
+        {
+          "locationId": "gid://shopify/Location/96363970808",
+          "available": 0
+        }
+      ],
+      "inventoryCheckedAt": "2026-10-30T21:52:00.499Z"
+    },
+    {
+      "sourceVariantId": "55882563911753",
+      "targetVariantId": "gid://shopify/ProductVariant/67890574688504",
+      "handle": "round-lab-2-2",
+      "shape": "Round",
+      "origin": "Lab grown",
+      "tracked": true,
+      "sellableOnlineQuantity": 1,
+      "shopifyAvailableForSale": true,
+      "inventoryPolicy": "DENY",
+      "inventoryQuantity": 1,
+      "price": {
+        "amount": 310000,
+        "currency": "USD"
+      },
+      "inventoryLevels": [
+        {
+          "locationId": "gid://shopify/Location/96363938040",
+          "available": 1
+        },
+        {
+          "locationId": "gid://shopify/Location/96363970808",
+          "available": 0
+        }
+      ],
+      "inventoryCheckedAt": "2026-10-30T21:52:00.499Z"
+    }
+  ],
+  "engraving": {
+    "sourceVariantId": "55882565451849",
+    "targetVariantId": "gid://shopify/ProductVariant/67911152632056",
+    "status": "Created and published USD45 optional engraving service"
+  },
+  "blockers": [
+    "Copied certification metadata has not been independently verified."
+  ],
+  "storeWritesPerformed": true,
+  "updatedAt": "2026-10-30T21:52:00.499Z",
+  "storeWriteAuthorization": "User approved four exact diamond stock/tracking setup and one USD45 engraving service; no Lumen or diamond copies created.",
+  "runtimeAccess": {
+    "checkedAt": "2026-10-30T21:23:53Z",
+    "grantedScopes": [
+      "read_inventory",
+      "read_orders",
+      "read_products",
+      "write_app_proxy",
+      "read_app_proxy"
+    ],
+    "temporarySetupScopesRemoved": true
+  },
+  "fulfillmentLocationId": "gid://shopify/Location/96363938040",
+  "fulfillmentLocationName": "Shop location",
+  "fulfillmentLocationCountry": "US",
+  "inventoryLocationCorrection": {
+    "checkedAt": "2026-10-30T21:52:00.499Z",
+    "authorization": "User-approved setup correction: move the same four pilot diamond units from the Canadian location to the US primary fulfillment location; no increase to total quantities.",
+    "fromLocationId": "gid://shopify/Location/96363970808",
+    "toLocationId": "gid://shopify/Location/96363938040"
+  }
+}

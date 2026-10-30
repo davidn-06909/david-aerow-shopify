@@ -1,0 +1,18 @@
+# Set the site's base directory to apps/ring-configurator. This file creates no
+# account, database, subscription, or deployment by itself.
+[build]
+command = "npm run db:generate && npm run build:storefront && npm run build:netlify"
+publish = "build/client"
+
+[build.environment]
+NODE_VERSION = "22"
+DEPLOY_TARGET = "netlify"
+NPM_FLAGS = "--include=dev"
+
+[functions]
+node_bundler = "esbuild"
+external_node_modules = ["@prisma/client"]
+included_files = ["node_modules/.prisma/client/**", "public/models/**"]
+
+# Shopify embeds the authenticated admin app; do not add a site-wide
+# X-Frame-Options or frame-ancestors policy that overrides Shopify's response.

@@ -1,0 +1,42 @@
+{% comment %}The installed app owns the configurator; this section hosts its actual app block.{% endcomment %}
+<section class="atelier-ring-builder-host" aria-label="{{ 'general.atelier_ring_builder.title' | t | escape }}">
+  {% if section.blocks.size > 0 %}
+    {% for block in section.blocks %}
+      {% render block %}
+    {% endfor %}
+  {% else %}
+    <div class="atelier-ring-builder-host__fallback">
+      <p>{{ 'general.atelier_ring_builder.eyebrow' | t }}</p>
+      <h1>{{ 'general.atelier_ring_builder.title' | t }}</h1>
+      <p>{{ 'general.atelier_ring_builder.unavailable' | t }}</p>
+      <a href="{{ section.settings.contact_url | default: '/pages/contact' }}" class="atelier-cart__button"><span>{{ 'general.atelier_ring_builder.contact' | t }}</span></a>
+      {% if request.design_mode %}<p>{{ 'general.atelier_ring_builder.editor_help' | t }}</p>{% endif %}
+    </div>
+  {% endif %}
+</section>
+{% style %}
+  .atelier-ring-builder-host { min-height: 60vh; color: #f2f6fb; background: #0b0e28; }
+  .atelier-ring-builder-host__fallback { display: grid; justify-items: center; gap: 24px; padding: 100px 24px; text-align: center; max-width: 800px; margin-inline: auto; }
+  .atelier-ring-builder-host__fallback h1 { font-family: "Atelier Search Heading", sans-serif; color: inherit; font-size: clamp(38px, 5vw, 72px); }
+  .atelier-ring-builder-host__fallback p { color: #a9c3e2; }
+  .atelier-ring-builder-host__fallback .atelier-cart__button { --cart-bg: #0b0e28; --cart-text: #f2f6fb; --cart-accent: #6e9bff; }
+{% endstyle %}
+{% schema %}
+{
+  "name": "Ring app configurator",
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "Install the Aevow Ring Configurator app, then add its Ring builder app block to this section. The app manages its own catalog and assets."
+    },
+    {
+      "type": "url",
+      "id": "contact_url",
+      "label": "Contact page"
+    }
+  ],
+  "blocks": [{ "type": "@app" }],
+  "max_blocks": 1,
+  "presets": [{ "name": "Ring app configurator" }]
+}
+{% endschema %}

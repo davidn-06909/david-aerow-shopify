@@ -18,3 +18,12 @@ config.yml
 .shopify/
 .cursor/
 .claude/
+
+# Ring app credentials and local/build artifacts
+.env
+.env.*
+!.env.example
+apps/ring-configurator/build/
+apps/ring-configurator/.react-router/
+apps/ring-configurator/coverage/
+apps/ring-configurator/.cache/

@@ -1,0 +1,34 @@
+services:
+  - type: web
+    name: aevow-ring-pilot
+    runtime: node
+    rootDir: apps/ring-configurator
+    plan: free
+    buildCommand: npm ci && npm run db:generate && npm run build:storefront && npm run build
+    startCommand: npm run db:migrate && npm run start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false
+      - key: SHOPIFY_API_KEY
+        sync: false
+      - key: SHOPIFY_API_SECRET
+        sync: false
+      - key: SHOPIFY_APP_URL
+        sync: false
+      - key: CONFIGURATION_SIGNING_SECRET
+        generateValue: true
+      - key: PREVIEW_STORAGE
+        value: database
+      - key: PILOT_MANIFEST_JSON
+        sync: false
+      - key: ENABLE_PURCHASES
+        value: "false"
+      - key: CLIENT_CREDENTIALS_AUTH
+        value: "true"
+      - key: PILOT_ALLOWED_SHOP
+        sync: false
+      - key: PILOT_FULFILLMENT_LOCATION_ID
+        sync: false

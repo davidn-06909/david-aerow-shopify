@@ -10,3 +10,8 @@ node_modules/*
 src/*
 .gitignore
 .shopifyignore
+apps/**
+tests/**
+docs/**
+.env*
+render.yaml

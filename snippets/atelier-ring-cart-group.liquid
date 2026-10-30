@@ -1,0 +1,94 @@
+{% comment %}One ring is purchased as separate, related Shopify variants.{% endcomment %}
+{%- liquid
+  assign configuration_id = item.properties._configuration_id
+  assign primary_item = item
+  assign group_total = 0
+  assign group_original_total = 0
+  assign setting_count = 0
+  assign diamond_count = 0
+  assign engraving_count = 0
+  assign group_valid = true
+  for component in cart.items
+    if component.properties._configuration_id == configuration_id
+      assign group_total = group_total | plus: component.final_line_price
+      assign group_original_total = group_original_total | plus: component.original_line_price
+      if component.quantity != 1
+        assign group_valid = false
+      endif
+      if component.properties._aevow_role == 'setting'
+        assign primary_item = component
+        assign setting_count = setting_count | plus: 1
+      elsif component.properties._aevow_role == 'diamond'
+        assign diamond_count = diamond_count | plus: 1
+      elsif component.properties._aevow_role == 'engraving'
+        assign engraving_count = engraving_count | plus: 1
+      else
+        assign group_valid = false
+      endif
+    endif
+  endfor
+  if setting_count != 1 or diamond_count != 1 or engraving_count > 1
+    assign group_valid = false
+  endif
+  if primary_item.properties._aevow_design_id != blank
+    for component in cart.items
+      if component.properties._configuration_id == configuration_id
+        if component.properties._aevow_design_id != primary_item.properties._aevow_design_id or component.properties._aevow_reference != primary_item.properties._aevow_reference
+          assign group_valid = false
+        endif
+      endif
+    endfor
+  endif
+  assign design_id = primary_item.properties._aevow_design_id
+  assign preview_url = primary_item.properties._aevow_preview
+  assign configuration_query = configuration_id | url_encode
+  assign design_query = design_id | url_encode
+  assign builder_path = routes.root_url | append: '/pages/design-your-ring' | replace: '//pages', '/pages'
+  assign edit_url = builder_path | append: '?configuration=' | append: configuration_query
+  if design_id != blank
+    assign edit_url = edit_url | append: '&design=' | append: design_query
+  endif
+-%}
+<li class="atelier-cart__item atelier-cart__ring" data-ring-configuration="{{ configuration_id | escape }}">
+  <a class="atelier-cart__media" href="{{ edit_url }}" data-ring-edit-url="{{ edit_url | escape }}" :href="previewThemeUrl($el.dataset.ringEditUrl)" tabindex="-1" aria-hidden="true">
+    {% if preview_url contains 'https://' %}
+      <img src="{{ preview_url | escape }}" width="130" height="163" loading="lazy" alt="{{ 'general.atelier_ring_cart.preview' | t | escape }}">
+    {% elsif primary_item.image %}
+      {{ primary_item.image | image_url: width: 260 | image_tag: width: 130, height: 163, widths: '260', loading: 'lazy', alt: primary_item.image.alt }}
+    {% endif %}
+  </a>
+  <div class="atelier-cart__item-body">
+    <a class="atelier-cart__item-title" href="{{ edit_url }}" data-ring-edit-url="{{ edit_url | escape }}" :href="previewThemeUrl($el.dataset.ringEditUrl)">{{ 'general.atelier_ring_cart.title' | t }}</a>
+    <p class="atelier-cart__variant">{{ primary_item.product.title | escape }}{% unless primary_item.product.has_only_default_variant %} · {{ primary_item.variant.title | escape }}{% endunless %}</p>
+    <ul class="atelier-cart__properties" role="list">
+      {% for property in primary_item.properties %}
+        {% assign first_character = property.first | slice: 0 %}
+        {% if property.last != blank and first_character != '_' %}
+          <li>{{ property.first | escape }}: {{ property.last | escape }}</li>
+        {% endif %}
+      {% endfor %}
+    </ul>
+    <ul class="atelier-cart__ring-components" role="list">
+      {% for component in cart.items %}
+        {% if component.properties._configuration_id == configuration_id %}
+          <li>
+            <span>{% case component.properties._aevow_role %}{% when 'setting' %}{{ 'general.atelier_ring_cart.setting' | t }}{% when 'diamond' %}{{ component.product.title | escape }}{% when 'engraving' %}{{ 'general.atelier_ring_cart.engraving' | t }}{% else %}{{ component.product.title | escape }}{% endcase %}</span>
+            <span>{{ component.final_line_price | money }}</span>
+          </li>
+        {% endif %}
+      {% endfor %}
+    </ul>
+    {% unless group_valid %}<p class="atelier-cart__error" role="alert">{{ 'general.atelier_ring_cart.incomplete' | t }}</p>{% endunless %}
+    <div class="atelier-cart__item-foot">
+      <span class="atelier-cart__variant">{{ 'general.atelier_ring_cart.quantity' | t }}</span>
+      <div class="atelier-cart__pricing">
+        {% if group_original_total > group_total %}<s class="atelier-cart__old-price">{{ group_original_total | money }}</s>{% endif %}
+        <span class="atelier-cart__price">{{ group_total | money }}</span>
+      </div>
+    </div>
+    <div class="atelier-cart__ring-actions">
+      <a class="atelier-cart__button atelier-cart__button--text" href="{{ edit_url }}" data-ring-edit-url="{{ edit_url | escape }}" :href="previewThemeUrl($el.dataset.ringEditUrl)"><span>{{ 'general.atelier_ring_cart.edit' | t }}</span></a>
+      <button type="button" class="atelier-cart__button atelier-cart__button--text atelier-cart__remove" data-remove-ring @click="removeRing($el)" :disabled="busy"><span>{{ 'general.atelier_ring_cart.remove' | t }}</span></button>
+    </div>
+  </div>
+</li>

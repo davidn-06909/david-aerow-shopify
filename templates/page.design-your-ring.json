@@ -1,17 +1,31 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
 {
   "sections": {
     "main": {
-      "type": "main-page",
+      "type": "atelier-ring-builder",
+      "blocks": {
+        "aevow_ring_pilot_ring_builder_dDpkfk": {
+          "type": "shopify://apps/aevow-ring-pilot/blocks/ring-builder/01a18ea6-da67-7346-9124-e5465ee26865",
+          "settings": {}
+        }
+      },
+      "block_order": [
+        "aevow_ring_pilot_ring_builder_dDpkfk"
+      ],
       "settings": {
-        "show_heading": true,
-        "heading_tag": "h1",
-        "show_breadcrumbs": true,
-        "padding_top": 60,
-        "padding_bottom": 80,
-        "padding_top_mobile": 36,
-        "padding_bottom_mobile": 48
+        "contact_url": ""
       }
     }
   },
-  "order": ["main"]
+  "order": [
+    "main"
+  ]
 }

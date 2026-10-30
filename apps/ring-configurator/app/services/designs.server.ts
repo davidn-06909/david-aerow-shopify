@@ -1,0 +1,71 @@
+import { createHash, randomUUID } from "node:crypto";
+import type { Prisma } from "@prisma/client";
+import type { Bootstrap, CartLineInput, Quote, SavedDesign, Selection } from "../../shared/contract";
+import prisma from "../db.server";
+import { validateSelection } from "./validation";
+import { PilotError } from "./errors.server";
+import { savePreview } from "./storage.server";
+import { signReference, verifyReference } from "./signing.server";
+const json = (value: unknown) => JSON.parse(JSON.stringify(value)) as Prisma.InputJsonValue;
+export async function createQuote(input: unknown, catalog: Bootstrap): Promise<Quote> {
+  const validated = validateSelection(input, catalog);
+  const { selection, setting, diamond, prices, request } = validated;
+  const requestId = (request as typeof request & { requestId?: string }).requestId;
+  const requestHash = createHash("sha256").update(JSON.stringify({ selection, cartGroupId: request.cartGroupId || "" })).digest("hex");
+  const existingQuote = async () => {
+    if (!requestId) return null;
+    const prior = await prisma.quote.findUnique({ where: { shop_requestId: { shop: catalog.shop, requestId } } });
+    if (!prior) return null;
+    if (prior.requestHash !== requestHash) throw new PilotError("REQUEST_CONFLICT", "This request ID was already used for a different configuration.", 409);
+    if (prior.expiresAt <= new Date()) throw new PilotError("QUOTE_EXPIRED", "Refresh the quote using a new request ID.", 409);
+    return prior.snapshot as unknown as Quote;
+  };
+  const existing = await existingQuote();
+  if (existing) return existing;
+  const id = randomUUID(); const designId = randomUUID(); const configurationId = request.cartGroupId || randomUUID();
+  const expiresAt = new Date(Date.now() + 10 * 60_000);
+  const reference = signReference({ q: id, d: designId, g: configurationId, s: catalog.shop, e: expiresAt.getTime() });
+  const preview = await savePreview(catalog.shop, designId, request.previewDataUrl);
+  const previewUrl = preview.url;
+  const common = { _configuration_id: configurationId, _aevow_design_id: designId, _aevow_reference: reference, _aevow_asset_version: catalog.assetVersion, Setting: catalog.setting.title, Band: selection.shank, Metal: selection.metal, Shape: selection.shape, "Ring size": selection.size, "3D fitting": "Representative — physical fitting unverified" };
+  const items: CartLineInput[] = [
+    { id: setting.id, quantity: 1, properties: { ...common, _aevow_role: "setting", ...(selection.engravingEnabled ? { Engraving: selection.engraving } : {}) } },
+    { id: diamond.id, quantity: 1, properties: { ...common, _aevow_role: "diamond", Diamond: diamond.title, ...(diamond.certificateNumber ? { Certificate: `${diamond.certificateLab} ${diamond.certificateNumber}` } : {}) } },
+  ];
+  if (selection.engravingEnabled) items.push({ id: catalog.engraving.variantId, quantity: 1, properties: { ...common, _aevow_role: "engraving", Engraving: selection.engraving } });
+  if (previewUrl) for (const item of items) item.properties._aevow_preview = previewUrl;
+  const shareUrl = `https://${catalog.shop}/pages/design-your-ring?design=${designId}&step=review`;
+  const quote: Quote = { id, designId, configurationId, reference, expiresAt: expiresAt.toISOString(), selection, items, prices, previewUrl, shareUrl };
+  const snapshot = { selection, items, prices, pilotVersion: catalog.pilotVersion, assetVersion: catalog.assetVersion, fittingStatus: "visual-unverified", previewUrl, source: { shop: catalog.shop, quotedAt: new Date().toISOString() } };
+  try { await prisma.$transaction(async tx => {
+    await tx.quote.create({ data: { id, shop: catalog.shop, snapshot: json(quote), signature: reference, expiresAt, requestId, requestHash } });
+    await tx.design.create({ data: { id: designId, shop: catalog.shop, quoteId: id, snapshot: json(snapshot), previewUrl, previewData: preview.data, previewMime: preview.mime } });
+  }); } catch (error) {
+    if ((error as { code?: string }).code === "P2002") { const duplicate = await existingQuote(); if (duplicate) return duplicate; }
+    throw error;
+  }
+  return quote;
+}
+export async function getDesign(shop: string, id: string): Promise<SavedDesign> {
+  if (!/^[0-9a-f-]{36}$/i.test(id)) throw new PilotError("DESIGN_NOT_FOUND", "This saved design could not be found.", 404);
+  const row = await prisma.design.findFirst({ where: { id, shop }, select: { id: true, snapshot: true, previewUrl: true, createdAt: true } });
+  if (!row) throw new PilotError("DESIGN_NOT_FOUND", "This saved design could not be found.", 404);
+  const data = row.snapshot as unknown as { selection: Selection; pilotVersion: string; assetVersion: string; prices?: Quote["prices"] };
+  // Database previews are addressed by immutable design ID. Restore them through
+  // the current host after moving the same database from a development tunnel;
+  // the original quote, cart properties and stored snapshot remain untouched.
+  const previewUrl = row.previewUrl?.endsWith(`/previews/${row.id}`) && process.env.SHOPIFY_APP_URL
+    ? `${process.env.SHOPIFY_APP_URL.replace(/\/$/, "")}/previews/${row.id}`
+    : row.previewUrl || undefined;
+  return { id: row.id, selection: data.selection, previewUrl, createdAt: row.createdAt.toISOString(), pilotVersion: data.pilotVersion, assetVersion: data.assetVersion, fittingStatus: "visual-unverified", priceContext: data.prices };
+}
+export async function saveDesign(shop: string, input: unknown): Promise<SavedDesign> {
+  if (!input || typeof input !== "object") throw new PilotError("INVALID_DESIGN", "Provide a current quote reference.");
+  const { quoteId, reference } = input as Record<string, unknown>;
+  if (typeof quoteId !== "string" || typeof reference !== "string") throw new PilotError("INVALID_DESIGN", "Provide a current quote reference.");
+  const claims = verifyReference(reference, shop);
+  if (!claims || claims.q !== quoteId) throw new PilotError("QUOTE_EXPIRED", "This quote has expired. Refresh prices and try again.");
+  const quote = await prisma.quote.findFirst({ where: { id: quoteId, shop, signature: reference, expiresAt: { gt: new Date() } } });
+  if (!quote) throw new PilotError("QUOTE_EXPIRED", "This quote is no longer valid.");
+  return getDesign(shop, claims.d);
+}

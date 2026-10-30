@@ -1,0 +1,14 @@
+node_modules/
+.env
+.env.*
+!.env.example
+build/
+.react-router/
+.shopify/
+.netlify/
+coverage/
+.cache/
+*.log
+config/pilot.local.json
+public/pilot-assets/
+extensions/ring-builder/assets/

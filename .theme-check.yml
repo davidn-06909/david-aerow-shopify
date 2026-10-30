@@ -1,0 +1,6 @@
+ignore:
+  - apps/**
+  - node_modules/**
+  - .shopify/**
+  - tests/**
+  - qa/**

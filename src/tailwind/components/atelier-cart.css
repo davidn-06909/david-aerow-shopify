@@ -166,3 +166,9 @@
 .atelier-cart__discounts li { display: flex; justify-content: space-between; }
 .atelier-cart__error { margin: 18px 0 0; color: var(--cart-soft); font-size: var(--cart-sm); }
 :is(.atelier-cart, .atelier-cart-page) button:disabled { cursor: not-allowed; opacity: .45; }
+.atelier-cart__ring-components { display: grid; gap: 5px; margin: 6px 0; padding: 0; color: var(--cart-soft); font-size: var(--cart-xs); list-style: none; }
+.atelier-cart__ring-components li { display: flex; justify-content: space-between; gap: 14px; }
+.atelier-cart__ring-components li > :last-child { white-space: nowrap; font-variant-numeric: tabular-nums; }
+.atelier-cart__ring-actions { display: flex; flex-wrap: wrap; gap: 20px; align-items: center; }
+.atelier-cart__ring-actions a { font-size: var(--cart-xs); }
+.atelier-cart__ring .atelier-cart__media { max-height: 180px; }

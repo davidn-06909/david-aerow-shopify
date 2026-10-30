@@ -1,0 +1,19 @@
+<div
+  id="AevowRing-{{ block.id }}"
+  data-aevow-ring-builder
+  data-api-base="{{ routes.root_url }}apps/ring-builder"
+  role="region"
+  aria-label="{{ 'ring_builder.title' | t | escape }}"
+  {{ block.shopify_attributes }}
+></div>
+<noscript><p>{{ 'ring_builder.enable_javascript' | t }}</p></noscript>
+{{ 'ring-configurator.css' | asset_url | stylesheet_tag }}
+<script type="module" src="{{ 'ring-configurator.js' | asset_url }}"></script>
+
+{% schema %}
+{
+  "name": "t:blocks.ring_builder.name",
+  "target": "section",
+  "settings": []
+}
+{% endschema %}

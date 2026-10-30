@@ -1,0 +1,546 @@
+{
+  "capturedAt": "2026-10-30T20:41:17.359Z",
+  "shop": "aevow.myshopify.com",
+  "currency": "USD",
+  "setting": {
+    "handle": "the-lumen",
+    "title": "The Lumen",
+    "url": "/products/the-lumen",
+    "image": "//aevow.myshopify.com/cdn/shop/files/p_the-lumen__metal_14k_white_gold.png?v=1787756064&width=900",
+    "thumb": "//aevow.myshopify.com/cdn/shop/files/p_the-lumen__metal_14k_white_gold.png?v=1787756064&width=400",
+    "style": "Hidden halo",
+    "shank": "High polish",
+    "shapes": [
+      "Round",
+      "Oval",
+      "Cushion",
+      "Radiant",
+      "Princess"
+    ],
+    "engravable": true,
+    "engravingMax": 20,
+    "production": "4–6 weeks",
+    "previewBase": "",
+    "previewBaseMobile": "",
+    "previewMap": "",
+    "optionNames": [
+      "Metal",
+      "Ring size"
+    ],
+    "priceFrom": 185000,
+    "variants": [
+      {
+        "id": 55882549821513,
+        "options": [
+          "14K white gold",
+          "4"
+        ],
+        "price": 185000,
+        "available": true,
+        "image": "//aevow.myshopify.com/cdn/shop/files/p_the-lumen__metal_14k_white_gold.png?v=1787756064&width=900"
+      },
+      {
+        "id": 55882549854281,
+        "options": [
+          "14K white gold",
+          "4.5"
+        ],
+        "price": 185000,
+        "available": true,
+        "image": "//aevow.myshopify.com/cdn/shop/files/p_the-lumen__metal_14k_white_gold.png?v=1787756064&width=900"
+      },
+      {
+        "id": 55882549887049,
+        "options": [
+          "14K white gold",
+          "5"
+        ],
+        "price": 185000,
+        "available": true,
+        "image": "//aevow.myshopify.com/cdn/shop/files/p_the-lumen__metal_14k_white_gold.png?v=1787756064&width=900"
+      },
+      {
+        "id": 55882549919817,
+        "options": [
+          "14K white gold",
+          "5.5"
+        ],
+        "price": 185000,
+        "available": true,
+        "image": "//aevow.myshopify.com/cdn/shop/files/p_the-lumen__metal_14k_white_gold.png?v=1787756064&width=900"
+      },
+      {
+        "id": 55882549952585,
+        "options": [
+          "14K white gold",
+          "6"
+        ],
+        "price": 185000,
+        "available": true,
+        "image": "//aevow.myshopify.com/cdn/shop/files/p_the-lumen__metal_14k_white_gold.png?v=1787756064&width=900"
+      },
+      {
+        "id": 55882549985353,
+        "options": [
+          "14K white gold",
+          "6.5"
+        ],
+        "price": 185000,
+        "available": true,
+        "image": "//aevow.myshopify.com/cdn/shop/files/p_the-lumen__metal_14k_white_gold.png?v=1787756064&width=900"
+      },
+      {
+        "id": 55882550018121,
+        "options": [
+          "14K white gold",
+          "7"
+        ],
+        "price": 185000,
+        "available": true,
+        "image": "//aevow.myshopify.com/cdn/shop/files/p_the-lumen__metal_14k_white_gold.png?v=1787756064&width=900"
+      },
+      {
+        "id": 55882550050889,
+        "options": [
+          "14K white gold",
+          "7.5"
+        ],
+        "price": 185000,
+        "available": true,
+        "image": "//aevow.myshopify.com/cdn/shop/files/p_the-lumen__metal_14k_white_gold.png?v=1787756064&width=900"
+      },
+      {
+        "id": 55882550083657,
+        "options": [
+          "14K white gold",
+          "8"
+        ],
+        "price": 185000,
+        "available": true,
+        "image": "//aevow.myshopify.com/cdn/shop/files/p_the-lumen__metal_14k_white_gold.png?v=1787756064&width=900"
+      },
+      {
+        "id": 55882550116425,
+        "options": [
+          "14K white gold",
+          "8.5"
+        ],
+        "price": 185000,
+        "available": true,
+        "image": "//aevow.myshopify.com/cdn/shop/files/p_the-lumen__metal_14k_white_gold.png?v=1787756064&width=900"
+      },
+      {
+        "id": 55882550149193,
+        "options": [
+          "14K white gold",
+          "9"
+        ],
+        "price": 185000,
+        "available": true,
+        "image": "//aevow.myshopify.com/cdn/shop/files/p_the-lumen__metal_14k_white_gold.png?v=1787756064&width=900"
+      },
+      {
+        "id": 55882549461065,
+        "options": [
+          "14K yellow gold",
+          "4"
+        ],
+        "price": 185000,
+        "available": true,
+        "image": "//aevow.myshopify.com/cdn/shop/files/p_the-lumen__metal_14k_yellow_gold.png?v=1787756064&width=900"
+      },
+      {
+        "id": 55882549493833,
+        "options": [
+          "14K yellow gold",
+          "4.5"
+        ],
+        "price": 185000,
+        "available": true,
+        "image": "//aevow.myshopify.com/cdn/shop/files/p_the-lumen__metal_14k_yellow_gold.png?v=1787756064&width=900"
+      },
+      {
+        "id": 55882549526601,
+        "options": [
+          "14K yellow gold",
+          "5"
+        ],
+        "price": 185000,
+        "available": true,
+        "image": "//aevow.myshopify.com/cdn/shop/files/p_the-lumen__metal_14k_yellow_gold.png?v=1787756064&width=900"
+      },
+      {
+        "id": 55882549559369,
+        "options": [
+          "14K yellow gold",
+          "5.5"
+        ],
+        "price": 185000,
+        "available": true,
+        "image": "//aevow.myshopify.com/cdn/shop/files/p_the-lumen__metal_14k_yellow_gold.png?v=1787756064&width=900"
+      },
+      {
+        "id": 55882549592137,
+        "options": [
+          "14K yellow gold",
+          "6"
+        ],
+        "price": 185000,
+        "available": true,
+        "image": "//aevow.myshopify.com/cdn/shop/files/p_the-lumen__metal_14k_yellow_gold.png?v=1787756064&width=900"
+      },
+      {
+        "id": 55882549624905,
+        "options": [
+          "14K yellow gold",
+          "6.5"
+        ],
+        "price": 185000,
+        "available": true,
+        "image": "//aevow.myshopify.com/cdn/shop/files/p_the-lumen__metal_14k_yellow_gold.png?v=1787756064&width=900"
+      },
+      {
+        "id": 55882549657673,
+        "options": [
+          "14K yellow gold",
+          "7"
+        ],
+        "price": 185000,
+        "available": true,
+        "image": "//aevow.myshopify.com/cdn/shop/files/p_the-lumen__metal_14k_yellow_gold.png?v=1787756064&width=900"
+      },
+      {
+        "id": 55882549690441,
+        "options": [
+          "14K yellow gold",
+          "7.5"
+        ],
+        "price": 185000,
+        "available": true,
+        "image": "//aevow.myshopify.com/cdn/shop/files/p_the-lumen__metal_14k_yellow_gold.png?v=1787756064&width=900"
+      },
+      {
+        "id": 55882549723209,
+        "options": [
+          "14K yellow gold",
+          "8"
+        ],
+        "price": 185000,
+        "available": true,
+        "image": "//aevow.myshopify.com/cdn/shop/files/p_the-lumen__metal_14k_yellow_gold.png?v=1787756064&width=900"
+      },
+      {
+        "id": 55882549755977,
+        "options": [
+          "14K yellow gold",
+          "8.5"
+        ],
+        "price": 185000,
+        "available": true,
+        "image": "//aevow.myshopify.com/cdn/shop/files/p_the-lumen__metal_14k_yellow_gold.png?v=1787756064&width=900"
+      },
+      {
+        "id": 55882549788745,
+        "options": [
+          "14K yellow gold",
+          "9"
+        ],
+        "price": 185000,
+        "available": true,
+        "image": "//aevow.myshopify.com/cdn/shop/files/p_the-lumen__metal_14k_yellow_gold.png?v=1787756064&width=900"
+      },
+      {
+        "id": 55882550181961,
+        "options": [
+          "14K rose gold",
+          "4"
+        ],
+        "price": 185000,
+        "available": true,
+        "image": "//aevow.myshopify.com/cdn/shop/files/p_the-lumen__metal_14k_rose_gold.png?v=1787756066&width=900"
+      },
+      {
+        "id": 55882550214729,
+        "options": [
+          "14K rose gold",
+          "4.5"
+        ],
+        "price": 185000,
+        "available": true,
+        "image": "//aevow.myshopify.com/cdn/shop/files/p_the-lumen__metal_14k_rose_gold.png?v=1787756066&width=900"
+      },
+      {
+        "id": 55882550247497,
+        "options": [
+          "14K rose gold",
+          "5"
+        ],
+        "price": 185000,
+        "available": true,
+        "image": "//aevow.myshopify.com/cdn/shop/files/p_the-lumen__metal_14k_rose_gold.png?v=1787756066&width=900"
+      },
+      {
+        "id": 55882550280265,
+        "options": [
+          "14K rose gold",
+          "5.5"
+        ],
+        "price": 185000,
+        "available": true,
+        "image": "//aevow.myshopify.com/cdn/shop/files/p_the-lumen__metal_14k_rose_gold.png?v=1787756066&width=900"
+      },
+      {
+        "id": 55882550313033,
+        "options": [
+          "14K rose gold",
+          "6"
+        ],
+        "price": 185000,
+        "available": true,
+        "image": "//aevow.myshopify.com/cdn/shop/files/p_the-lumen__metal_14k_rose_gold.png?v=1787756066&width=900"
+      },
+      {
+        "id": 55882550345801,
+        "options": [
+          "14K rose gold",
+          "6.5"
+        ],
+        "price": 185000,
+        "available": true,
+        "image": "//aevow.myshopify.com/cdn/shop/files/p_the-lumen__metal_14k_rose_gold.png?v=1787756066&width=900"
+      },
+      {
+        "id": 55882550378569,
+        "options": [
+          "14K rose gold",
+          "7"
+        ],
+        "price": 185000,
+        "available": true,
+        "image": "//aevow.myshopify.com/cdn/shop/files/p_the-lumen__metal_14k_rose_gold.png?v=1787756066&width=900"
+      },
+      {
+        "id": 55882550411337,
+        "options": [
+          "14K rose gold",
+          "7.5"
+        ],
+        "price": 185000,
+        "available": true,
+        "image": "//aevow.myshopify.com/cdn/shop/files/p_the-lumen__metal_14k_rose_gold.png?v=1787756066&width=900"
+      },
+      {
+        "id": 55882550444105,
+        "options": [
+          "14K rose gold",
+          "8"
+        ],
+        "price": 185000,
+        "available": true,
+        "image": "//aevow.myshopify.com/cdn/shop/files/p_the-lumen__metal_14k_rose_gold.png?v=1787756066&width=900"
+      },
+      {
+        "id": 55882550476873,
+        "options": [
+          "14K rose gold",
+          "8.5"
+        ],
+        "price": 185000,
+        "available": true,
+        "image": "//aevow.myshopify.com/cdn/shop/files/p_the-lumen__metal_14k_rose_gold.png?v=1787756066&width=900"
+      },
+      {
+        "id": 55882550509641,
+        "options": [
+          "14K rose gold",
+          "9"
+        ],
+        "price": 185000,
+        "available": true,
+        "image": "//aevow.myshopify.com/cdn/shop/files/p_the-lumen__metal_14k_rose_gold.png?v=1787756066&width=900"
+      },
+      {
+        "id": 55882550542409,
+        "options": [
+          "Platinum",
+          "4"
+        ],
+        "price": 245000,
+        "available": true,
+        "image": "//aevow.myshopify.com/cdn/shop/files/p_the-lumen__metal_platinum.png?v=1787756066&width=900"
+      },
+      {
+        "id": 55882550575177,
+        "options": [
+          "Platinum",
+          "4.5"
+        ],
+        "price": 245000,
+        "available": true,
+        "image": "//aevow.myshopify.com/cdn/shop/files/p_the-lumen__metal_platinum.png?v=1787756066&width=900"
+      },
+      {
+        "id": 55882550607945,
+        "options": [
+          "Platinum",
+          "5"
+        ],
+        "price": 245000,
+        "available": true,
+        "image": "//aevow.myshopify.com/cdn/shop/files/p_the-lumen__metal_platinum.png?v=1787756066&width=900"
+      },
+      {
+        "id": 55882550640713,
+        "options": [
+          "Platinum",
+          "5.5"
+        ],
+        "price": 245000,
+        "available": true,
+        "image": "//aevow.myshopify.com/cdn/shop/files/p_the-lumen__metal_platinum.png?v=1787756066&width=900"
+      },
+      {
+        "id": 55882550673481,
+        "options": [
+          "Platinum",
+          "6"
+        ],
+        "price": 245000,
+        "available": true,
+        "image": "//aevow.myshopify.com/cdn/shop/files/p_the-lumen__metal_platinum.png?v=1787756066&width=900"
+      },
+      {
+        "id": 55882550706249,
+        "options": [
+          "Platinum",
+          "6.5"
+        ],
+        "price": 245000,
+        "available": true,
+        "image": "//aevow.myshopify.com/cdn/shop/files/p_the-lumen__metal_platinum.png?v=1787756066&width=900"
+      },
+      {
+        "id": 55882550739017,
+        "options": [
+          "Platinum",
+          "7"
+        ],
+        "price": 245000,
+        "available": true,
+        "image": "//aevow.myshopify.com/cdn/shop/files/p_the-lumen__metal_platinum.png?v=1787756066&width=900"
+      },
+      {
+        "id": 55882550771785,
+        "options": [
+          "Platinum",
+          "7.5"
+        ],
+        "price": 245000,
+        "available": true,
+        "image": "//aevow.myshopify.com/cdn/shop/files/p_the-lumen__metal_platinum.png?v=1787756066&width=900"
+      },
+      {
+        "id": 55882550804553,
+        "options": [
+          "Platinum",
+          "8"
+        ],
+        "price": 245000,
+        "available": true,
+        "image": "//aevow.myshopify.com/cdn/shop/files/p_the-lumen__metal_platinum.png?v=1787756066&width=900"
+      },
+      {
+        "id": 55882550837321,
+        "options": [
+          "Platinum",
+          "8.5"
+        ],
+        "price": 245000,
+        "available": true,
+        "image": "//aevow.myshopify.com/cdn/shop/files/p_the-lumen__metal_platinum.png?v=1787756066&width=900"
+      },
+      {
+        "id": 55882550870089,
+        "options": [
+          "Platinum",
+          "9"
+        ],
+        "price": 245000,
+        "available": true,
+        "image": "//aevow.myshopify.com/cdn/shop/files/p_the-lumen__metal_platinum.png?v=1787756066&width=900"
+      }
+    ]
+  },
+  "diamonds": [
+    {
+      "diamondSelect": "",
+      "diamondId": "55882564108361",
+      "diamondHandle": "oval-natural-1-1-7",
+      "diamondTitle": "Oval 1.10 ct · Natural",
+      "diamondPrice": "652000",
+      "diamondShape": "Oval",
+      "diamondCarat": "1.1",
+      "diamondColor": "F",
+      "diamondClarity": "VS1",
+      "diamondCut": "Very good",
+      "diamondOrigin": "Natural",
+      "diamondLab": "GIA",
+      "diamondCertificate": "1455514122",
+      "diamondCertificatePdf": "https://pdf.gia.edu/?ReportNumber=57A611D10CEEBFA7AE99F1D381C203CE",
+      "diamondImage": "//aevow.myshopify.com/cdn/shop/files/d_oval__hero_2d196f62-12de-4af1-9ab5-0abcab24e9fa.png?v=1787770443&width=600"
+    },
+    {
+      "diamondSelect": "",
+      "diamondId": "55882564042825",
+      "diamondHandle": "oval-lab-2-6",
+      "diamondTitle": "Oval 2.00 ct · Lab grown",
+      "diamondPrice": "310000",
+      "diamondShape": "Oval",
+      "diamondCarat": "2.0",
+      "diamondColor": "E",
+      "diamondClarity": "VVS2",
+      "diamondCut": "Excellent",
+      "diamondOrigin": "Lab grown",
+      "diamondLab": "IGI",
+      "diamondCertificate": "515209703",
+      "diamondCertificatePdf": "",
+      "diamondImage": "//aevow.myshopify.com/cdn/shop/files/d_oval__hero_93e2436c-c177-4629-8dfe-a2e6914c8021.png?v=1787770439&width=600"
+    },
+    {
+      "diamondSelect": "",
+      "diamondId": "55882563944521",
+      "diamondHandle": "round-natural-1-3",
+      "diamondTitle": "Round 1.00 ct · Natural",
+      "diamondPrice": "600000",
+      "diamondShape": "Round",
+      "diamondCarat": "1.0",
+      "diamondColor": "G",
+      "diamondClarity": "VS2",
+      "diamondCut": "Very good",
+      "diamondOrigin": "Natural",
+      "diamondLab": "GIA",
+      "diamondCertificate": "1455514122",
+      "diamondCertificatePdf": "https://pdf.gia.edu/?ReportNumber=57A611D10CEEBFA7AE99F1D381C203CE",
+      "diamondImage": "//aevow.myshopify.com/cdn/shop/files/d_round__hero_59c868b1-7095-4561-a2dc-8f03df51a82b.png?v=1787770425&width=600"
+    },
+    {
+      "diamondSelect": "",
+      "diamondId": "55882563911753",
+      "diamondHandle": "round-lab-2-2",
+      "diamondTitle": "Round 2.00 ct · Lab grown",
+      "diamondPrice": "310000",
+      "diamondShape": "Round",
+      "diamondCarat": "2.0",
+      "diamondColor": "F",
+      "diamondClarity": "VS1",
+      "diamondCut": "Excellent",
+      "diamondOrigin": "Lab grown",
+      "diamondLab": "IGI",
+      "diamondCertificate": "515209703",
+      "diamondCertificatePdf": "",
+      "diamondImage": "//aevow.myshopify.com/cdn/shop/files/d_round__hero_c28b3aa4-b038-4d83-86ce-d1e8f6eb7162.png?v=1787770421&width=600"
+    }
+  ],
+  "engravingVariant": "55882565451849",
+  "engravingPrice": 4500
+}

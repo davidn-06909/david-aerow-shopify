@@ -1,0 +1,29 @@
+{
+  "version": "lumen-visual-v2",
+  "physicalFitVerified": false,
+  "description": "Reference-proportioned visual pilot. Geometry and stone profiles are illustrative, not manufacturing CAD.",
+  "units": "illustrative-mm",
+  "referenceSize": 6.5,
+  "stoneProfiles": {
+    "Round": {
+      "width": 8.1,
+      "length": 8.1,
+      "depth": 4.9
+    },
+    "Oval": {
+      "width": 7.3,
+      "length": 10.2,
+      "depth": 4.8
+    }
+  },
+  "shapes": {
+    "Round": {
+      "file": "lumen-visual-v2-round.glb",
+      "bytes": 456140
+    },
+    "Oval": {
+      "file": "lumen-visual-v2-oval.glb",
+      "bytes": 470584
+    }
+  }
+}

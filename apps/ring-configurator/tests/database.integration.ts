@@ -1,0 +1,110 @@
+/** Real disposable PostgreSQL integration. Shopify responses are explicit test doubles. */
+import assert from "node:assert/strict";
+import { createHmac, randomBytes, randomUUID } from "node:crypto";
+import { execFileSync } from "node:child_process";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { resolve } from "node:path";
+import type { ActionFunctionArgs } from "react-router";
+import { preparePostgresRuntime } from "../scripts/postgres-runtime";
+await preparePostgresRuntime();
+const dependency = "embedded-postgres";
+const { default: EmbeddedPostgres } = await import(dependency);
+const directory = resolve(".cache", `postgres-${randomUUID()}`);
+await mkdir(directory, { recursive: true });
+const port = 15432 + Math.floor(Math.random() * 1000);
+const password = randomBytes(24).toString("hex");
+const pg = new EmbeddedPostgres({ databaseDir: resolve(directory, "data"), port, user: "postgres", password, persistent: true, initdbFlags: ["--encoding=UTF8", "--locale=C"], postgresFlags: ["-h", "127.0.0.1"], onLog: () => {}, onError: () => {} });
+// pg_ctl creates the restricted Windows token required when the parent shell
+// has administrator rights. Direct postgres.exe deliberately refuses that token.
+const binaryPackage = "@embedded-postgres/windows-x64";
+const pgCtl: string | undefined = process.platform === "win32" ? (await import(binaryPackage)).pg_ctl : undefined;
+let started = false;
+process.env.DATABASE_URL = `postgresql://postgres:${password}@127.0.0.1:${port}/postgres?schema=public`;
+process.env.SHOPIFY_API_KEY = "integration-test-key";
+process.env.SHOPIFY_API_SECRET = randomBytes(32).toString("hex");
+process.env.SHOPIFY_APP_URL = "https://ring-integration.example.test";
+process.env.CONFIGURATION_SIGNING_SECRET = randomBytes(32).toString("hex");
+process.env.PILOT_ALLOWED_SHOP = "ring-integration.myshopify.com";
+process.env.ENABLE_PURCHASES = "true";
+// Prisma can load a local .env during initialization; never let a developer's
+// real auth-mode flag turn this isolated webhook test into a network grant.
+process.env.CLIENT_CREDENTIALS_AUTH = "false";
+process.env.PREVIEW_STORAGE = "database";
+const manifestPath = resolve(directory, "pilot.json");
+process.env.PILOT_MANIFEST_PATH = manifestPath;
+const capture = JSON.parse(await readFile("config/reference-catalog.json", "utf8"));
+const example = JSON.parse(await readFile("config/pilot.example.json", "utf8"));
+const targetShop = process.env.PILOT_ALLOWED_SHOP;
+const manifest = { ...example, shop: targetShop, settingProductId: "900000", fulfillmentLocationId: "900100", engravingVariantId: "900001", diamonds: example.diamonds.map((d: Record<string, unknown>, i: number) => ({ ...d, variantId: String(900010 + i) })) };
+await writeFile(manifestPath, JSON.stringify(manifest));
+let prisma: (typeof import("../app/db.server"))["default"] | undefined;
+let passed = 0;
+const check = (label: string) => { passed++; console.log(`PASS ${label}`); };
+try {
+  await pg.initialise();
+  if (pgCtl) execFileSync(pgCtl, ["-D", resolve(directory, "data"), "-l", resolve(directory, "postgres.log"), "-o", `-h 127.0.0.1 -p ${port}`, "start", "-w"], { stdio: "ignore" });
+  else await pg.start();
+  started = true;
+  execFileSync(process.execPath, [resolve("node_modules/prisma/build/index.js"), "migrate", "deploy"], { env: process.env, stdio: "pipe" });
+  prisma = (await import("../app/db.server")).default;
+  assert.equal(await prisma.quote.count(), 0); check("committed migration creates a real PostgreSQL schema");
+  const { loadCatalog } = await import("../app/services/catalog.server");
+  let isDevelopment = true; let atLocationStock = 1;
+  const makeVariant = (id: string, title: string, price: string, selectedOptions: { name: string; value: string }[] = [], productId = "900000") => ({ id: `gid://shopify/ProductVariant/${id}`, title, price, availableForSale: true, sellableOnlineQuantity: 1, inventoryQuantity: 1, inventoryPolicy: "DENY", inventoryItem: { tracked: true, inventoryLevel: { quantities: [{ name: "available", quantity: atLocationStock }] } }, selectedOptions, product: { id: `gid://shopify/Product/${productId}`, title, handle: title.toLowerCase().replaceAll(" ", "-"), status: "ACTIVE", publishedAt: "2026-01-01T00:00:00Z", onlineStoreUrl: `https://${targetShop}/products/test`, featuredImage: null } });
+  const admin = { async graphql() { return Response.json({ data: { shop: { currencyCode: "USD", plan: { partnerDevelopment: isDevelopment } }, setting: { title: "Test Lumen", handle: "test-lumen", variants: { nodes: capture.setting.variants.map((v: { id: number; options: string[]; price: number }, i: number) => makeVariant(String(910000 + i), "Test Lumen", (v.price / 100).toFixed(2), [{ name: "Metal", value: v.options[0] }, { name: "Ring size", value: v.options[1] }])), pageInfo: { hasNextPage: false } } }, components: [makeVariant("900001", "Test engraving", "45.00", [], "900002"), ...manifest.diamonds.map((d: Record<string, unknown>) => { const source = capture.diamonds.find((s: Record<string, string>) => s.diamondId === d.sourceVariantId); return makeVariant(String(d.variantId), "Test diamond", (Number(source.diamondPrice) / 100).toFixed(2), [], String(Number(d.variantId) + 100)); })] } }); } };
+  const catalog = await loadCatalog(admin, targetShop);
+  assert.equal(catalog.canPurchase, true); assert.equal(catalog.mode, "connected"); check("connected catalog reads prices and mappings from Shopify test double, never preview snapshot");
+  atLocationStock = 0; assert.ok((await loadCatalog(admin, targetShop)).diamonds.every(d => !d.available)); atLocationStock = 1;
+  check("stock in another location cannot authorize a pilot diamond at the configured fulfillment location");
+  isDevelopment = false; assert.equal((await loadCatalog(admin, targetShop)).canPurchase, false); isDevelopment = true;
+  process.env.PILOT_ALLOWED_SHOP = "different.myshopify.com"; assert.equal((await loadCatalog(admin, targetShop)).canPurchase, false); process.env.PILOT_ALLOWED_SHOP = targetShop;
+  check("purchase guard rejects merchant stores and non-allowlisted shops");
+  const { createQuote, getDesign, saveDesign } = await import("../app/services/designs.server");
+  const previewDataUrl = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+kB8kAAAAASUVORK5CYII=";
+  const request = { requestId: randomUUID(), previewDataUrl, selection: { style: "Hidden halo", shank: "High polish", metal: "Platinum", shape: "Round", diamondId: "55882563911753", size: "4.5", engraving: "3ertyui", engravingEnabled: true } };
+  const quote = await createQuote(request, catalog);
+  assert.equal(quote.prices.total.amount, 559500); assert.notEqual(quote.selection.diamondId, request.selection.diamondId);
+  const design = await getDesign(targetShop, quote.designId); assert.equal(design.selection.engraving, "3ertyui"); assert.equal(design.fittingStatus, "visual-unverified");
+  check("quote and immutable manufacturing snapshot persist atomically with canonical target IDs");
+  const storedPreview = await prisma.design.findUniqueOrThrow({ where: { id: quote.designId }, select: { previewData: true, previewMime: true } });
+  assert.equal(storedPreview.previewMime, "image/png"); assert.equal(Buffer.from(storedPreview.previewData!).toString("base64"), previewDataUrl.split(",")[1]);
+  const { loader: previewLoader } = await import("../app/routes/previews.$id");
+  const previewResponse = await previewLoader({ request: new Request(quote.previewUrl!), params: { id: quote.designId }, context: {} } as unknown as import("react-router").LoaderFunctionArgs);
+  assert.equal(previewResponse.status, 200); assert.equal(previewResponse.headers.get("Content-Type"), "image/png"); assert.equal(Buffer.from(await previewResponse.arrayBuffer()).toString("base64"), previewDataUrl.split(",")[1]);
+  check("database preview bytes persist with the design and the public resource returns the exact bounded image");
+  const originalHost = process.env.SHOPIFY_APP_URL;
+  process.env.SHOPIFY_APP_URL = "https://migrated-ring.example.test/";
+  assert.equal((await getDesign(targetShop, quote.designId)).previewUrl, `https://migrated-ring.example.test/previews/${quote.designId}`);
+  assert.equal((await prisma.design.findUniqueOrThrow({ where: { id: quote.designId } })).previewUrl, quote.previewUrl);
+  process.env.SHOPIFY_APP_URL = originalHost;
+  check("moving hosts restores the database preview without changing the original immutable record");
+  assert.equal((await createQuote(request, catalog)).id, quote.id); assert.equal(await prisma.quote.count(), 1); assert.equal(await prisma.design.count(), 1);
+  const concurrent = { ...request, requestId: randomUUID() };
+  const duplicates = await Promise.all([createQuote(concurrent, catalog), createQuote(concurrent, catalog)]);
+  assert.equal(duplicates[0].id, duplicates[1].id); assert.equal(await prisma.quote.count(), 2); check("sequential and concurrent retry IDs return one saved quote/design");
+  await assert.rejects(createQuote({ ...request, selection: { ...request.selection, metal: "14K white gold" } }, catalog), /different configuration/);
+  assert.equal((await saveDesign(targetShop, { quoteId: quote.id, reference: quote.reference })).id, quote.designId);
+  await assert.rejects(getDesign("another.myshopify.com", quote.designId), /could not be found/); check("conflicting retries and cross-shop design reads are rejected");
+  const { action } = await import("../app/routes/webhooks.orders.create");
+  const webhook = async (order: unknown, eventId = randomUUID(), valid = true) => {
+    const body = JSON.stringify(order);
+    const signature = valid ? createHmac("sha256", process.env.SHOPIFY_API_SECRET!).update(body).digest("base64") : "invalid-signature";
+    return action({ request: new Request("https://ring-integration.example.test/webhooks/orders/create", { method: "POST", headers: { "content-type": "application/json", "x-shopify-topic": "orders/create", "x-shopify-shop-domain": targetShop, "x-shopify-webhook-id": eventId, "x-shopify-hmac-sha256": signature, "x-shopify-api-version": "2026-10" }, body }), params: {}, context: {} } as ActionFunctionArgs);
+  };
+  const order = { id: "test-order-1", financial_status: "paid", line_items: quote.items.map(i => ({ variant_id: i.id, quantity: 1, properties: Object.entries(i.properties).map(([name, value]) => ({ name, value })) })) };
+  const eventId = randomUUID();
+  assert.equal((await webhook(order, eventId)).status, 200); assert.equal((await webhook(order, eventId)).status, 200);
+  assert.equal(await prisma.orderDesign.count(), 1); assert.equal((await prisma.orderDesign.findFirstOrThrow()).status, "verified_paid"); check("actual SDK webhook HMAC and duplicate receipts produce one verified order association");
+  const before = await prisma.webhookReceipt.count();
+  try { const invalid = await webhook(order, randomUUID(), false); assert.equal(invalid.status, 401); } catch (error) { assert.ok(error instanceof Response && error.status === 401); }
+  assert.equal(await prisma.webhookReceipt.count(), before); check("invalid raw-body webhook signature performs no receipt writes");
+  const missing = { ...order, id: "test-order-missing", line_items: [{ variant_id: manifest.diamonds[0].variantId, quantity: 1, properties: [] }] };
+  assert.equal((await webhook(missing)).status, 200); assert.equal(await prisma.webhookReceipt.count({ where: { status: "review_required" } }), 1); check("pilot diamond with removed configuration markers is retained for review");
+  const changed = { ...order, id: "test-order-modified", line_items: order.line_items.map((l, i) => i === 0 ? { ...l, quantity: 2 } : l) };
+  assert.equal((await webhook(changed)).status, 200); assert.equal((await prisma.orderDesign.findFirstOrThrow({ where: { orderId: changed.id } })).status, "review_required"); check("manipulated quantities are held for review");
+  console.log(`PostgreSQL integration complete: ${passed} checks passed. No external Shopify order was placed.`);
+} finally {
+  await prisma?.$disconnect();
+  if (started && pgCtl) execFileSync(pgCtl, ["-D", resolve(directory, "data"), "stop", "-m", "fast", "-w"], { stdio: "ignore" });
+  else await pg.stop();
+}
