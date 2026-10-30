@@ -1,0 +1,23 @@
+{% render 'atelier-about-style', section: section %}
+<div id="atelier-about-{{ section.id }}" class="atelier-about atelier-about--timeline">
+  <div class="atelier-about__page atelier-about__narrow">
+    <header class="atelier-about__head">{% render 'atelier-about-heading', section: section %}</header>
+    <ol class="atelier-about__timeline" role="list">
+      {% for block in section.blocks %}
+        <li class="atelier-about__stage" {{ block.shopify_attributes }}>
+          <span class="atelier-about__marker" aria-hidden="true"></span>
+          <div class="atelier-about__stage-content">
+            <span class="atelier-about__numeral">{% if forloop.index < 10 %}0{% endif %}{{ forloop.index }} —</span>
+            <h3 class="atelier-about__subtitle">{{ block.settings.heading | escape }}</h3>
+            <div class="atelier-about__stage-text atelier-about__rte">{{ block.settings.description }}</div>
+            {% if block.settings.image != blank or block.settings.atelier_image_url != blank %}
+              <div class="atelier-about__stage-media atelier-about__image atelier-about__image--landscape">
+                {% render 'atelier-about-image', image: block.settings.image, image_url: block.settings.atelier_image_url, alt: block.settings.heading, sizes: '(min-width: 990px) 420px, 92vw' %}
+              </div>
+            {% endif %}
+          </div>
+        </li>
+      {% endfor %}
+    </ol>
+  </div>
+</div>
