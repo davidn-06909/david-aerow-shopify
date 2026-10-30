@@ -56,7 +56,7 @@
     }
   {% endfor %}
 {% endstyle %}
-<div id="atelier-consultation-{{ section.id }}" class="atelier-consultation atelier-consultation--image-{{ section.settings.image_alignment }} atelier-consultation--mobile-{{ section.settings.image_alignment_mobile }} atelier-consultation--align-{{ section.settings.text_alignment }} atelier-consultation--position-{{ section.settings.text_position }}">
+<div id="atelier-consultation-{{ section.id }}" class="atelier-consultation{% if section.settings.atelier_about %} atelier-consultation--about atelier-consultation--about-{{ section.settings.atelier_about_layout }}{% if section.settings.atelier_frame %} atelier-consultation--frame{% endif %}{% endif %} atelier-consultation--image-{{ section.settings.image_alignment }} atelier-consultation--mobile-{{ section.settings.image_alignment_mobile }} atelier-consultation--align-{{ section.settings.text_alignment }} atelier-consultation--position-{{ section.settings.text_position }}">
   <div class="atelier-consultation__page">
     <div class="atelier-consultation__layout">
       <div class="atelier-consultation__media">
@@ -85,13 +85,29 @@
                 {%- endif -%}
               </div>
             {%- when 'button' -%}
+              {% unless section.settings.atelier_about %}
               <div id="consultation-block-{{ block.id }}" class="atelier-consultation__buttons" {{ block.shopify_attributes }}>
                 {%- if block.settings.button_label != blank and block.settings.button_link != blank -%}
                   <a class="atelier-consultation__button atelier-consultation__button--{{ block.settings.show_button_style }}" href="{{ block.settings.button_link | escape }}"{% if block.settings.open_new_window %} target="_blank" rel="noopener noreferrer"{% endif %}>{{ block.settings.button_label | escape }}</a>
                 {%- endif -%}
               </div>
+              {% endunless %}
           {%- endcase -%}
         {%- endfor -%}
+        {% if section.settings.atelier_about %}
+          {% assign about_buttons = section.blocks | where: 'type', 'button' %}
+          {% if about_buttons.size > 0 %}
+            <div class="atelier-consultation__action-group">
+              {% for block in about_buttons %}
+                {% if block.settings.button_label != blank and block.settings.button_link != blank %}
+                  <div id="consultation-block-{{ block.id }}" class="atelier-consultation__buttons" {{ block.shopify_attributes }}>
+                    <a class="atelier-consultation__button atelier-consultation__button--{{ block.settings.show_button_style }}" href="{{ block.settings.button_link | escape }}"{% if block.settings.open_new_window %} target="_blank" rel="noopener noreferrer"{% endif %}>{{ block.settings.button_label | escape }}</a>
+                  </div>
+                {% endif %}
+              {% endfor %}
+            </div>
+          {% endif %}
+        {% endif %}
       </div>
     </div>
   </div>

@@ -26,8 +26,8 @@
     {% if section.settings.image != blank %}--newsletter-image-position: {{ section.settings.image.presentation.focal_point }};{% endif %}
   }
 {% endstyle %}
-<div id="atelier-newsletter-{{ section.id }}" class="atelier-newsletter">
-  <picture class="atelier-newsletter__background" aria-hidden="true">
+<div id="atelier-newsletter-{{ section.id }}" class="atelier-newsletter{% if section.settings.atelier_about %} atelier-newsletter--about{% endif %}">
+  {% unless section.settings.atelier_about %}<picture class="atelier-newsletter__background" aria-hidden="true">
     {%- if section.settings.image_mobile != blank -%}
       <source media="(max-width: 767px)" srcset="{{ section.settings.image_mobile | image_url: width: 900 }}">
     {%- endif -%}
@@ -36,9 +36,10 @@
     {%- else -%}
       <img src="{{ 'atelier-newsletter-background.png' | asset_url }}" width="1024" height="1536" alt="" loading="lazy" decoding="async">
     {%- endif -%}
-  </picture>
+  </picture>{% endunless %}
   <div class="atelier-newsletter__page">
     <div class="atelier-newsletter__content">
+      {% if section.settings.atelier_about and section.settings.atelier_eyebrow != blank %}<p class="atelier-newsletter__eyebrow">{{ section.settings.atelier_eyebrow | escape }}</p>{% endif %}
       {%- for block in section.blocks -%}
         {%- case block.type -%}
           {%- when 'heading' -%}

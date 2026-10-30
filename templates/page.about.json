@@ -3,15 +3,534 @@
     "main": {
       "type": "main-page",
       "settings": {
+        "atelier_about": true,
+        "atelier_eyebrow": "Our story",
+        "atelier_heading": "About the atelier",
+        "atelier_text": "<p>Aevow makes engagement rings the slow way: one setting, one stone, one pair of hands at a time. Every ring leaves the bench with its center stone certified and its story written down.</p><p>This is a demonstration store for the Aevow theme; the pieces shown are sample data.</p>",
+        "atelier_heading_font": "oswald_n7",
+        "atelier_body_font": "archivo_n4",
+        "atelier_background": "#0B0E28",
+        "atelier_color": "#F2F6FB",
+        "atelier_soft": "#A9C3E2",
+        "padding_top": 96,
+        "padding_bottom": 96,
         "show_heading": true,
-        "heading_tag": "h1",
         "show_breadcrumbs": true,
-        "padding_top": 60,
-        "padding_bottom": 80,
-        "padding_top_mobile": 36,
-        "padding_bottom_mobile": 48
+        "heading_tag": "h1"
+      }
+    },
+    "statement": {
+      "type": "rich-text",
+      "settings": {
+        "atelier_about": true,
+        "atelier_heading": "A ring is the only thing you buy once and wear every day for the rest of your life.",
+        "atelier_text": "<p>That is the whole brief, and it decides everything else.</p>",
+        "atelier_heading_font": "oswald_n7",
+        "atelier_body_font": "archivo_n4",
+        "atelier_background": "#070A1E",
+        "atelier_color": "#F2F6FB",
+        "atelier_soft": "#9FB9DA",
+        "padding_top": 88,
+        "padding_bottom": 88
+      }
+    },
+    "atelier": {
+      "type": "atelier-consultation",
+      "blocks": {
+        "copy": {
+          "type": "heading",
+          "settings": {
+            "subheading": "The bench",
+            "heading": "Where the work happens",
+            "text": "<p>Every setting is made to order, one at a time, by a jeweler who sees it through from the first drawing to the final polish. Nothing is assembled from a tray of finished parts.</p><p>It is slower than the alternative. It is also the only way the person who made your ring can tell you why the shoulders taper the way they do.</p>",
+            "heading_tag": "h2",
+            "heading_base_size": 100
+          }
+        }
+      },
+      "block_order": [
+        "copy"
+      ],
+      "settings": {
+        "atelier_about": true,
+        "atelier_about_layout": "portrait",
+        "atelier_frame": true,
+        "atelier_heading_font": "oswald_n7",
+        "atelier_body_font": "archivo_n4",
+        "atelier_image_url": "https://aevow.myshopify.com/cdn/shop/files/mn_21_atelier_portrait.png?v=1787752282&width=2200",
+        "atelier_image_alt": "The Aevow atelier with tall windows and a jeweler’s bench",
+        "atelier_inset_image_url": "https://aevow.myshopify.com/cdn/shop/files/mn_26_jeweler_hands_portrait.png?v=1787752288&width=2200",
+        "atelier_inset_image_alt": "A jeweler setting a diamond by hand",
+        "atelier_accent": "#6E9BFF",
+        "image_alignment": "left",
+        "image_alignment_mobile": "left",
+        "text_position": "center",
+        "text_alignment": "start",
+        "background_color_light": "#0B0E28",
+        "background_color_dark": "#0B0E28",
+        "heading_color_light": "#F2F6FB",
+        "heading_color_dark": "#F2F6FB",
+        "text_color_light": "#A9C3E2",
+        "text_color_dark": "#A9C3E2",
+        "top_padding": 96,
+        "bottom_padding": 96,
+        "top_padding_mobile": 56,
+        "bottom_padding_mobile": 56
+      }
+    },
+    "process": {
+      "type": "timeline",
+      "blocks": {
+        "stage_0": {
+          "type": "milestone",
+          "settings": {
+            "heading": "Drawing",
+            "description": "<p>We start on paper, at actual size. A ring that reads well at four times its width can look quite different at seventeen millimetres across.</p>",
+            "atelier_image_url": "https://aevow.myshopify.com/cdn/shop/files/mn_15_sketch_to_ring_portrait.png?v=1787752275&width=2200"
+          }
+        },
+        "stage_1": {
+          "type": "milestone",
+          "settings": {
+            "heading": "Choosing the stone",
+            "description": "<p>The center stone is chosen before the setting is finished, not after, so the seat can be cut to that stone rather than to its category.</p>",
+            "atelier_image_url": "https://aevow.myshopify.com/cdn/shop/files/mn_22_diamond_facets.png?v=1787752283&width=2200"
+          }
+        },
+        "stage_2": {
+          "type": "milestone",
+          "settings": {
+            "heading": "At the bench",
+            "description": "<p>The setting is built, the stone is set by hand, and the shank is finished to the size you gave us. This is the part that takes the time.</p>",
+            "atelier_image_url": "https://aevow.myshopify.com/cdn/shop/files/mn_13_gold_craftsmanship_portrait.png?v=1787752273&width=2200"
+          }
+        },
+        "stage_3": {
+          "type": "milestone",
+          "settings": {
+            "heading": "Finishing and packing",
+            "description": "<p>Final polish, a last look under magnification, and into its box with the stone's paperwork alongside it.</p>",
+            "atelier_image_url": "https://aevow.myshopify.com/cdn/shop/files/mn_23_packaging_portrait.png?v=1787752284&width=2200"
+          }
+        }
+      },
+      "block_order": [
+        "stage_0",
+        "stage_1",
+        "stage_2",
+        "stage_3"
+      ],
+      "settings": {
+        "atelier_about": true,
+        "atelier_eyebrow": "How a ring is made",
+        "atelier_heading": "Four stages, in order",
+        "atelier_text": "<p>Nothing here is unusual for a workshop that makes rings by hand. It is written down because most shops do not tell you.</p>",
+        "atelier_heading_font": "oswald_n7",
+        "atelier_body_font": "archivo_n4",
+        "atelier_background": "#070A1E",
+        "atelier_color": "#F2F6FB",
+        "atelier_soft": "#9FB9DA",
+        "padding_top": 96,
+        "padding_bottom": 96
+      }
+    },
+    "stone": {
+      "type": "atelier-media-story",
+      "settings": {
+        "layout": "split",
+        "heading_font": "oswald_n7",
+        "body_font": "archivo_n4",
+        "eyebrow": "The stone",
+        "heading": "Examined in the round",
+        "text": "<p>Every stone we set turns under the loupe before it earns its mount — cut, symmetry, and the way it returns light, judged one facet at a time.</p>",
+        "video_file_url": "https://cdn.shopify.com/videos/c/vp/ec322761407e4b4d8b1e4efd56640acc/ec322761407e4b4d8b1e4efd56640acc.HD-720p-1.6Mbps-92731058.mp4",
+        "video_alt_text": "A diamond turning under the loupe",
+        "enable_video_autoplay": true,
+        "video_ratio": "16 / 9",
+        "video_ratio_mobile": "16 / 9",
+        "background_color": "#070A1E",
+        "text_color": "#F2F6FB",
+        "soft_color": "#9FB9DA",
+        "accent_color": "#79A6FF",
+        "padding_top": 92,
+        "padding_bottom": 92
+      }
+    },
+    "materials": {
+      "type": "text-column-with-image",
+      "blocks": {
+        "material_0": {
+          "type": "column",
+          "settings": {
+            "title": "Metals",
+            "text": "<p>Platinum and 14K gold in yellow, white and rose. White gold is rhodium-plated and will want re-plating in time — we would rather say so now than surprise you in three years.</p>",
+            "atelier_image_url": "https://aevow.myshopify.com/cdn/shop/files/mn_19_wedding_band_pair_portrait.png?v=1787752280&width=2200"
+          }
+        },
+        "material_1": {
+          "type": "column",
+          "settings": {
+            "title": "Stones",
+            "text": "<p>Natural and laboratory-grown diamonds, in ten shapes. Both are diamond; they differ in origin and in price, and we will happily explain which is which.</p>",
+            "atelier_image_url": "https://aevow.myshopify.com/cdn/shop/files/mn_04_oval_diamond.png?v=1787752266&width=2200"
+          }
+        },
+        "material_2": {
+          "type": "column",
+          "settings": {
+            "title": "Finishes",
+            "text": "<p>High polish, brushed, or hammered, with an inscription inside the band if you want one. The inscription is cut, not printed, so it does not wear away.</p>",
+            "atelier_image_url": "https://aevow.myshopify.com/cdn/shop/files/mn_16_ring_on_silk_portrait.png?v=1787752277&width=2200"
+          }
+        }
+      },
+      "block_order": [
+        "material_0",
+        "material_1",
+        "material_2"
+      ],
+      "settings": {
+        "atelier_about": true,
+        "atelier_eyebrow": "What we work in",
+        "atelier_heading": "Materials",
+        "atelier_heading_font": "oswald_n7",
+        "atelier_body_font": "archivo_n4",
+        "atelier_background": "#0B0E28",
+        "atelier_color": "#F2F6FB",
+        "atelier_soft": "#A9C3E2",
+        "padding_top": 96,
+        "padding_bottom": 96
+      }
+    },
+    "certification": {
+      "type": "atelier-consultation",
+      "blocks": {
+        "copy": {
+          "type": "heading",
+          "settings": {
+            "subheading": "Paperwork",
+            "heading": "Every stone arrives with its own record",
+            "text": "<p>Each center stone is sold with its grading report, and the report number is printed on your order — the same number the page showed you when you chose it. If a stone cannot be identified on paper, it does not go in a ring.</p><p>Carat, color, clarity and cut are shown on their own scales rather than as letters you are expected to already know.</p>",
+            "heading_tag": "h2",
+            "heading_base_size": 100
+          }
+        }
+      },
+      "block_order": [
+        "copy"
+      ],
+      "settings": {
+        "atelier_about": true,
+        "atelier_about_layout": "landscape",
+        "atelier_frame": false,
+        "atelier_heading_font": "oswald_n7",
+        "atelier_body_font": "archivo_n4",
+        "atelier_image_url": "https://aevow.myshopify.com/cdn/shop/files/mn_22_diamond_facets.png?v=1787752283&width=2200",
+        "atelier_image_alt": "Diamond facets examined under the light",
+        "atelier_accent": "#6E9BFF",
+        "image_alignment": "right",
+        "image_alignment_mobile": "left",
+        "text_position": "center",
+        "text_alignment": "start",
+        "background_color_light": "#101740",
+        "background_color_dark": "#101740",
+        "heading_color_light": "#F2F6FB",
+        "heading_color_dark": "#F2F6FB",
+        "text_color_light": "#A9C3E2",
+        "text_color_dark": "#A9C3E2",
+        "top_padding": 96,
+        "bottom_padding": 96,
+        "top_padding_mobile": 56,
+        "bottom_padding_mobile": 56
+      }
+    },
+    "promises": {
+      "type": "multicolumn",
+      "blocks": {
+        "promise_0": {
+          "type": "column",
+          "settings": {
+            "title": "Resizing",
+            "text": "<p>One complimentary resize within the first year, on any ring whose setting allows it.</p>",
+            "icon": "another_icon",
+            "custom_icon": "<svg width=\"26\" height=\"26\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.2\" aria-hidden=\"true\" focusable=\"false\"><rect x=\"2.8\" y=\"8.5\" width=\"18.4\" height=\"7\" rx=\"1.2\"></rect><path d=\"M7 8.5v3M11 8.5v4.5M15 8.5v3M19 8.5v4.5\" stroke-linecap=\"round\"></path></svg>",
+            "heading_size": 100
+          }
+        },
+        "promise_1": {
+          "type": "column",
+          "settings": {
+            "title": "Warranty",
+            "text": "<p>Manufacturing faults put right at our cost, for as long as you own the ring.</p>",
+            "icon": "another_icon",
+            "custom_icon": "<svg width=\"26\" height=\"26\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.2\" aria-hidden=\"true\" focusable=\"false\"><path d=\"M12 2.8 20 5.7v6c0 4.6-3.2 8.3-8 9.5-4.8-1.2-8-4.9-8-9.5v-6Z\" stroke-linejoin=\"round\"></path><path d=\"M8.6 12.2l2.4 2.4 4.4-5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"></path></svg>",
+            "heading_size": 100
+          }
+        },
+        "promise_2": {
+          "type": "column",
+          "settings": {
+            "title": "Delivery",
+            "text": "<p>Insured and signed for, in plain packaging that does not announce what is inside.</p>",
+            "icon": "another_icon",
+            "custom_icon": "<svg width=\"26\" height=\"26\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.2\" aria-hidden=\"true\" focusable=\"false\"><path d=\"M2.5 7h11v10h-11z\"></path><path d=\"M13.5 10.5h4l4 3.5V17h-8z\"></path><circle cx=\"7\" cy=\"18.5\" r=\"1.8\"></circle><circle cx=\"17.5\" cy=\"18.5\" r=\"1.8\"></circle></svg>",
+            "heading_size": 100
+          }
+        },
+        "promise_3": {
+          "type": "column",
+          "settings": {
+            "title": "Appointments",
+            "text": "<p>In the atelier or by video, whenever you want to see something before deciding.</p>",
+            "icon": "another_icon",
+            "custom_icon": "<svg width=\"26\" height=\"26\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.2\" aria-hidden=\"true\" focusable=\"false\"><rect x=\"3.5\" y=\"5\" width=\"17\" height=\"15.5\" rx=\"1.4\"></rect><path d=\"M3.5 9.5h17M8 3v4M16 3v4\" stroke-linecap=\"round\"></path></svg>",
+            "heading_size": 100
+          }
+        }
+      },
+      "block_order": [
+        "promise_0",
+        "promise_1",
+        "promise_2",
+        "promise_3"
+      ],
+      "settings": {
+        "atelier_services": true,
+        "atelier_about": true,
+        "atelier_eyebrow": "What you can hold us to",
+        "atelier_body_font": "archivo_n4",
+        "title": "After you have bought it",
+        "heading_tag": "h2",
+        "background_color_light": "#0B0E28",
+        "heading_light": "#F2F6FB",
+        "text_light": "#A9C3E2",
+        "color_icon_light": "#F2F6FB",
+        "icon_size": 26,
+        "padding_top": 88,
+        "padding_bottom": 88,
+        "padding_top_mobile": 52,
+        "padding_bottom_mobile": 52
+      }
+    },
+    "gallery": {
+      "type": "media-gallery",
+      "blocks": {
+        "photo_0": {
+          "type": "media",
+          "settings": {
+            "title": "Setting a stone by hand",
+            "atelier_image_url": "https://aevow.myshopify.com/cdn/shop/files/mn_26_jeweler_hands_portrait.png?v=1787752288&width=2200"
+          }
+        },
+        "photo_1": {
+          "type": "media",
+          "settings": {
+            "title": "A finished shoulder, close up",
+            "atelier_image_url": "https://aevow.myshopify.com/cdn/shop/files/mn_02_engagement_ring_macro.png?v=1787752265&width=2200"
+          }
+        },
+        "photo_2": {
+          "type": "media",
+          "settings": {
+            "title": "The bench, mid-week",
+            "atelier_image_url": "https://aevow.myshopify.com/cdn/shop/files/mn_20_jewelry_flatlay.png?v=1787752281&width=2200"
+          }
+        },
+        "photo_3": {
+          "type": "media",
+          "settings": {
+            "title": "Ready to leave",
+            "atelier_image_url": "https://aevow.myshopify.com/cdn/shop/files/mn_24_ring_box_portrait.png?v=1787752286&width=2200"
+          }
+        }
+      },
+      "block_order": [
+        "photo_0",
+        "photo_1",
+        "photo_2",
+        "photo_3"
+      ],
+      "settings": {
+        "atelier_about": true,
+        "atelier_eyebrow": "In the workshop",
+        "atelier_heading": "A few days on the bench",
+        "atelier_heading_font": "oswald_n7",
+        "atelier_body_font": "archivo_n4",
+        "atelier_background": "#070A1E",
+        "atelier_color": "#F2F6FB",
+        "atelier_soft": "#9FB9DA",
+        "padding_top": 96,
+        "padding_bottom": 96
+      }
+    },
+    "questions": {
+      "type": "faq",
+      "blocks": {
+        "question_0": {
+          "type": "frequently_asked_question",
+          "settings": {
+            "heading": "How long does a ring take?",
+            "row_content": "<p>Set the expectation your workshop can actually meet, and give a range rather than a single date. Edit this answer in the theme editor.</p>",
+            "open_by_default": false
+          }
+        },
+        "question_1": {
+          "type": "frequently_asked_question",
+          "settings": {
+            "heading": "Can I see a stone before I commit to it?",
+            "row_content": "<p>Yes — book an appointment and we will put the shortlist in front of you, in the atelier or on a video call.</p>",
+            "open_by_default": false
+          }
+        },
+        "question_2": {
+          "type": "frequently_asked_question",
+          "settings": {
+            "heading": "What if the size is wrong?",
+            "row_content": "<p>One complimentary resize in the first year on any setting that can take one. Eternity bands and some pavé shanks cannot be resized, and we will tell you which before you order.</p>",
+            "open_by_default": false
+          }
+        },
+        "question_3": {
+          "type": "frequently_asked_question",
+          "settings": {
+            "heading": "Do you work to a design I bring you?",
+            "row_content": "<p>Often. Start with an appointment and bring whatever you have — a photograph, a sketch, or a description.</p>",
+            "open_by_default": false
+          }
+        }
+      },
+      "block_order": [
+        "question_0",
+        "question_1",
+        "question_2",
+        "question_3"
+      ],
+      "settings": {
+        "atelier_about": true,
+        "atelier_eyebrow": "Before you ask",
+        "atelier_heading": "Questions",
+        "atelier_heading_font": "oswald_n7",
+        "atelier_body_font": "archivo_n4",
+        "atelier_background": "#0B0E28",
+        "atelier_color": "#F2F6FB",
+        "atelier_soft": "#A9C3E2",
+        "padding_top": 96,
+        "padding_bottom": 96,
+        "enable_microdata_schema": true
+      }
+    },
+    "invitation": {
+      "type": "atelier-consultation",
+      "blocks": {
+        "copy": {
+          "type": "heading",
+          "settings": {
+            "subheading": "Come and see",
+            "heading": "Bring an idea, or nothing at all",
+            "text": "<p>Most people arrive with nothing at all. An appointment is a conversation, not a commitment — we will show you stones, put settings on your hand, and you can go away and think about it.</p>",
+            "heading_tag": "h2",
+            "heading_base_size": 100
+          }
+        },
+        "contact": {
+          "type": "button",
+          "settings": {
+            "button_label": "Talk to us",
+            "button_link": "/pages/contact",
+            "show_button_style": "primary"
+          }
+        },
+        "design": {
+          "type": "button",
+          "settings": {
+            "button_label": "Design your ring",
+            "button_link": "/pages/design-your-ring",
+            "show_button_style": "secondary"
+          }
+        }
+      },
+      "block_order": [
+        "copy",
+        "contact",
+        "design"
+      ],
+      "settings": {
+        "atelier_about": true,
+        "atelier_about_layout": "invitation",
+        "atelier_frame": false,
+        "atelier_heading_font": "oswald_n7",
+        "atelier_body_font": "archivo_n4",
+        "atelier_image_url": "https://aevow.myshopify.com/cdn/shop/files/mn_17_ring_on_hand_portrait.png?v=1787752278&width=2200",
+        "atelier_image_alt": "A solitaire ring worn on a hand",
+        "atelier_accent": "#6E9BFF",
+        "image_alignment": "right",
+        "image_alignment_mobile": "left",
+        "text_position": "center",
+        "text_alignment": "start",
+        "background_color_light": "#E9F2FA",
+        "background_color_dark": "#E9F2FA",
+        "heading_color_light": "#0B0E28",
+        "heading_color_dark": "#0B0E28",
+        "text_color_light": "#3A4B66",
+        "text_color_dark": "#3A4B66",
+        "top_padding": 96,
+        "bottom_padding": 96,
+        "top_padding_mobile": 56,
+        "bottom_padding_mobile": 56
+      }
+    },
+    "newsletter": {
+      "type": "newsletter",
+      "blocks": {
+        "copy": {
+          "type": "heading",
+          "settings": {
+            "heading": "Letters from the atelier",
+            "heading_tag": "h2",
+            "heading_size": 100,
+            "text": "<p>Occasional notes on new work, and the stories behind it. No more than once a month.</p>"
+          }
+        },
+        "signup": {
+          "type": "email_form",
+          "settings": {
+            "button_label": "Subscribe"
+          }
+        }
+      },
+      "block_order": [
+        "copy",
+        "signup"
+      ],
+      "settings": {
+        "atelier_newsletter": true,
+        "atelier_about": true,
+        "atelier_eyebrow": "Correspondence",
+        "atelier_heading_font": "oswald_n7",
+        "atelier_body_font": "archivo_n4",
+        "atelier_privacy_note": "We write rarely, and never share your address.",
+        "background_color_light": "#0B0E28",
+        "heading_light": "#F2F6FB",
+        "text_light": "#F2F6FB",
+        "padding_top": 88,
+        "padding_bottom": 88,
+        "padding_top_mobile": 88,
+        "padding_bottom_mobile": 88
       }
     }
   },
-  "order": ["main"]
+  "order": [
+    "main",
+    "statement",
+    "atelier",
+    "process",
+    "stone",
+    "materials",
+    "certification",
+    "promises",
+    "gallery",
+    "questions",
+    "invitation",
+    "newsletter"
+  ]
 }

@@ -1,0 +1,10 @@
+{% render 'atelier-about-style', section: section %}
+<div id="atelier-about-{{ section.id }}" class="atelier-about atelier-about--statement">
+  <div class="atelier-about__page">
+    <div class="atelier-about__statement">
+      <div class="atelier-about__rule" aria-hidden="true"></div>
+      <p class="atelier-about__statement-line">{{ section.settings.atelier_heading | escape }}</p>
+      {% if section.settings.atelier_text != blank %}<div class="atelier-about__support atelier-about__rte">{{ section.settings.atelier_text }}</div>{% endif %}
+    </div>
+  </div>
+</div>

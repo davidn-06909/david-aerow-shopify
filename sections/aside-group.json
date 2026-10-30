@@ -300,7 +300,7 @@
           "type": "buy_buttons",
           "settings": {
             "show_button_style": "secondary",
-            "show_dynamic_checkout": true,
+            "show_dynamic_checkout": false,
             "show_add_to_cart": true,
             "show_price": true,
             "preorder_button_label": "",
@@ -482,6 +482,7 @@
         "enable_mobile": true,
         "default_style_mobile": "minimal",
         "minimal_title": "Write your store's popup content",
+        "show_on_about_page": false,
         "minimal_subtitle": ""
       }
     },

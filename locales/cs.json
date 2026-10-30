@@ -37,6 +37,9 @@
     "payment_methods": "Accepted payment methods"
   },
   "general": {
+    "atelier_quick_view": {
+      "load_error": "We couldn't load this preview. Please view the full product details."
+    },
     "atelier_header": {
       "open_menu": "Open menu",
       "close_menu": "Close menu",

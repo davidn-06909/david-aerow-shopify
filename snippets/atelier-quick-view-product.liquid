@@ -1,0 +1,158 @@
+{% liquid
+  assign current_variant = product.selected_or_first_available_variant
+  assign product_form_id = 'product-form-' | append: section.id
+  assign price_block = section.blocks | where: 'type', 'price' | first
+  assign variant_block = section.blocks | where: 'type', 'variant_picker' | first
+  assign quantity_block = section.blocks | where: 'type', 'quantity_selector' | first
+  assign buy_block = section.blocks | where: 'type', 'buy_buttons' | first
+  assign description_block = section.blocks | where: 'type', 'description' | first
+  assign details_block = section.blocks | where: 'type', 'view_detail' | first
+  assign gift_recipient = false
+  if buy_block.settings.show_gift_card_recipient and product.gift_card?
+    assign gift_recipient = true
+  endif
+%}
+<div class="atelier-qv" x-data="xAtelierQuickViewProduct" data-product-url="{{ product.url }}">
+  <s-view-event id="QuickViewProductViewEvent" view-event-trigger="manual" view-event-payload='{{ product | standard_event_data: "view", context: "dialog" | escape }}'></s-view-event>
+  <script type="application/json" data-qv-product>
+    {
+      "selectedId": {{ current_variant.id | json }},
+      "variants": [{% for variant in product.variants %}{
+        "id": {{ variant.id | json }}, "options": {{ variant.options | json }},
+        "available": {{ variant.available | json }}, "price": {{ variant.price | money | json }},
+        "comparePrice": {{ variant.compare_at_price | money | json }},
+        "onSale": {% if variant.compare_at_price > variant.price %}true{% else %}false{% endif %},
+        "mediaId": {{ variant.featured_media.id | json }},
+        "minimum": {{ variant.quantity_rule.min | default: 1 }}, "increment": {{ variant.quantity_rule.increment | default: 1 }},
+        "maximum": {{ variant.quantity_rule.max | json }}, "raw": {{ variant | json }}
+      }{% unless forloop.last %},{% endunless %}{% endfor %}],
+      "strings": {
+        "add": {{ 'products.product.add_to_cart' | t | json }},
+        "soldOut": {{ 'products.product.sold_out' | t | json }},
+        "unavailable": {{ 'products.product.unavailable' | t | json }}
+      }
+    }
+  </script>
+  <script type="application/json" data-selected-variant x-text="JSON.stringify(variant?.raw || null)">{{ current_variant | json }}</script>
+  <div class="atelier-qv__media">
+    <div class="atelier-qv__stage" data-qv-stage tabindex="0" role="region" aria-label="{{ 'products.modal.label' | t }}" @keydown.right.prevent="showMedia(activeMedia + 1)" @keydown.left.prevent="showMedia(activeMedia - 1)" @pointerdown="startSwipe($event)" @pointerup="endSwipe($event)">
+      {% for media in product.media %}
+        {% liquid
+          assign image_loading = 'lazy'
+          if forloop.first
+            assign image_loading = 'eager'
+          endif
+          assign media_alt = media.alt | default: product.title
+        %}
+        <div class="atelier-qv__frame" data-qv-media-id="{{ media.id }}" x-show="activeMedia === {{ forloop.index0 }}" {% unless forloop.first %}x-cloak{% endunless %}>
+          {% case media.media_type %}
+            {% when 'image' %}
+              {{ media | image_url: width: 1400 | image_tag: widths: '320, 480, 640, 800, 1000, 1400', sizes: '(min-width: 1060px) 500px, (min-width: 750px) 48vw, 95vw', loading: image_loading, alt: media_alt }}
+            {% when 'video' %}
+              {{ media | video_tag: image_size: '1000x', controls: true, preload: 'none', playsinline: true }}
+            {% when 'external_video' %}
+              {{ media | external_video_tag: loading: 'lazy' }}
+            {% when 'model' %}
+              {{ media | model_viewer_tag: image_size: '1000x', reveal: 'interaction', toggleable: true }}
+          {% endcase %}
+        </div>
+      {% else %}
+        {{ 'product-1' | placeholder_svg_tag: 'atelier-qv__placeholder' }}
+      {% endfor %}
+    </div>
+    {% if product.media.size > 1 %}
+      <div class="atelier-qv__thumbs" role="group" aria-label="{{ 'products.modal.label' | t }}">
+        {% for media in product.media %}
+          <button type="button" class="atelier-qv__thumb" data-qv-thumb="{{ forloop.index0 }}" :aria-pressed="activeMedia === {{ forloop.index0 }}" @click="showMedia({{ forloop.index0 }})" aria-label="{{ 'atelier_product.show_image' | t: number: forloop.index | escape }}">
+            {{ media.preview_image | image_url: width: 160 | image_tag: width: 60, height: 75, loading: 'lazy', alt: '' }}
+            {% unless media.media_type == 'image' %}<span class="atelier-qv__media-type" aria-hidden="true">{% if media.media_type == 'model' %}3D{% else %}&#9654;{% endif %}</span>{% endunless %}
+          </button>
+        {% endfor %}
+      </div>
+    {% endif %}
+  </div>
+  <div class="atelier-qv__body product-info" x-data="xProductCart('', '')" data-cart-error="{{ 'sections.cart.cart_error' | t | escape }}" @submit="if ($event.target.matches('[data-qv-form]')) { $event.preventDefault(); if (!loading) { errorMessage = false; normalizeQuantity(); addToCart($event, true, true); } }" @eurus:product:add-failed.document="if (loading) { errorMessage = true; $refs.error_message.textContent = typeof $event.detail.errorMessage === 'string' ? $event.detail.errorMessage : $el.dataset.cartError; }">
+    {% if section.settings.show_vendor and product.vendor != blank %}<p class="atelier-qv__vendor">{{ product.vendor | escape }}</p>{% endif %}
+    <h2 class="atelier-qv__title{% unless section.settings.show_product_name %} sr-only{% endunless %}" id="AtelierQuickViewTitle">{{ product.title | escape }}</h2>
+    {% if price_block %}
+      <div class="atelier-qv__price" aria-live="polite" aria-atomic="true" {{ price_block.shopify_attributes }}>
+        <span x-html="variant?.price || strings.unavailable">{{ current_variant.price | money }}</span>
+        <s x-show="variant?.onSale" x-html="variant?.comparePrice" x-cloak></s>
+      </div>
+      {% if price_block.settings.show_tax_and_shipping %}<p class="atelier-qv__tax">{% if cart.taxes_included %}{{ 'products.product.include_taxes' | t }} {% endif %}{{ 'atelier_product.shipping_at_checkout' | t }}</p>{% endif %}
+    {% endif %}
+    {% if variant_block and product.has_only_default_variant == false %}
+      <div class="atelier-qv__options" {{ variant_block.shopify_attributes }}>
+        {% for option in product.options_with_values %}
+          {% liquid
+            assign option_index = forloop.index0
+            assign option_name = option.name | downcase
+          %}
+          <fieldset class="atelier-qv__option">
+            <legend><span>{{ option.name | escape }}</span> <span class="atelier-qv__selected" x-text="selected[{{ option_index }}]">{{ option.selected_value | escape }}</span></legend>
+            <div class="atelier-qv__values">
+              {% for value in option.values %}
+                {% liquid
+                  assign value_label = value.name | default: value
+                  assign value_key = value_label | downcase
+                  assign swatch_color = value.swatch.color | default: '#c9cacb'
+                  if value_key contains 'yellow'
+                    assign swatch_color = '#c7ad86'
+                  elsif value_key contains 'rose'
+                    assign swatch_color = '#b98c84'
+                  elsif value_key contains 'platinum'
+                    assign swatch_color = '#d5d6d7'
+                  endif
+                  assign option_id = 'qv-' | append: section.id | append: '-' | append: option.position | append: '-' | append: forloop.index
+                %}
+                <div class="atelier-qv__choice">
+                  <input class="atelier-qv__radio" id="{{ option_id }}" type="radio" name="qv-option-{{ option.position }}" value="{{ value_label | escape }}" data-qv-option="{{ option_index }}" {% if option.selected_value == value_label %}checked{% endif %} @change="selectOption({{ option_index }}, $el.value)" :aria-label="$el.value + (optionAvailability({{ option_index }}, $el.value) === 'sold-out' ? ' — ' + strings.soldOut : optionAvailability({{ option_index }}, $el.value) === 'unavailable' ? ' — ' + strings.unavailable : '')">
+                  <label for="{{ option_id }}" class="atelier-qv__option-label{% if option_name == 'metal' %} atelier-qv__option-label--metal{% endif %}" :class="optionAvailability({{ option_index }}, $el.previousElementSibling.value)">
+                    {% if option_name == 'metal' %}<span class="atelier-qv__swatch" style="--swatch-color: {{ swatch_color }};" aria-hidden="true"></span>{% endif %}<span>{{ value_label | escape }}</span>
+                  </label>
+                </div>
+              {% endfor %}
+            </div>
+          </fieldset>
+        {% endfor %}
+      </div>
+    {% endif %}
+    {% if buy_block and settings.hide_cart == false %}
+      <div class="atelier-qv__purchase" {{ buy_block.shopify_attributes }}>
+        {% form 'product', product, id: product_form_id, class: 'atelier-qv__form', x-ref: 'product_form', data-qv-form: '' %}
+          <input type="hidden" name="id" :value="variant?.id || ''" value="{{ current_variant.id }}" :disabled="!variant?.available">
+          <input type="hidden" name="product-id" value="{{ product.id }}">
+          {% if gift_recipient %}{% render 'gift-card-recipient', product: product, form: form, section: section, product_form_id: product_form_id %}{% endif %}
+          {% if product.selling_plan_groups.size > 0 %}
+            <label for="QuickViewPlan">{{ 'atelier_product.purchase_option' | t }}</label>
+            <select name="selling_plan" id="QuickViewPlan">
+              {% unless product.requires_selling_plan %}<option value="">{{ 'atelier_product.one_time_purchase' | t }}</option>{% endunless %}
+              {% for group in product.selling_plan_groups %}{% for plan in group.selling_plans %}<option value="{{ plan.id }}">{{ plan.name | escape }}</option>{% endfor %}{% endfor %}
+            </select>
+          {% endif %}
+          <div class="atelier-qv__buy">
+            {% if quantity_block %}
+              <div class="atelier-qv__quantity" {{ quantity_block.shopify_attributes }}>
+                <button type="button" @click="stepQuantity(-1)" :disabled="quantity <= (variant?.minimum || 1)" aria-label="{{ 'products.product.quantity.decrease' | t: product: product.title | escape }}">&#8722;</button>
+                <label class="sr-only" for="QuickViewQuantity">{{ 'products.product.quantity.label' | t }}</label>
+                <input id="QuickViewQuantity" type="number" name="quantity" x-model.number="quantity" @change="normalizeQuantity($el.value); $el.value = quantity" :min="variant?.minimum || 1" :step="variant?.increment || 1" :max="variant?.maximum || null" value="{{ current_variant.quantity_rule.min | default: 1 }}" min="{{ current_variant.quantity_rule.min | default: 1 }}" step="{{ current_variant.quantity_rule.increment | default: 1 }}" inputmode="numeric">
+                <button type="button" @click="stepQuantity(1)" :disabled="variant?.maximum && quantity >= variant.maximum" aria-label="{{ 'products.product.quantity.increase' | t: product: product.title | escape }}">+</button>
+              </div>
+            {% else %}<input type="hidden" name="quantity" :value="quantity" value="{{ current_variant.quantity_rule.min | default: 1 }}">{% endif %}
+            {% if buy_block.settings.show_add_to_cart %}
+              <button type="submit" class="atelier-quick-view__button atelier-qv__add add_to_cart_button" :disabled="loading || !variant?.available || bundleDisabled" :aria-busy="loading" :data-available="Boolean(variant?.available)" data-available="{{ current_variant.available }}" {% unless current_variant.available %}disabled{% endunless %}>
+                <span class="x-atc-text" x-text="purchaseLabel">{% if current_variant.available %}{{ 'products.product.add_to_cart' | t }}{% else %}{{ 'products.product.sold_out' | t }}{% endif %}</span>
+                <span class="atelier-quick-view__spinner" x-show="loading" x-cloak aria-hidden="true"></span>
+              </button>
+            {% endif %}
+          </div>
+          {% if buy_block.settings.show_dynamic_checkout and gift_recipient == false %}<div class="atelier-qv__dynamic" x-show="variant?.available">{{ form | payment_button }}</div>{% endif %}
+          <p class="atelier-qv__error" x-ref="error_message" x-show="errorMessage" x-cloak role="alert"></p>
+          {{ form.errors | default_errors }}
+        {% endform %}
+      </div>
+    {% endif %}
+    {% if description_block and product.description != blank %}<div class="atelier-qv__description" {{ description_block.shopify_attributes }}>{{ product.description | replace: '</p>', ' ' | replace: '<br>', ' ' | replace: '<br/>', ' ' | strip_html | strip | truncatewords: 60 }}</div>{% endif %}
+    {% if details_block %}<a class="atelier-quick-view__button atelier-qv__details x-block-view-detail" :href="productLink" href="{{ product.url }}?variant={{ current_variant.id }}" {{ details_block.shopify_attributes }}>{{ 'products.product.view_full_details' | t }}</a>{% endif %}
+  </div>
+</div>

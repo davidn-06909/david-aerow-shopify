@@ -9,6 +9,8 @@ requestAnimationFrame(() => {
       atc_btn_image_desktop: window.xQuickView.atc_btn_image_desktop,
       show: false,
       loading: false,
+      error: false,
+      productUrl: '',
       currentVariant: '',
       cachedResults: [],
       cachedfetch: [],
@@ -64,6 +66,8 @@ requestAnimationFrame(() => {
         });
       },
       addListener() {
+        if (this.listenersAdded) return;
+        this.listenersAdded = true;
         document.addEventListener('eurus:cart:items-changed', () => {
           this.cachedResults = [];
         });
@@ -76,54 +80,40 @@ requestAnimationFrame(() => {
         this.buttonLabel = textBtn;
         this.show_atc_button = showATCButton;
       },
-      load(url, el, optionId) {
+      async load(url, el, optionId) {
         this.loading = true;
-
-        requestAnimationFrame(() => {
-          setTimeout(() => { 
-            if (this.buttonQuickView == '') {
-              this.buttonQuickView = el;
-            }
-            let variant = document.getElementById('current-variant-' + optionId)?.innerText;
-            let productUrl = variant?`${url}?variant=${variant}&section_id=${this.sectionId}`:`${url}?section_id=${this.sectionId}`;
-            productUrl = productUrl.replace(/\s+/g, '');
-            
-            if (this.cachedResults[productUrl]) {
-              document.getElementById('quickview-product-content').innerHTML = this.cachedResults[productUrl];
-              this.loading = false;
-              this.applyBundleLabel();
-              return true;
-            }
-            
-            if (this.cachedfetch[productUrl]) {
-              return true;
-            }
-
-            this.cachedfetch[productUrl] = true;
-            fetch(productUrl)
-              .then(reponse => {
-                return reponse.text();
-              })
-              .then((response) => {
-                const parser = new DOMParser();
-                const content = parser.parseFromString(response,'text/html').getElementById("quickview-product-content").innerHTML;
-                document.getElementById('quickview-product-content').innerHTML = content;
-                this.cachedResults[productUrl] = content;
-                this.applyBundleLabel();
-                document.dispatchEvent(new CustomEvent("eurus:quickview:loaded", {
-                  detail: {
-                    productUrl: url
-                  }
-                }));
-              })
-              .finally(() => {
-                this.loading = false;
-                this.cachedfetch[productUrl] = false;
-              })
-
-            return true;
-          }, 0)
-        });
+        this.error = false;
+        this.buttonQuickView = el;
+        this.productUrl = url;
+        this.requestId = (this.requestId || 0) + 1;
+        const requestId = this.requestId;
+        this.fetchController?.abort();
+        this.fetchController = new AbortController();
+        const variant = document.getElementById('current-variant-' + optionId)?.innerText.trim();
+        const productUrl = new URL(url, location.origin);
+        if (variant) productUrl.searchParams.set('variant', variant);
+        productUrl.searchParams.set('section_id', this.sectionId);
+        const key = productUrl.href;
+        try {
+          let content = this.cachedResults[key];
+          if (!content) {
+            const response = await fetch(productUrl, { signal: this.fetchController.signal });
+            if (!response.ok) throw new Error('Quick view request failed');
+            const html = new DOMParser().parseFromString(await response.text(), 'text/html');
+            const product = html.getElementById('quickview-product-content');
+            if (!product?.querySelector('[data-qv-product]')) throw new Error('Quick view product is missing');
+            content = product.innerHTML;
+            this.cachedResults[key] = content;
+          }
+          if (requestId !== this.requestId) return;
+          document.getElementById('quickview-product-content').innerHTML = content;
+          this.applyBundleLabel();
+          document.dispatchEvent(new CustomEvent('eurus:quickview:loaded', { detail: { productUrl: url } }));
+        } catch (error) {
+          if (error.name !== 'AbortError' && requestId === this.requestId) this.error = true;
+        } finally {
+          if (requestId === this.requestId) this.loading = false;
+        }
       },
       async loadChooseOptions(url, el, optionId, index) {
         setTimeout(async () => { 
@@ -265,7 +255,15 @@ requestAnimationFrame(() => {
       },
       close() {
         this.show = false;
+        const trigger = this.buttonQuickView;
         this.buttonQuickView = '';
+        this.fetchController?.abort();
+        this.requestId = (this.requestId || 0) + 1;
+        this.loading = false;
+        document.documentElement.classList.remove('atelier-quick-view-open');
+        requestAnimationFrame(() => {
+          if (!this.show && !Alpine.store('xMiniCart')?.open && trigger?.isConnected) trigger.focus({ preventScroll: true });
+        });
         clearTimeout(this.resetOptionsTimeout);
         this.resetOptionsTimeout = setTimeout(() => {
           this.hideViewDetail = false;
@@ -282,7 +280,7 @@ requestAnimationFrame(() => {
         }
       },
       focusQuickView(quickView, btnClose) {
-        if ( !this.selected ) { 
+        if ( !this.selected && !document.querySelector('#QuickView dialog') ) {
           Alpine.store('xFocusElement').trapFocus(quickView, btnClose);
         }
       },

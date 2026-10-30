@@ -1,0 +1,9 @@
+{% if section.settings.atelier_eyebrow != blank %}
+  <p class="atelier-about__eyebrow">{{ section.settings.atelier_eyebrow | escape }}</p>
+{% endif %}
+{% if section.settings.atelier_heading != blank %}
+  <h2 class="atelier-about__title">{{ section.settings.atelier_heading | escape }}</h2>
+{% endif %}
+{% if section.settings.atelier_text != blank %}
+  <div class="atelier-about__intro atelier-about__rte">{{ section.settings.atelier_text }}</div>
+{% endif %}

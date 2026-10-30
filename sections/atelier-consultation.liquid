@@ -13,6 +13,9 @@
     ]
   },
   "settings": [
+    {"type":"select","id":"atelier_about_layout","label":"t:sections.atelier_about.image_layout","default":"portrait","options":[{"value":"portrait","label":"t:sections.atelier_media_story.portrait"},{"value":"landscape","label":"t:sections.atelier_media_story.landscape"},{"value":"invitation","label":"t:sections.atelier_about.invitation"}]},
+    {"type":"checkbox","id":"atelier_frame","label":"t:sections.atelier_about.frame","default":false},
+    {"id":"atelier_about","type":"checkbox","default":false,"label":"t:sections.atelier_about.enable"},
     {
       "type": "paragraph",
       "content": "t:sections.atelier_consultation.info"
@@ -338,7 +341,7 @@
     {
       "type": "button",
       "name": "t:settings_schema.colors.colors_button",
-      "limit": 1,
+      "limit": 2,
       "settings": [
         {
           "type": "text",
