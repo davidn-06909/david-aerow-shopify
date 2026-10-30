@@ -232,9 +232,13 @@ const getSectionInnerHTML = (html, selector = '.shopify-section') => {
 }
 
 const xParseJSON = (jsonString) => {
-  jsonString = String.raw`${jsonString}`;
-  jsonString = jsonString.replaceAll("\\","\\\\").replaceAll('\\"', '\"');
-  return JSON.parse(jsonString);
+  try {
+    return JSON.parse(jsonString);
+  } catch {
+    // Older data attributes contain unescaped backslashes, including regular expressions.
+    const legacyJSON = String(jsonString).replaceAll("\\", "\\\\").replaceAll('\\"', '\"');
+    return JSON.parse(legacyJSON);
+  }
 }
 
 window.addEventListener("pageshow", () => {
