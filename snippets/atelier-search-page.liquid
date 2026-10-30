@@ -1,0 +1,146 @@
+{%- liquid
+  assign sort_by = search.sort_by | default: search.default_sort_by
+  assign search_types = settings.search_type | remove: ',collection'
+  assign encoded_terms = search.terms | url_encode
+  assign clear_url = routes.search_url | append: '?q=' | append: encoded_terms | append: '&options%5Bprefix%5D=last&type=' | append: search_types | append: '&sort_by=' | append: sort_by
+  assign active_count = 0
+  for filter in search.filters
+    assign active_count = active_count | plus: filter.active_values.size
+    if filter.type == 'price_range'
+      if filter.min_value.value != nil or filter.max_value.value != nil
+        assign active_count = active_count | plus: 1
+      endif
+    endif
+  endfor
+-%}
+<div
+  class="atelier-work atelier-work--grid atelier-collection atelier-search-page"
+  style="--collection-columns: 3; --work-background: #0b0e28; --work-text: #f2f6fb;"
+  x-data="xAtelierCollection"
+  data-section-id="{{ section.id }}"
+  data-fixed-columns
+  data-loading-label="{{ 'sections.atelier_collection.loading' | t | escape }}"
+  @popstate.window="render(location.href, false)"
+  @resize.window.debounce.150ms="if (window.innerWidth >= 990) closeFilters()"
+>
+  <div class="atelier-search-page__head">
+    <nav class="atelier-collection__breadcrumbs" aria-label="{{ 'sections.atelier_collection.breadcrumb' | t }}">
+      <a href="{{ routes.root_url }}">{{ 'general.breadcrumbs.home' | t }}</a><span aria-hidden="true">/</span><span aria-current="page">{{ 'accessibility.search' | t }}</span>
+    </nav>
+    <h1 class="atelier-search-page__title">{% if search.performed %}{{ 'general.search_page.results_for' | t: terms: search.terms | escape_once }}{% else %}{{ 'accessibility.search' | t }}{% endif %}</h1>
+    <form class="atelier-search-page__form" action="{{ routes.search_url }}" method="get" role="search">
+      <label class="sr-only" for="SearchPageInput-{{ section.id }}">{{ 'accessibility.search' | t }}</label>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true" focusable="false"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.4 15.4 21 21" stroke-linecap="round"/></svg>
+      <input id="SearchPageInput-{{ section.id }}" class="atelier-search-page__input" type="search" name="q" value="{{ search.terms | escape }}" placeholder="{{ 'general.search_modal.placeholder' | t }}" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search">
+      <input type="hidden" name="type" value="{{ search_types | escape }}">
+      <input type="hidden" name="options[prefix]" value="last">
+      <button class="atelier-search-page__button atelier-search-page__submit" type="submit">{{ 'accessibility.search' | t }}</button>
+    </form>
+  </div>
+  {% if search.performed %}
+    {% render 'standard-events-search-update', query: search.terms, total_count: search.results_count %}
+    <div class="atelier-search-page__content">
+      <div class="atelier-collection__toolbar">
+        <div class="atelier-collection__toolbar-start">
+          {% if section.settings.enable_filtering and search.filters != empty %}
+            <button type="button" class="atelier-collection__filter-button" @click="openFilters($el)" aria-haspopup="dialog" aria-controls="CollectionFilters-{{ section.id }}" :aria-expanded="filtersOpen">
+              {% render 'atelier-header-icon', icon: 'filter' %}
+              {{ 'products.facets.filter_by_label' | t }} <span data-filter-badge{% if active_count == 0 %} hidden{% endif %}>{{ active_count }}</span>
+            </button>
+          {% endif %}
+          <p class="atelier-collection__count" data-collection-count role="status">{{ 'templates.search.results_with_count' | t: count: search.results_count }}</p>
+        </div>
+        {% if section.settings.enable_sorting %}
+          <form class="atelier-collection__sort" action="{{ routes.search_url }}" method="get" @change="submitSort($el)" @submit.prevent="submitSort($el)"{% if search.results_count == 0 %} hidden{% endif %}>
+            <input type="hidden" name="q" value="{{ search.terms | escape }}">
+            <input type="hidden" name="type" value="{{ search_types | escape }}">
+            <input type="hidden" name="options[prefix]" value="last">
+            <label class="sr-only" for="SearchSort-{{ section.id }}">{{ 'products.facets.sort_by_label' | t }}</label>
+            <select id="SearchSort-{{ section.id }}" name="sort_by">
+              {% for option in search.sort_options %}<option value="{{ option.value | escape }}"{% if option.value == sort_by %} selected{% endif %}>{{ option.name | escape }}</option>{% endfor %}
+            </select>
+            <svg width="12" height="8" viewBox="0 0 12 8" fill="none" stroke="currentColor" aria-hidden="true"><path d="m1 1 5 5 5-5"/></svg>
+            <noscript><button class="atelier-search-page__button" type="submit">{{ 'general.cart.apply' | t }}</button></noscript>
+          </form>
+        {% endif %}
+      </div>
+      <div data-collection-content :aria-busy="loading">
+        <span hidden data-search-event data-query="{{ search.terms | escape }}" data-total-count="{{ search.results_count }}"></span>
+        {% if active_count > 0 %}
+          <div class="atelier-collection__chips" aria-label="{{ 'sections.atelier_collection.selected' | t }}">
+            {% for filter in search.filters %}
+              {% for value in filter.active_values %}
+                <a class="atelier-collection__chip" href="{{ value.url_to_remove }}" @click.prevent="render($el.href)" aria-label="{{ 'sections.atelier_collection.remove_filter' | t: label: value.label | escape }}">{{ filter.label | escape }}: {{ value.label | escape }}<span aria-hidden="true">&times;</span></a>
+              {% endfor %}
+              {% if filter.type == 'price_range' %}
+                {% if filter.min_value.value != nil or filter.max_value.value != nil %}
+                  <a class="atelier-collection__chip" href="{{ filter.url_to_remove }}" @click.prevent="render($el.href)" aria-label="{{ 'sections.atelier_collection.remove_filter' | t: label: filter.label | escape }}">{{ filter.min_value.value | default: 0 | money }} &ndash; {{ filter.max_value.value | default: filter.range_max | money }}<span aria-hidden="true">&times;</span></a>
+                {% endif %}
+              {% endif %}
+            {% endfor %}
+            <a class="atelier-collection__clear" href="{{ clear_url }}" @click.prevent="render($el.href)">{{ 'templates.search.clear_all' | t }}</a>
+          </div>
+        {% endif %}
+        <div class="atelier-collection__layout{% unless section.settings.enable_filtering and search.filters != empty %} atelier-collection__layout--full{% endunless %}">
+          {% if section.settings.enable_filtering and search.filters != empty %}
+            <aside class="atelier-collection__sidebar" data-filter-home aria-label="{{ 'products.facets.filter_by_label' | t }}">
+              {% render 'atelier-collection-filters', collection: search, section_id: section.id, sort_by: sort_by, clear_url: clear_url, active_count: active_count, search_page: true %}
+            </aside>
+          {% endif %}
+          <div class="atelier-collection__products">
+            {% paginate search.results by 24 %}
+              {% if search.results_count > 0 %}
+                <ul class="atelier-collection__grid" data-collection-grid role="list">
+                  {% for item in search.results %}
+                    <li data-collection-card>
+                      {% if item.object_type == 'product' %}
+                        {% render 'card-product-atelier', card_product: item, section_id: section.id, index: forloop.index, show_rating: section.settings.show_rating, show_quickview: section.settings.show_quickview, collection_card: true %}
+                      {% else %}
+                        <article class="atelier-search-page__result">
+                          {% if item.image != blank %}<a href="{{ item.url }}" tabindex="-1" aria-hidden="true">{{ item.image | image_url: width: 800 | image_tag: loading: 'lazy', widths: '300, 500, 800', sizes: '(min-width: 990px) 33vw, 50vw', alt: item.title }}</a>{% endif %}
+                          <div>
+                            <p class="atelier-search-page__result-type">{% if item.object_type == 'article' %}{{ 'general.search_modal.journal' | t }}{% else %}{{ 'templates.search.page' | t }}{% endif %}</p>
+                            <h2><a href="{{ item.url }}">{{ item.title | escape }}</a></h2>
+                            {% if section.settings.show_description %}<p>{{ item.content | strip_html | truncatewords: 30 | escape }}</p>{% endif %}
+                          </div>
+                        </article>
+                      {% endif %}
+                    </li>
+                  {% endfor %}
+                </ul>
+              {% else %}
+                <div class="atelier-search-page__empty" role="status">
+                  <h2>{{ 'general.search_modal.no_results' | t: terms: search.terms | escape_once }}</h2>
+                  <p>{{ 'general.search_modal.no_results_help' | t }}</p>
+                  {% if active_count > 0 %}<a class="atelier-collection__clear" href="{{ clear_url }}" @click.prevent="render($el.href)">{{ 'sections.atelier_collection.reset_filters' | t }}</a>{% endif %}
+                  <a class="atelier-search-page__button atelier-search-page__button--solid" href="{{ routes.all_products_collection_url }}">{{ 'general.search_modal.browse_all' | t }}</a>
+                </div>
+              {% endif %}
+              <div class="atelier-search-page__pagination" data-collection-pagination>
+                {% if paginate.pages > 1 %}
+                  <nav aria-label="{{ 'general.pagination.label' | t }}">
+                    {% if paginate.previous %}<a href="{{ paginate.previous.url }}" aria-label="{{ 'general.pagination.previous' | t }}">&larr;</a>{% endif %}
+                    {% for part in paginate.parts %}{% if part.is_link %}<a href="{{ part.url }}">{{ part.title }}</a>{% elsif part.title == paginate.current_page %}<span aria-current="page">{{ part.title }}</span>{% else %}<span>{{ part.title }}</span>{% endif %}{% endfor %}
+                    {% if paginate.next %}<a href="{{ paginate.next.url }}" aria-label="{{ 'general.pagination.next' | t }}">&rarr;</a>{% endif %}
+                  </nav>
+                {% endif %}
+              </div>
+            {% endpaginate %}
+          </div>
+        </div>
+      </div>
+    </div>
+  {% else %}
+    <div class="atelier-search-page__prompt">
+      <p>{{ 'general.search_modal.no_results_help' | t }}</p>
+      <a class="atelier-search-page__button" href="{{ routes.all_products_collection_url }}">{{ 'general.search_modal.browse_all' | t }}</a>
+    </div>
+  {% endif %}
+  <dialog class="atelier-collection__dialog" id="CollectionFilters-{{ section.id }}" x-ref="filtersDialog" aria-labelledby="SearchFiltersTitle-{{ section.id }}" @cancel.prevent="closeFilters()" @keydown.tab="trapFilters($event)" @click="if ($event.target === $el) closeFilters()">
+    <div class="atelier-collection__drawer">
+      <header><h2 id="SearchFiltersTitle-{{ section.id }}">{{ 'products.facets.filter_and_sort' | t }}</h2><button type="button" @click="closeFilters()" aria-label="{{ 'accessibility.close' | t }}">{% render 'atelier-header-icon', icon: 'close' %}</button></header>
+      <div class="atelier-collection__drawer-body" x-ref="filtersBody"></div>
+    </div>
+  </dialog>
+</div>
+<script src="{{ 'atelier-collection.js' | asset_url }}" defer></script>

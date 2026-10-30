@@ -48,6 +48,9 @@
       "shape": "Shape",
       "back": "Back"
     },
+    "search_page": {
+      "results_for": "Výsledky pro „{{ terms }}“"
+    },
     "search_modal": {
       "placeholder": "Search the shop",
       "help": "Results appear as you type.",

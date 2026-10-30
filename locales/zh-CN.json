@@ -48,6 +48,9 @@
       "shape": "Shape",
       "back": "Back"
     },
+    "search_page": {
+      "results_for": "“{{ terms }}”的搜索结果"
+    },
     "search_modal": {
       "placeholder": "Search the shop",
       "help": "Results appear as you type.",
