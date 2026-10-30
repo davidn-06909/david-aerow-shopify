@@ -1,0 +1,29 @@
+<atelier-product-recommendations
+  class="atelier-product-recommendations"
+  data-url="{{ routes.product_recommendations_url }}?section_id={{ section.id }}&amp;product_id={{ product.id }}&amp;limit=4&amp;intent=related"
+>
+  <div class="atelier-product-recommendations__page" data-recommendations-content>
+    {% if recommendations.performed and recommendations.products_count > 0 %}
+      <h2 class="atelier-product-recommendations__heading">{{ section.settings.heading | escape }}</h2>
+      <div class="atelier-product-recommendations__grid">
+        {% for recommended_product in recommendations.products %}
+          <div data-recommendation-card>
+            {% render 'card-product-atelier', card_product: recommended_product, section_id: section.id, index: forloop.index, builder_url: section.settings.builder_url, show_quickview: false, image_sizes: '(min-width: 990px) 25vw, 50vw' %}
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  </div>
+</atelier-product-recommendations>
+{% schema %}
+{
+  "name": "t:atelier_product.recommendations",
+  "tag": "section",
+  "enabled_on": { "templates": ["product"] },
+  "settings": [
+    { "type": "text", "id": "heading", "label": "t:atelier_product.heading", "default": "t:atelier_product.recommendations_default" },
+    { "type": "url", "id": "builder_url", "label": "t:atelier_product.builder_url" }
+  ],
+  "presets": [{ "name": "t:atelier_product.recommendations" }]
+}
+{% endschema %}

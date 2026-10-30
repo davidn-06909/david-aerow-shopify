@@ -1,0 +1,258 @@
+{% comment %}Atelier PDP. The existing Eurus product form owns cart submission.{% endcomment %}
+{% liquid
+  assign current_variant = product.selected_or_first_available_variant
+  assign product_form_id = 'product-form-' | append: section.id
+  assign first_media = current_variant.featured_media | default: product.featured_media
+  assign metal_option_index = nil
+  for option in product.options_with_values
+    assign option_name = option.name | downcase
+    if option_name == 'metal'
+      assign metal_option_index = forloop.index0
+    endif
+  endfor
+%}
+<div class="atelier-product main-product" id="AtelierProduct-{{ section.id }}" x-data="xAtelierProduct" data-product-url="{{ product.url }}" data-section-id="{{ section.id }}">
+  <script type="application/json" data-atelier-product-data>
+    {
+      "selectedId": {{ current_variant.id | json }},
+      "variants": [{% for variant in product.variants %}{
+        "id": {{ variant.id | json }}, "options": {{ variant.options | json }},
+        "available": {{ variant.available | json }}, "sku": {{ variant.sku | json }},
+        "price": {{ variant.price | money | json }}, "comparePrice": {{ variant.compare_at_price | money | json }},
+        "onSale": {% if variant.compare_at_price > variant.price %}true{% else %}false{% endif %},
+        "mediaId": {{ variant.featured_media.id | json }},
+        "minimum": {{ variant.quantity_rule.min | default: 1 }},
+        "increment": {{ variant.quantity_rule.increment | default: 1 }},
+        "maximum": {{ variant.quantity_rule.max | json }}
+      }{% unless forloop.last %},{% endunless %}{% endfor %}],
+      "strings": {
+        "add": {{ 'products.product.add_to_cart' | t | json }},
+        "soldOut": {{ 'products.product.sold_out' | t | json }},
+        "unavailable": {{ 'products.product.unavailable' | t | json }},
+        "engravingRequired": {{ 'atelier_product.engraving_required' | t | json }},
+        "charactersLeft": {{ 'atelier_product.characters_left' | t: count: '[count]' | json }},
+        "copied": {{ 'atelier_product.link_copied' | t | json }}
+      }
+    }
+  </script>
+  <div class="atelier-product__page">
+    {% if section.settings.show_breadcrumbs %}
+      <nav class="atelier-product__crumbs" aria-label="{{ 'accessibility.breadcrumb' | t }}">
+        <a href="{{ routes.root_url }}">{{ 'general.breadcrumbs.home' | t }}</a><span aria-hidden="true">/</span><span aria-current="page">{{ product.title | escape }}</span>
+      </nav>
+    {% endif %}
+    <div class="atelier-product__media" aria-label="{{ 'products.modal.label' | t }}">
+      <div class="atelier-product__stage" data-media-stage tabindex="0" aria-label="{{ 'atelier_product.gallery_help' | t }}" @keydown.right.prevent="showMedia(activeMedia + 1)" @keydown.left.prevent="showMedia(activeMedia - 1)">
+        {% for media in product.media %}
+          {% liquid
+            assign media_loading = 'lazy'
+            assign media_priority = 'auto'
+            if forloop.first
+              assign media_loading = 'eager'
+              assign media_priority = 'high'
+            endif
+            assign media_alt = media.alt | default: product.title
+            if media.alt == blank or media.alt == product.title
+              if metal_option_index != nil
+                for media_variant in product.variants
+                  if media_variant.featured_media.id == media.id
+                    assign media_alt = 'atelier_product.media_caption' | t: product: product.title, metal: media_variant.options[metal_option_index]
+                    break
+                  endif
+                endfor
+              endif
+            endif
+          %}
+          <figure class="atelier-product__frame" data-media-id="{{ media.id }}" data-media-caption="{{ media_alt | escape }}">
+            {% case media.media_type %}
+              {% when 'image' %}
+                <a href="{{ media | image_url: width: 2400 }}" class="atelier-product__image-link" @click.prevent="openZoom({{ forloop.index0 }}, $el)" aria-label="{{ 'atelier_product.open_image' | t: number: forloop.index | escape }}" aria-haspopup="dialog">
+                  {{ media | image_url: width: 2000 | image_tag: widths: '320, 480, 640, 800, 1000, 1200, 1600, 2000', sizes: '(min-width: 1720px) 1062px, (min-width: 990px) 64vw, 86vw', loading: media_loading, fetchpriority: media_priority, alt: media_alt }}
+                </a>
+              {% when 'video' %}
+                {{ media | video_tag: image_size: '1200x', controls: true, preload: 'none', playsinline: true }}
+              {% when 'external_video' %}
+                {{ media | external_video_tag: loading: 'lazy' }}
+              {% when 'model' %}
+                {{ media | model_viewer_tag: image_size: '1200x', reveal: 'interaction', toggleable: true }}
+            {% endcase %}
+          </figure>
+        {% else %}
+          <div class="atelier-product__placeholder">{{ 'product-1' | placeholder_svg_tag }}</div>
+        {% endfor %}
+      </div>
+    </div>
+    <div
+      class="atelier-product__details product-info"
+      x-data="xProductCart('', '')"
+      data-cart-error="{{ 'sections.cart.cart_error' | t | escape }}"
+      @submit="if ($event.target.matches('[data-atelier-form]')) { $event.preventDefault(); if (!loading && validatePurchase()) { errorMessage = false; addToCart($event, false, false); } }"
+      @eurus:product:add-failed.document="if (loading) { errorMessage = true; $refs.error_message.textContent = typeof $event.detail.errorMessage === 'string' ? $event.detail.errorMessage : $el.dataset.cartError; }"
+    >
+      <div class="atelier-product__details-inner">
+        {% for block in section.blocks %}
+          <div class="atelier-product__block atelier-product__block--{{ block.type }}" {{ block.shopify_attributes }}>
+            {% case block.type %}
+              {% when '@app' %}
+                {% render block %}
+              {% when 'product_name' %}
+                <h1 class="atelier-product__title">{{ product.title | escape }}</h1>
+              {% when 'price' %}
+                <div class="atelier-product__price" aria-live="polite" aria-atomic="true">
+                  <span x-html="variant ? variant.price : strings.unavailable">{{ current_variant.price | money }}</span>
+                  <s x-cloak x-show="variant?.onSale" x-html="variant?.comparePrice"></s>
+                </div>
+                <p class="atelier-product__tax">{% if cart.taxes_included %}{{ 'products.product.include_taxes' | t }} {% endif %}{{ 'atelier_product.shipping_at_checkout' | t }}</p>
+              {% when 'atelier_media_index' %}
+                {% if product.media.size > 0 %}
+                  <div class="atelier-product__index">
+                    <div class="atelier-product__index-head">
+                      <p><span x-text="String(activeMedia + 1).padStart(2, '0')">01</span><span class="atelier-product__index-total"> / {{ product.media.size | prepend: '0' | slice: -2, 2 }}</span></p>
+                      <div class="atelier-product__markers" role="group" aria-label="{{ 'products.modal.label' | t }}">
+                        {% for media in product.media %}
+                          <button type="button" class="atelier-product__marker" :class="{ 'is-current': activeMedia === {{ forloop.index0 }} }" :aria-pressed="activeMedia === {{ forloop.index0 }}" @click="showMedia({{ forloop.index0 }})" aria-label="{{ 'atelier_product.show_image' | t: number: forloop.index | escape }}"></button>
+                        {% endfor %}
+                      </div>
+                    </div>
+                    <p class="atelier-product__caption" x-text="mediaCaption" aria-live="polite">{{ first_media.alt | default: product.title | escape }}</p>
+                  </div>
+                {% endif %}
+              {% when 'variant_picker' %}
+                {% unless product.has_only_default_variant %}
+                  <div class="atelier-product__options">
+                    {% for option in product.options_with_values %}
+                      {% liquid
+                        assign option_index = forloop.index0
+                        assign option_name = option.name | downcase
+                      %}
+                      <fieldset class="atelier-product__option">
+                        <legend><span>{{ option.name | escape }}</span> <span class="atelier-product__selected" x-text="selected[{{ option_index }}]">{{ option.selected_value | escape }}</span></legend>
+                        <div class="atelier-product__values">
+                          {% for value in option.values %}
+                            {% liquid
+                              assign value_label = value.name | default: value
+                              assign value_key = value_label | downcase
+                              assign swatch_color = value.swatch.color | default: '#c9cacb'
+                              if value_key contains 'yellow'
+                                assign swatch_color = '#c7ad86'
+                              elsif value_key contains 'rose'
+                                assign swatch_color = '#b98c84'
+                              elsif value_key contains 'platinum'
+                                assign swatch_color = '#d5d6d7'
+                              endif
+                              assign option_id = section.id | append: '-option-' | append: option.position | append: '-' | append: forloop.index
+                            %}
+                            <div class="atelier-product__choice">
+                              <input class="atelier-product__radio" id="{{ option_id }}" type="radio" name="atelier-option-{{ section.id }}-{{ option.position }}" value="{{ value_label | escape }}" data-option-index="{{ option_index }}" {% if option.selected_value == value_label %}checked{% endif %} @change="selectOption({{ option_index }}, $el.value)" :aria-label="$el.value + (optionAvailability({{ option_index }}, $el.value) === 'sold-out' ? ' — ' + strings.soldOut : optionAvailability({{ option_index }}, $el.value) === 'unavailable' ? ' — ' + strings.unavailable : '')">
+                              <label for="{{ option_id }}" class="atelier-product__option-label{% if option_name == 'metal' %} atelier-product__option-label--metal{% endif %}" :class="optionAvailability({{ option_index }}, $el.previousElementSibling.value)">
+                                {% if option_name == 'metal' %}<span class="atelier-product__swatch" style="--swatch-color: {{ swatch_color }};" aria-hidden="true"></span>{% endif %}
+                                <span>{{ value_label | escape }}</span>
+                              </label>
+                            </div>
+                          {% endfor %}
+                        </div>
+                      </fieldset>
+                    {% endfor %}
+                  </div>
+                {% endunless %}
+              {% when 'quantity_selector' %}
+                <label class="atelier-product__label" for="AtelierQuantity-{{ section.id }}">{{ 'products.product.quantity.label' | t }}</label>
+                <div class="atelier-product__quantity">
+                  <button type="button" @click="stepQuantity(-1)" :disabled="quantity <= (variant?.minimum || 1)" aria-label="{{ 'products.product.quantity.decrease' | t: product: product.title | escape }}">−</button>
+                  <input id="AtelierQuantity-{{ section.id }}" type="number" name="quantity" form="{{ product_form_id }}" x-model.number="quantity" :min="variant?.minimum || 1" :step="variant?.increment || 1" :max="variant?.maximum || null" value="{{ current_variant.quantity_rule.min | default: 1 }}" min="{{ current_variant.quantity_rule.min | default: 1 }}" step="{{ current_variant.quantity_rule.increment | default: 1 }}" aria-label="{{ 'products.product.quantity.input_label' | t: product: product.title | escape }}">
+                  <button type="button" @click="stepQuantity(1)" :disabled="variant?.maximum && quantity >= variant.maximum" aria-label="{{ 'products.product.quantity.increase' | t: product: product.title | escape }}">+</button>
+                </div>
+              {% when 'buy_buttons' %}
+                {% unless settings.hide_cart %}
+                  {% form 'product', product, id: product_form_id, class: 'atelier-product__form', x-ref: 'product_form', data-atelier-form: '' %}
+                    <input type="hidden" name="id" value="{{ current_variant.id }}" :value="variant?.id || ''" disabled :disabled="!variant?.available">
+                    <noscript>
+                      <label for="AtelierVariant-{{ section.id }}">{{ 'atelier_product.choose_variant' | t }}</label>
+                      <select id="AtelierVariant-{{ section.id }}" name="id">{% for variant in product.variants %}<option value="{{ variant.id }}" {% if variant.id == current_variant.id %}selected{% endif %} {% unless variant.available %}disabled{% endunless %}>{{ variant.title | escape }} — {{ variant.price | money }}</option>{% endfor %}</select>
+                    </noscript>
+                    <input type="hidden" name="product-id" value="{{ product.id }}">
+                    {% if product.selling_plan_groups.size > 0 %}
+                      <label for="AtelierPlan-{{ section.id }}">{{ 'atelier_product.purchase_option' | t }}</label>
+                      <select name="selling_plan" id="AtelierPlan-{{ section.id }}">
+                        {% unless product.requires_selling_plan %}<option value="">{{ 'atelier_product.one_time_purchase' | t }}</option>{% endunless %}
+                        {% for group in product.selling_plan_groups %}{% for plan in group.selling_plans %}<option value="{{ plan.id }}">{{ plan.name | escape }}</option>{% endfor %}{% endfor %}
+                      </select>
+                    {% endif %}
+                    {% if block.settings.show_add_to_cart %}
+                      <button type="submit" class="atelier-product__button atelier-product__button--solid" data-atelier-add :disabled="loading || !variant?.available" :aria-busy="loading" {% unless current_variant.available %}disabled{% endunless %}>
+                        <span x-text="!variant ? strings.unavailable : !variant.available ? strings.soldOut : strings.add">{% if current_variant.available %}{{ 'products.product.add_to_cart' | t }}{% else %}{{ 'products.product.sold_out' | t }}{% endif %}</span>
+                        <span x-cloak x-show="loading" class="atelier-product__spinner" aria-hidden="true"></span>
+                      </button>
+                    {% endif %}
+                    {% if block.settings.show_dynamic_checkout %}
+                      <div class="atelier-product__dynamic" x-show="variant?.available" @click.capture="if (!validatePurchase()) { $event.preventDefault(); $event.stopImmediatePropagation(); }">{{ form | payment_button }}</div>
+                    {% endif %}
+                    <p x-ref="error_message" class="atelier-product__error" x-show="errorMessage" x-cloak role="alert"></p>
+                    {{ form.errors | default_errors }}
+                  {% endform %}
+                {% endunless %}
+              {% when 'inventory_status' %}
+                <p class="atelier-product__stock" x-show="variant?.available">{{ 'atelier_product.in_stock' | t }}</p>
+              {% when 'engraving' %}
+                {% assign engraving_max = block.settings.max_text_length | default: 20 | at_least: 1 %}
+                <div class="atelier-product__engraving" data-engraving {% if block.settings.engraving_required %}data-required="true"{% endif %}>
+                  <label class="atelier-product__checkbox"><input type="checkbox" x-model="engravingEnabled" @change="toggleEngraving()" aria-controls="AtelierEngravingField-{{ section.id }}" :aria-expanded="engravingEnabled" {% if block.settings.engraving_required %}checked disabled{% endif %}><span>{{ 'atelier_product.add_engraving' | t }}</span></label>
+                  <div id="AtelierEngravingField-{{ section.id }}" class="atelier-product__engraving-field" :hidden="!engravingEnabled" {% unless block.settings.engraving_required %}hidden{% endunless %}>
+                    <label class="atelier-product__label" for="AtelierEngraving-{{ section.id }}">{{ 'atelier_product.inscription' | t }}</label>
+                    <input id="AtelierEngraving-{{ section.id }}" class="atelier-product__inscription" type="text" name="properties[{{ block.settings.engraving_option_label | default: 'Engraving' | escape }}]" form="{{ product_form_id }}" x-model="engraving" :disabled="!engravingEnabled" :required="engravingEnabled" @input="$el.setCustomValidity('')" maxlength="{{ engraving_max }}" data-engraving-input data-max="{{ engraving_max }}" placeholder="{{ 'atelier_product.inscription_placeholder' | t: count: engraving_max | escape }}" aria-describedby="AtelierEngravingCount-{{ section.id }} AtelierEngravingNote-{{ section.id }}">
+                    <p class="atelier-product__engraving-count" id="AtelierEngravingCount-{{ section.id }}" aria-live="polite" x-text="charactersLeft()">{{ 'atelier_product.characters_left' | t: count: engraving_max }}</p>
+                    <p class="atelier-product__engraving-note" id="AtelierEngravingNote-{{ section.id }}">{% if block.settings.engrave_option_note != blank %}{{ block.settings.engrave_option_note | escape }}{% else %}{{ 'atelier_product.engraving_note' | t }}{% endif %}</p>
+                  </div>
+                </div>
+              {% when 'description' %}
+                <div class="atelier-product__description rte">{{ product.description }}</div>
+              {% when 'collapsible_tab' %}
+                <details class="atelier-product__disclosure" {% if block.settings.open_by_default %}open{% endif %}>
+                  <summary>{{ block.settings.heading | escape }}<span aria-hidden="true" class="atelier-product__plus"></span></summary>
+                  <div class="atelier-product__disclosure-body">
+                    {% if block.settings.tab_content != blank %}{{ block.settings.tab_content }}{% else %}<dl class="atelier-product__specs"><dt>{{ 'atelier_product.sku' | t }}</dt><dd x-text="variant?.sku || '—'">{{ current_variant.sku | default: '—' | escape }}</dd></dl>{% endif %}
+                  </div>
+                </details>
+              {% when 'atelier_trust' %}
+                <ul class="atelier-product__trust" role="list">
+                  {% for index in (1..3) %}
+                    {% assign text_key = 'text_' | append: index %}
+                    {% if block.settings[text_key] != blank %}<li>{% render 'atelier-product-icon', icon: index %}<span>{{ block.settings[text_key] | escape }}</span></li>{% endif %}
+                  {% endfor %}
+                </ul>
+              {% when 'social_sharing' %}
+                <button type="button" class="atelier-product__share" @click="shareProduct()">{% render 'atelier-product-icon', icon: 'share' %}<span>{{ 'products.product.share_social' | t }}</span></button>
+                <span class="sr-only" role="status" x-text="shareMessage"></span>
+              {% when 'text' %}
+                {{ block.settings.text }}
+              {% when 'custom_liquid' %}
+                {{ block.settings.custom_liquid }}
+            {% endcase %}
+          </div>
+        {% endfor %}
+      </div>
+      {% assign sticky_block = section.blocks | where: 'type', 'sticky_add_to_cart' | first %}
+      {% if sticky_block and settings.hide_cart == false %}
+        <div class="atelier-product__sticky" x-show="stickyVisible" x-cloak {{ sticky_block.shopify_attributes }}>
+          <div class="atelier-product__sticky-inner">
+            <div class="atelier-product__sticky-info">
+              {% if product.featured_image %}{{ product.featured_image | image_url: width: 100 | image_tag: width: 42, height: 42, loading: 'lazy', alt: '' }}{% endif %}
+              <div><p class="atelier-product__sticky-title">{{ product.title | escape }}</p><p class="atelier-product__sticky-price" x-html="variant?.price || strings.unavailable">{{ current_variant.price | money }}</p></div>
+            </div>
+            <button type="submit" form="{{ product_form_id }}" class="atelier-product__button atelier-product__button--solid" :disabled="loading || !variant?.available" :aria-busy="loading" x-text="!variant ? strings.unavailable : !variant.available ? strings.soldOut : strings.add">{{ 'products.product.add_to_cart' | t }}</button>
+          </div>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+  <dialog class="atelier-product__zoom" data-product-zoom aria-label="{{ 'accessibility.image_zoom' | t }}" @click="if ($event.target === $el) closeZoom()" @close="restoreZoomFocus()">
+    <button type="button" class="atelier-product__zoom-close" @click="closeZoom()" aria-label="{{ 'accessibility.close' | t }}">×</button>
+    <div class="atelier-product__zoom-content">
+      <button type="button" @click="stepZoom(-1)" aria-label="{{ 'atelier_product.previous_image' | t }}">←</button>
+      <img data-zoom-image src="{{ first_media.preview_image | image_url: width: 1600 }}" width="1600" height="2000" alt="{{ first_media.alt | default: product.title | escape }}" loading="lazy">
+      <button type="button" @click="stepZoom(1)" aria-label="{{ 'atelier_product.next_image' | t }}">→</button>
+    </div>
+    <p class="atelier-product__zoom-caption" data-zoom-caption></p>
+  </dialog>
+</div>
+<script type="application/ld+json">{{ product | structured_data }}</script>

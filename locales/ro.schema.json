@@ -9,6 +9,20 @@
  */
 {
   "atelier_product": {
+    "enable_layout": "Use Atelier product layout",
+    "layout_info": "Dark editorial layout with a stacked desktop gallery and a swipe gallery on mobile. Engraving blocks attach text to the product without a separate charge. Use product name, price, image index, variants, quantity, buy buttons, inventory, engraving, description, collapsible rows, trust, sharing, and app blocks.",
+    "media_index": "Image index and caption",
+    "trust": "Atelier guarantees",
+    "delivery": "Delivery statement",
+    "warranty": "Warranty statement",
+    "certification": "Certification statement",
+    "delivery_default": "Complimentary insured delivery",
+    "warranty_default": "Lifetime craftsmanship warranty",
+    "certification_default": "Every center stone certified",
+    "recommendations": "Atelier related products",
+    "recommendations_default": "You may also love",
+    "heading": "Heading",
+    "builder_url": "Ring builder link",
     "show_promotions_on_products": "Show promotion popup on product pages"
   },
   "atelier_footer": {
