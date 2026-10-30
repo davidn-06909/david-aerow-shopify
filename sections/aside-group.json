@@ -300,7 +300,7 @@
           "type": "buy_buttons",
           "settings": {
             "show_button_style": "secondary",
-            "show_dynamic_checkout": true,
+            "show_dynamic_checkout": false,
             "show_add_to_cart": true,
             "show_price": true,
             "preorder_button_label": "",
