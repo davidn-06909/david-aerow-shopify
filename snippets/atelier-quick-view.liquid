@@ -1,0 +1,33 @@
+{% render 'atelier-fonts' %}
+<div id="QuickView" class="atelier-quick-view" x-data="xAtelierQuickViewDialog" @init-run.window="$store.xQuickView.addListener()" x-cloak>
+  <dialog
+    class="atelier-quick-view__dialog x-quickview-modal"
+    data-layout="{{ section.settings.quick_view_type }}"
+    x-ref="dialog"
+    aria-label="{{ 'products.product.quick_view_label' | t | escape }}"
+    :aria-labelledby="$store.xQuickView.loading || $store.xQuickView.error ? null : 'AtelierQuickViewTitle'"
+    @cancel.prevent="$store.xQuickView.close()"
+    @close="onClose()"
+    @click="closeOutside($event)"
+    @keydown.tab="trapFocus($event)"
+  >
+    <div class="atelier-quick-view__panel">
+      <button id="QuickViewClose" type="button" class="atelier-quick-view__close" aria-label="{{ 'accessibility.close' | t }}" @click="$store.xQuickView.close()" autofocus>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true"><path d="M5.5 5.5l13 13M18.5 5.5l-13 13" stroke-linecap="round"/></svg>
+      </button>
+      <div class="atelier-quick-view__scroll" x-ref="content" :aria-busy="$store.xQuickView.loading">
+        <div class="atelier-quick-view__loading" x-show="$store.xQuickView.loading" role="status">
+          <span class="atelier-quick-view__spinner" aria-hidden="true"></span>
+          <span class="sr-only">{{ 'accessibility.loading' | t }}</span>
+        </div>
+        <div class="atelier-quick-view__error" x-show="$store.xQuickView.error" x-cloak role="alert">
+          <p>{{ 'general.atelier_quick_view.load_error' | t }}</p>
+          <a class="atelier-quick-view__button" :href="$store.xQuickView.productUrl">{{ 'products.product.view_full_details' | t }}</a>
+        </div>
+        <div id="quickview-product-content" class="quick-view" :class="{ 'hide-view-detail': $store.xQuickView.hideViewDetail, 'quickview-bundle-mode': $store.xQuickView.bundleTarget, 'quickview-hide-quantity': $store.xQuickView.hideQuantity }" x-show="!$store.xQuickView.loading && !$store.xQuickView.error">
+          {% if product %}{% render 'atelier-quick-view-product', product: product %}{% endif %}
+        </div>
+      </div>
+    </div>
+  </dialog>
+</div>
