@@ -476,6 +476,7 @@
     },
     "contact": {
       "form": {
+        "optional": "Nem kötelező",
         "phone": "Telefonszám",
         "message": "Üzenet",
         "order_id": "Rendelés azonosító",

@@ -476,6 +476,7 @@
     },
     "contact": {
       "form": {
+        "optional": "Valinnainen",
         "phone": "Puhelinnumero",
         "message": "Viesti",
         "order_id": "Tilausnumero",

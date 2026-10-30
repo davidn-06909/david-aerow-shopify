@@ -476,6 +476,7 @@
     },
     "contact": {
       "form": {
+        "optional": "İsteğe bağlı",
         "phone": "Telefon numarası",
         "message": "Mesaj",
         "order_id": "Sipariş Numarası",

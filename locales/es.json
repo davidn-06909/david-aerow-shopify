@@ -476,6 +476,7 @@
     },
     "contact": {
       "form": {
+        "optional": "Opcional",
         "phone": "Número de teléfono",
         "message": "Mensaje",
         "order_id": "ID del pedido",

@@ -476,6 +476,7 @@
     },
     "contact": {
       "form": {
+        "optional": "वैकल्पिक",
         "phone": "फ़ोन नंबर",
         "message": "संदेश",
         "order_id": "ऑर्डर आईडी",

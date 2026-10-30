@@ -476,6 +476,7 @@
     },
     "contact": {
       "form": {
+        "optional": "Voliteľné",
         "phone": "Telefónne číslo",
         "message": "Správa",
         "order_id": "ID objednávky",
