@@ -8,6 +8,16 @@
  * ------------------------------------------------------------
  */
 {
+  "atelier_membership": {
+    "sign_in": "Inloggen",
+    "new_here": "Nieuw hier?",
+    "create_account": "Account aanmaken",
+    "from_amount": "Vanaf {{ amount }}",
+    "welcome": "Welkom, {{ name }}",
+    "your_level": "Je niveau",
+    "lifetime_purchases": "Totale aankopen",
+    "view_account": "Account bekijken"
+  },
   "atelier_product": {
     "shipping_at_checkout": "Shipping calculated at checkout.",
     "gallery_help": "Product gallery. Use the arrow keys to browse images.",
@@ -1068,5 +1078,9 @@
     "nav_button_continue": "Doorgaan",
     "nav_button_submit": "Antwoord indienen",
     "select_options": "Opties selecteren"
+  },
+  "lookbook": {
+    "look_number": "Look {{ number }}",
+    "view_product": "{{ product }} bekijken"
   }
 }

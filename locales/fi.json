@@ -8,6 +8,16 @@
  * ------------------------------------------------------------
  */
 {
+  "atelier_membership": {
+    "sign_in": "Kirjaudu sisään",
+    "new_here": "Uusi täällä?",
+    "create_account": "Luo tili",
+    "from_amount": "Alkaen {{ amount }}",
+    "welcome": "Tervetuloa, {{ name }}",
+    "your_level": "Tasosi",
+    "lifetime_purchases": "Ostot yhteensä",
+    "view_account": "Näytä tili"
+  },
   "atelier_product": {
     "shipping_at_checkout": "Shipping calculated at checkout.",
     "gallery_help": "Product gallery. Use the arrow keys to browse images.",
@@ -1068,5 +1078,9 @@
     "nav_button_continue": "Jatka",
     "nav_button_submit": "Lähetä vastaus",
     "select_options": "Valitse vaihtoehdot"
+  },
+  "lookbook": {
+    "look_number": "Tyyli {{ number }}",
+    "view_product": "Katso {{ product }}"
   }
 }

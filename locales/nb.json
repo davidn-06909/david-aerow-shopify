@@ -8,6 +8,16 @@
  * ------------------------------------------------------------
  */
 {
+  "atelier_membership": {
+    "sign_in": "Logg inn",
+    "new_here": "Ny her?",
+    "create_account": "Opprett konto",
+    "from_amount": "Fra {{ amount }}",
+    "welcome": "Velkommen, {{ name }}",
+    "your_level": "Ditt nivå",
+    "lifetime_purchases": "Samlede kjøp",
+    "view_account": "Se konto"
+  },
   "atelier_product": {
     "shipping_at_checkout": "Shipping calculated at checkout.",
     "gallery_help": "Product gallery. Use the arrow keys to browse images.",
@@ -1068,5 +1078,9 @@
     "nav_button_continue": "Fortsett",
     "nav_button_submit": "Send inn svar",
     "select_options": "Velg alternativer"
+  },
+  "lookbook": {
+    "look_number": "Antrekk {{ number }}",
+    "view_product": "Se {{ product }}"
   }
 }

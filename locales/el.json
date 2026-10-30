@@ -8,6 +8,16 @@
  * ------------------------------------------------------------
  */
 {
+  "atelier_membership": {
+    "sign_in": "Σύνδεση",
+    "new_here": "Είστε νέοι εδώ;",
+    "create_account": "Δημιουργία λογαριασμού",
+    "from_amount": "Από {{ amount }}",
+    "welcome": "Καλώς ήρθατε, {{ name }}",
+    "your_level": "Το επίπεδό σας",
+    "lifetime_purchases": "Συνολικές αγορές",
+    "view_account": "Προβολή λογαριασμού"
+  },
   "atelier_product": {
     "shipping_at_checkout": "Shipping calculated at checkout.",
     "gallery_help": "Product gallery. Use the arrow keys to browse images.",
@@ -1068,5 +1078,9 @@
     "nav_button_continue": "Συνέχεια",
     "nav_button_submit": "Υποβολή απάντησης",
     "select_options": "Επιλέξτε επιλογές"
+  },
+  "lookbook": {
+    "look_number": "Εμφάνιση {{ number }}",
+    "view_product": "Προβολή {{ product }}"
   }
 }

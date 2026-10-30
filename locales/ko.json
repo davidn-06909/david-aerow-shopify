@@ -8,6 +8,16 @@
  * ------------------------------------------------------------
  */
 {
+  "atelier_membership": {
+    "sign_in": "로그인",
+    "new_here": "처음이신가요?",
+    "create_account": "계정 만들기",
+    "from_amount": "{{ amount }}부터",
+    "welcome": "{{ name }}님, 환영합니다",
+    "your_level": "회원 등급",
+    "lifetime_purchases": "누적 구매 금액",
+    "view_account": "계정 보기"
+  },
   "atelier_product": {
     "shipping_at_checkout": "Shipping calculated at checkout.",
     "gallery_help": "Product gallery. Use the arrow keys to browse images.",
@@ -1068,5 +1078,9 @@
     "nav_button_continue": "계속",
     "nav_button_submit": "답변 제출",
     "select_options": "옵션 선택"
+  },
+  "lookbook": {
+    "look_number": "룩 {{ number }}",
+    "view_product": "{{ product }} 보기"
   }
 }

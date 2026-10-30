@@ -8,6 +8,16 @@
  * ------------------------------------------------------------
  */
 {
+  "atelier_membership": {
+    "sign_in": "Se connecter",
+    "new_here": "Nouveau ici ?",
+    "create_account": "Créer un compte",
+    "from_amount": "À partir de {{ amount }}",
+    "welcome": "Bienvenue, {{ name }}",
+    "your_level": "Votre niveau",
+    "lifetime_purchases": "Achats cumulés",
+    "view_account": "Voir le compte"
+  },
   "atelier_product": {
     "shipping_at_checkout": "Shipping calculated at checkout.",
     "gallery_help": "Product gallery. Use the arrow keys to browse images.",
@@ -1068,5 +1078,9 @@
     "nav_button_continue": "Continuer",
     "nav_button_submit": "Soumettre la réponse",
     "select_options": "Sélectionner les options"
+  },
+  "lookbook": {
+    "look_number": "Look {{ number }}",
+    "view_product": "Voir {{ product }}"
   }
 }

@@ -8,6 +8,16 @@
  * ------------------------------------------------------------
  */
 {
+  "atelier_membership": {
+    "sign_in": "تسجيل الدخول",
+    "new_here": "هل أنت جديد هنا؟",
+    "create_account": "إنشاء حساب",
+    "from_amount": "ابتداءً من {{ amount }}",
+    "welcome": "مرحبًا، {{ name }}",
+    "your_level": "مستواك",
+    "lifetime_purchases": "إجمالي المشتريات",
+    "view_account": "عرض الحساب"
+  },
   "atelier_product": {
     "shipping_at_checkout": "Shipping calculated at checkout.",
     "gallery_help": "Product gallery. Use the arrow keys to browse images.",
@@ -1068,5 +1078,9 @@
     "nav_button_continue": "متابعة",
     "nav_button_submit": "إرسال الإجابة",
     "select_options": "اختر الخيارات"
+  },
+  "lookbook": {
+    "look_number": "الإطلالة {{ number }}",
+    "view_product": "عرض {{ product }}"
   }
 }

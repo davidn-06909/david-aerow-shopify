@@ -8,6 +8,16 @@
  * ------------------------------------------------------------
  */
 {
+  "atelier_membership": {
+    "sign_in": "Prihlásiť sa",
+    "new_here": "Ste tu prvýkrát?",
+    "create_account": "Vytvoriť účet",
+    "from_amount": "Od {{ amount }}",
+    "welcome": "Vitajte, {{ name }}",
+    "your_level": "Vaša úroveň",
+    "lifetime_purchases": "Celkové nákupy",
+    "view_account": "Zobraziť účet"
+  },
   "atelier_product": {
     "shipping_at_checkout": "Shipping calculated at checkout.",
     "gallery_help": "Product gallery. Use the arrow keys to browse images.",
@@ -1068,5 +1078,9 @@
     "nav_button_continue": "Pokračovať",
     "nav_button_submit": "Odoslať odpoveď",
     "select_options": "Vyberte možnosti"
+  },
+  "lookbook": {
+    "look_number": "Look {{ number }}",
+    "view_product": "Zobraziť {{ product }}"
   }
 }

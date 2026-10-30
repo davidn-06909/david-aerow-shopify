@@ -8,6 +8,16 @@
  * ------------------------------------------------------------
  */
 {
+  "atelier_membership": {
+    "sign_in": "Masuk",
+    "new_here": "Baru di sini?",
+    "create_account": "Buat akun",
+    "from_amount": "Mulai {{ amount }}",
+    "welcome": "Selamat datang, {{ name }}",
+    "your_level": "Level Anda",
+    "lifetime_purchases": "Total pembelian",
+    "view_account": "Lihat akun"
+  },
   "atelier_product": {
     "shipping_at_checkout": "Shipping calculated at checkout.",
     "gallery_help": "Product gallery. Use the arrow keys to browse images.",
@@ -1068,5 +1078,9 @@
     "nav_button_continue": "Lanjutkan",
     "nav_button_submit": "Kirim jawaban",
     "select_options": "Pilih opsi"
+  },
+  "lookbook": {
+    "look_number": "Gaya {{ number }}",
+    "view_product": "Lihat {{ product }}"
   }
 }

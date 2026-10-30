@@ -1,0 +1,40 @@
+{%- comment -%}A chapter's product picker supplies current product details and storefront URLs.{%- endcomment -%}
+{%- liquid
+  assign product_key = 'product_' | append: spot_index
+  assign note_key = product_key | append: '_note'
+  assign x_key = product_key | append: '_x'
+  assign y_key = product_key | append: '_y'
+  assign mobile_x_key = product_key | append: '_mobile_x'
+  assign mobile_y_key = product_key | append: '_mobile_y'
+  assign product = block.settings[product_key]
+  assign formatted_price = product.price_min | money
+  assign spot_id = section.id | append: '-' | append: block.id | append: '-' | append: spot_index
+-%}
+{%- if product != blank -%}
+  <div class="atelier-lookbook__spot" style="--spot-x: {{ block.settings[x_key] }}%; --spot-y: {{ block.settings[y_key] }}%; --spot-mobile-x: {{ block.settings[mobile_x_key] }}%; --spot-mobile-y: {{ block.settings[mobile_y_key] }}%;">
+    <button type="button" class="atelier-lookbook__dot" aria-expanded="false" aria-controls="LookbookSpot-{{ spot_id }}" @click="toggleSpot($event)">
+      <span class="atelier-lookbook__sr-only">{{ 'lookbook.view_product' | t: product: product.title | escape }}</span>
+      <span class="atelier-lookbook__pulse" aria-hidden="true"></span>
+    </button>
+  </div>
+  <div id="LookbookSpot-{{ spot_id }}" class="atelier-lookbook__card" hidden>
+    <a class="atelier-lookbook__product" href="{{ product.url }}">
+      {%- if product.featured_image != blank -%}
+        {{ product.featured_image | image_url: width: 200 | image_tag: width: 72, height: 90, loading: 'lazy', alt: '' }}
+      {%- endif -%}
+      <span>
+        <span class="atelier-lookbook__product-title">{{ product.title | escape }}</span>
+        <span class="atelier-lookbook__price">
+          {%- if product.price_varies -%}
+            {{ 'products.product.price.from_price_html' | t: price: formatted_price }}
+          {%- else -%}
+            {{ product.price | money }}
+          {%- endif -%}
+        </span>
+        {%- if block.settings[note_key] != blank -%}
+          <span class="atelier-lookbook__note">{{ block.settings[note_key] | escape }}</span>
+        {%- endif -%}
+      </span>
+    </a>
+  </div>
+{%- endif -%}

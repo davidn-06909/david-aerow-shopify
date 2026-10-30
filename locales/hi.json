@@ -8,6 +8,16 @@
  * ------------------------------------------------------------
  */
 {
+  "atelier_membership": {
+    "sign_in": "लॉग इन करें",
+    "new_here": "यहाँ नए हैं?",
+    "create_account": "खाता बनाएं",
+    "from_amount": "{{ amount }} से",
+    "welcome": "स्वागत है, {{ name }}",
+    "your_level": "आपका स्तर",
+    "lifetime_purchases": "कुल खरीदारी",
+    "view_account": "खाता देखें"
+  },
   "atelier_product": {
     "shipping_at_checkout": "Shipping calculated at checkout.",
     "gallery_help": "Product gallery. Use the arrow keys to browse images.",
@@ -1068,5 +1078,9 @@
     "nav_button_continue": "जारी रखें",
     "nav_button_submit": "उत्तर सबमिट करें",
     "select_options": "विकल्प चुनें"
+  },
+  "lookbook": {
+    "look_number": "लुक {{ number }}",
+    "view_product": "{{ product }} देखें"
   }
 }

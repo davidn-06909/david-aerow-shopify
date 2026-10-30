@@ -8,6 +8,16 @@
  * ------------------------------------------------------------
  */
 {
+  "atelier_membership": {
+    "sign_in": "登入",
+    "new_here": "新朋友？",
+    "create_account": "建立帳戶",
+    "from_amount": "{{ amount }}起",
+    "welcome": "歡迎，{{ name }}",
+    "your_level": "您的等級",
+    "lifetime_purchases": "累計購買金額",
+    "view_account": "查看帳戶"
+  },
   "atelier_product": {
     "shipping_at_checkout": "Shipping calculated at checkout.",
     "gallery_help": "Product gallery. Use the arrow keys to browse images.",
@@ -1068,5 +1078,9 @@
     "nav_button_continue": "繼續",
     "nav_button_submit": "提交答案",
     "select_options": "選擇選項"
+  },
+  "lookbook": {
+    "look_number": "造型 {{ number }}",
+    "view_product": "查看 {{ product }}"
   }
 }

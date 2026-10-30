@@ -8,6 +8,16 @@
  * ------------------------------------------------------------
  */
 {
+  "atelier_membership": {
+    "sign_in": "Bejelentkezés",
+    "new_here": "Új vagy itt?",
+    "create_account": "Fiók létrehozása",
+    "from_amount": "{{ amount }} összegtől",
+    "welcome": "Üdvözlünk, {{ name }}",
+    "your_level": "Tagsági szinted",
+    "lifetime_purchases": "Összes vásárlás",
+    "view_account": "Fiók megtekintése"
+  },
   "atelier_product": {
     "shipping_at_checkout": "Shipping calculated at checkout.",
     "gallery_help": "Product gallery. Use the arrow keys to browse images.",
@@ -1068,5 +1078,9 @@
     "nav_button_continue": "Folytatás",
     "nav_button_submit": "Válasz elküldése",
     "select_options": "Válasszon lehetőségeket"
+  },
+  "lookbook": {
+    "look_number": "Look {{ number }}",
+    "view_product": "{{ product }} megtekintése"
   }
 }

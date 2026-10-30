@@ -99,6 +99,7 @@
 @import "./components/atelier-media-story.css";
 @import "./components/atelier-cuts.css";
 @import "./components/atelier-gallery.css";
+@import "./components/atelier-lookbook.css";
 @import "./components/atelier-clients.css";
 @import "./components/atelier-correspondence.css";
 @import "./components/atelier-newsletter.css";
@@ -126,6 +127,7 @@
 @import "./components/image-with-text.css";
 @import "./components/contact-form.css";
 @import "./components/atelier-contact.css";
+@import "./components/atelier-membership.css";
 @import "./components/header.css";
 @import "./components/atelier-search.css";
 @import "./components/atelier-cart.css";

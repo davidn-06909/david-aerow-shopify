@@ -8,6 +8,16 @@
  * ------------------------------------------------------------
  */
 {
+  "atelier_membership": {
+    "sign_in": "Увійти",
+    "new_here": "Вперше тут?",
+    "create_account": "Створити обліковий запис",
+    "from_amount": "Від {{ amount }}",
+    "welcome": "Вітаємо, {{ name }}",
+    "your_level": "Ваш рівень",
+    "lifetime_purchases": "Загальна сума покупок",
+    "view_account": "Переглянути обліковий запис"
+  },
   "atelier_product": {
     "shipping_at_checkout": "Shipping calculated at checkout.",
     "gallery_help": "Product gallery. Use the arrow keys to browse images.",
@@ -1068,5 +1078,9 @@
     "nav_button_continue": "Продовжити",
     "nav_button_submit": "Відправити відповідь",
     "select_options": "Виберіть параметри"
+  },
+  "lookbook": {
+    "look_number": "Образ {{ number }}",
+    "view_product": "Переглянути {{ product }}"
   }
 }

@@ -8,6 +8,16 @@
  * ------------------------------------------------------------
  */
 {
+  "atelier_membership": {
+    "sign_in": "เข้าสู่ระบบ",
+    "new_here": "เพิ่งมาที่นี่ใช่ไหม?",
+    "create_account": "สร้างบัญชี",
+    "from_amount": "ตั้งแต่ {{ amount }}",
+    "welcome": "ยินดีต้อนรับ {{ name }}",
+    "your_level": "ระดับสมาชิกของคุณ",
+    "lifetime_purchases": "ยอดซื้อสะสม",
+    "view_account": "ดูบัญชี"
+  },
   "atelier_product": {
     "shipping_at_checkout": "Shipping calculated at checkout.",
     "gallery_help": "Product gallery. Use the arrow keys to browse images.",
@@ -1068,5 +1078,9 @@
     "nav_button_continue": "ดำเนินการต่อ",
     "nav_button_submit": "ส่งคำตอบ",
     "select_options": "เลือกตัวเลือก"
+  },
+  "lookbook": {
+    "look_number": "ลุค {{ number }}",
+    "view_product": "ดู {{ product }}"
   }
 }

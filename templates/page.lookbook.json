@@ -1,17 +1,235 @@
 {
   "sections": {
     "main": {
-      "type": "main-page",
-      "settings": {
-        "show_heading": true,
-        "heading_tag": "h1",
-        "show_breadcrumbs": true,
-        "padding_top": 60,
-        "padding_bottom": 80,
-        "padding_top_mobile": 36,
-        "padding_bottom_mobile": 48
-      }
+      "type": "atelier-lookbook",
+      "blocks": {
+        "round": {
+          "type": "chapter",
+          "settings": {
+            "heading": "Round",
+            "text": "Fifty-seven facets, one line of cobalt.",
+            "reference_image": "round",
+            "image_alt": "Round diamond ring in the After midnight lookbook",
+            "product_1": "the-aevow-solitaire",
+            "product_1_note": "Platinum",
+            "product_1_x": 49,
+            "product_1_y": 88,
+            "product_1_mobile_x": 49,
+            "product_1_mobile_y": 88,
+            "product_2": "round-natural-1-65-4",
+            "product_2_note": "Round brilliant",
+            "product_2_x": 52,
+            "product_2_y": 83,
+            "product_2_mobile_x": 52,
+            "product_2_mobile_y": 83
+          }
+        },
+        "oval": {
+          "type": "chapter",
+          "settings": {
+            "heading": "Oval",
+            "text": "Longer than it is wide, and it knows it.",
+            "reference_image": "oval",
+            "image_alt": "Oval diamond ring in the After midnight lookbook",
+            "product_1": "the-lumen",
+            "product_1_note": "Platinum",
+            "product_1_x": 46,
+            "product_1_y": 77,
+            "product_1_mobile_x": 46,
+            "product_1_mobile_y": 77,
+            "product_2": "oval-natural-1-65-8",
+            "product_2_note": "Oval",
+            "product_2_x": 46,
+            "product_2_y": 71,
+            "product_2_mobile_x": 46,
+            "product_2_mobile_y": 71
+          }
+        },
+        "cushion": {
+          "type": "chapter",
+          "settings": {
+            "heading": "Cushion",
+            "text": "A halo for a stone that hardly needs one.",
+            "reference_image": "cushion",
+            "image_alt": "Cushion diamond ring in the After midnight lookbook",
+            "product_1": "the-aurora",
+            "product_1_note": "Platinum halo",
+            "product_1_x": 66,
+            "product_1_y": 63,
+            "product_1_mobile_x": 66,
+            "product_1_mobile_y": 63,
+            "product_2": "cushion-natural-1-65-20",
+            "product_2_note": "Cushion",
+            "product_2_x": 67,
+            "product_2_y": 57,
+            "product_2_mobile_x": 67,
+            "product_2_mobile_y": 57
+          }
+        },
+        "emerald": {
+          "type": "chapter",
+          "settings": {
+            "heading": "Emerald cut",
+            "text": "Step cuts, hall of mirrors.",
+            "reference_image": "emerald",
+            "image_alt": "Emerald cut diamond ring in the After midnight lookbook",
+            "product_1": "the-arch",
+            "product_1_note": "Platinum",
+            "product_1_x": 58,
+            "product_1_y": 70,
+            "product_1_mobile_x": 58,
+            "product_1_mobile_y": 70,
+            "product_2": "emerald-natural-1-65-12",
+            "product_2_note": "Emerald cut",
+            "product_2_x": 59,
+            "product_2_y": 64,
+            "product_2_mobile_x": 59,
+            "product_2_mobile_y": 64
+          }
+        },
+        "pear": {
+          "type": "chapter",
+          "settings": {
+            "heading": "Pear",
+            "text": "One point, and the whole hand follows it.",
+            "reference_image": "pear",
+            "image_alt": "Pear diamond ring in the After midnight lookbook",
+            "product_1": "the-horizon",
+            "product_1_note": "Platinum",
+            "product_1_x": 60,
+            "product_1_y": 58,
+            "product_1_mobile_x": 60,
+            "product_1_mobile_y": 58,
+            "product_2": "pear-natural-1-65-16",
+            "product_2_note": "Pear",
+            "product_2_x": 61,
+            "product_2_y": 52,
+            "product_2_mobile_x": 61,
+            "product_2_mobile_y": 52
+          }
+        },
+        "marquise": {
+          "type": "chapter",
+          "settings": {
+            "heading": "Marquise",
+            "text": "Two points, and a finger that looks a mile long.",
+            "reference_image": "marquise",
+            "image_alt": "Marquise diamond ring in the After midnight lookbook",
+            "product_1": "the-primrose",
+            "product_1_note": "Platinum",
+            "product_1_x": 54,
+            "product_1_y": 80,
+            "product_1_mobile_x": 54,
+            "product_1_mobile_y": 80,
+            "product_2": "marquise-natural-1-65-28",
+            "product_2_note": "Marquise",
+            "product_2_x": 56,
+            "product_2_y": 75,
+            "product_2_mobile_x": 56,
+            "product_2_mobile_y": 75
+          }
+        },
+        "princess": {
+          "type": "chapter",
+          "settings": {
+            "heading": "Princess",
+            "text": "Square, sharp, and no apologies.",
+            "reference_image": "princess",
+            "image_alt": "Princess diamond ring in the After midnight lookbook",
+            "product_1": "the-aevow-solitaire-knife-edge",
+            "product_1_note": "Platinum knife edge",
+            "product_1_x": 33,
+            "product_1_y": 65,
+            "product_1_mobile_x": 33,
+            "product_1_mobile_y": 65,
+            "product_2": "princess-natural-1-65-32",
+            "product_2_note": "Princess",
+            "product_2_x": 34,
+            "product_2_y": 60,
+            "product_2_mobile_x": 34,
+            "product_2_mobile_y": 60
+          }
+        },
+        "radiant": {
+          "type": "chapter",
+          "settings": {
+            "heading": "Radiant",
+            "text": "Cropped corners, and every facet awake.",
+            "reference_image": "radiant",
+            "image_alt": "Radiant diamond ring in the After midnight lookbook",
+            "product_1": "the-lumen-pave",
+            "product_1_note": "Platinum pavé",
+            "product_1_x": 55,
+            "product_1_y": 63,
+            "product_1_mobile_x": 55,
+            "product_1_mobile_y": 63,
+            "product_2": "radiant-natural-1-65-24",
+            "product_2_note": "Radiant",
+            "product_2_x": 56,
+            "product_2_y": 58,
+            "product_2_mobile_x": 56,
+            "product_2_mobile_y": 58
+          }
+        },
+        "asscher": {
+          "type": "chapter",
+          "settings": {
+            "heading": "Asscher",
+            "text": "The square step cut, and the deco it came from.",
+            "reference_image": "asscher",
+            "image_alt": "Asscher diamond ring in the After midnight lookbook",
+            "product_1": "the-heirloom",
+            "product_1_note": "Platinum",
+            "product_1_x": 72,
+            "product_1_y": 82,
+            "product_1_mobile_x": 72,
+            "product_1_mobile_y": 82,
+            "product_2": "asscher-natural-1-65-36",
+            "product_2_note": "Asscher",
+            "product_2_x": 74,
+            "product_2_y": 78,
+            "product_2_mobile_x": 74,
+            "product_2_mobile_y": 78
+          }
+        },
+        "heart": {
+          "type": "chapter",
+          "settings": {
+            "heading": "Heart",
+            "text": "The shape that says it before you do.",
+            "reference_image": "heart",
+            "image_alt": "Heart diamond ring in the After midnight lookbook",
+            "product_1": "the-orbit",
+            "product_1_note": "Platinum",
+            "product_1_x": 50,
+            "product_1_y": 65,
+            "product_1_mobile_x": 50,
+            "product_1_mobile_y": 65,
+            "product_2": "heart-natural-1-65-40",
+            "product_2_note": "Heart",
+            "product_2_x": 51,
+            "product_2_y": 60,
+            "product_2_mobile_x": 51,
+            "product_2_mobile_y": 60
+          }
+        }
+      },
+      "block_order": [
+        "round",
+        "oval",
+        "cushion",
+        "emerald",
+        "pear",
+        "marquise",
+        "princess",
+        "radiant",
+        "asscher",
+        "heart"
+      ],
+      "settings": {}
     }
   },
-  "order": ["main"]
+  "order": [
+    "main"
+  ]
 }

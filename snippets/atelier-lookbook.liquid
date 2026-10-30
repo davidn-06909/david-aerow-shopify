@@ -1,0 +1,73 @@
+{%- liquid
+  assign heading_font = section.settings.heading_font
+  assign body_font = section.settings.body_font
+-%}
+{% style %}
+  {{ heading_font | font_face: font_display: 'swap' }}
+  {{ body_font | font_face: font_display: 'swap' }}
+  #atelier-lookbook-{{ section.id }} {
+    --lookbook-heading-font: {{ heading_font.family }}, "Atelier Search Heading", {{ heading_font.fallback_families }};
+    --lookbook-heading-weight: {{ heading_font.weight }};
+    --lookbook-body-font: {{ body_font.family }}, "Atelier Search Body", {{ body_font.fallback_families }};
+    --lookbook-body-weight: {{ body_font.weight }};
+    --lookbook-background: {{ section.settings.background }};
+    --lookbook-text: {{ section.settings.text_color }};
+    --lookbook-soft: {{ section.settings.soft_color }};
+    --lookbook-accent: {{ section.settings.accent_color }};
+  }
+{% endstyle %}
+<div id="atelier-lookbook-{{ section.id }}" class="atelier-lookbook{% if section.settings.scroll_snap %} atelier-lookbook--snap{% endif %}" x-data="xAtelierLookbook" @click="if (!$event.target.closest('.atelier-lookbook__spot, .atelier-lookbook__card')) closeSpot()" @click.outside="closeSpot()" @keydown.escape.window="closeSpot(true)" @resize.window.debounce.100ms="positionCard()">
+  <header class="atelier-lookbook__head">
+    {%- if section.settings.eyebrow != blank -%}<p class="atelier-lookbook__eyebrow">{{ section.settings.eyebrow | escape }}</p>{%- endif -%}
+    <h1 class="atelier-lookbook__title">{{ section.settings.heading | default: page.title | escape }}</h1>
+    {%- if section.settings.intro != blank -%}<div class="atelier-lookbook__intro">{{ section.settings.intro }}</div>{%- endif -%}
+  </header>
+  <div class="atelier-lookbook__chapters">
+    {%- for block in section.blocks -%}
+      {%- liquid
+        assign image_loading = 'lazy'
+        assign image_priority = 'auto'
+        if forloop.first
+          assign image_loading = 'eager'
+          assign image_priority = 'high'
+        endif
+        assign image = block.settings.image
+        assign mobile_image = block.settings.mobile_image | default: image
+        assign image_alt = image.alt | default: block.settings.image_alt | default: block.settings.heading
+        assign reference_asset = 'atelier-lookbook-' | append: block.settings.reference_image | append: '.webp'
+        assign mobile_asset = 'atelier-lookbook-' | append: block.settings.reference_image | append: '-mobile.webp'
+        assign look_number = forloop.index
+        if forloop.index < 10
+          assign look_number = forloop.index | prepend: '0'
+        endif
+      -%}
+      <figure class="atelier-lookbook__chapter" data-lookbook-chapter aria-labelledby="LookbookHeading-{{ section.id }}-{{ block.id }}" {{ block.shopify_attributes }}>
+        <div class="atelier-lookbook__media">
+          <picture class="atelier-lookbook__picture">
+            {%- if block.settings.mobile_image != blank -%}
+              <source media="(max-width: 749px)" srcset="{{ mobile_image | image_url: width: 400 }} 400w, {{ mobile_image | image_url: width: 750 }} 750w, {{ mobile_image | image_url: width: 1100 }} 1100w" sizes="100vw">
+            {%- elsif image == blank -%}
+              <source media="(max-width: 749px)" srcset="{{ mobile_asset | asset_url }}">
+            {%- endif -%}
+            {%- if image != blank -%}
+              {{ image | image_url: width: 2400 | image_tag: class: 'atelier-lookbook__image', widths: '400, 750, 1100, 1500, 1800, 2200, 2400', sizes: '100vw', loading: image_loading, fetchpriority: image_priority, alt: image_alt }}
+            {%- else -%}
+              <img class="atelier-lookbook__image" src="{{ reference_asset | asset_url }}" width="2200" height="1467" loading="{{ image_loading }}" fetchpriority="{{ image_priority }}" alt="{{ image_alt | escape }}">
+            {%- endif -%}
+          </picture>
+          {%- for spot_index in (1..2) -%}
+            {% render 'atelier-lookbook-spot', section: section, block: block, spot_index: spot_index %}
+          {%- endfor -%}
+        </div>
+        <figcaption class="atelier-lookbook__caption">
+          <p class="atelier-lookbook__eyebrow">{{ 'lookbook.look_number' | t: number: look_number }}</p>
+          <h2 id="LookbookHeading-{{ section.id }}-{{ block.id }}" class="atelier-lookbook__heading">{{ block.settings.heading | escape }}</h2>
+          {%- if block.settings.text != blank -%}<p class="atelier-lookbook__text">{{ block.settings.text | escape }}</p>{%- endif -%}
+        </figcaption>
+      </figure>
+    {%- endfor -%}
+  </div>
+  {%- if section.settings.show_counter and section.blocks.size > 0 -%}
+    <p class="atelier-lookbook__counter" aria-hidden="true"><span x-ref="counter">1</span><span class="atelier-lookbook__counter-rule"></span><span>{{ section.blocks.size }}</span></p>
+  {%- endif -%}
+</div>

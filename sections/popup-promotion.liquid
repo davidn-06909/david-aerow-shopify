@@ -10,7 +10,13 @@
   if template.name == 'page' and template.suffix == 'about' and section.settings.show_on_about_page == false
     assign show_popup = false
   endif
+  if template.name == 'page' and template.suffix == 'lookbook' and section.settings.show_on_lookbook_page == false
+    assign show_popup = false
+  endif
   if template.name == 'page' and template.suffix == 'contact'
+    assign show_popup = false
+  endif
+  if template.name == 'page' and template.suffix == 'membership'
     assign show_popup = false
   endif
   assign show_countdown = false
@@ -758,6 +764,7 @@
     ]
   },
   "settings": [
+    { "type": "checkbox", "id": "show_on_lookbook_page", "default": false, "label": "t:sections.atelier_lookbook.show_promotion" },
     { "type": "checkbox", "id": "show_on_about_page", "default": false, "label": "t:sections.atelier_about.show_promotion" },
     {
       "type": "paragraph",
