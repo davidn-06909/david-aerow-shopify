@@ -12,9 +12,22 @@
     "main": {
       "type": "main-blog",
       "settings": {
+        "atelier_blog": true,
+        "atelier_heading_font": "oswald_n7",
+        "atelier_body_font": "archivo_n4",
+        "atelier_background": "#0B0E28",
+        "atelier_text": "#F2F6FB",
+        "atelier_soft": "#A9C3E2",
+        "atelier_accent": "#6E9BFF",
+        "columns_desktop": 3,
+        "columns_mobile": "1",
+        "post_per_page": "12",
+        "show_breadcrumbs": true,
+        "show_name": true,
+        "show_excerpt": true,
         "full_width_breadcrumb": false,
         "show_image": true,
-        "show_author": true,
+        "show_author": false,
         "show_date": true,
         "padding_top": 0,
         "padding_bottom": 60
