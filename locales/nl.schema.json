@@ -1061,6 +1061,12 @@
     }
   },
   "sections": {
+    "atelier_collection": {
+      "name": "Atelier collection",
+      "products_per_page": "Products per page",
+      "background": "Background",
+      "text": "Text"
+    },
     "atelier_header": {
       "name": "Atelier header",
       "enabled": "Use atelier header layout",
