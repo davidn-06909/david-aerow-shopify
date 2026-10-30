@@ -2,6 +2,7 @@
 {% liquid
   assign current_variant = product.selected_or_first_available_variant
   assign product_form_id = 'product-form-' | append: section.id
+  assign quantity_block = section.blocks | where: 'type', 'quantity_selector' | first
   assign first_media = current_variant.featured_media | default: product.featured_media
   assign metal_option_index = nil
   for option in product.options_with_values
@@ -172,6 +173,7 @@
                       <select id="AtelierVariant-{{ section.id }}" name="id">{% for variant in product.variants %}<option value="{{ variant.id }}" {% if variant.id == current_variant.id %}selected{% endif %} {% unless variant.available %}disabled{% endunless %}>{{ variant.title | escape }} — {{ variant.price | money }}</option>{% endfor %}</select>
                     </noscript>
                     <input type="hidden" name="product-id" value="{{ product.id }}">
+                    {% unless quantity_block %}<input type="hidden" name="quantity" :value="quantity" value="{{ current_variant.quantity_rule.min | default: 1 }}">{% endunless %}
                     {% if product.selling_plan_groups.size > 0 %}
                       <label for="AtelierPlan-{{ section.id }}">{{ 'atelier_product.purchase_option' | t }}</label>
                       <select name="selling_plan" id="AtelierPlan-{{ section.id }}">
