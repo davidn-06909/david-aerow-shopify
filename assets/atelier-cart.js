@@ -1,5 +1,6 @@
 document.addEventListener('alpine:init', () => {
-  Alpine.data('xAtelierCart', () => ({
+  Alpine.data('xAtelierCart', (mode = 'drawer') => ({
+    mode,
     busy: false,
     checkingOut: false,
     error: '',
@@ -9,9 +10,16 @@ document.addEventListener('alpine:init', () => {
     pendingNotes: {},
     trigger: null,
     root: null,
+    noteField(type) {
+      return this.root.querySelector(`[data-cart-note="${type}"]`);
+    },
 
     init() {
       this.root = this.$el;
+      if (this.mode === 'page') {
+        this.$store.xCartAnalytics.viewCart();
+        return;
+      }
       this.$store.xMiniCart.type = 'drawer';
       this.$watch('$store.xMiniCart.open', open => {
         if (open) this.onOpen();
@@ -87,10 +95,10 @@ document.addEventListener('alpine:init', () => {
       const helper = this.$store.xCartHelper;
       const key = item.dataset.key;
       const state = {
-        scroll: this.root.querySelector('[data-cart-body]').scrollTop,
+        scroll: this.root.querySelector('[data-cart-body]')?.scrollTop || 0,
         expanded: [...this.root.querySelectorAll('details[open]')].map(el => el.dataset.cartExtra),
-        gift: this.root.querySelector('#AtelierCartGift')?.value,
-        note: this.root.querySelector('#AtelierCartNote')?.value,
+        gift: this.noteField('gift')?.value,
+        note: this.noteField('note')?.value,
         control: focus?.dataset.quantityStep || (focus?.matches('[data-remove-item]') ? 'remove' : 'input')
       };
       try {
@@ -106,8 +114,8 @@ document.addEventListener('alpine:init', () => {
           });
           const cart = await helper.cartJson(response);
           if (cart.errors || cart.status >= 400) throw new Error(cart.description || cart.message || this.root.dataset.errorMessage);
-          state.gift = this.root.querySelector('#AtelierCartGift')?.value;
-          state.note = this.root.querySelector('#AtelierCartNote')?.value;
+          state.gift = this.noteField('gift')?.value;
+          state.note = this.noteField('note')?.value;
           await helper.reRenderSections(cart.sections);
           helper.currentItemCount = cart.item_count;
           standardEvent.settle(cart);
@@ -115,15 +123,20 @@ document.addEventListener('alpine:init', () => {
           const body = this.root.querySelector('[data-cart-body]');
           if (body) body.scrollTop = state.scroll;
           this.root.querySelectorAll('details').forEach(el => { el.open = state.expanded.includes(el.dataset.cartExtra); });
-          const gift = this.root.querySelector('#AtelierCartGift'), note = this.root.querySelector('#AtelierCartNote');
+          const gift = this.noteField('gift'), note = this.noteField('note');
           if (gift) gift.value = state.gift || '';
           if (note) note.value = state.note || '';
           this.busy = false;
           await this.$nextTick();
           const updated = [...this.root.querySelectorAll('[data-cart-item]')].find(el => el.dataset.key === key);
           const selector = state.control === 'remove' ? '[data-remove-item]' : state.control === 'input' ? '[data-cart-quantity]' : `[data-quantity-step="${state.control}"]`;
-          if (this.$store.xMiniCart.open) (updated?.querySelector(selector) || this.root.querySelector('#CloseCart'))?.focus({ preventScroll: true });
-          this.announcement = this.root.querySelector('.atelier-cart__count')?.textContent || '';
+          if (this.mode === 'page' || this.$store.xMiniCart.open) {
+            const fallback = this.mode === 'page'
+              ? this.root.querySelector('[data-cart-item] [data-cart-quantity], .atelier-cart-page__empty a')
+              : this.root.querySelector('#CloseCart');
+            (updated?.querySelector(selector) || fallback)?.focus({ preventScroll: true });
+          }
+          this.announcement = this.root.querySelector('.atelier-cart__count, .atelier-cart-page__count')?.textContent || '';
           document.dispatchEvent(new CustomEvent('eurus:cart:items-changed'));
           document.dispatchEvent(new CustomEvent(`eurus:product-card:clear:${item.dataset.productId}`));
         }, { type: 'shopify:cart:lines-update', action: quantity ? 'update' : 'remove', context: 'cart', lines: [{ id: key, quantity }] });
@@ -178,6 +191,12 @@ document.addEventListener('alpine:init', () => {
       return error instanceof TypeError || error.status >= 500
         ? this.root.dataset.errorMessage
         : error.message || this.root.dataset.errorMessage;
+    },
+
+    submitPage(event) {
+      if (event.submitter?.name === 'checkout') return this.checkout(event);
+      // Keep Update as a native cart form submission, including all quantities and notes.
+      if (this.busy || this.checkingOut) event.preventDefault();
     },
 
     async checkout(event) {

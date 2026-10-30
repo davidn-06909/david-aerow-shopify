@@ -1249,6 +1249,15 @@ requestAnimationFrame(() => {
 
       getSectionsToRender() {
         const cartItemEl = document.getElementById('main-cart-items');
+        if (cartItemEl?.hasAttribute('data-atelier-cart-page')) {
+          return [
+            { id: cartItemEl.dataset.sectionId, selector: '#main-cart-items' },
+            { id: 'cart-drawer', selector: '#CartDrawer' },
+            { id: 'cart-icon-bubble', selector: '#cart-icon-bubble' },
+            { id: 'mobile-cart-icon-bubble', selector: '#mobile-cart-icon-bubble' },
+            { id: 'cart-icon-bubble-mobile-dock', selector: '#cart-icon-bubble-mobile-dock' }
+          ];
+        }
         if (cartItemEl) {
           const templateId = cartItemEl.closest('.shopify-section').id
                               .replace('cart-items', '')
@@ -1663,7 +1672,7 @@ requestAnimationFrame(() => {
       },
       openCart() {
         const cartPath = window.Shopify.routes.root + 'cart';
-        if (window.location.pathname != cartPath && window.location.pathname != cartPath + '/') {
+        if (document.querySelector('[data-atelier-cart-page]') || (window.location.pathname != cartPath && window.location.pathname != cartPath + '/')) {
           requestAnimationFrame(() => {
             if (Alpine.store('xQuickView') && Alpine.store('xQuickView').show) {
               Alpine.store('xQuickView').show = false;

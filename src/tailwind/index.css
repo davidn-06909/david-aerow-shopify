@@ -131,6 +131,7 @@
 @import "./components/header.css";
 @import "./components/atelier-search.css";
 @import "./components/atelier-cart.css";
+@import "./components/atelier-cart-page.css";
 @import "./components/atelier-product.css";
 @import "./components/atelier-collection.css";
 @import "./components/atelier-collections.css";

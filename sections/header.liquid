@@ -845,7 +845,7 @@
 {% unless settings.show_minicart %}
     {% render 'cart-noti', sticky_header: section.settings.sticky_header_type %}
 {% endunless %}
-{%- unless template == 'cart' or settings.cart_type == 'page' -%}
+{%- unless settings.cart_type == 'page' -%}
   <div id="x-cart-drawer-container" class="z-[70]{% if settings.cart_type == 'popup' %} fixed md:sticky{% if section.settings.sticky_header_type == 'on-scroll-up' %} scroll-sticky-popup-cart{% endif %}{% else %} fixed{% endif %}" @init-run.window="$store.xHeaderMenu.renderAjax($el, 'cart-drawer', '#ajax-loading-cart');"></div>
 {%- endunless -%}
 {% if settings.search_enabled %}{% render 'atelier-search-modal' %}{% endif %}
