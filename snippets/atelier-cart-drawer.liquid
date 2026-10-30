@@ -16,7 +16,7 @@
 >
   <s-view-event id="CartDrawerViewEvent" view-event-trigger="manual" view-event-payload='{{ cart | standard_event_data: "view", context: "dialog" | escape }}'></s-view-event>
   <div class="drawer fixed z-20 md:z-20 typeDrawer md:fixed left-0 top-0 w-full h-full md:flex md:justify-end right-0 animate-goleft duration-300">
-    <div id="CartDrawer-Overlay" class="bg-black opacity-40 block md:block fixed top-0 right-0 bottom-0 left-0" @click="close()"></div>
+    <div id="CartDrawer-Overlay" class="atelier-cart-overlay block md:block fixed top-0 right-0 bottom-0 left-0" @click="close()"></div>
     <div
       id="update-cart"
       class="atelier-cart z-30 fixed bottom-0{% if is_rtl %} left-0 right-auto{% else %} right-0 left-auto{% endif %} md:relative md:z-auto"

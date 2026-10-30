@@ -25180,6 +25180,14 @@ html.atelier-search-open, html.atelier-search-open body {
     grid-column: 1 / -1;
   }
 }
+.atelier-cart-overlay {
+  background: color-mix(in srgb, #f2f6fb 62%, #0b0e28);
+}
+@media (min-width: 768px) {
+  html:has(#CartDrawer.cart-open) {
+    scrollbar-gutter: stable;
+  }
+}
 .atelier-cart {
   --cart-bg: #0b0e28;
   --cart-text: #f2f6fb;
