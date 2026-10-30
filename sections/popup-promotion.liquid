@@ -19,6 +19,9 @@
   if template.name == 'page' and template.suffix == 'membership'
     assign show_popup = false
   endif
+  if template.name == 'page' and template.suffix == 'book-an-appointment'
+    assign show_popup = false
+  endif
   if request.page_type == 'list-collections'
     assign show_popup = false
   endif
