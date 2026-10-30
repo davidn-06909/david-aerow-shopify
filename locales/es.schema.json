@@ -1044,6 +1044,19 @@
     }
   },
   "sections": {
+    "atelier_header": {
+      "name": "Atelier header",
+      "enabled": "Use atelier header layout",
+      "columns": "Atelier mega menu columns",
+      "column_title": "First column title",
+      "column_link": "First column link",
+      "column_title_2": "Second column title",
+      "column_link_2": "Second column link",
+      "show_shapes": "Show diamond shapes",
+      "menu_layout": "Desktop menu layout",
+      "columns_label": "Columns",
+      "editorial": "Editorial"
+    },
     "atelier_consultation": {
       "name": "Atelier consultation",
       "enabled": "Use atelier consultation layout",
