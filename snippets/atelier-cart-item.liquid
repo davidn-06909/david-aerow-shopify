@@ -1,7 +1,7 @@
 <li class="atelier-cart__item cart-item" data-cart-item data-key="{{ item.key | escape }}" data-quantity="{{ item.quantity }}" data-product-id="{{ item.product_id }}">
   <a class="atelier-cart__media" href="{{ item.url }}" tabindex="-1" aria-hidden="true">
     {% if item.image %}
-      {{ item.image | image_url: width: 260 | image_tag: width: 130, height: 163, loading: 'lazy', alt: item.image.alt }}
+      {{ item.image | image_url: width: 260 | image_tag: width: 130, height: 163, widths: '260', loading: 'lazy', alt: item.image.alt }}
     {% endif %}
   </a>
   <div class="atelier-cart__item-body">
