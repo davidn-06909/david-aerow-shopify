@@ -44,28 +44,29 @@
       <script type="application/ld+json">
         {
           "@context": "http://schema.org",
-          "@type": "{{ settings.site_type }}",
-          "name": "{{ settings.business_name }}",
-          "description": "{{ settings.business_description }}",
+          "@type": {{ settings.site_type | json }},
+          "name": {{ settings.business_name | json }},
+          "description": {{ settings.business_description | json }},
           {% if settings.business_logo != blank %}
           "logo": {{ settings.business_logo | image_url: width: 112 | prepend: "https:" | json }},
           {% endif %}
-          "telephone": "{{ settings.business_phone }}",
+          "telephone": {{ settings.business_phone | json }},
           "address": [{
             "@type": "PostalAddress",
-            "streetAddress": "{{ first_business_addr[0] }}",
-            "addressLocality": "{{ first_business_addr[1] }}",
-            "addressRegion": "{{ first_business_addr[2] }}",
-            "postalCode": "{{ first_business_addr[3] }}",
-            "addressCountry": "{{ first_business_addr[4] }}"
+            "streetAddress": {{ first_business_addr[0] | json }},
+            "addressLocality": {{ first_business_addr[1] | json }},
+            "addressRegion": {{ first_business_addr[2] | json }},
+            "postalCode": {{ first_business_addr[3] | json }},
+            "addressCountry": {{ first_business_addr[4] | json }}
           },{
-            "streetAddress": "{{ second_business_addr[0] }}",
-            "addressLocality": "{{ second_business_addr[1] }}",
-            "addressRegion": "{{ second_business_addr[2] }}",
-            "postalCode": "{{ second_business_addr[3] }}",
-            "addressCountry": "{{ second_business_addr[4] }}"
+            "@type": "PostalAddress",
+            "streetAddress": {{ second_business_addr[0] | json }},
+            "addressLocality": {{ second_business_addr[1] | json }},
+            "addressRegion": {{ second_business_addr[2] | json }},
+            "postalCode": {{ second_business_addr[3] | json }},
+            "addressCountry": {{ second_business_addr[4] | json }}
           }],
-          "email": "{{ settings.business_email }}"
+          "email": {{ settings.business_email | json }}
         }
       </script>
     {%- endif -%}
@@ -74,7 +75,7 @@
         {
           "@context": "https://schema.org",
           "@type": "WebSite",
-          "name": "{{ shop.name }}",
+          "name": {{ shop.name | json }},
           "potentialAction": {
             "@type": "SearchAction",
             "target": "{{ shop.url }}/search?q={search_term_string}",
