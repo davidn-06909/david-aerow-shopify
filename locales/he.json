@@ -267,6 +267,13 @@
     "per_page": "לכל עמוד",
     "all_articles": "כל המאמרים",
     "article": {
+      "breadcrumb": "Breadcrumb",
+      "by_author": "מאת {{ author }}",
+      "share_label": "שתף",
+      "copy_link": "Copy this link",
+      "keep_reading": "Keep reading",
+      "all_stories": "כל הסיפורים",
+      "comments_heading": "Comments",
       "blog": "בלוג",
       "read_more_title": "קרא עוד: {{ title }}",
       "comments": {
@@ -973,7 +980,8 @@
     "day_month_year": "ב-%d ב-%b %Y",
     "short_month": "%b",
     "short_month_day": "%d ב-%b",
-    "abbreviated_month_day_year": "%d ב-%b, %Y"
+    "abbreviated_month_day_year": "%d ב-%b, %Y",
+    "atelier_article": "%B %e, %Y"
   },
   "recipient": {
     "form": {

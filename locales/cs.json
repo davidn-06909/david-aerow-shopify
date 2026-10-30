@@ -267,6 +267,13 @@
     "per_page": "na stránku",
     "all_articles": "Všechny články",
     "article": {
+      "breadcrumb": "Breadcrumb",
+      "by_author": "Od {{ author }}",
+      "share_label": "Sdílet",
+      "copy_link": "Copy this link",
+      "keep_reading": "Keep reading",
+      "all_stories": "Všechny příběhy",
+      "comments_heading": "Comments",
       "blog": "Blog",
       "read_more_title": "Přečtěte si více: {{ title }}",
       "comments": {
@@ -973,7 +980,8 @@
     "day_month_year": "%d. %b %Y",
     "short_month": "%b",
     "short_month_day": "%d. %b",
-    "abbreviated_month_day_year": "%d. %b %Y"
+    "abbreviated_month_day_year": "%d. %b %Y",
+    "atelier_article": "%B %e, %Y"
   },
   "recipient": {
     "form": {

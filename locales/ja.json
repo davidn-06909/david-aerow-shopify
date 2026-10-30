@@ -267,6 +267,13 @@
     "per_page": "1ページあたり",
     "all_articles": "すべての記事",
     "article": {
+      "breadcrumb": "Breadcrumb",
+      "by_author": "により {{ author }}",
+      "share_label": "シェア",
+      "copy_link": "Copy this link",
+      "keep_reading": "Keep reading",
+      "all_stories": "すべてのストーリー",
+      "comments_heading": "Comments",
       "blog": "ブログ",
       "read_more_title": "続きを読む: {{ title }}",
       "comments": {
@@ -973,7 +980,8 @@
     "day_month_year": "%Y年%b%d日",
     "short_month": "%b",
     "short_month_day": "%b %d",
-    "abbreviated_month_day_year": "%b %d, %Y"
+    "abbreviated_month_day_year": "%b %d, %Y",
+    "atelier_article": "%B %e, %Y"
   },
   "recipient": {
     "form": {

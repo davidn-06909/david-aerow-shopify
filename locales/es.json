@@ -267,6 +267,13 @@
     "per_page": "por página",
     "all_articles": "Todos los artículos",
     "article": {
+      "breadcrumb": "Breadcrumb",
+      "by_author": "Por {{ author }}",
+      "share_label": "Compartir",
+      "copy_link": "Copy this link",
+      "keep_reading": "Keep reading",
+      "all_stories": "Todas las historias",
+      "comments_heading": "Comments",
       "blog": "Blog",
       "read_more_title": "Leer más: {{ title }}",
       "comments": {
@@ -973,7 +980,8 @@
     "day_month_year": "en %b %d %Y",
     "short_month": "%b",
     "short_month_day": "%b %d",
-    "abbreviated_month_day_year": "%b %d, %Y"
+    "abbreviated_month_day_year": "%b %d, %Y",
+    "atelier_article": "%B %e, %Y"
   },
   "recipient": {
     "form": {

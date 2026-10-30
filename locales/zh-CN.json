@@ -267,6 +267,13 @@
     "per_page": "每页",
     "all_articles": "所有文章",
     "article": {
+      "breadcrumb": "Breadcrumb",
+      "by_author": "由 {{ author }}",
+      "share_label": "共享",
+      "copy_link": "Copy this link",
+      "keep_reading": "Keep reading",
+      "all_stories": "所有故事",
+      "comments_heading": "Comments",
       "blog": "博客",
       "read_more_title": "阅读更多 {{ title }}",
       "comments": {
@@ -973,7 +980,8 @@
     "day_month_year": "on %b %d %Y",
     "short_month": "%b",
     "short_month_day": "%b %d",
-    "abbreviated_month_day_year": "%b %d, %Y"
+    "abbreviated_month_day_year": "%b %d, %Y",
+    "atelier_article": "%B %e, %Y"
   },
   "recipient": {
     "form": {

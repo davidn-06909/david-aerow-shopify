@@ -1,3 +1,6 @@
+{%- if section.settings.atelier_article -%}
+  {% render 'atelier-article', section: section %}
+{%- else -%}
 {{ 'page.css' | asset_url | stylesheet_tag }}
 {% liquid
   assign size_breadcrumbs = settings.text_base_size | times: 0.007875
@@ -469,6 +472,8 @@
   {% # theme-check-enable %}
 {% endif %}
 
+{%- endif -%}
+
 {% schema %}
 {
   "name": "t:sections.main-article.name",
@@ -801,6 +806,61 @@
     }
   ],
   "settings": [
+    {
+      "type": "checkbox",
+      "id": "atelier_article",
+      "default": false,
+      "label": "t:sections.atelier_article.enabled"
+    },
+    {
+      "type": "font_picker",
+      "id": "atelier_heading_font",
+      "default": "oswald_n7",
+      "label": "t:sections.atelier_story_index.heading_font",
+      "visible_if": "{{ section.settings.atelier_article }}"
+    },
+    {
+      "type": "font_picker",
+      "id": "atelier_body_font",
+      "default": "archivo_n4",
+      "label": "t:sections.atelier_story_index.body_font",
+      "visible_if": "{{ section.settings.atelier_article }}"
+    },
+    {
+      "type": "color",
+      "id": "atelier_background",
+      "default": "#0B0E28",
+      "label": "t:sections.atelier_story_index.background_color",
+      "visible_if": "{{ section.settings.atelier_article }}"
+    },
+    {
+      "type": "color",
+      "id": "atelier_text",
+      "default": "#F2F6FB",
+      "label": "t:sections.atelier_story_index.text_color",
+      "visible_if": "{{ section.settings.atelier_article }}"
+    },
+    {
+      "type": "color",
+      "id": "atelier_soft",
+      "default": "#A9C3E2",
+      "label": "t:sections.atelier_story_index.soft_color",
+      "visible_if": "{{ section.settings.atelier_article }}"
+    },
+    {
+      "type": "color",
+      "id": "atelier_accent",
+      "default": "#6E9BFF",
+      "label": "t:sections.atelier_story_index.accent_color",
+      "visible_if": "{{ section.settings.atelier_article }}"
+    },
+    {
+      "type": "checkbox",
+      "id": "atelier_show_navigation",
+      "default": true,
+      "label": "t:sections.atelier_article.show_navigation",
+      "visible_if": "{{ section.settings.atelier_article }}"
+    },
     {
       "type": "paragraph",
       "content": "t:sections.user_guide_link.pages_and_templates.blog_post_page"

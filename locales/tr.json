@@ -267,6 +267,13 @@
     "per_page": "sayfa başına",
     "all_articles": "Tüm makaleler",
     "article": {
+      "breadcrumb": "Breadcrumb",
+      "by_author": "Yazan {{ author }}",
+      "share_label": "Paylaş",
+      "copy_link": "Copy this link",
+      "keep_reading": "Keep reading",
+      "all_stories": "Tüm hikayeler",
+      "comments_heading": "Comments",
       "blog": "Blog",
       "read_more_title": "Daha fazlasını oku: {{ title }}",
       "comments": {
@@ -973,7 +980,8 @@
     "day_month_year": "%Y %b %d tarihinde",
     "short_month": "%b",
     "short_month_day": "%b %d",
-    "abbreviated_month_day_year": "%Y %b %d"
+    "abbreviated_month_day_year": "%Y %b %d",
+    "atelier_article": "%B %e, %Y"
   },
   "recipient": {
     "form": {

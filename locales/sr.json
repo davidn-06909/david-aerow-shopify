@@ -267,6 +267,13 @@
     "per_page": "po stranici",
     "all_articles": "Svi članci",
     "article": {
+      "breadcrumb": "Breadcrumb",
+      "by_author": "Od {{ author }}",
+      "share_label": "Podeli",
+      "copy_link": "Copy this link",
+      "keep_reading": "Keep reading",
+      "all_stories": "Sve priče",
+      "comments_heading": "Comments",
       "blog": "Blog",
       "read_more_title": "Pročitaj više: {{ title }}",
       "comments": {
@@ -973,7 +980,8 @@
     "day_month_year": "dana %d. %b %Y.",
     "short_month": "%b",
     "short_month_day": "%d. %b",
-    "abbreviated_month_day_year": "%d. %b, %Y."
+    "abbreviated_month_day_year": "%d. %b, %Y.",
+    "atelier_article": "%B %e, %Y"
   },
   "recipient": {
     "form": {

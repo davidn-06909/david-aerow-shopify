@@ -267,6 +267,13 @@
     "per_page": "sivua",
     "all_articles": "Kaikki artikkelit",
     "article": {
+      "breadcrumb": "Breadcrumb",
+      "by_author": "Kirjoittanut {{ author }}",
+      "share_label": "Jaa",
+      "copy_link": "Copy this link",
+      "keep_reading": "Keep reading",
+      "all_stories": "Kaikki tarinat",
+      "comments_heading": "Comments",
       "blog": "Blogi",
       "read_more_title": "Lue lisää: {{ title }}",
       "comments": {
@@ -973,7 +980,8 @@
     "day_month_year": "%d. %bta %Y",
     "short_month": "%b",
     "short_month_day": "%d. %b",
-    "abbreviated_month_day_year": "%d. %b, %Y"
+    "abbreviated_month_day_year": "%d. %b, %Y",
+    "atelier_article": "%B %e, %Y"
   },
   "recipient": {
     "form": {

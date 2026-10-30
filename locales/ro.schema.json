@@ -1105,6 +1105,10 @@
         "button_label": "Book an appointment"
       }
     },
+    "atelier_article": {
+      "enabled": "Use Atelier article layout",
+      "show_navigation": "Show previous and next stories"
+    },
     "atelier_journal": {
       "enabled": "Use atelier journal layout",
       "blog_link": "All stories link (when no blog is selected)",

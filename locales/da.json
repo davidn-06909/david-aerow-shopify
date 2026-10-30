@@ -267,6 +267,13 @@
     "per_page": "pr. side",
     "all_articles": "Alle artikler",
     "article": {
+      "breadcrumb": "Breadcrumb",
+      "by_author": "Af {{ author }}",
+      "share_label": "Del",
+      "copy_link": "Copy this link",
+      "keep_reading": "Keep reading",
+      "all_stories": "Alle historier",
+      "comments_heading": "Comments",
       "blog": "Blog",
       "read_more_title": "Læs mere: {{ title }}",
       "comments": {
@@ -973,7 +980,8 @@
     "day_month_year": "den %d. %b %Y",
     "short_month": "%b",
     "short_month_day": "%d. %b",
-    "abbreviated_month_day_year": "%d. %b %Y"
+    "abbreviated_month_day_year": "%d. %b %Y",
+    "atelier_article": "%B %e, %Y"
   },
   "recipient": {
     "form": {
