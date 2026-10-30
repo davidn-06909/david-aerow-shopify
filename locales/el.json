@@ -8,6 +8,27 @@
  * ------------------------------------------------------------
  */
 {
+  "atelier_product": {
+    "shipping_at_checkout": "Shipping calculated at checkout.",
+    "gallery_help": "Product gallery. Use the arrow keys to browse images.",
+    "media_caption": "{{ product }} in {{ metal }}",
+    "open_image": "Open image {{ number }} in full screen",
+    "show_image": "Show image {{ number }}",
+    "previous_image": "Previous image",
+    "next_image": "Next image",
+    "add_engraving": "Add engraving",
+    "inscription": "Your inscription",
+    "inscription_placeholder": "Up to {{ count }} characters",
+    "characters_left": "{{ count }} characters left",
+    "engraving_required": "Please enter your inscription or turn off engraving.",
+    "engraving_note": "Engraved by hand inside the band. Please check the spelling — engraved rings can't be returned.",
+    "in_stock": "In stock, ready to ship",
+    "sku": "SKU",
+    "link_copied": "Link copied",
+    "choose_variant": "Choose your options",
+    "purchase_option": "Purchase option",
+    "one_time_purchase": "One-time purchase"
+  },
   "atelier_newsletter": {
     "email_placeholder": "Email address"
   },

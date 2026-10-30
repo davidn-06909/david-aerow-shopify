@@ -1,3 +1,6 @@
+{% if section.settings.atelier_layout %}
+  {% render 'atelier-product' %}
+{% else %}
 {%- liquid
   assign base_size_heading = settings.heading_base_size | times: 0.0225 
   assign font_size_heading = section.settings.title_size | times: 0.01 | times: base_size_heading
@@ -126,6 +129,7 @@
 {% endif %}
 <script src="{{ 'product-recommendations.js' | asset_url }}" defer></script>
 <script src="{{ 'recently-viewed.js' | asset_url }}" defer></script>
+{% endif %}
 {% schema %}
 {
   "name": "t:sections.main-product.name",
@@ -134,6 +138,21 @@
   "blocks": [
     {
       "type": "@app"
+    },
+    {
+      "type": "atelier_media_index",
+      "name": "t:atelier_product.media_index",
+      "limit": 1
+    },
+    {
+      "type": "atelier_trust",
+      "name": "t:atelier_product.trust",
+      "limit": 1,
+      "settings": [
+        { "type": "text", "id": "text_1", "label": "t:atelier_product.delivery", "default": "t:atelier_product.delivery_default" },
+        { "type": "text", "id": "text_2", "label": "t:atelier_product.warranty", "default": "t:atelier_product.warranty_default" },
+        { "type": "text", "id": "text_3", "label": "t:atelier_product.certification", "default": "t:atelier_product.certification_default" }
+      ]
     },
     {
       "type": "breadcrumb",
@@ -15135,6 +15154,13 @@
     }
   ],
   "settings": [
+    {
+      "type": "checkbox",
+      "id": "atelier_layout",
+      "label": "t:atelier_product.enable_layout",
+      "info": "t:atelier_product.layout_info",
+      "default": false
+    },
     {
       "type": "paragraph",
       "content": "t:sections.user_guide_link.product_page.product_information.product_information_general"
