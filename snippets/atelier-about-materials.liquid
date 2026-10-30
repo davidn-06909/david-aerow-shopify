@@ -1,0 +1,17 @@
+{% render 'atelier-about-style', section: section %}
+<div id="atelier-about-{{ section.id }}" class="atelier-about atelier-about--materials">
+  <div class="atelier-about__page">
+    <header class="atelier-about__head">{% render 'atelier-about-heading', section: section %}</header>
+    <ul class="atelier-about__materials" role="list" tabindex="0" aria-label="{{ section.settings.atelier_heading | escape }}">
+      {% for block in section.blocks %}
+        <li class="atelier-about__material" {{ block.shopify_attributes }}>
+          <div class="atelier-about__material-media atelier-about__image atelier-about__image--square">
+            {% render 'atelier-about-image', image: block.settings.image, image_url: block.settings.atelier_image_url, alt: block.settings.title, sizes: '(min-width: 990px) 33vw, 74vw' %}
+          </div>
+          <h3 class="atelier-about__subtitle">{{ block.settings.title | escape }}</h3>
+          <div class="atelier-about__material-text atelier-about__rte">{{ block.settings.text }}</div>
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
