@@ -1061,6 +1061,13 @@
     }
   },
   "sections": {
+    "atelier_about": {
+      "show_promotion": "Show promotion on the About page",
+      "enable": "Use About page editorial layout",
+      "image_layout": "About image layout",
+      "invitation": "Invitation",
+      "frame": "Show image frame"
+    },
     "atelier_collection": {
       "name": "Atelier collection",
       "products_per_page": "Products per page",
