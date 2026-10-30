@@ -484,6 +484,24 @@
     }
   },
   "sections": {
+    "atelier_collection": {
+      "pieces": {
+        "one": "{{ count }} piece",
+        "other": "{{ count }} pieces"
+      },
+      "grid": "Products per row",
+      "per_row": "{{ count }} per row",
+      "breadcrumb": "Breadcrumb",
+      "selected": "Selected filters",
+      "remove_filter": "Remove {{ label }} filter",
+      "show_results": "Show results",
+      "from": "From",
+      "to": "To",
+      "apply": "Apply",
+      "loading": "Updating products…",
+      "empty_help": "Try fewer filters or adjust your price range.",
+      "reset_filters": "Reset filters"
+    },
     "atelier_journal": {
       "view_all": "所有故事"
     },
