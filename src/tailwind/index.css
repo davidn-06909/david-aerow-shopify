@@ -90,9 +90,6 @@
 /* ---------------------------------------------------------------------------
  * Component CSS — unlayered (highest cascade priority, after Tailwind
  * utilities). Order preserved from the original v3 index.css.
- *
- * Note: app.scss (previous-tenant cruft) and popup-promotion.css (was never
- * imported in the original build) are intentionally excluded.
  * ------------------------------------------------------------------------- */
 @import "./components/confirmation-subcribe.css";
 @import "./components/slideshow.css";
