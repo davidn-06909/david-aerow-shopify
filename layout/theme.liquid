@@ -108,7 +108,7 @@
       {{ 'toc.css' | asset_url | stylesheet_tag }}
     {% endif %}
     {% # theme-check-disable AssetPreload %}
-    {%- unless settings.type_body_font?.system -%}
+    {%- unless settings.type_body_font.system? -%}
       <link rel="preload" href="{{ settings.type_body_font | font_url }}" as="font" type="font/woff2" crossorigin="anonymous" fetchpriority="high" />
     {% endunless %}
     {% # theme-check-enable AssetPreload %}
