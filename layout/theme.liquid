@@ -224,13 +224,13 @@
       </ul>
       <script>
         window.Eurus = {
-          cart_error: `{{ 'sections.cart.cart_error' | t }}`,
-          cart_quantity_error_html: `{{ 'sections.cart.cart_quantity_error_html' | t: quantity: '[quantity]' }}`,
+          cart_error: {{ 'sections.cart.cart_error' | t | json }},
+          cart_quantity_error_html: {{ 'sections.cart.cart_quantity_error_html' | t: quantity: '[quantity]' | json }},
           loadedScript: new Set(),
           cart_add_url: '{{ routes.cart_add_url }}',
           cart_attributes: {{ cart.attributes | json }},
-          money_format: `{{ shop.money_format | replace: '\', '\\' | replace: '`', '\`' | replace: '${', '\${' }}`,
-          money_with_currency_format: `{{ shop.money_with_currency_format | replace: '\', '\\' | replace: '`', '\`' | replace: '${', '\${' }}`
+          money_format: {{ shop.money_format | json }},
+          money_with_currency_format: {{ shop.money_with_currency_format | json }}
         };
       </script>
       {% if settings.cart_type == 'page' and template.name != 'cart' %}
