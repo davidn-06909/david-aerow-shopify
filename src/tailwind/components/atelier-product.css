@@ -153,7 +153,7 @@ body:has(.atelier-product__zoom[open]) { overflow: hidden; }
 @media (min-width: 990px) {
   .atelier-product__page { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: clamp(38px, 3.2vw + 25px, 56px); align-items: start; }
   .atelier-product__stage { display: grid; gap: 12px; overflow: visible; scroll-snap-type: none; }
-  .atelier-product__details { position: sticky; top: calc(var(--pdp-header-height, 94px) + 18px); }
+  .atelier-product__details { position: sticky; top: var(--pdp-details-top, calc(var(--pdp-header-height, 94px) + 18px)); }
   .atelier-product-recommendations__grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 28px; }
 }
 @media (max-width: 389px) {

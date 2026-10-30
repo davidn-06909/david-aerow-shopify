@@ -24217,7 +24217,7 @@ body:has(.atelier-product__zoom[open]) {
   }
   .atelier-product__details {
     position: sticky;
-    top: calc(var(--pdp-header-height, 94px) + 18px);
+    top: var(--pdp-details-top, calc(var(--pdp-header-height, 94px) + 18px));
   }
   .atelier-product-recommendations__grid {
     grid-template-columns: repeat(4, minmax(0, 1fr));
