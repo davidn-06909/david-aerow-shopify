@@ -1,0 +1,42 @@
+<li class="atelier-cart__item cart-item" data-cart-item data-key="{{ item.key | escape }}" data-quantity="{{ item.quantity }}" data-product-id="{{ item.product_id }}">
+  <a class="atelier-cart__media" href="{{ item.url }}" tabindex="-1" aria-hidden="true">
+    {% if item.image %}
+      {{ item.image | image_url: width: 260 | image_tag: width: 130, height: 163, loading: 'lazy', alt: item.image.alt }}
+    {% endif %}
+  </a>
+  <div class="atelier-cart__item-body">
+    <a class="atelier-cart__item-title" href="{{ item.url }}">{{ item.product.title | escape }}</a>
+    {% unless item.product.has_only_default_variant %}
+      <p class="atelier-cart__variant">{{ item.variant.title | escape }}</p>
+    {% endunless %}
+    <ul class="atelier-cart__properties" role="list">
+      {% for property in item.properties %}
+        {% assign first_character = property.first | slice: 0 %}
+        {% if property.last != blank and first_character != '_' %}
+          <li>{{ property.first | escape }}: {% if property.last contains '/uploads/' %}<a href="{{ property.last | escape }}" target="_blank" rel="noopener">{{ property.last | split: '/' | last | escape }}</a>{% else %}{{ property.last | escape }}{% endif %}</li>
+        {% endif %}
+      {% endfor %}
+    </ul>
+    {% if item.selling_plan_allocation %}<p class="atelier-cart__variant">{{ item.selling_plan_allocation.selling_plan.name | escape }}</p>{% endif %}
+    {% if item.line_level_discount_allocations.size > 0 %}
+      <ul class="atelier-cart__discounts" role="list">{% for discount in item.line_level_discount_allocations %}<li>{{ discount.discount_application.title | escape }} (-{{ discount.amount | money }})</li>{% endfor %}</ul>
+    {% endif %}
+    <div class="atelier-cart__item-foot">
+      <div class="atelier-cart__quantity">
+        <button type="button" data-quantity-step="down" aria-label="{{ 'products.product.quantity.decrease' | t: product: item.product.title | escape }}" @click="stepQuantity($el, -1)" :disabled="busy">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true"><path d="M5 12h14" stroke-linecap="round"/></svg>
+        </button>
+        <input id="cart-qty-{{ item.key }}" type="number" name="updates[]" value="{{ item.quantity }}" min="0" step="{{ item.variant.quantity_rule.increment | default: 1 }}" {% if item.variant.quantity_rule.max %}max="{{ item.variant.quantity_rule.max }}"{% endif %} data-minimum="{{ item.variant.quantity_rule.min | default: 1 }}" aria-label="{{ 'products.product.quantity.input_label' | t: product: item.product.title | escape }}" data-cart-quantity @change="changeQuantity($el)" @keydown.enter.prevent="$el.blur()" :disabled="busy">
+        <button type="button" data-quantity-step="up" aria-label="{{ 'products.product.quantity.increase' | t: product: item.product.title | escape }}" @click="stepQuantity($el, 1)" :disabled="busy">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true"><path d="M12 5v14M5 12h14" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+      <div class="atelier-cart__pricing">
+        {% if item.original_line_price > item.final_line_price %}<s class="atelier-cart__old-price">{{ item.original_line_price | money }}</s>{% endif %}
+        <span class="atelier-cart__price">{{ item.final_line_price | money }}</span>
+        {% if item.unit_price_measurement %}<span class="atelier-cart__unit">{{ item.unit_price | money }}/{{ item.unit_price_measurement.reference_value }}{{ item.unit_price_measurement.reference_unit }}</span>{% endif %}
+      </div>
+    </div>
+    <button type="button" class="atelier-cart__button atelier-cart__button--text atelier-cart__remove" data-remove-item @click="removeItem($el)" :disabled="busy"><span>{{ 'products.product.remove' | t }}</span></button>
+  </div>
+</li>
