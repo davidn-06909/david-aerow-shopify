@@ -1,0 +1,147 @@
+{% liquid
+  assign transparent = false
+  if section.settings.enable_on_homepage and request.page_type == 'index'
+    assign transparent = true
+  elsif section.settings.enable_on_collection_page and request.page_type == 'collection'
+    assign transparent = true
+  endif
+%}
+<div id="x-header-container" class="atelier-header{% if transparent %} atelier-header--over{% endif %}" x-data="xAtelierHeader" data-sticky="{{ section.settings.sticky_header_type }}" data-transparent="{{ transparent }}" style="--header-logo-width: {{ section.settings.logo_width }}px; --header-logo-mobile: {{ section.settings.logo_width_mobile }}px;">
+  <header class="atelier-header__bar" @keydown.escape="closeMega(true)">
+    <div class="atelier-header__inner atelier-header__page">
+      <div class="atelier-header__lead">
+        <button type="button" class="atelier-header__icon atelier-header__burger" @click="openMobile($el)" aria-label="{{ 'general.atelier_header.open_menu' | t }}" aria-controls="AtelierMenu-{{ section.id }}" aria-haspopup="dialog" :aria-expanded="mobileOpen">
+          {% render 'atelier-header-icon', icon: 'menu', size: 22 %}
+        </button>
+        <a href="{{ routes.root_url }}" class="atelier-header__logo" aria-label="{{ shop.name | escape }}">
+          {% if section.settings.logo != blank %}
+            {{ section.settings.logo | image_url: width: 600 | image_tag: widths: '300, 600', sizes: '150px', loading: 'eager', alt: shop.name }}
+          {% else %}
+            <img src="{{ 'atelier-logo.png' | asset_url }}" alt="{{ shop.name | escape }}" width="1560" height="340" loading="eager">
+          {% endif %}
+        </a>
+        <nav class="atelier-header__nav" aria-label="{{ 'general.atelier_header.primary' | t }}">
+          <ul class="atelier-header__links" role="list">
+            {% for link in section.settings.menu.links %}
+              {% liquid
+                assign block = nil
+                assign link_title = link.title | strip | downcase
+                for candidate in section.blocks
+                  assign block_title = candidate.settings.heading | strip | downcase
+                  if block_title == link_title
+                    assign block = candidate
+                    break
+                  endif
+                endfor
+              %}
+                <li class="atelier-header__item" {{ block.shopify_attributes }}{% if block.type == 'simple_menu' %} @mouseenter="enterMega('{{ block.id }}')" @mouseleave="leaveMega('{{ block.id }}')" @focusout="onMegaFocusOut($event, '{{ block.id }}')"{% endif %}>
+                  <a class="atelier-header__link" href="{{ link.url }}"{% if block.settings.open_new_window %} target="_blank" rel="noopener"{% endif %}{% if link.current %} aria-current="page"{% endif %}>
+                    {{ link.title | escape }}{% if block.settings.label != blank %}<span class="atelier-header__badge">{{ block.settings.label | escape }}</span>{% endif %}
+                  </a>
+                  {% if block.type == 'simple_menu' %}
+                    <button type="button" class="atelier-header__toggle" :aria-expanded="activeMega === '{{ block.id }}'" aria-controls="AtelierMega-{{ block.id }}" aria-label="{{ 'general.atelier_header.show_menu' | t: title: block.settings.heading | escape }}" @click="toggleMega('{{ block.id }}')" @keydown.arrow-down.prevent="showMega('{{ block.id }}', true)">
+                      {% render 'atelier-header-icon', icon: 'down', size: 11 %}
+                    </button>
+                  {% endif %}
+                </li>
+            {% endfor %}
+          </ul>
+        </nav>
+      </div>
+      <div class="atelier-header__actions">
+        {% if section.settings.atelier_appointment_link != blank and section.settings.atelier_appointment_label != blank %}<a class="atelier-header__appointment" href="{{ section.settings.atelier_appointment_link }}">{{ section.settings.atelier_appointment_label | escape }}</a>{% endif %}
+        {% if settings.search_enabled %}
+          <button type="button" class="atelier-header__icon" data-search-open aria-label="{{ 'accessibility.search' | t }}" aria-haspopup="dialog" aria-controls="AtelierSearch-{{ section.id }}" aria-expanded="false" @click="closeMega(); $dispatch('atelier-search:open', { trigger: $el })">
+            {% render 'atelier-header-icon', icon: 'search' %}
+          </button>
+        {% endif %}
+        {% if shop.customer_accounts_enabled %}
+          <span class="atelier-header__account"><shopify-account menu="{{ settings.customer_account_menu }}"></shopify-account></span>
+        {% endif %}
+        {% unless settings.hide_cart %}
+          <a id="cart-icon" class="atelier-header__icon atelier-header__cart header-icon-cart" href="{{ routes.cart_url }}" aria-label="{{ 'accessibility.cart_count' | t: number: cart.item_count }}" data-cart-label="{{ 'accessibility.cart_count' | t: number: '__count__' | escape }}" aria-controls="CartDrawer" :aria-expanded="$store.xMiniCart.open"{% if settings.cart_type != 'page' %} @click.prevent="closeMega(); $store.xModal.setActiveElement('cart-icon'); $store.xMiniCart.openCart()"{% endif %}>
+            {% render 'atelier-header-icon', icon: 'cart' %}
+            <span id="cart-icon-bubble"><span class="atelier-header__count count_item{% if cart.item_count == 0 %} hidden{% endif %}" data-value="{{ cart.item_count }}">{{ cart.item_count }}</span></span>
+          </a>
+        {% endunless %}
+      </div>
+    </div>
+  </header>
+  {% for block in section.blocks %}
+    {% if block.type == 'simple_menu' %}
+      <div id="AtelierMega-{{ block.id }}" class="atelier-mega atelier-mega--{{ block.settings.atelier_mega_layout | default: 'columns' }}" x-show="activeMega === '{{ block.id }}'" x-transition:enter="atelier-mega--transition" x-transition:enter-start="atelier-mega--hidden" x-transition:leave="atelier-mega--transition" x-transition:leave-end="atelier-mega--hidden" @mouseenter="enterMega('{{ block.id }}')" @mouseleave="leaveMega('{{ block.id }}')" @focusout="onMegaFocusOut($event, '{{ block.id }}')" @keydown.escape.stop="closeMega(true)" x-cloak>
+        <div class="atelier-mega__inner atelier-header__page">
+          <div class="atelier-mega__links">{% render 'atelier-header-columns', block: block %}</div>
+          {% if block.settings.atelier_show_shapes %}
+            <div class="atelier-mega__shapes">
+              <span class="atelier-header__eyebrow">{{ 'general.atelier_header.shape' | t }}</span>
+              <ul class="atelier-mega__shape-list" role="list">
+                {% assign shapes = 'round,oval,emerald,pear,cushion,radiant,marquise,princess,asscher,heart' | split: ',' %}
+                {% for shape in shapes %}
+                  {% assign label_key = 'sections.atelier_cuts.shapes.' | append: shape %}
+                  <li><a class="atelier-mega__shape" href="{{ routes.search_url }}?q={{ shape }}&amp;type=product">{% render 'icon-diamond-cut', shape: shape %}<span>{{ label_key | t }}</span></a></li>
+                {% endfor %}
+              </ul>
+            </div>
+          {% endif %}
+          {% if block.settings.heading_1 != blank %}
+            <div class="atelier-mega__promo">
+              <p class="atelier-mega__promo-title">{{ block.settings.heading_1 | escape }}</p>
+              {% if block.settings.text_1 != blank %}<p class="atelier-mega__promo-text">{{ block.settings.text_1 | escape }}</p>{% endif %}
+              {% if block.settings.button_label_1 != blank and block.settings.button_link_1 != blank %}<a class="atelier-mega__appointment" href="{{ block.settings.button_link_1 }}">{{ block.settings.button_label_1 | escape }}</a>{% endif %}
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    {% endif %}
+  {% endfor %}
+  <template x-teleport="body">
+    <dialog id="AtelierMenu-{{ section.id }}" class="atelier-menu" x-ref="menu" aria-labelledby="AtelierMenuTitle-{{ section.id }}" @cancel.prevent="closeMobile()" @close="afterMobileClose()" @keydown.tab="trapMobileFocus($event)">
+      <div class="atelier-menu__panel">
+        <div class="atelier-menu__head">
+          <span id="AtelierMenuTitle-{{ section.id }}" class="atelier-header__eyebrow">{{ 'accessibility.menu' | t }}</span>
+          <button type="button" class="atelier-header__icon" @click="closeMobile()" aria-label="{{ 'general.atelier_header.close_menu' | t }}">{% render 'atelier-header-icon', icon: 'close' %}</button>
+        </div>
+        <div class="atelier-menu__body">
+          <div class="atelier-menu__pane" data-menu-pane="root" :class="mobilePane === 'root' ? 'is-active' : 'is-behind'" :inert="mobilePane !== 'root'">
+            <ul role="list">
+              {% for link in section.settings.menu.links %}
+              {% liquid
+                assign block = nil
+                assign link_title = link.title | strip | downcase
+                for candidate in section.blocks
+                  assign block_title = candidate.settings.heading | strip | downcase
+                  if block_title == link_title
+                    assign block = candidate
+                    break
+                  endif
+                endfor
+              %}
+                  <li>
+                    {% if block.type == 'simple_menu' %}
+                      <button type="button" class="atelier-menu__row" @click="pushPane('{{ block.id }}', $el)" aria-controls="AtelierPane-{{ block.id }}"><span>{{ link.title | escape }}</span>{% render 'atelier-header-icon', icon: 'right', size: 15 %}</button>
+                    {% else %}
+                      <a class="atelier-menu__row" href="{{ link.url }}"{% if block.settings.open_new_window %} target="_blank" rel="noopener"{% endif %}>{{ link.title | escape }}</a>
+                    {% endif %}
+                  </li>
+              {% endfor %}
+            </ul>
+            <div class="atelier-menu__foot">
+              {% if shop.customer_accounts_enabled %}<a class="atelier-menu__row atelier-menu__row--quiet" href="{{ routes.account_login_url }}">{% render 'atelier-header-icon', icon: 'account', size: 18 %}<span>{{ 'customer.log_in' | t }}</span></a>{% endif %}
+              {% if section.settings.atelier_appointment_link != blank and section.settings.atelier_appointment_label != blank %}<a class="atelier-menu__row atelier-menu__row--quiet" href="{{ section.settings.atelier_appointment_link }}">{% render 'atelier-header-icon', icon: 'calendar', size: 18 %}<span>{{ section.settings.atelier_appointment_label | escape }}</span></a>{% endif %}
+            </div>
+          </div>
+          {% for block in section.blocks %}
+            {% if block.type == 'simple_menu' %}
+              <div id="AtelierPane-{{ block.id }}" class="atelier-menu__pane" data-menu-pane="{{ block.id }}" :class="mobilePane === '{{ block.id }}' && 'is-active'" :inert="mobilePane !== '{{ block.id }}'" x-show="mobilePane === '{{ block.id }}'" x-transition:enter="atelier-menu__pane--transition" x-transition:enter-start="atelier-menu__pane--enter" x-transition:leave="atelier-menu__pane--transition" x-transition:leave-end="atelier-menu__pane--enter" x-cloak>
+                <button type="button" class="atelier-menu__back" @click="popPane()">{% render 'atelier-header-icon', icon: 'left', size: 15 %}<span>{{ 'general.atelier_header.back' | t }}</span></button>
+                <a class="atelier-menu__heading" href="{{ block.settings.menu_item_link }}">{{ block.settings.heading | escape }}</a>
+                <ul role="list">{% render 'atelier-header-columns', block: block, mobile: true %}</ul>
+              </div>
+            {% endif %}
+          {% endfor %}
+        </div>
+      </div>
+    </dialog>
+  </template>
+</div>

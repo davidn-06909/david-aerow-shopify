@@ -1,0 +1,13 @@
+<svg width="{{ size | default: 20 }}" height="{{ size | default: 20 }}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true" focusable="false">
+  {% case icon %}
+    {% when 'menu' %}<path d="M3 7h18M3 12h18M3 17h12" stroke-linecap="round" />
+    {% when 'search' %}<circle cx="10.5" cy="10.5" r="6.5" /><path d="M15.4 15.4 21 21" stroke-linecap="round" />
+    {% when 'account' %}<circle cx="12" cy="8.4" r="3.9" /><path d="M4.5 20.5a7.5 7.5 0 0 1 15 0" stroke-linecap="round" />
+    {% when 'cart' %}<path d="M4 7h16l-1.3 12.2a1.6 1.6 0 0 1-1.6 1.4H6.9a1.6 1.6 0 0 1-1.6-1.4Z" stroke-linejoin="round" /><path d="M8.8 9.6V6.4a3.2 3.2 0 0 1 6.4 0v3.2" stroke-linecap="round" />
+    {% when 'close' %}<path d="M5.5 5.5l13 13M18.5 5.5l-13 13" stroke-linecap="round" />
+    {% when 'right' %}<path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round" />
+    {% when 'left' %}<path d="M15 5l-7 7 7 7" stroke-linecap="round" stroke-linejoin="round" />
+    {% when 'down' %}<path d="M5 9l7 7 7-7" stroke-linecap="round" stroke-linejoin="round" />
+    {% when 'calendar' %}<rect x="3.5" y="5" width="17" height="15.5" rx="1.4" /><path d="M3.5 9.5h17M8 3v4M16 3v4" stroke-linecap="round" />
+  {% endcase %}
+</svg>

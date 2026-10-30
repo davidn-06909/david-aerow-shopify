@@ -139,3 +139,5 @@
 @import "./components/app-wishlist-options.css";
 
 [x-cloak] { display: none !important; }
+
+@import "./components/atelier-header.css";

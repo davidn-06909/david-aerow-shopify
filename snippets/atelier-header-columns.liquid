@@ -1,0 +1,33 @@
+{%- comment -%}Simple menu blocks use a Shopify menu, or the two editable column links.{%- endcomment -%}
+{% if block.settings.menu != blank %}
+  {% for link in block.settings.menu.links %}
+    {% if mobile %}
+      <li><a class="atelier-menu__row" href="{{ link.url }}">{{ link.title | escape }}</a>
+        {% if link.links != blank %}<ul>{% for child in link.links %}<li><a class="atelier-menu__row atelier-menu__row--quiet" href="{{ child.url }}">{{ child.title | escape }}</a></li>{% endfor %}</ul>{% endif %}
+      </li>
+    {% else %}
+      <div class="atelier-mega__col">
+        <a class="atelier-mega__col-title" href="{{ link.url }}">{{ link.title | escape }}</a>
+        {% if link.links != blank %}<ul class="atelier-mega__col-list">{% for child in link.links %}<li><a class="atelier-mega__link" href="{{ child.url }}">{{ child.title | escape }}</a></li>{% endfor %}</ul>{% endif %}
+      </div>
+    {% endif %}
+  {% endfor %}
+{% else %}
+  {% for column in (1..2) %}
+    {% liquid
+      assign title = block.settings.atelier_column_title
+      assign url = block.settings.atelier_column_link
+      if column == 2
+        assign title = block.settings.atelier_column_title_2
+        assign url = block.settings.atelier_column_link_2
+      endif
+    %}
+    {% if title != blank %}
+      {% if mobile %}
+        <li><a class="atelier-menu__row" href="{{ url | default: block.settings.menu_item_link }}">{{ title | escape }}</a></li>
+      {% else %}
+        <div class="atelier-mega__col"><a class="atelier-mega__col-title" href="{{ url | default: block.settings.menu_item_link }}">{{ title | escape }}</a></div>
+      {% endif %}
+    {% endif %}
+  {% endfor %}
+{% endif %}
