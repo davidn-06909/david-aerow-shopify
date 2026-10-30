@@ -1065,6 +1065,7 @@
   },
   "sections": {
     "atelier_lookbook": {
+      "show_promotion": "Show promotion on the Lookbook page",
       "shapes": {
         "round": "Round",
         "oval": "Oval",
