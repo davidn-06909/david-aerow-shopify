@@ -76,3 +76,23 @@ model OrderDesign {
   createdAt DateTime @default(now())
   @@unique([shop, orderId, configurationId])
 }
+
+// Published manifests are immutable; only the tenant's active pointer changes.
+model CatalogState {
+  shop String @id
+  draft Json
+  revision Int @default(1)
+  activeVersion String
+  updatedAt DateTime @updatedAt
+}
+model CatalogRelease {
+  id String @id @default(uuid())
+  shop String
+  manifest Json
+  report Json
+  action String
+  actor String
+  restoredFrom String?
+  createdAt DateTime @default(now())
+  @@index([shop, createdAt])
+}

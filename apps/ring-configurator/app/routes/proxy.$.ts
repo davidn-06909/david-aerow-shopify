@@ -1,9 +1,10 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { authenticate } from "../shopify.server";
-import { loadCatalog, filterDiamonds } from "../services/catalog.server";
+import { loadCatalog } from "../services/catalog.server";
 import { createQuote, getDesign, saveDesign } from "../services/designs.server";
 import { apiError, PilotError, readJson } from "../services/errors.server";
 import { assertShopifyConfigured } from "../services/configured.server";
+import { searchDiamonds } from "../services/diamond-search";
 async function context(request: Request) {
   assertShopifyConfigured();
   const proxy = await authenticate.public.appProxy(request);
@@ -15,8 +16,20 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   try {
     const { admin, shop } = await context(request);
     const endpoint = params["*"] || "";
-    if (endpoint === "bootstrap") return json(await loadCatalog(admin, shop));
-    if (endpoint === "diamonds") return json({ diamonds: filterDiamonds((await loadCatalog(admin, shop)).diamonds, new URL(request.url).searchParams) });
+    if (endpoint === "bootstrap") {
+      const catalog = await loadCatalog(admin, shop, { cached: true });
+      if (new URL(request.url).searchParams.get("paged") !== "1") return json(catalog); // Older extension releases remain compatible.
+      const page = searchDiamonds(catalog, new URLSearchParams());
+      return json({ ...catalog, diamonds: page.diamonds, diamondPage: page });
+    }
+    if (endpoint === "diamonds") return json(searchDiamonds(await loadCatalog(admin, shop, { cached: true }), new URL(request.url).searchParams));
+    if (endpoint.startsWith("diamonds/")) {
+      const id = endpoint.slice(9);
+      const catalog = await loadCatalog(admin, shop, { cached: true });
+      const diamond = catalog.diamonds.find(d => d.id === id || d.sourceVariantId === id);
+      if (!diamond) throw new PilotError("DIAMOND_NOT_FOUND", "This diamond is no longer in the published collection.", 404);
+      return json(diamond);
+    }
     if (endpoint.startsWith("designs/")) return json(await getDesign(shop, endpoint.slice(8)));
     throw new PilotError("NOT_FOUND", "Ring service endpoint not found.", 404);
   } catch (error) { return apiError(error); }

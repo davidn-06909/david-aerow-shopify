@@ -1,4 +1,6 @@
-# Aevow ring configurator · Milestone 1
+# Aevow ring configurator
+
+**Milestone 2 is implemented on the development pilot.** Open [Manage catalog](https://admin.shopify.com/store/aerow-qdbfzxwi/apps/aevow-ring-pilot/app/catalog) for Shopify product search, diamond eligibility, supported-option rules, draft validation/preview, publication and rollback. The customer builder has server-side filtering, sorting and pagination, tested with 200 fixture records. [Merchant instructions and Milestone 2 acceptance evidence](docs/milestone-2.md) include actual test order #1003, published-version checks and preservation of the earlier designs.
 
 Isolated Shopify app built from Shopify's current React Router template architecture, with PostgreSQL sessions, immutable designs and preview images, server-side Shopify catalog validation, Three.js visual assets, and a theme app extension. The approved pilot requires no payment method or paid infrastructure.
 
@@ -106,7 +108,8 @@ Shopify signs requests under `/apps/ring-builder` and forwards them to `/proxy/*
 | Storefront route | Behavior |
 | --- | --- |
 | `GET /bootstrap` | Current mapped Shopify catalog, rules and asset version |
-| `GET /diamonds?shape=Round&origin=Natural&minCarat=1&maxCarat=2` | Filtered four-stone pilot catalog |
+| `GET /diamonds?shape=Round&origin=Natural&minCarat=1&maxCarat=2&page=1` | Published catalog search, filters, sorting and bounded pagination |
+| `GET /diamonds/:id` | Current eligible stone by target ID or original-store alias |
 | `POST /quotes` | Validate the complete selection against Shopify; mint a ten-minute signed quote and immutable design snapshot |
 | `POST /designs` | Confirm `{quoteId, reference}` and return the already saved design |
 | `GET /designs/:id` | Read-only, unguessable share link; no edit capability |

@@ -25,7 +25,7 @@ export function stepComplete(step: Step, s: Selection, b: Bootstrap): boolean {
   switch (step) {
     case 'style': case 'shank': return true;
     case 'metal': return Boolean(s.metal && b.setting.variants.some(v => v.metal === s.metal && v.available));
-    case 'shape': return Boolean(s.shape);
+    case 'shape': return Boolean(s.shape && (!b.rules || b.rules.shapes.includes(s.shape)));
     case 'diamond': return b.diamonds.some(d => d.id === s.diamondId && d.shape === s.shape && d.available);
     case 'size': return b.setting.variants.some(v => v.metal === s.metal && v.size === s.size && v.available);
     case 'engraving': return !s.engravingEnabled || Boolean(s.engraving.trim() && characterCount(s.engraving) <= b.engraving.maxLength && b.engraving.available && !/[\u0000-\u001f\u007f]/.test(s.engraving));

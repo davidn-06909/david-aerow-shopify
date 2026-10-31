@@ -3,7 +3,8 @@ import type { CartLineInput } from "../../shared/contract";
 import prisma from "../db.server";
 import { auditOrderGroup, properties, type OrderLine } from "./order-audit";
 import { verifyReference } from "./signing.server";
-import { readManifest, numericId } from "./manifest.server";
+import { numericId } from "./manifest.server";
+import { activeManifest } from "./catalog-state.server";
 export interface PilotOrder { id: string | number; financial_status?: string; line_items: OrderLine[] }
 export async function processOrderReceipt(receiptId: string) {
   const receipt = await prisma.webhookReceipt.findUniqueOrThrow({ where: { id: receiptId } });
@@ -12,7 +13,7 @@ export async function processOrderReceipt(receiptId: string) {
   await prisma.webhookReceipt.update({ where: { id: receiptId }, data: { attempts: { increment: 1 } } });
   try {
     const groups = new Map<string, OrderLine[]>();
-    const manifest = await readManifest();
+    const { manifest } = await activeManifest(receipt.shop);
     const pilotVariants = new Set([manifest.engravingVariantId, ...manifest.diamonds.map(d => d.variantId)].map(numericId));
     const warnings: string[] = [];
     for (const line of order.line_items) {

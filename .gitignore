@@ -27,3 +27,5 @@ apps/ring-configurator/build/
 apps/ring-configurator/.react-router/
 apps/ring-configurator/coverage/
 apps/ring-configurator/.cache/
+# Local deployment artifacts, including the CLI's repository-root cache.
+.netlify/

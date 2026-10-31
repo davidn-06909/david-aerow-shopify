@@ -14,6 +14,7 @@ export function validateSelection(input: unknown, catalog: Bootstrap) {
   const request = parsed.data as QuoteRequest;
   const selection: Selection = { ...request.selection, engraving: request.selection.engravingEnabled ? request.selection.engraving : "" };
   if (!catalog.canPurchase || catalog.mode !== "connected") throw new PilotError("INSTALLATION_REQUIRED", "Connect the Shopify app before requesting a purchase quote.", 503);
+  if (catalog.rules && (!catalog.rules.metals.includes(selection.metal as typeof METALS[number]) || !catalog.rules.shapes.includes(selection.shape as typeof SHAPES[number]))) throw new PilotError("OPTION_DISABLED", "This option is no longer offered. Choose from the current collection.");
   const setting = catalog.setting.variants.find(v => v.metal === selection.metal && v.size === selection.size);
   if (!setting || !setting.available) throw new PilotError("SETTING_UNAVAILABLE", "This setting, metal and size combination is unavailable.");
   const diamond = catalog.diamonds.find(d => d.id === selection.diamondId || d.sourceVariantId === selection.diamondId);

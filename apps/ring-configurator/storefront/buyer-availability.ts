@@ -37,7 +37,7 @@ export async function buyerAvailability(catalog: Bootstrap, options: BuyerAvaila
   }) };
   const diamonds = catalog.diamonds.map(diamond => {
     if (!products.has(diamond.handle)) return diamond;
-    const server = admin.diamonds.find(candidate => candidate.id === diamond.id)?.available === true;
+    const server = (admin.diamonds.find(candidate => candidate.id === diamond.id)?.available ?? diamond.available) === true;
     const available = server && products.get(diamond.handle)?.get(diamond.id) === true;
     if (server && !available) narrowed = true;
     return { ...diamond, available };

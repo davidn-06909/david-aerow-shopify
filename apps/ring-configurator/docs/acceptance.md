@@ -84,3 +84,8 @@ The Shopify links require development-store access. Saved designs retain their o
 Physical fitting remains **representative and unverified**. Standard Shopify checkout does not strictly enforce complete-ring rules server-side, and adding a stone to a cart does not reserve it.
 
 No live theme publication or Milestone 2 is authorized by these checks. Milestone 2 requires the user's explicit approval after reviewing this pilot.
+
+Subsequent explicit user approval authorized Milestone 2 implementation on this
+development pilot. Its separate [implementation and acceptance record](milestone-2.md)
+includes merchant publishing/rollback and actual test order #1003. The Milestone 1
+evidence above remains a historical record; live-theme publication remains separate.

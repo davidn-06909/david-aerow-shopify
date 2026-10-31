@@ -23,15 +23,21 @@ export interface Bootstrap {
   setting: { handle: string; title: string; style: 'Hidden halo'; shank: 'High polish'; imageUrl: string; variants: SettingVariant[] };
   engraving: { variantId: string; price: Money; available: boolean; maxLength: number };
   diamonds: PilotDiamond[];
+  catalogVersion?: string;
+  catalogObservedAt?: string;
+  rules?: { metals: Metal[]; shapes: Shape[]; engravingEnabled: boolean; engravingMaxLength: number };
+  diamondPage?: DiamondPage;
+  previewMode?: 'merchant-draft';
 }
+export interface DiamondPage { diamonds: PilotDiamond[]; total: number; page: number; pageSize: number; totalPages: number; catalogVersion: string; observedAt: string }
 export interface CartLineInput { id: string; quantity: number; properties: Record<string, string> }
 export interface QuoteRequest { selection: Selection; cartGroupId?: string; previewDataUrl?: string; requestId?: string }
 export interface Quote {
   id: string; expiresAt: string; designId: string; configurationId: string; reference: string; selection: Selection;
   items: CartLineInput[]; prices: { setting: Money; diamond: Money; engraving: Money; total: Money };
-  previewUrl?: string; shareUrl?: string;
+  previewUrl?: string; shareUrl?: string; catalogVersion?: string;
 }
-export interface SavedDesign { id: string; selection: Selection; previewUrl?: string; createdAt: string; pilotVersion: string; assetVersion: string; fittingStatus: 'visual-unverified'; priceContext?: Quote['prices'] }
+export interface SavedDesign { id: string; selection: Selection; previewUrl?: string; createdAt: string; pilotVersion: string; assetVersion: string; fittingStatus: 'visual-unverified'; priceContext?: Quote['prices']; catalogVersion?: string; diamond?: PilotDiamond; diamondTitle?: string }
 export interface ApiError { error: { code: string; message: string; fields?: Record<string, string> } }
 export interface ViewerConfiguration { shape: Shape; metal: string; size: string | number; engraving: string; diamondCarat?: number; assetBaseUrl?: string; assetVersion?: string }
 declare global {

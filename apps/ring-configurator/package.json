@@ -24,6 +24,7 @@
     "seed:development": "node --env-file-if-exists=.env --import tsx scripts/seed-development.ts",
     "connect:installed": "node --env-file-if-exists=.env --import tsx scripts/connect-installed-app.ts",
     "setup:commerce": "node --env-file-if-exists=.env --import tsx scripts/prepare-pilot-commerce.ts",
+    "catalog:initialize": "node --env-file-if-exists=.env --import tsx scripts/initialize-catalog.ts",
     "build:netlify": "node scripts/build-netlify.mjs"
   },
   "dependencies": {
