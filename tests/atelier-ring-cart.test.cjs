@@ -157,6 +157,25 @@ test('editing a metal reuses the unique diamond and updates its design propertie
   assert.equal(adapter.validateCart(cart()), true);
 });
 
+test('switching setting families replaces the setting and updates shared components without affecting another ring', async () => {
+  const { adapter, cart, calls } = fixture();
+  await adapter.addConfiguration(quote());
+  const other = quote({ configurationId: 'group-0002', designId: 'other-design', reference: 'other-reference' });
+  other.items[1].id = '202';
+  await adapter.addConfiguration(other);
+  const edited = quote({ designId: 'solitaire-design', reference: 'solitaire-reference' });
+  edited.items[0].id = '401';
+  for (const item of edited.items) Object.assign(item.properties, { _aevow_setting_id: 'solitaire', _aevow_asset_version: 'solitaire-visual-v1', _aevow_rule_version: 'multi-setting-v1', Setting: 'The Aevow Solitaire' });
+  const before = calls.length;
+  await adapter.editConfiguration('group-0001', edited);
+  assert.deepEqual(calls.slice(before).filter(c => c.path === '/add').flatMap(c => c.data.items.map(i => i.id)), ['401']);
+  const lines = cart().items.filter(i => i.properties._configuration_id === 'group-0001');
+  assert.deepEqual(lines.map(i => i.id).sort(), ['201', '301', '401']);
+  assert.ok(lines.every(i => i.quantity === 1 && i.properties._aevow_setting_id === 'solitaire' && i.properties._aevow_design_id === 'solitaire-design'));
+  assert.ok(cart().items.filter(i => i.properties._configuration_id === 'group-0002').every(i => i.properties._aevow_design_id === 'other-design'));
+  assert.equal(adapter.validateCart(cart()), true);
+});
+
 test('failed edit restores the existing design without losing the diamond', async () => {
   const { adapter, controls, cart } = fixture();
   await adapter.addConfiguration(quote());

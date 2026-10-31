@@ -1,4 +1,4 @@
-import { mkdir, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { Document, NodeIO } from '@gltf-transform/core';
 import { Matrix4, Mesh, MeshPhysicalMaterial } from 'three';
@@ -7,7 +7,7 @@ import { createRingAssembly, MODEL_VERSION, ILLUSTRATIVE_STONE_PROFILES, REFEREN
 const destination = fileURLToPath(new URL('../public/models/', import.meta.url));
 await mkdir(destination, { recursive: true });
 const manifest: Record<string, unknown> = {
-  version: MODEL_VERSION,
+  version: 'ring-assets-v3',
   physicalFitVerified: false,
   description: 'Reference-proportioned visual pilot. Geometry and stone profiles are illustrative, not manufacturing CAD.',
   units: 'illustrative-mm',
@@ -16,11 +16,12 @@ const manifest: Record<string, unknown> = {
   shapes: {},
 };
 
-for (const shape of ['Round', 'Oval'] as GemShape[]) {
+for (const family of ['hidden-halo', 'solitaire'] as const) for (const shape of ['Round', 'Oval'] as GemShape[]) {
+  const version = family === 'solitaire' ? 'solitaire-visual-v1' : 'lumen-visual-v3';
   const document = new Document();
   const buffer = document.createBuffer();
-  const scene = document.createScene('The Lumen visual pilot');
-  const ring = createRingAssembly(shape);
+  const scene = document.createScene(`${family} visual pilot`);
+  const ring = createRingAssembly(shape, REFERENCE_RING_SIZE, family);
   ring.updateMatrixWorld(true);
   const materials = new Map<string, ReturnType<Document['createMaterial']>>();
   ring.traverse((object) => {
@@ -47,11 +48,16 @@ for (const shape of ['Round', 'Oval'] as GemShape[]) {
     const node = document.createNode(object.name).setMesh(mesh).setMatrix(object.matrixWorld.toArray() as ReturnType<Matrix4['toArray']> as [number,number,number,number,number,number,number,number,number,number,number,number,number,number,number,number]);
     scene.addChild(node);
   });
-  document.getRoot().setExtras({ version: MODEL_VERSION, physicalFitVerified: false });
-  const filename = `${MODEL_VERSION}-${shape.toLowerCase()}.glb`;
+  scene.addChild(document.createNode('HeadAnchor').setTranslation([0, 8.55, 0]).setExtras({ role: 'head-anchor' }));
+  scene.addChild(document.createNode('EngravingRegion').setTranslation([0, -8, 0]).setExtras({ role: 'engraving-region' }));
+  document.getRoot().setExtras({ version, family, units: 'illustrative-mm', physicalFitVerified: false, referenceSize: REFERENCE_RING_SIZE });
+  const filename = `${version}-${shape.toLowerCase()}.glb`;
   const bytes = await new NodeIO().writeBinary(document);
-  await writeFile(`${destination}${filename}`, bytes);
-  (manifest.shapes as Record<string, unknown>)[shape] = { file: filename, bytes: bytes.byteLength };
+  const path = `${destination}${filename}`;
+  const previous = await readFile(path).catch((error: NodeJS.ErrnoException) => { if (error.code === 'ENOENT') return undefined; throw error; });
+  if (previous && !previous.equals(Buffer.from(bytes))) throw new Error(`Immutable asset ${filename} changed. Introduce a new version before exporting.`);
+  await writeFile(path, bytes);
+  (manifest.shapes as Record<string, unknown>)[`${family}/${shape}`] = { file: filename, bytes: bytes.byteLength };
   ring.traverse((object) => {
     if (object instanceof Mesh) object.geometry.dispose();
   });

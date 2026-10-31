@@ -1,0 +1,198 @@
+{
+  "schemaVersion": 1,
+  "validator": "Khronos glTF Validator",
+  "files": [
+    {
+      "filename": "lumen-visual-v1-round.glb",
+      "version": "lumen-visual-v1",
+      "family": "hidden-halo",
+      "shape": "round",
+      "bytes": 436144,
+      "sha256": "83d0fc6cfce19d4921009083db6c4fd4f0390fa3607db045da0735982973e766",
+      "bounds": {
+        "min": [
+          -9.776018142700195,
+          -9.776599884033203,
+          -4.065675725102425
+        ],
+        "max": [
+          9.776018142700195,
+          13.580000019073486,
+          4.065675725102425
+        ]
+      },
+      "units": "illustrative-mm",
+      "physicalFitVerified": false,
+      "errors": 0,
+      "warnings": 0
+    },
+    {
+      "filename": "lumen-visual-v1-oval.glb",
+      "version": "lumen-visual-v1",
+      "family": "hidden-halo",
+      "shape": "oval",
+      "bytes": 450592,
+      "sha256": "d455697ae4546b9c1691e4c10b3cce71e4ef56a3f0b4bc2e942cd5eac9f129db",
+      "bounds": {
+        "min": [
+          -9.776018142700195,
+          -9.776599884033203,
+          -5.099999904632568
+        ],
+        "max": [
+          9.776018142700195,
+          13.580000019073486,
+          5.099999904632568
+        ]
+      },
+      "units": "illustrative-mm",
+      "physicalFitVerified": false,
+      "errors": 0,
+      "warnings": 0
+    },
+    {
+      "filename": "lumen-visual-v2-round.glb",
+      "version": "lumen-visual-v2",
+      "family": "hidden-halo",
+      "shape": "round",
+      "bytes": 456140,
+      "sha256": "603c49edbdec02af104de39f602aa7d764cab318f2559977a0162c8c2f99d878",
+      "bounds": {
+        "min": [
+          -9.776018142700195,
+          -9.776599884033203,
+          -4.065675725102425
+        ],
+        "max": [
+          9.776018142700195,
+          13.580000019073486,
+          4.065675725102425
+        ]
+      },
+      "units": "illustrative-mm",
+      "physicalFitVerified": false,
+      "errors": 0,
+      "warnings": 0
+    },
+    {
+      "filename": "lumen-visual-v2-oval.glb",
+      "version": "lumen-visual-v2",
+      "family": "hidden-halo",
+      "shape": "oval",
+      "bytes": 470584,
+      "sha256": "2669032ed252619747633c251a2ed5bf07dec576a13e26800ab69753a047e01d",
+      "bounds": {
+        "min": [
+          -9.776018142700195,
+          -9.776599884033203,
+          -5.099999904632568
+        ],
+        "max": [
+          9.776018142700195,
+          13.580000019073486,
+          5.099999904632568
+        ]
+      },
+      "units": "illustrative-mm",
+      "physicalFitVerified": false,
+      "errors": 0,
+      "warnings": 0
+    },
+    {
+      "filename": "lumen-visual-v3-round.glb",
+      "version": "lumen-visual-v3",
+      "family": "hidden-halo",
+      "shape": "round",
+      "bytes": 456380,
+      "sha256": "e32591e00f075bf775f8e76853427fd1b0dcfcd44e1df49060259e2e7c222706",
+      "bounds": {
+        "min": [
+          -9.776018142700195,
+          -9.776599884033203,
+          -4.065675725102425
+        ],
+        "max": [
+          9.776018142700195,
+          13.580000019073486,
+          4.065675725102425
+        ]
+      },
+      "units": "illustrative-mm",
+      "physicalFitVerified": false,
+      "errors": 0,
+      "warnings": 0
+    },
+    {
+      "filename": "lumen-visual-v3-oval.glb",
+      "version": "lumen-visual-v3",
+      "family": "hidden-halo",
+      "shape": "oval",
+      "bytes": 470828,
+      "sha256": "4f84d8c1d47199dd760478a3ea935101bb72f74e07817023a0b67a360045d159",
+      "bounds": {
+        "min": [
+          -9.776018142700195,
+          -9.776599884033203,
+          -5.099999904632568
+        ],
+        "max": [
+          9.776018142700195,
+          13.580000019073486,
+          5.099999904632568
+        ]
+      },
+      "units": "illustrative-mm",
+      "physicalFitVerified": false,
+      "errors": 0,
+      "warnings": 0
+    },
+    {
+      "filename": "solitaire-visual-v1-round.glb",
+      "version": "solitaire-visual-v1",
+      "family": "solitaire",
+      "shape": "round",
+      "bytes": 394752,
+      "sha256": "e63854a65376e3c4ff417717d1d2a7255bffb0e93fa14715626ec8d30c2a7da4",
+      "bounds": {
+        "min": [
+          -9.776018142700195,
+          -9.776599884033203,
+          -4.289292812347412
+        ],
+        "max": [
+          9.776018142700195,
+          13.580000019073486,
+          4.289292812347412
+        ]
+      },
+      "units": "illustrative-mm",
+      "physicalFitVerified": false,
+      "errors": 0,
+      "warnings": 0
+    },
+    {
+      "filename": "solitaire-visual-v1-oval.glb",
+      "version": "solitaire-visual-v1",
+      "family": "solitaire",
+      "shape": "oval",
+      "bytes": 394748,
+      "sha256": "9db0ab06cceb2f10436961288f46fcb7bdaa3f08229d8c761c5fa91c962a885d",
+      "bounds": {
+        "min": [
+          -9.776018142700195,
+          -9.776599884033203,
+          -5.237357139587402
+        ],
+        "max": [
+          9.776018142700195,
+          13.580000019073486,
+          5.237357139587402
+        ]
+      },
+      "units": "illustrative-mm",
+      "physicalFitVerified": false,
+      "errors": 0,
+      "warnings": 0
+    }
+  ]
+}

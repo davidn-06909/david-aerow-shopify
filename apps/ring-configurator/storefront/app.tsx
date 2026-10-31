@@ -4,6 +4,7 @@ import { canNavigate, characterCount, emptySelection, firstIncomplete, reconcile
 import copy from './locales/en.json';
 import type { RingViewer } from './viewer';
 import { buyerAvailability } from './buyer-availability';
+import { settingCatalog, settingFor, settingsOf } from '../shared/compatibility';
 
 async function api<T>(base: string, path: string, options: RequestInit = {}): Promise<T> {
   const response = await fetch(`${base.replace(/\/$/, '')}/${path}`, { ...options, headers: { 'Content-Type': 'application/json', ...options.headers } });
@@ -142,23 +143,25 @@ export function RingConfigurator({ apiBase, assetBase }: { apiBase: string; asse
     return () => abort.abort();
   }, [apiBase, loadAttempt]);
 
+  const activeCatalog = catalog ? settingCatalog(catalog, selection) : null;
   const currentDiamond = catalog?.diamonds.find(d => d.id === selection.diamondId);
   const diamond = currentDiamond || (savedDesign?.selection.diamondId === selection.diamondId ? savedDesign.diamond : undefined);
-  const variant = catalog?.setting.variants.find(v => v.metal === selection.metal && v.size === selection.size);
-  const lowestSettingPrice = catalog && selection.metal ? Math.min(...catalog.setting.variants.filter(v => v.metal === selection.metal && v.available).map(v => v.price.amount)) : 0;
+  const variant = activeCatalog?.setting.variants.find(v => v.metal === selection.metal && v.size === selection.size);
+  const lowestSettingPrice = activeCatalog && selection.metal ? Math.min(...activeCatalog.setting.variants.filter(v => v.metal === selection.metal && v.available).map(v => v.price.amount)) : 0;
   const engravingPrice = selection.engravingEnabled && selection.engraving.trim() ? catalog?.engraving.price.amount || 0 : 0;
   const total = (variant?.price.amount ?? (Number.isFinite(lowestSettingPrice) ? lowestSettingPrice : 0)) + (currentDiamond?.price.amount || 0) + engravingPrice;
   const totalVisible = Boolean(selection.metal && currentDiamond);
   const complete = catalog ? stepComplete('review', selection, catalog) : false;
   const stepIndex = STEPS.indexOf(step);
   const filtered = results?.diamonds || [];
-  useEffect(() => { setPage(1); }, [selection.shape, origin, minCarat, maxCarat, search, minPrice, maxPrice, color, clarity, sort]);
+  useEffect(() => { setPage(1); setResults(null); }, [selection.settingId, selection.shape, origin, minCarat, maxCarat, search, minPrice, maxPrice, color, clarity, sort]);
   useEffect(() => {
     if (loading || !catalog || step !== 'diamond') return;
     const abort = new AbortController();
     setSearchBusy(true); setSearchError('');
     const timer = setTimeout(() => {
       const params = new URLSearchParams({ shape: selection.shape, origin, minCarat, maxCarat, q: search, minPrice, maxPrice, color, clarity, sort, page: String(page) });
+      if (selection.settingId) params.set('setting', selection.settingId);
       if (catalog.catalogVersion) params.set('version', catalog.catalogVersion);
       void api<DiamondPage>(apiBase, `diamonds?${params}`, { signal: abort.signal }).then(async response => {
         const source = { ...catalog, diamonds: response.diamonds };
@@ -170,9 +173,9 @@ export function RingConfigurator({ apiBase, assetBase }: { apiBase: string; asse
       }).catch(e => { if (!abort.signal.aborted) { setResults(null); setSearchError(e.message); } }).finally(() => { if (!abort.signal.aborted) setSearchBusy(false); });
     }, 250);
     return () => { clearTimeout(timer); abort.abort(); };
-  }, [apiBase, Boolean(catalog), loading, catalog?.catalogVersion, step, selection.shape, origin, minCarat, maxCarat, search, minPrice, maxPrice, color, clarity, sort, page, searchAttempt]);
+  }, [apiBase, Boolean(catalog), loading, catalog?.catalogVersion, step, selection.settingId, selection.shape, origin, minCarat, maxCarat, search, minPrice, maxPrice, color, clarity, sort, page, searchAttempt]);
 
-  function viewerConfig(): ViewerConfiguration { const s = selectionRef.current; const d = catalog?.diamonds.find(d => d.id === s.diamondId) || savedDesign?.diamond; return { shape: s.shape || 'Round', metal: s.metal || 'Platinum', size: s.size || '6', engraving: s.engravingEnabled ? s.engraving : '', diamondCarat: d?.carat || 2, assetBaseUrl: assetBase || catalog?.assetBaseUrl || '/models', assetVersion: savedDesign?.assetVersion || catalog?.assetVersion }; }
+  function viewerConfig(): ViewerConfiguration { const s = selectionRef.current; const d = catalog?.diamonds.find(d => d.id === s.diamondId) || savedDesign?.diamond; const family = catalog && settingFor(catalog, s); return { shape: s.shape || 'Round', metal: s.metal || 'Platinum', size: s.size || '6', engraving: s.engravingEnabled ? s.engraving : '', diamondCarat: d?.carat || 2, assetBaseUrl: assetBase || catalog?.assetBaseUrl || '/models', assetVersion: savedDesign?.assetVersion || family?.assetVersion || catalog?.assetVersion }; }
   useEffect(() => {
     if (loading || !catalog || !viewerElement.current) return;
     let disposed = false;
@@ -225,6 +228,7 @@ export function RingConfigurator({ apiBase, assetBase }: { apiBase: string; asse
     if (uncertainQuote.current) { setError(copy.reconcileFirst); setCartLink(true); return; }
     const updated = reconcileSelection({ ...selection, ...next }, catalog);
     writeState(updated, advance || step, Boolean(advance));
+    if (next.settingId && ['metal', 'shape', 'diamondId', 'size', 'engraving'].some(key => selection[key as keyof Selection] && !updated[key as keyof Selection])) setNotice(copy.settingChanged);
     if (advance) requestAnimationFrame(() => panelHeading.current?.focus({ preventScroll: true }));
   }
   function go(next: Step) {
@@ -261,8 +265,9 @@ export function RingConfigurator({ apiBase, assetBase }: { apiBase: string; asse
     if (catalog?.mode === 'connected') {
       const current = selectionRef.current;
       const selectedStone = catalog.diamonds.find(stone => stone.id === current.diamondId);
-      const checked = await buyerAvailability(catalog, { root: shopRoot(), handles: [catalog.setting.handle, ...(selectedStone ? [selectedStone.handle] : [])], adminCatalog: adminCatalog.current || catalog });
-      const setting = checked.catalog.setting.variants.find(variant => variant.metal === current.metal && variant.size === current.size);
+      const family = settingFor(catalog, current);
+      const checked = await buyerAvailability(catalog, { root: shopRoot(), handles: [...(family ? [family.handle] : []), ...(selectedStone ? [selectedStone.handle] : [])], adminCatalog: adminCatalog.current || catalog });
+      const setting = settingCatalog(checked.catalog, current).setting.variants.find(variant => variant.metal === current.metal && variant.size === current.size);
       const stone = checked.catalog.diamonds.find(candidate => candidate.id === current.diamondId);
       if (!setting?.available || !stone?.available) {
         setCatalog(checked.catalog);
@@ -338,8 +343,8 @@ export function RingConfigurator({ apiBase, assetBase }: { apiBase: string; asse
         <div className="arb-canvas-wrap">
           <div className="arb-viewport" ref={viewerElement} />
           {viewerStatus === 'loading' && <div className="arb-viewer-overlay" aria-live="polite"><span className="arb-loader" />{copy.viewerLoading}</div>}
-          {viewerStatus === 'error' && <div className="arb-viewer-fallback">{(savedDesign?.previewUrl || catalog.setting.imageUrl) && <img src={savedDesign?.previewUrl || catalog.setting.imageUrl} alt={copy.previewAlt} />}<p>{copy.viewerError}</p><button onClick={() => setViewerAttempt(v => v + 1)}>{copy.retry}</button></div>}
-          <span className="arb-canvas-index">{copy.canvasTitle}</span><span className="arb-canvas-mark">{icon('diamond')}</span>
+          {viewerStatus === 'error' && <div className="arb-viewer-fallback">{(savedDesign?.previewUrl || activeCatalog!.setting.imageUrl) && <img src={savedDesign?.previewUrl || activeCatalog!.setting.imageUrl} alt={copy.previewAlt} />}<p>{copy.viewerError}</p><button onClick={() => setViewerAttempt(v => v + 1)}>{copy.retry}</button></div>}
+          <span className="arb-canvas-index">{(savedDesign?.settingTitle || activeCatalog!.setting.title).toUpperCase()}</span><span className="arb-canvas-mark">{icon('diamond')}</span>
           <p className="arb-viewer-hint">{copy.rotate}</p>
         </div>
         <div className="arb-view-controls" role="group" aria-label={copy.ringViews}>{(['front', 'side', 'top', 'engraving', 'reset'] as const).map(view => <button key={view} type="button" onClick={() => viewer.current?.setView(view)} disabled={viewerStatus !== 'ready'}>{view === 'engraving' ? copy.engravingView : copy[view]}</button>)}</div>
@@ -352,13 +357,19 @@ export function RingConfigurator({ apiBase, assetBase }: { apiBase: string; asse
         <div className="arb-panel" key={step}>
           <p className="arb-step-number">{String(stepIndex + 1).padStart(2, '0')} / {String(STEPS.length).padStart(2, '0')}</p>
           <h2 ref={panelHeading} tabIndex={-1}>{copy.stepTitles[stepIndex]}</h2><p className="arb-panel-copy">{copy.stepCopy[stepIndex]}</p>
-          {(step === 'style' || step === 'shank') && <div className="arb-fixed-choice">{icon('diamond')}<div><h3>{step === 'style' ? copy.settingTitle : copy.bandTitle}</h3><p>{step === 'style' ? copy.settingDescription : copy.fixedChoice}</p></div><span>✓</span></div>}
-          {step === 'metal' && <div className="arb-metal-grid">{(catalog.rules?.metals || METALS).map(metal => {
-            const variants = catalog.setting.variants.filter(v => v.metal === metal && v.available);
+          {step === 'style' && <div className="arb-setting-grid">{settingsOf(catalog).map(family => {
+            const prices = family.variants.filter(v => v.available).map(v => v.price.amount);
+            return <button type="button" className={`arb-setting-card ${selection.settingId === family.id ? 'is-selected' : ''}`} key={family.id} disabled={busy || !prices.length} aria-pressed={selection.settingId === family.id} onClick={() => choose({ settingId: family.id, bandId: 'high-polish', style: family.style }, 'shank')}>
+              <span className="arb-setting-image">{family.imageUrl ? <img src={family.imageUrl} alt="" /> : icon('diamond')}</span><strong>{family.title}</strong><span>{family.style}</span><span>{prices.length ? `${copy.from} ${price(Math.min(...prices))}` : copy.soldOut}</span>
+            </button>;
+          })}</div>}
+          {step === 'shank' && <div className="arb-fixed-choice">{icon('diamond')}<div><h3>{copy.bandTitle}</h3><p>{copy.fixedChoice}</p></div><span>&#10003;</span></div>}
+          {step === 'metal' && <div className="arb-metal-grid">{(activeCatalog!.rules?.metals || METALS).map(metal => {
+            const variants = activeCatalog!.setting.variants.filter(v => v.metal === metal && v.available);
             const available = variants.some(v => v.available);
             return <button className={`arb-metal ${selection.metal === metal ? 'is-selected' : ''}`} type="button" key={metal} disabled={!available || busy} aria-pressed={selection.metal === metal} onClick={() => choose({ metal }, 'shape')}><span className="arb-metal-swatch" style={{ '--metal': metalSwatches[metal] } as React.CSSProperties}><span /></span><span className="arb-option-name">{metal}</span><span className="arb-option-detail">{available && variants.length ? `${copy.from} ${price(Math.min(...variants.map(v => v.price.amount)))}` : copy.soldOut}</span><span className="arb-option-check" aria-hidden="true">{selection.metal === metal ? '✓' : '+'}</span></button>;
           })}</div>}
-          {step === 'shape' && <div className="arb-shape-grid">{(catalog.rules?.shapes || SHAPES).map(shape => <button type="button" className={`arb-shape ${selection.shape === shape ? 'is-selected' : ''}`} key={shape} aria-pressed={selection.shape === shape} disabled={busy} onClick={() => choose({ shape }, 'diamond')}><span className={`arb-gem-shape arb-gem-shape--${shape.toLowerCase()}`} /><strong>{shape}</strong><span className="arb-option-check" aria-hidden="true">{selection.shape === shape ? '✓' : '+'}</span></button>)}</div>}
+          {step === 'shape' && <div className="arb-shape-grid">{(activeCatalog!.rules?.shapes || SHAPES).map(shape => <button type="button" className={`arb-shape ${selection.shape === shape ? 'is-selected' : ''}`} key={shape} aria-pressed={selection.shape === shape} disabled={busy} onClick={() => choose({ shape }, 'diamond')}><span className={`arb-gem-shape arb-gem-shape--${shape.toLowerCase()}`} /><strong>{shape}</strong><span className="arb-option-check" aria-hidden="true">{selection.shape === shape ? '✓' : '+'}</span></button>)}</div>}
           {step === 'diamond' && <>
             {diamond && <aside className="arb-selected-stone"><p>{copy.selectedStone}</p><strong>{diamond.title}</strong><span>{price(diamond.price.amount)}</span></aside>}
             <div className="arb-filters arb-catalog-filters"><label>{copy.searchStone}<input type="search" maxLength={100} value={search} onChange={e => setSearch(e.target.value)} /></label><label>{copy.origin}<select value={origin} onChange={e => setOrigin(e.target.value)}><option value="">{copy.allOrigins}</option><option value="Lab grown">{copy.lab}</option><option value="Natural">{copy.natural}</option></select></label><label>{copy.minCarat}<input type="number" min="0" step="0.05" value={minCarat} onChange={e => setMinCarat(e.target.value)} /></label><label>{copy.maxCarat}<input type="number" min="0" step="0.05" value={maxCarat} onChange={e => setMaxCarat(e.target.value)} /></label><label>{copy.minPrice}<input type="number" min="0" value={minPrice} onChange={e => setMinPrice(e.target.value)} /></label><label>{copy.maxPrice}<input type="number" min="0" value={maxPrice} onChange={e => setMaxPrice(e.target.value)} /></label><label>{copy.color}<input maxLength={20} value={color} onChange={e => setColor(e.target.value)} /></label><label>{copy.clarity}<input maxLength={20} value={clarity} onChange={e => setClarity(e.target.value)} /></label><label>{copy.sort}<select value={sort} onChange={e => setSort(e.target.value)}>{(['featured', 'price-asc', 'price-desc', 'carat-asc', 'carat-desc'] as const).map((value, i) => <option key={value} value={value}>{copy.sortOptions[i]}</option>)}</select></label></div>
@@ -369,8 +380,8 @@ export function RingConfigurator({ apiBase, assetBase }: { apiBase: string; asse
             {results && results.totalPages > 1 && <nav className="arb-pagination" aria-label={copy.resultsPages}><button type="button" disabled={searchBusy || page <= 1} onClick={() => setPage(p => p - 1)}>{copy.previousPage}</button><span>{page} / {results.totalPages}</span><button type="button" disabled={searchBusy || page >= results.totalPages} onClick={() => setPage(p => p + 1)}>{copy.nextPage}</button></nav>}
             <p className="arb-fine-print">{copy.unreserved}</p>
           </>}
-          {step === 'size' && <fieldset className="arb-size-grid"><legend className="arb-sr-only">{copy.ringSize}</legend>{catalog.setting.variants.filter(v => v.metal === selection.metal).map(v => <button type="button" key={v.id} disabled={!v.available || busy} aria-pressed={selection.size === v.size} className={selection.size === v.size ? 'is-selected' : ''} onClick={() => choose({ size: v.size }, 'engraving')}>{v.size}</button>)}</fieldset>}
-          {step === 'engraving' && <div className="arb-engraving"><label className="arb-radio"><input type="radio" name="arb-engraving" checked={!selection.engravingEnabled} disabled={busy} onChange={() => choose({ engravingEnabled: false, engraving: '' })} /><span>{copy.noEngraving}</span></label><label className="arb-radio"><input type="radio" name="arb-engraving" checked={selection.engravingEnabled} disabled={!catalog.engraving.available || busy} onChange={() => choose({ engravingEnabled: true })} /><span>{copy.addEngraving}</span><span>{catalog.engraving.variantId ? price(catalog.engraving.price.amount) : copy.soldOut}</span></label>{selection.engravingEnabled && <div className="arb-engraving-field"><label htmlFor="arb-inscription">{copy.inscription}</label><input id="arb-inscription" autoComplete="off" value={selection.engraving} disabled={busy} onChange={e => { if (characterCount(e.target.value) <= catalog.engraving.maxLength) choose({ engraving: e.target.value }); }} aria-describedby="arb-count arb-engraving-note" /><p id="arb-count" aria-live="polite">{catalog.engraving.maxLength - characterCount(selection.engraving)} {copy.charactersLeft}</p><p className="arb-inscription-preview" aria-hidden="true">{selection.engraving || '…'}</p><p className="arb-fine-print" id="arb-engraving-note">{copy.engravingNote}</p></div>}</div>}
+          {step === 'size' && <fieldset className="arb-size-grid"><legend className="arb-sr-only">{copy.ringSize}</legend>{activeCatalog!.setting.variants.filter(v => v.metal === selection.metal).map(v => <button type="button" key={v.id} disabled={!v.available || busy} aria-pressed={selection.size === v.size} className={selection.size === v.size ? 'is-selected' : ''} onClick={() => choose({ size: v.size }, 'engraving')}>{v.size}</button>)}</fieldset>}
+          {step === 'engraving' && <div className="arb-engraving"><label className="arb-radio"><input type="radio" name="arb-engraving" checked={!selection.engravingEnabled} disabled={busy} onChange={() => choose({ engravingEnabled: false, engraving: '' })} /><span>{copy.noEngraving}</span></label><label className="arb-radio"><input type="radio" name="arb-engraving" checked={selection.engravingEnabled} disabled={!activeCatalog!.engraving.available || busy} onChange={() => choose({ engravingEnabled: true })} /><span>{copy.addEngraving}</span><span>{activeCatalog!.engraving.variantId ? price(activeCatalog!.engraving.price.amount) : copy.soldOut}</span></label>{selection.engravingEnabled && <div className="arb-engraving-field"><label htmlFor="arb-inscription">{copy.inscription}</label><input id="arb-inscription" autoComplete="off" value={selection.engraving} disabled={busy} onChange={e => { if (characterCount(e.target.value) <= activeCatalog!.engraving.maxLength) choose({ engraving: e.target.value }); }} aria-describedby="arb-count arb-engraving-note" /><p id="arb-count" aria-live="polite">{activeCatalog!.engraving.maxLength - characterCount(selection.engraving)} {copy.charactersLeft}</p><p className="arb-inscription-preview" aria-hidden="true">{selection.engraving || '…'}</p><p className="arb-fine-print" id="arb-engraving-note">{copy.engravingNote}</p></div>}</div>}
           {step === 'review' && <>
             {savedDesign?.previewUrl && <figure style={{ margin: '0 0 20px' }}><img src={savedDesign.previewUrl} alt={copy.savedPreview} style={{ width: '100%', maxHeight: 240, objectFit: 'contain' }} /><figcaption className="arb-fine-print">{copy.savedPreview}</figcaption></figure>}
             <dl className="arb-review-list">{summary.map((value, i) => <div key={i}><dt>{copy.stepNames[i]}</dt><dd>{value}</dd><button onClick={() => go(STEPS[i])} type="button" disabled={busy || !canNavigate(STEPS[i], selection, catalog)} aria-label={`${copy.edit} ${copy.stepNames[i]}`}>{copy.edit}</button></div>)}</dl>

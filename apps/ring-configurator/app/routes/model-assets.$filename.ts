@@ -1,7 +1,8 @@
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import type { LoaderFunctionArgs } from "react-router";
-const publicModels = new Set(["lumen-visual-v1-round.glb", "lumen-visual-v1-oval.glb", "lumen-visual-v2-round.glb", "lumen-visual-v2-oval.glb", "manifest.json"]);
+import { assetFiles } from '../../shared/assets';
+const publicModels = new Set([...assetFiles, 'manifest.json', 'asset-report.json']);
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const filename = params.filename || "";
   if (!publicModels.has(filename)) return new Response("Model not found", { status: 404 });

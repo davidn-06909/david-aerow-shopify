@@ -1,7 +1,9 @@
+import { shopifyRead } from './shopify-read.server';
 import type { Bootstrap, Metal, PilotDiamond } from "../../shared/contract";
 import { METALS } from "../../shared/contract";
 import { PilotError } from "./errors.server";
-import { ASSET_VERSION, PILOT_VERSION, assertMapping, gid, numericId, type PilotManifest } from "./manifest.server";
+import { ASSET_VERSION, PILOT_VERSION, assertMapping, gid, numericId, settingMappings, type PilotManifest } from "./manifest.server";
+import { assembly } from '../../shared/assets';
 import { activeManifest } from "./catalog-state.server";
 export type AdminClient = { graphql: (query: string, options?: { variables?: Record<string, unknown> }) => Promise<Response> };
 type VariantNode = { id: string; title: string; price: string; availableForSale: boolean; sellableOnlineQuantity: number; inventoryQuantity: number | null; inventoryPolicy: string; inventoryItem: { tracked: boolean; inventoryLevel?: { quantities: { name: string; quantity: number }[] } | null }; selectedOptions: { name: string; value: string }[]; product: { id: string; title: string; handle: string; status: string; publishedAt: string | null; onlineStoreUrl: string | null; featuredImage: { url: string } | null } };
@@ -22,32 +24,42 @@ function variantOptions(v: VariantNode): { metal?: Metal; size?: string } {
 }
 export interface CatalogReport { errors: string[]; warnings: string[]; checkedAt: string }
 const variantFragment = `fragment Variant on ProductVariant { id title price availableForSale sellableOnlineQuantity inventoryQuantity inventoryPolicy inventoryItem { tracked inventoryLevel(locationId: $fulfillmentLocation) { quantities(names: ["available"]) { name quantity } } } selectedOptions { name value } product { id title handle status publishedAt onlineStoreUrl featuredImage { url } } }`;
-export async function inspectMappedCatalog(admin: AdminClient, shop: string, manifest: PilotManifest, version = "draft"): Promise<{ catalog: Bootstrap; report: CatalogReport; mappings: { id: string; title: string; available: boolean }[] }> {
+async function inspectSingleSetting(admin: AdminClient, shop: string, manifest: PilotManifest, version = "draft"): Promise<{ catalog: Bootstrap; report: CatalogReport; mappings: { id: string; title: string; available: boolean }[] }> {
   assertMapping(manifest, shop);
   const report: CatalogReport = { errors: [], warnings: [], checkedAt: new Date().toISOString() };
   let fulfillmentLocation = manifest.fulfillmentLocationId || process.env.PILOT_FULFILLMENT_LOCATION_ID;
   if (!fulfillmentLocation) {
-    const location = await (await admin.graphql(`query PilotPrimaryLocation { location { id } }`)).json();
+    const location = await (await shopifyRead(admin, `query PilotPrimaryLocation { location { id } }`)).json();
     fulfillmentLocation = location.data?.location?.id;
   }
   if (!fulfillmentLocation) throw new PilotError("FULFILLMENT_LOCATION_REQUIRED", "Map the pilot's online fulfillment location before checking diamond stock.", 503);
   const componentIds = [manifest.engravingVariantId, ...manifest.diamonds.map(d => d.variantId)].map(id => gid("ProductVariant", id));
-  const response = await admin.graphql(`query PilotCatalog($setting: ID!, $components: [ID!]!, $fulfillmentLocation: ID!) {
+  const response = await shopifyRead(admin, `query PilotCatalog($setting: ID!, $components: [ID!]!, $fulfillmentLocation: ID!) {
     shop { currencyCode plan { partnerDevelopment } }
-    setting: product(id: $setting) { id title handle status publishedAt onlineStoreUrl featuredImage { url } variants(first: 100) { nodes { ...Variant } pageInfo { hasNextPage } } }
+    setting: product(id: $setting) { id title handle status publishedAt onlineStoreUrl featuredImage { url } variants(first: 50) { nodes { ...Variant } pageInfo { hasNextPage endCursor } } }
     components: nodes(ids: $components) { ... on ProductVariant { ...Variant } }
   }
   ${variantFragment}`, { variables: { setting: gid("Product", manifest.settingProductId), components: componentIds.slice(0, 25), fulfillmentLocation: gid("Location", fulfillmentLocation) } });
   const body = await response.json();
   if (!response.ok || body.errors || !body.data?.setting) throw new PilotError("SHOPIFY_CATALOG", "Shopify could not provide the mapped pilot catalog. Check access scopes and product IDs.", 503);
-  const data = body.data as { shop: { currencyCode: string; plan: { partnerDevelopment: boolean } }; setting: { title: string; handle: string; featuredImage?: { url: string }; variants: { nodes: VariantNode[]; pageInfo: { hasNextPage: boolean } } }; components: (VariantNode | null)[] };
+  const data = body.data as { shop: { currencyCode: string; plan: { partnerDevelopment: boolean } }; setting: { title: string; handle: string; featuredImage?: { url: string }; variants: { nodes: VariantNode[]; pageInfo: { hasNextPage: boolean; endCursor?: string } } }; components: (VariantNode | null)[] };
+  const cursors = new Set<string>();
+  while (data.setting.variants.pageInfo.hasNextPage) {
+    const cursor = data.setting.variants.pageInfo.endCursor;
+    if (!cursor || cursors.has(cursor) || data.setting.variants.nodes.length >= 2048) throw new PilotError('SETTING_VARIANTS', 'Shopify returned an invalid or oversized setting variant connection.', 503);
+    cursors.add(cursor);
+    const page = await shopifyRead(admin, `query SettingVariants($setting: ID!, $after: String!, $fulfillmentLocation: ID!) { setting: product(id: $setting) { variants(first: 50, after: $after) { nodes { ...Variant } pageInfo { hasNextPage endCursor } } } } ${variantFragment}`, { variables: { setting: gid('Product', manifest.settingProductId), after: cursor, fulfillmentLocation: gid('Location', fulfillmentLocation) } });
+    const next = await page.json();
+    if (!page.ok || next.errors || !next.data?.setting?.variants) throw new PilotError('SHOPIFY_CATALOG', 'Shopify could not load setting sizes. Please retry.', 503);
+    data.setting.variants.nodes.push(...next.data.setting.variants.nodes);
+    data.setting.variants.pageInfo = next.data.setting.variants.pageInfo;
+  }
   for (let offset = 25; offset < componentIds.length; offset += 25) {
-    const result = await admin.graphql(`query CatalogComponents($components: [ID!]!, $fulfillmentLocation: ID!) { components: nodes(ids: $components) { ... on ProductVariant { ...Variant } } } ${variantFragment}`, { variables: { components: componentIds.slice(offset, offset + 25), fulfillmentLocation: gid("Location", fulfillmentLocation) } });
+    const result = await shopifyRead(admin, `query CatalogComponents($components: [ID!]!, $fulfillmentLocation: ID!) { components: nodes(ids: $components) { ... on ProductVariant { ...Variant } } } ${variantFragment}`, { variables: { components: componentIds.slice(offset, offset + 25), fulfillmentLocation: gid("Location", fulfillmentLocation) } });
     const batch = await result.json();
     if (!result.ok || batch.errors || !Array.isArray(batch.data?.components)) throw new PilotError("SHOPIFY_CATALOG", "Shopify could not load this catalog page. Please retry.", 503);
     data.components.push(...batch.data.components);
   }
-  if (data.setting.variants.pageInfo.hasNextPage) throw new PilotError("SETTING_VARIANTS", "The pilot setting has more than 100 variants; narrow the product mapping.", 503);
   const currency = data.shop.currencyCode;
   const variants = data.setting.variants.nodes.flatMap(v => { const o = variantOptions(v); return o.metal && manifest.rules.metals.includes(o.metal) && o.size ? [{ id: numericId(v.id), metal: o.metal, size: o.size, price: { amount: minorUnits(v.price, currency), currency }, available: canPurchase(v) }] : []; });
   const settingProduct = data.setting.variants.nodes[0]?.product;
@@ -73,13 +85,37 @@ export async function inspectMappedCatalog(admin: AdminClient, shop: string, man
   const purchaseEnabled = process.env.ENABLE_PURCHASES === "true" && process.env.PILOT_ALLOWED_SHOP === shop && data.shop.plan.partnerDevelopment;
   return { report, mappings: data.components.filter((v): v is VariantNode => Boolean(v)).map(v => ({ id: numericId(v.id), title: v.product.title, available: canPurchase(v) && v.inventoryItem.tracked && v.inventoryPolicy === "DENY" && v.sellableOnlineQuantity === 1 && v.inventoryItem.inventoryLevel?.quantities.find(q => q.name === "available")?.quantity === 1 })), catalog: { mode: "connected", canPurchase: purchaseEnabled, shop, currency, pilotVersion: PILOT_VERSION, catalogVersion: version, catalogObservedAt: report.checkedAt, rules: manifest.rules, assetVersion: ASSET_VERSION, assetBaseUrl: process.env.ASSET_BASE_URL || `${process.env.SHOPIFY_APP_URL || "http://localhost:3000"}/model-assets`, notices: [...(!engravingNode ? ["Engraving is unavailable."] : []), ...(purchaseEnabled ? [] : ["Purchasing is disabled. Enable the explicitly allowed Shopify development store after reviewing diagnostics."]), "Representative 3D preview. Physical gemstone fitting is unverified.", "Selecting a diamond does not reserve it.", "Pilot pricing uses the development store's base currency."], setting: { handle: data.setting.handle, title: data.setting.title, style: "Hidden halo", shank: "High polish", imageUrl: data.setting.featuredImage?.url || "", variants }, engraving: { variantId: engravingNode ? numericId(engravingNode.id) : "", price: { amount: engravingNode ? minorUnits(engravingNode.price, currency) : 0, currency }, available: manifest.rules.engravingEnabled && (engravingNode ? canPurchase(engravingNode) : false), maxLength: manifest.rules.engravingMaxLength }, diamonds } };
 }
+export async function inspectMappedCatalog(admin: AdminClient, shop: string, manifest: PilotManifest, version = 'draft') {
+  const families = settingMappings(manifest).filter(s => s.enabled);
+  const results = [];
+  for (const family of families) {
+    const inspected = await inspectSingleSetting(admin, shop, { ...manifest, settingProductId: family.productId, rules: family.rules }, version);
+    if (!assembly(family.assetVersion)) inspected.report.errors.push('Select an approved model version.');
+    const familyAssembly = assembly(family.assetVersion);
+    if (familyAssembly && familyAssembly.family !== family.family) inspected.report.errors.push('The selected model does not match this setting family.');
+    inspected.catalog.setting = { ...inspected.catalog.setting, id: family.id, title: family.title, style: family.style, assetVersion: family.assetVersion, rules: family.rules, variants: inspected.catalog.setting.variants.filter(v => !family.rules.sizes?.length || family.rules.sizes.includes(v.size)) };
+    if (!inspected.catalog.setting.variants.length) inspected.report.errors.push('No Shopify variants match the allowed sizes.');
+    inspected.catalog.assetVersion = family.assetVersion;
+    results.push(inspected);
+  }
+  if (!results.length) throw new PilotError('SETTING_REQUIRED', 'Enable at least one setting.', 422);
+  // Keep the legacy singular field tied to Lumen so old extensions cannot accidentally buy another family.
+  const base = results.find(r => r.catalog.setting.id === 'lumen') || results[0];
+  const catalog: Bootstrap = { ...base.catalog, settings: results.map(r => r.catalog.setting), diamonds: [...new Map(results.flatMap(r => r.catalog.diamonds).map(d => [d.id, d])).values()] };
+  catalog.engraving = { ...base.catalog.engraving, available: results.some(r => r.catalog.engraving.available), maxLength: Math.max(...results.map(r => r.catalog.engraving.maxLength)) };
+  const settingIds = new Set(catalog.settings!.flatMap(s => s.variants.map(v => v.id)));
+  const errors = results.flatMap((r, i) => r.report.errors.map(e => `${families[i].title}: ${e}`));
+  if (catalog.diamonds.some(d => settingIds.has(d.id)) || settingIds.has(manifest.engravingVariantId)) errors.push('A setting variant cannot also be a diamond or engraving service.');
+  return { catalog, report: { errors, warnings: results.flatMap((r, i) => r.report.warnings.map(e => `${families[i].title}: ${e}`)), checkedAt: new Date().toISOString() }, mappings: base.mappings };
+}
 const cache = new Map<string, { expires: number; catalog: Bootstrap }>();
 export async function loadCatalog(admin: AdminClient, shop: string, options: { cached?: boolean } = {}): Promise<Bootstrap> {
   const active = await activeManifest(shop);
   const key = `${shop}/${active.version}`;
   const hit = cache.get(key);
   if (options.cached && hit && hit.expires > Date.now()) return hit.catalog;
-  const { catalog } = await inspectMappedCatalog(admin, shop, active.manifest, active.version);
+  const { catalog, report } = await inspectMappedCatalog(admin, shop, active.manifest, active.version);
+  if (report.errors.length) throw new PilotError('CATALOG_INVALID', report.errors[0], 503);
   if (options.cached) { cache.clear(); cache.set(key, { catalog, expires: Date.now() + 20_000 }); }
   return catalog;
 }

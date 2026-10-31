@@ -62,3 +62,17 @@ test("200 mapped stones load from bounded Shopify batches without exposing inven
   const { catalog, report } = await inspectMappedCatalog(admin, m.shop, m);
   expect(report.errors).toEqual([]); expect(catalog.diamonds).toHaveLength(200); expect(requests).toHaveLength(9); expect(Math.max(...requests)).toBeLessThanOrEqual(25);
 });
+
+test('setting variant pagination reads every page and rejects a repeated cursor', async () => {
+  const m = manifestSchema.parse(await manifest()); m.fulfillmentLocationId = '9002'; m.rules.metals = ['Platinum'];
+  const variant = (id: string, size = '4.5') => ({ id, title: 'Pagination fixture', price: '100.00', availableForSale: true, sellableOnlineQuantity: 1, inventoryQuantity: 1, inventoryPolicy: 'DENY', inventoryItem: { tracked: true, inventoryLevel: { quantities: [{ name: 'available', quantity: 1 }] } }, selectedOptions: [{ name: 'Metal', value: 'Platinum' }, { name: 'Ring size', value: size }], product: { id: 'gid://shopify/Product/999', title: 'Fixture', handle: 'fixture', status: 'ACTIVE', publishedAt: '2026-01-01', featuredImage: null } });
+  const visited: string[] = []; let repeat = false;
+  const admin = { async graphql(query: string, options?: { variables?: Record<string, unknown> }) {
+    const after = String(options?.variables?.after || '0'), offset = Number(after); if (offset) visited.push(after);
+    const next = Math.min(offset + 50, 151);
+    return Response.json({ data: { shop: { currencyCode: 'USD', plan: { partnerDevelopment: true } }, setting: { title: 'Fixture', handle: 'fixture', variants: { nodes: Array.from({ length: next - offset }, (_, i) => variant(`gid://shopify/ProductVariant/${100000 + offset + i}`, String(offset + i))), pageInfo: { hasNextPage: next < 151, endCursor: repeat && offset ? after : String(next) } } }, components: ((options?.variables?.components || []) as string[]).map(id => variant(id)) } });
+  } };
+  const result = await inspectMappedCatalog(admin, m.shop, m);
+  expect(result.catalog.setting.variants).toHaveLength(151); expect(visited).toEqual(['50', '100', '150']);
+  repeat = true; await expect(inspectMappedCatalog(admin, m.shop, m)).rejects.toThrow(/invalid or oversized/);
+});

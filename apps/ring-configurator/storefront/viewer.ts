@@ -106,6 +106,8 @@ export function mount(container: HTMLElement, initial: ViewerConfiguration, call
   const models = new Map<string, Group>();
   const pending = new Map<string, Promise<Group>>();
   const abortControllers = new Set<AbortController>();
+  const loads = new Map<string, AbortController>();
+  let wantedModel = '';
 
   const resize = () => {
     if (destroyed) return;
@@ -172,6 +174,7 @@ export function mount(container: HTMLElement, initial: ViewerConfiguration, call
     if (pending.has(key)) return pending.get(key)!;
     const abort = new AbortController();
     abortControllers.add(abort);
+    loads.set(key, abort);
     const task = (async () => {
       const url = `${baseUrl.replace(/\/$/, '')}/${version}-${shape.toLowerCase()}.glb`;
       const response = await fetch(url, { signal: abort.signal });
@@ -185,7 +188,7 @@ export function mount(container: HTMLElement, initial: ViewerConfiguration, call
       head.name = 'DynamicHead';
       const oldMaterials = new Set<MeshPhysicalMaterial>();
       for (const child of [...group.children]) {
-        if (child.name !== 'Band') { group.remove(child); head.add(child); }
+        if (child.name !== 'Band' && child.name !== 'HeadAnchor' && child.name !== 'EngravingRegion') { group.remove(child); head.add(child); }
       }
       group.add(head);
       group.traverse((object) => {
@@ -195,12 +198,12 @@ export function mount(container: HTMLElement, initial: ViewerConfiguration, call
         object.material = previous.name === 'aevow-metal' ? metal : gemstone;
       });
       oldMaterials.forEach((material) => material.dispose());
-      if (destroyed) { disposeObject(group); throw new DOMException('Viewer destroyed', 'AbortError'); }
+      if (destroyed || key !== wantedModel) { disposeObject(group); throw new DOMException('Viewer superseded', 'AbortError'); }
       models.set(key, group);
       return group;
     })();
     pending.set(key, task);
-    try { return await task; } finally { pending.delete(key); abortControllers.delete(abort); }
+    try { return await task; } finally { if (pending.get(key) === task) pending.delete(key); if (loads.get(key) === abort) loads.delete(key); abortControllers.delete(abort); }
   }
 
   function updateBandAndEngraving() {
@@ -238,6 +241,8 @@ export function mount(container: HTMLElement, initial: ViewerConfiguration, call
     metal.roughness = preset.roughness;
     const base = config.assetBaseUrl || '/models';
     const version = config.assetVersion || MODEL_VERSION;
+    wantedModel = `${base}|${version}|${config.shape}`;
+    for (const [key, controller] of loads) if (key !== wantedModel) { controller.abort(); loads.delete(key); pending.delete(key); }
     const cached = models.get(`${base}|${version}|${config.shape}`);
     if (!cached) callbacks.onStatus?.('loading');
     try {
@@ -250,6 +255,8 @@ export function mount(container: HTMLElement, initial: ViewerConfiguration, call
         activeHead = group.getObjectByName('DynamicHead') as Group;
         scene.add(group);
         appliedSize = '';
+        // Retain only the current assembly. Shared metal/gem materials belong to the viewer.
+        for (const [key, old] of models) if (old !== group) { models.delete(key); disposeObject(old); }
       }
       // This visual carat profile is explicitly illustrative, never a physical-fitting measurement.
       const scale = Math.cbrt(Math.min(3, Math.max(0.5, Number(config.diamondCarat) || 2)) / 2);

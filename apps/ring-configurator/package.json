@@ -8,7 +8,7 @@
   "scripts": {
     "dev": "shopify app dev",
     "dev:server": "node --env-file-if-exists=.env ./node_modules/@react-router/dev/bin.js dev",
-    "build": "react-router build",
+    "build": "npm run models:check && react-router build",
     "build:storefront": "vite build --config vite.storefront.config.ts && node scripts/copy-storefront.mjs",
     "models": "tsx scripts/generate-models.ts",
     "start": "node --env-file-if-exists=.env ./node_modules/@react-router/serve/bin.js ./build/server/index.js",
@@ -25,7 +25,8 @@
     "connect:installed": "node --env-file-if-exists=.env --import tsx scripts/connect-installed-app.ts",
     "setup:commerce": "node --env-file-if-exists=.env --import tsx scripts/prepare-pilot-commerce.ts",
     "catalog:initialize": "node --env-file-if-exists=.env --import tsx scripts/initialize-catalog.ts",
-    "build:netlify": "node scripts/build-netlify.mjs"
+    "build:netlify": "npm run models:check && node scripts/build-netlify.mjs",
+    "models:check": "tsx scripts/validate-models.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.922.0",
@@ -51,6 +52,7 @@
     "@types/react": "^18.3.25",
     "@types/react-dom": "^18.3.7",
     "@types/three": "^0.185.0",
+    "gltf-validator": "^2.0.0-dev.3.10",
     "prisma": "^6.19.0",
     "tsx": "^4.20.6",
     "typescript": "^5.9.3",

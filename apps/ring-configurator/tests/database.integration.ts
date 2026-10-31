@@ -157,6 +157,52 @@ try {
   assert.ok(authenticationChallenge);
   assert.equal((await prisma.catalogState.findUniqueOrThrow({ where: { shop: targetShop } })).revision, revisionBefore);
   check("unauthenticated admin submissions cannot change merchant drafts");
+  const { settingMappings } = await import('../app/services/manifest.server');
+  const familyAdmin = { async graphql(query: string, options?: { variables?: Record<string, unknown> }) {
+    const result = await admin.graphql(); const body = await result.json();
+    if (String(options?.variables?.setting).endsWith('/900500')) {
+      body.data.setting.title = 'Fixture Solitaire'; body.data.setting.handle = 'fixture-solitaire';
+      body.data.setting.variants.nodes = body.data.setting.variants.nodes.map((v: { id: string; price: string; product: object }) => ({ ...v, id: v.id.replace('/91', '/93'), price: (Number(v.price) - 1000).toFixed(2), product: { ...v.product, id: 'gid://shopify/Product/900500' } }));
+    }
+    return Response.json(body);
+  } };
+  const oldState = await prisma.catalogState.findUniqueOrThrow({ where: { shop: targetShop } });
+  const twoFamily = (await activeManifest(targetShop)).manifest;
+  const lumenMapping = { ...settingMappings(twoFamily)[0], assetVersion: 'lumen-visual-v3' };
+  twoFamily.schemaVersion = 2;
+  twoFamily.settings = [lumenMapping, { ...lumenMapping, rules: { ...lumenMapping.rules }, id: 'solitaire', style: 'Solitaire', family: 'solitaire', title: 'Fixture Solitaire', productId: '900500', assetVersion: 'solitaire-visual-v1' }];
+  await saveCatalogDraft(targetShop, oldState.revision, twoFamily);
+  const familyRelease = await publishCatalog(familyAdmin, targetShop, oldState.revision + 1, 'test-merchant');
+  const familyCatalog = await loadCatalog(familyAdmin, targetShop);
+  assert.equal(familyCatalog.settings?.length, 2);
+  const familyRequest = { ...request, requestId: randomUUID(), selection: { ...request.selection, settingId: 'solitaire', bandId: 'high-polish', style: 'Solitaire' } };
+  const familyQuote = await createQuote(familyRequest, familyCatalog);
+  assert.equal(familyQuote.prices.total.amount, 459500);
+  assert.ok(familyQuote.items[0].id.startsWith('93'));
+  assert.ok(familyQuote.items.every(i => i.properties._aevow_setting_id === 'solitaire' && i.properties._aevow_asset_version === 'solitaire-visual-v1' && i.properties._aevow_rule_version === 'multi-setting-v1'));
+  check('two-family publication resolves separate Shopify variants, prices and immutable model/rule references');
+  const familyDesign = await getDesign(targetShop, familyQuote.designId);
+  assert.equal(familyDesign.settingTitle, 'Fixture Solitaire'); assert.equal(familyDesign.assetVersion, 'solitaire-visual-v1');
+  const familyOrder = { id: 'multi-family-test-order', financial_status: 'paid', line_items: familyQuote.items.map((item, i) => ({ id: i + 1, variant_id: item.id, quantity: item.quantity, properties: Object.entries(item.properties).map(([name, value]) => ({ name, value })) })) };
+  assert.equal((await webhook(familyOrder)).status, 200);
+  assert.equal((await prisma.orderDesign.findFirstOrThrow({ where: { designId: familyQuote.designId } })).status, 'verified_paid');
+  check('signed webhook retains and verifies family, band and rule-version properties');
+  const beforeTampering = await prisma.design.count();
+  await assert.rejects(createQuote({ ...familyRequest, requestId: randomUUID(), selection: { ...familyRequest.selection, style: 'Hidden halo' } }, familyCatalog), /not supported/);
+  assert.equal(await prisma.design.count(), beforeTampering);
+  check('contradictory family selections cannot create a design or charge another setting price');
+  const familyState = await prisma.catalogState.findUniqueOrThrow({ where: { shop: targetShop } });
+  const missingAsset = structuredClone(twoFamily); missingAsset.settings![1].assetVersion = 'not-deployed';
+  await saveCatalogDraft(targetShop, familyState.revision, missingAsset);
+  await assert.rejects(publishCatalog(familyAdmin, targetShop, familyState.revision + 1, 'test-merchant'), /validation errors/);
+  assert.equal((await activeManifest(targetShop)).version, familyRelease.version);
+  check('unavailable model releases cannot replace the published setting catalog');
+  const snapshotBefore = JSON.stringify((await prisma.design.findUniqueOrThrow({ where: { id: familyQuote.designId } })).snapshot);
+  await publishCatalog(familyAdmin, targetShop, familyState.revision + 1, 'test-merchant', restored.version);
+  assert.equal((await loadCatalog(familyAdmin, targetShop)).settings?.length, 1);
+  assert.equal(JSON.stringify((await prisma.design.findUniqueOrThrow({ where: { id: familyQuote.designId } })).snapshot), snapshotBefore);
+  assert.equal((await getDesign(targetShop, familyQuote.designId)).selection.settingId, 'solitaire');
+  check('rollback to a legacy release preserves the newer Solitaire snapshot and historical model reference');
   console.log(`PostgreSQL integration complete: ${passed} checks passed. No external Shopify order was placed.`);
 } finally {
   await prisma?.$disconnect();

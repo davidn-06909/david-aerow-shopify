@@ -5,6 +5,9 @@
  * ------------------------------------------------------------------------- */
 @import "tailwindcss";
 
+/* The isolated configurator ships its own CSS and must not affect theme utilities. */
+@source not "../../apps/ring-configurator";
+
 /* ---------------------------------------------------------------------------
  * Source globs — what Tailwind scans for class names. Paths are relative to
  * THIS file (src/tailwind/index.css).

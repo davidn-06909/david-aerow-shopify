@@ -1,6 +1,11 @@
 import type { Bootstrap, DiamondPage, PilotDiamond } from "../../shared/contract";
 import { PilotError } from "./errors.server";
+import { diamondFits, settingsOf } from '../../shared/compatibility';
 export function searchDiamonds(catalog: Bootstrap, params: URLSearchParams): DiamondPage {
+  const settingId = params.get('setting');
+  const setting = settingId ? settingsOf(catalog).find(s => s.id === settingId) : undefined;
+  if (settingId && !setting) throw new PilotError('SETTING_INVALID', 'This setting is no longer offered.', 422);
+  if (setting) catalog = { ...catalog, diamonds: catalog.diamonds.filter(d => diamondFits(setting, d)) };
   const range = (name: string, fallback: number) => { const raw = params.get(name); const v = raw ? Number(raw) : fallback; if (Number.isNaN(v) || v < 0 || (raw && !Number.isFinite(v))) throw new PilotError("INVALID_FILTER", "Enter valid numeric filter ranges.", 400); return v; };
   const minCarat = range("minCarat", 0), maxCarat = range("maxCarat", Infinity), minPrice = range("minPrice", 0), maxPrice = range("maxPrice", Infinity);
   if (minCarat > maxCarat || minPrice > maxPrice) throw new PilotError("INVALID_FILTER", "Minimum values cannot exceed maximum values.", 400);

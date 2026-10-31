@@ -1,5 +1,5 @@
 {
-  "version": "lumen-visual-v2",
+  "version": "ring-assets-v3",
   "physicalFitVerified": false,
   "description": "Reference-proportioned visual pilot. Geometry and stone profiles are illustrative, not manufacturing CAD.",
   "units": "illustrative-mm",
@@ -17,13 +17,21 @@
     }
   },
   "shapes": {
-    "Round": {
-      "file": "lumen-visual-v2-round.glb",
-      "bytes": 456140
+    "hidden-halo/Round": {
+      "file": "lumen-visual-v3-round.glb",
+      "bytes": 456380
     },
-    "Oval": {
-      "file": "lumen-visual-v2-oval.glb",
-      "bytes": 470584
+    "hidden-halo/Oval": {
+      "file": "lumen-visual-v3-oval.glb",
+      "bytes": 470828
+    },
+    "solitaire/Round": {
+      "file": "solitaire-visual-v1-round.glb",
+      "bytes": 394752
+    },
+    "solitaire/Oval": {
+      "file": "solitaire-visual-v1-oval.glb",
+      "bytes": 394748
     }
   }
 }

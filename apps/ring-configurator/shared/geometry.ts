@@ -5,7 +5,7 @@ import {
 
 /** All distances are illustrative millimetres, never certified gemstone measurements. */
 export const MODEL_VERSION = 'lumen-visual-v2';
-export const SUPPORTED_MODEL_VERSIONS = ['lumen-visual-v1', 'lumen-visual-v2'] as const;
+export const SUPPORTED_MODEL_VERSIONS = ['lumen-visual-v1', 'lumen-visual-v2', 'lumen-visual-v3', 'solitaire-visual-v1'] as const;
 export const REFERENCE_RING_SIZE = 6.5;
 const SHOULDER_ANGLE = 55 * Math.PI / 180;
 export type GemShape = 'Round' | 'Oval';
@@ -195,9 +195,9 @@ function tube(points: Vector3[], radius: number, material: MeshPhysicalMaterial,
   return mesh;
 }
 
-export function createRingAssembly(shape: GemShape = 'Round', size: string | number = REFERENCE_RING_SIZE): Group {
+export function createRingAssembly(shape: GemShape = 'Round', size: string | number = REFERENCE_RING_SIZE, family: 'hidden-halo' | 'solitaire' = 'hidden-halo'): Group {
   const group = new Group();
-  group.name = `The Lumen — ${shape}`;
+  group.name = `${family === 'solitaire' ? 'Solitaire' : 'The Lumen'} — ${shape}`;
   group.userData = { assetVersion: MODEL_VERSION, units: 'illustrative-mm', physicalFitVerified: false, referenceSize: REFERENCE_RING_SIZE };
   const metal = createMetalMaterial();
   const gemMaterial = createGemMaterial();
@@ -222,12 +222,12 @@ export function createRingAssembly(shape: GemShape = 'Round', size: string | num
     const angle = (i / 64) * Math.PI * 2;
     return new Vector3(Math.cos(angle) * rx, headY - 0.84, Math.sin(angle) * rz);
   });
-  head.add(tube(haloPoints, 0.2, metal, 'HiddenHaloRail'));
+  if (family === 'hidden-halo') head.add(tube(haloPoints, 0.2, metal, 'HiddenHaloRail'));
   head.add(tube(Array.from({ length: 49 }, (_, i) => {
     const angle = i / 48 * Math.PI * 2;
     return new Vector3(Math.cos(angle) * 2.5, 8.55, Math.sin(angle) * 0.95);
   }), 0.19, metal, 'BasketBridge'));
-  const haloCount = shape === 'Round' ? 24 : 28;
+  const haloCount = family === 'solitaire' ? 0 : shape === 'Round' ? 24 : 28;
   for (let i = 0; i < haloCount; i++) {
     const angle = (i / haloCount) * Math.PI * 2;
     const accent = new Mesh(new IcosahedronGeometry(0.27, 0), gemMaterial);
@@ -242,8 +242,9 @@ export function createRingAssembly(shape: GemShape = 'Round', size: string | num
     }
   }
 
-  for (let i = 0; i < 4; i++) {
-    const angle = Math.PI / 4 + i * Math.PI / 2;
+  const prongCount = family === 'solitaire' ? 6 : 4;
+  for (let i = 0; i < prongCount; i++) {
+    const angle = Math.PI / 4 + i * Math.PI * 2 / prongCount;
     const x = Math.cos(angle);
     const z = Math.sin(angle);
     head.add(tube([

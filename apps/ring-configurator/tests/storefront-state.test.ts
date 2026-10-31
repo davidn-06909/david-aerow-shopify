@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { Bootstrap, SavedDesign, Selection } from '../shared/contract';
 import { canNavigate, characterCount, emptySelection, reconcileSelection, restoreSelection, savedDesignState, selectionUrl, stepComplete, themePreviewUrl } from '../storefront/state';
-const catalog = { setting: { handle: 'the-lumen', variants: [{ id: '1', metal: 'Platinum', size: '4.5', price: { amount: 245000, currency: 'USD' }, available: true }] }, engraving: { maxLength: 20, available: true }, diamonds: [{ id: '12', sourceVariantId: '55882563911753', shape: 'Round', available: true }] } as Bootstrap;
+const catalog = { assetVersion: 'lumen-visual-v2', setting: { handle: 'the-lumen', style: 'Hidden halo', shank: 'High polish', variants: [{ id: '1', metal: 'Platinum', size: '4.5', price: { amount: 245000, currency: 'USD' }, available: true }] }, engraving: { maxLength: 20, available: true }, diamonds: [{ id: '12', sourceVariantId: '55882563911753', shape: 'Round', available: true }] } as Bootstrap;
 const original = new URL('https://example.test/pages/design-your-ring?style=Hidden+halo&step=review&size=4.5&engraving=3ertyui&metal=Platinum&shank=High+polish&shape=Round&diamond=55882563911753');
 describe('storefront configuration restoration', () => {
   it('hydrates numeric legacy links before allowing review', () => { const result = restoreSelection(original, catalog); expect(result.step).toBe('review'); expect(result.selection.diamondId).toBe('12'); expect(canNavigate('review', result.selection, catalog)).toBe(true); });

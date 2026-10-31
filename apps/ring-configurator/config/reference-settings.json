@@ -1,0 +1,680 @@
+{
+  "capturedAt": "2026-10-31T05:13:12.265Z",
+  "shop": "aerow-qdbfzxwi.myshopify.com",
+  "currency": "USD",
+  "solitaire": {
+    "id": "gid://shopify/Product/15460741284088",
+    "title": "The Aevow Solitaire",
+    "handle": "the-aevow-solitaire",
+    "featuredImage": {
+      "url": "https://cdn.shopify.com/s/files/1/0862/3338/3160/files/p_the-aevow-solitaire__metal_14k_white_gold.png?v=1793237979"
+    },
+    "variants": {
+      "nodes": [
+        {
+          "id": "gid://shopify/ProductVariant/67890592153848",
+          "price": "1450.00",
+          "availableForSale": true,
+          "selectedOptions": [
+            {
+              "name": "Metal",
+              "value": "14K white gold"
+            },
+            {
+              "name": "Ring size",
+              "value": "4"
+            }
+          ]
+        },
+        {
+          "id": "gid://shopify/ProductVariant/67890592186616",
+          "price": "1450.00",
+          "availableForSale": true,
+          "selectedOptions": [
+            {
+              "name": "Metal",
+              "value": "14K white gold"
+            },
+            {
+              "name": "Ring size",
+              "value": "4.5"
+            }
+          ]
+        },
+        {
+          "id": "gid://shopify/ProductVariant/67890592219384",
+          "price": "1450.00",
+          "availableForSale": true,
+          "selectedOptions": [
+            {
+              "name": "Metal",
+              "value": "14K white gold"
+            },
+            {
+              "name": "Ring size",
+              "value": "5"
+            }
+          ]
+        },
+        {
+          "id": "gid://shopify/ProductVariant/67890592252152",
+          "price": "1450.00",
+          "availableForSale": true,
+          "selectedOptions": [
+            {
+              "name": "Metal",
+              "value": "14K white gold"
+            },
+            {
+              "name": "Ring size",
+              "value": "5.5"
+            }
+          ]
+        },
+        {
+          "id": "gid://shopify/ProductVariant/67890592284920",
+          "price": "1450.00",
+          "availableForSale": true,
+          "selectedOptions": [
+            {
+              "name": "Metal",
+              "value": "14K white gold"
+            },
+            {
+              "name": "Ring size",
+              "value": "6"
+            }
+          ]
+        },
+        {
+          "id": "gid://shopify/ProductVariant/67890592317688",
+          "price": "1450.00",
+          "availableForSale": true,
+          "selectedOptions": [
+            {
+              "name": "Metal",
+              "value": "14K white gold"
+            },
+            {
+              "name": "Ring size",
+              "value": "6.5"
+            }
+          ]
+        },
+        {
+          "id": "gid://shopify/ProductVariant/67890592350456",
+          "price": "1450.00",
+          "availableForSale": true,
+          "selectedOptions": [
+            {
+              "name": "Metal",
+              "value": "14K white gold"
+            },
+            {
+              "name": "Ring size",
+              "value": "7"
+            }
+          ]
+        },
+        {
+          "id": "gid://shopify/ProductVariant/67890592383224",
+          "price": "1450.00",
+          "availableForSale": true,
+          "selectedOptions": [
+            {
+              "name": "Metal",
+              "value": "14K white gold"
+            },
+            {
+              "name": "Ring size",
+              "value": "7.5"
+            }
+          ]
+        },
+        {
+          "id": "gid://shopify/ProductVariant/67890592415992",
+          "price": "1450.00",
+          "availableForSale": true,
+          "selectedOptions": [
+            {
+              "name": "Metal",
+              "value": "14K white gold"
+            },
+            {
+              "name": "Ring size",
+              "value": "8"
+            }
+          ]
+        },
+        {
+          "id": "gid://shopify/ProductVariant/67890592448760",
+          "price": "1450.00",
+          "availableForSale": true,
+          "selectedOptions": [
+            {
+              "name": "Metal",
+              "value": "14K white gold"
+            },
+            {
+              "name": "Ring size",
+              "value": "8.5"
+            }
+          ]
+        },
+        {
+          "id": "gid://shopify/ProductVariant/67890592481528",
+          "price": "1450.00",
+          "availableForSale": true,
+          "selectedOptions": [
+            {
+              "name": "Metal",
+              "value": "14K white gold"
+            },
+            {
+              "name": "Ring size",
+              "value": "9"
+            }
+          ]
+        },
+        {
+          "id": "gid://shopify/ProductVariant/67890592514296",
+          "price": "1450.00",
+          "availableForSale": true,
+          "selectedOptions": [
+            {
+              "name": "Metal",
+              "value": "14K yellow gold"
+            },
+            {
+              "name": "Ring size",
+              "value": "4"
+            }
+          ]
+        },
+        {
+          "id": "gid://shopify/ProductVariant/67890592547064",
+          "price": "1450.00",
+          "availableForSale": true,
+          "selectedOptions": [
+            {
+              "name": "Metal",
+              "value": "14K yellow gold"
+            },
+            {
+              "name": "Ring size",
+              "value": "4.5"
+            }
+          ]
+        },
+        {
+          "id": "gid://shopify/ProductVariant/67890592579832",
+          "price": "1450.00",
+          "availableForSale": true,
+          "selectedOptions": [
+            {
+              "name": "Metal",
+              "value": "14K yellow gold"
+            },
+            {
+              "name": "Ring size",
+              "value": "5"
+            }
+          ]
+        },
+        {
+          "id": "gid://shopify/ProductVariant/67890592612600",
+          "price": "1450.00",
+          "availableForSale": true,
+          "selectedOptions": [
+            {
+              "name": "Metal",
+              "value": "14K yellow gold"
+            },
+            {
+              "name": "Ring size",
+              "value": "5.5"
+            }
+          ]
+        },
+        {
+          "id": "gid://shopify/ProductVariant/67890592645368",
+          "price": "1450.00",
+          "availableForSale": true,
+          "selectedOptions": [
+            {
+              "name": "Metal",
+              "value": "14K yellow gold"
+            },
+            {
+              "name": "Ring size",
+              "value": "6"
+            }
+          ]
+        },
+        {
+          "id": "gid://shopify/ProductVariant/67890592678136",
+          "price": "1450.00",
+          "availableForSale": true,
+          "selectedOptions": [
+            {
+              "name": "Metal",
+              "value": "14K yellow gold"
+            },
+            {
+              "name": "Ring size",
+              "value": "6.5"
+            }
+          ]
+        },
+        {
+          "id": "gid://shopify/ProductVariant/67890592710904",
+          "price": "1450.00",
+          "availableForSale": true,
+          "selectedOptions": [
+            {
+              "name": "Metal",
+              "value": "14K yellow gold"
+            },
+            {
+              "name": "Ring size",
+              "value": "7"
+            }
+          ]
+        },
+        {
+          "id": "gid://shopify/ProductVariant/67890592743672",
+          "price": "1450.00",
+          "availableForSale": true,
+          "selectedOptions": [
+            {
+              "name": "Metal",
+              "value": "14K yellow gold"
+            },
+            {
+              "name": "Ring size",
+              "value": "7.5"
+            }
+          ]
+        },
+        {
+          "id": "gid://shopify/ProductVariant/67890592776440",
+          "price": "1450.00",
+          "availableForSale": true,
+          "selectedOptions": [
+            {
+              "name": "Metal",
+              "value": "14K yellow gold"
+            },
+            {
+              "name": "Ring size",
+              "value": "8"
+            }
+          ]
+        },
+        {
+          "id": "gid://shopify/ProductVariant/67890592809208",
+          "price": "1450.00",
+          "availableForSale": true,
+          "selectedOptions": [
+            {
+              "name": "Metal",
+              "value": "14K yellow gold"
+            },
+            {
+              "name": "Ring size",
+              "value": "8.5"
+            }
+          ]
+        },
+        {
+          "id": "gid://shopify/ProductVariant/67890592841976",
+          "price": "1450.00",
+          "availableForSale": true,
+          "selectedOptions": [
+            {
+              "name": "Metal",
+              "value": "14K yellow gold"
+            },
+            {
+              "name": "Ring size",
+              "value": "9"
+            }
+          ]
+        },
+        {
+          "id": "gid://shopify/ProductVariant/67890592874744",
+          "price": "1450.00",
+          "availableForSale": true,
+          "selectedOptions": [
+            {
+              "name": "Metal",
+              "value": "14K rose gold"
+            },
+            {
+              "name": "Ring size",
+              "value": "4"
+            }
+          ]
+        },
+        {
+          "id": "gid://shopify/ProductVariant/67890592907512",
+          "price": "1450.00",
+          "availableForSale": true,
+          "selectedOptions": [
+            {
+              "name": "Metal",
+              "value": "14K rose gold"
+            },
+            {
+              "name": "Ring size",
+              "value": "4.5"
+            }
+          ]
+        },
+        {
+          "id": "gid://shopify/ProductVariant/67890592940280",
+          "price": "1450.00",
+          "availableForSale": true,
+          "selectedOptions": [
+            {
+              "name": "Metal",
+              "value": "14K rose gold"
+            },
+            {
+              "name": "Ring size",
+              "value": "5"
+            }
+          ]
+        },
+        {
+          "id": "gid://shopify/ProductVariant/67890592973048",
+          "price": "1450.00",
+          "availableForSale": true,
+          "selectedOptions": [
+            {
+              "name": "Metal",
+              "value": "14K rose gold"
+            },
+            {
+              "name": "Ring size",
+              "value": "5.5"
+            }
+          ]
+        },
+        {
+          "id": "gid://shopify/ProductVariant/67890593005816",
+          "price": "1450.00",
+          "availableForSale": true,
+          "selectedOptions": [
+            {
+              "name": "Metal",
+              "value": "14K rose gold"
+            },
+            {
+              "name": "Ring size",
+              "value": "6"
+            }
+          ]
+        },
+        {
+          "id": "gid://shopify/ProductVariant/67890593038584",
+          "price": "1450.00",
+          "availableForSale": true,
+          "selectedOptions": [
+            {
+              "name": "Metal",
+              "value": "14K rose gold"
+            },
+            {
+              "name": "Ring size",
+              "value": "6.5"
+            }
+          ]
+        },
+        {
+          "id": "gid://shopify/ProductVariant/67890593071352",
+          "price": "1450.00",
+          "availableForSale": true,
+          "selectedOptions": [
+            {
+              "name": "Metal",
+              "value": "14K rose gold"
+            },
+            {
+              "name": "Ring size",
+              "value": "7"
+            }
+          ]
+        },
+        {
+          "id": "gid://shopify/ProductVariant/67890593104120",
+          "price": "1450.00",
+          "availableForSale": true,
+          "selectedOptions": [
+            {
+              "name": "Metal",
+              "value": "14K rose gold"
+            },
+            {
+              "name": "Ring size",
+              "value": "7.5"
+            }
+          ]
+        },
+        {
+          "id": "gid://shopify/ProductVariant/67890593136888",
+          "price": "1450.00",
+          "availableForSale": true,
+          "selectedOptions": [
+            {
+              "name": "Metal",
+              "value": "14K rose gold"
+            },
+            {
+              "name": "Ring size",
+              "value": "8"
+            }
+          ]
+        },
+        {
+          "id": "gid://shopify/ProductVariant/67890593169656",
+          "price": "1450.00",
+          "availableForSale": true,
+          "selectedOptions": [
+            {
+              "name": "Metal",
+              "value": "14K rose gold"
+            },
+            {
+              "name": "Ring size",
+              "value": "8.5"
+            }
+          ]
+        },
+        {
+          "id": "gid://shopify/ProductVariant/67890593202424",
+          "price": "1450.00",
+          "availableForSale": true,
+          "selectedOptions": [
+            {
+              "name": "Metal",
+              "value": "14K rose gold"
+            },
+            {
+              "name": "Ring size",
+              "value": "9"
+            }
+          ]
+        },
+        {
+          "id": "gid://shopify/ProductVariant/67890593235192",
+          "price": "2050.00",
+          "availableForSale": true,
+          "selectedOptions": [
+            {
+              "name": "Metal",
+              "value": "Platinum"
+            },
+            {
+              "name": "Ring size",
+              "value": "4"
+            }
+          ]
+        },
+        {
+          "id": "gid://shopify/ProductVariant/67890593267960",
+          "price": "2050.00",
+          "availableForSale": true,
+          "selectedOptions": [
+            {
+              "name": "Metal",
+              "value": "Platinum"
+            },
+            {
+              "name": "Ring size",
+              "value": "4.5"
+            }
+          ]
+        },
+        {
+          "id": "gid://shopify/ProductVariant/67890593300728",
+          "price": "2050.00",
+          "availableForSale": true,
+          "selectedOptions": [
+            {
+              "name": "Metal",
+              "value": "Platinum"
+            },
+            {
+              "name": "Ring size",
+              "value": "5"
+            }
+          ]
+        },
+        {
+          "id": "gid://shopify/ProductVariant/67890593333496",
+          "price": "2050.00",
+          "availableForSale": true,
+          "selectedOptions": [
+            {
+              "name": "Metal",
+              "value": "Platinum"
+            },
+            {
+              "name": "Ring size",
+              "value": "5.5"
+            }
+          ]
+        },
+        {
+          "id": "gid://shopify/ProductVariant/67890593366264",
+          "price": "2050.00",
+          "availableForSale": true,
+          "selectedOptions": [
+            {
+              "name": "Metal",
+              "value": "Platinum"
+            },
+            {
+              "name": "Ring size",
+              "value": "6"
+            }
+          ]
+        },
+        {
+          "id": "gid://shopify/ProductVariant/67890593399032",
+          "price": "2050.00",
+          "availableForSale": true,
+          "selectedOptions": [
+            {
+              "name": "Metal",
+              "value": "Platinum"
+            },
+            {
+              "name": "Ring size",
+              "value": "6.5"
+            }
+          ]
+        },
+        {
+          "id": "gid://shopify/ProductVariant/67890593431800",
+          "price": "2050.00",
+          "availableForSale": true,
+          "selectedOptions": [
+            {
+              "name": "Metal",
+              "value": "Platinum"
+            },
+            {
+              "name": "Ring size",
+              "value": "7"
+            }
+          ]
+        },
+        {
+          "id": "gid://shopify/ProductVariant/67890593464568",
+          "price": "2050.00",
+          "availableForSale": true,
+          "selectedOptions": [
+            {
+              "name": "Metal",
+              "value": "Platinum"
+            },
+            {
+              "name": "Ring size",
+              "value": "7.5"
+            }
+          ]
+        },
+        {
+          "id": "gid://shopify/ProductVariant/67890593497336",
+          "price": "2050.00",
+          "availableForSale": true,
+          "selectedOptions": [
+            {
+              "name": "Metal",
+              "value": "Platinum"
+            },
+            {
+              "name": "Ring size",
+              "value": "8"
+            }
+          ]
+        },
+        {
+          "id": "gid://shopify/ProductVariant/67890593530104",
+          "price": "2050.00",
+          "availableForSale": true,
+          "selectedOptions": [
+            {
+              "name": "Metal",
+              "value": "Platinum"
+            },
+            {
+              "name": "Ring size",
+              "value": "8.5"
+            }
+          ]
+        },
+        {
+          "id": "gid://shopify/ProductVariant/67890593562872",
+          "price": "2050.00",
+          "availableForSale": true,
+          "selectedOptions": [
+            {
+              "name": "Metal",
+              "value": "Platinum"
+            },
+            {
+              "name": "Ring size",
+              "value": "9"
+            }
+          ]
+        }
+      ],
+      "pageInfo": {
+        "hasNextPage": false
+      }
+    }
+  }
+}

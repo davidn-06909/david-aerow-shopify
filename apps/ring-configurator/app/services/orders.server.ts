@@ -3,7 +3,7 @@ import type { CartLineInput } from "../../shared/contract";
 import prisma from "../db.server";
 import { auditOrderGroup, properties, type OrderLine } from "./order-audit";
 import { verifyReference } from "./signing.server";
-import { numericId } from "./manifest.server";
+import { numericId, settingMappings } from "./manifest.server";
 import { activeManifest } from "./catalog-state.server";
 export interface PilotOrder { id: string | number; financial_status?: string; line_items: OrderLine[] }
 export async function processOrderReceipt(receiptId: string) {
@@ -18,7 +18,7 @@ export async function processOrderReceipt(receiptId: string) {
     const warnings: string[] = [];
     for (const line of order.line_items) {
       const props = properties(line); const id = props._configuration_id;
-      const pilotLine = Object.keys(props).some(k => k.startsWith("_aevow_")) || pilotVariants.has(String(line.variant_id)) || String(line.product_id) === numericId(manifest.settingProductId);
+      const pilotLine = Object.keys(props).some(k => k.startsWith("_aevow_")) || pilotVariants.has(String(line.variant_id)) || settingMappings(manifest).some(s => s.productId && String(line.product_id) === numericId(s.productId));
       if (id) groups.set(id, [...(groups.get(id) || []), line]);
       else if (pilotLine) warnings.push(`missing_configuration:${line.variant_id}`);
     }
