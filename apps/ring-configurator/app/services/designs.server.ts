@@ -7,6 +7,7 @@ import { PilotError } from "./errors.server";
 import { savePreview } from "./storage.server";
 import { signReference, verifyReference } from "./signing.server";
 import { RULE_VERSION } from '../../shared/assets';
+import { signCheckoutTicket } from './checkout-ticket.server';
 const json = (value: unknown) => JSON.parse(JSON.stringify(value)) as Prisma.InputJsonValue;
 export async function createQuote(input: unknown, catalog: Bootstrap): Promise<Quote> {
   const validated = validateSelection(input, catalog);
@@ -30,9 +31,13 @@ export async function createQuote(input: unknown, catalog: Bootstrap): Promise<Q
   const id = randomUUID(); const designId = randomUUID(); const configurationId = request.cartGroupId || randomUUID();
   const expiresAt = new Date(Date.now() + 10 * 60_000);
   const reference = signReference({ q: id, d: designId, g: configurationId, s: catalog.shop, e: expiresAt.getTime() });
+  const checkoutTicket = signCheckoutTicket({ group: configurationId, design: designId, reference,
+    settingVariant: setting.id, diamondVariant: diamond.id,
+    engravingVariant: selection.engravingEnabled ? catalog.engraving.variantId : undefined,
+    engraving: selection.engravingEnabled ? selection.engraving : undefined });
   const preview = await savePreview(catalog.shop, designId, request.previewDataUrl);
   const previewUrl = preview.url;
-  const common = { _configuration_id: configurationId, _aevow_design_id: designId, _aevow_reference: reference, _aevow_asset_version: assetVersion, _aevow_setting_id: family.id || 'lumen', _aevow_band_id: 'high-polish', _aevow_rule_version: RULE_VERSION, ...(catalog.catalogVersion ? { _aevow_catalog_version: catalog.catalogVersion } : {}), Setting: family.title, Band: selection.shank, Metal: selection.metal, Shape: selection.shape, "Ring size": selection.size, "3D fitting": "Representative — physical fitting unverified" };
+  const common = { _configuration_id: configurationId, _aevow_design_id: designId, _aevow_reference: reference, _aevow_checkout: checkoutTicket, _aevow_asset_version: assetVersion, _aevow_setting_id: family.id || 'lumen', _aevow_band_id: 'high-polish', _aevow_rule_version: RULE_VERSION, ...(catalog.catalogVersion ? { _aevow_catalog_version: catalog.catalogVersion } : {}), Setting: family.title, Band: selection.shank, Metal: selection.metal, Shape: selection.shape, "Ring size": selection.size, "3D fitting": "Representative — physical fitting unverified" };
   const items: CartLineInput[] = [
     { id: setting.id, quantity: 1, properties: { ...common, _aevow_role: "setting", ...(selection.engravingEnabled ? { Engraving: selection.engraving } : {}) } },
     { id: diamond.id, quantity: 1, properties: { ...common, _aevow_role: "diamond", Diamond: diamond.title, ...(diamond.certificateNumber ? { Certificate: `${diamond.certificateLab} ${diamond.certificateNumber}` } : {}) } },
@@ -43,6 +48,11 @@ export async function createQuote(input: unknown, catalog: Bootstrap): Promise<Q
   const quote: Quote = { id, designId, configurationId, reference, expiresAt: expiresAt.toISOString(), selection, items, prices, previewUrl, shareUrl, catalogVersion: catalog.catalogVersion };
   const snapshot = { schemaVersion: 2, selection, settingTitle: family.title, ruleVersion: RULE_VERSION, items, prices, diamond, catalogVersion: catalog.catalogVersion, pilotVersion: catalog.pilotVersion, assetVersion, fittingStatus: "visual-unverified", previewUrl, source: { shop: catalog.shop, quotedAt: new Date().toISOString() } };
   try { await prisma.$transaction(async tx => {
+    if (preview.data) {
+      await tx.$queryRaw`SELECT 1 AS locked FROM pg_advisory_xact_lock(hashtext(${`${catalog.shop}:preview-budget`}))`;
+      const usage = await tx.$queryRaw<{ bytes: bigint }[]>`SELECT COALESCE(SUM(octet_length("previewData")), 0)::bigint AS bytes FROM "Design" WHERE shop = ${catalog.shop}`;
+      if (Number(usage[0]?.bytes || 0) + preview.data.byteLength > 350 * 1048576) throw new PilotError('PREVIEW_CAPACITY', 'Saved preview storage has reached the pilot allowance. Please contact the store before retrying.', 503);
+    }
     if (catalog.catalogVersion && catalog.catalogVersion !== "legacy-pilot") {
       const active = await tx.$queryRaw<{ activeVersion: string }[]>`SELECT "activeVersion" FROM "CatalogState" WHERE "shop" = ${catalog.shop} FOR SHARE`;
       if (active[0]?.activeVersion !== catalog.catalogVersion) throw new PilotError("CATALOG_CHANGED", "The collection changed while checking your ring. Reload the studio and try again.", 409);

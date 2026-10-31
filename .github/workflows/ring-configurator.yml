@@ -1,0 +1,79 @@
+name: Ring configurator checks
+on:
+  pull_request:
+    paths: ['apps/ring-configurator/**', 'assets/atelier-ring-cart.js', 'tests/**', '.github/workflows/ring-configurator.yml']
+  push:
+    branches: [feat/ring-configurator-pilot]
+    paths: ['apps/ring-configurator/**', 'assets/atelier-ring-cart.js', 'tests/**', '.github/workflows/ring-configurator.yml']
+permissions:
+  contents: read
+concurrency:
+  group: ring-checks-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  checkout-function:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: apps/ring-configurator/extensions/ring-checkout-validation
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8
+        with:
+          toolchain: stable
+          targets: wasm32-unknown-unknown
+      - run: cargo test
+      - run: cargo build --release --target wasm32-unknown-unknown
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: ring-checkout-validation-wasm
+          path: apps/ring-configurator/extensions/ring-checkout-validation/target/wasm32-unknown-unknown/release/ring_checkout_validation.wasm
+          if-no-files-found: error
+  app:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_PASSWORD: isolated-ci-only
+          POSTGRES_DB: ring_tests
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready --health-interval 5s --health-timeout 5s --health-retries 10
+    defaults:
+      run:
+        working-directory: apps/ring-configurator
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: apps/ring-configurator/package-lock.json
+      - run: npm ci
+      - run: npm run db:generate
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run test:database
+        env:
+          TEST_DATABASE_URL: postgresql://postgres:isolated-ci-only@127.0.0.1:5432/ring_tests
+      - run: node --test tests/atelier-ring-cart.test.cjs
+        working-directory: .
+      - run: npm run build:storefront
+      - run: npm run build
+      - run: npm run build:netlify
+      - run: npm run audit:package
+  theme:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+      - run: npm install --global pnpm@11.20.0 @shopify/cli@4.9.4
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm tw:build
+      - run: shopify theme check

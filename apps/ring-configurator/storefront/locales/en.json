@@ -146,5 +146,12 @@
   "assuranceTwoCopy": "Review the setting, stone, size and inscription together.",
   "assuranceThree": "Every detail considered",
   "assuranceThreeCopy": "Explore the setting from every angle before deciding.",
-  "settingChanged": "Your setting changed. Incompatible choices were cleared; compatible choices are retained."
+  "settingChanged": "Your setting changed. Incompatible choices were cleared; compatible choices are retained.",
+  "priceChanged": "Shopify updated a component price. Review the current total before adding your ring.",
+  "confirmPrice": "Confirm updated prices and add ring",
+  "previousTotal": "Previously displayed total",
+  "updatedTotal": "Current Shopify total",
+  "cancelPrice": "Keep reviewing my ring",
+  "previewUnavailable": "Your saved design will include the confirmed selections. A 3D preview image could not be captured.",
+  "shareVisibility": "Anyone with your design link can view the selected options and engraving."
 }

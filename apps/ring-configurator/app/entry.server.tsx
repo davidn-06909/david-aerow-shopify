@@ -14,8 +14,9 @@ export default function handleRequest(request: Request, status: number, headers:
         resolve(new Response(createReadableStreamFromReadable(body), { status, headers })); pipe(body);
       },
       onShellError: reject,
-      onError(error) { status = 500; console.error("SSR rendering failed", error); },
+      onError() { status = 500; console.error("SSR rendering failed", { code: 'SSR_RENDER_FAILED' }); },
     });
     setTimeout(abort, streamTimeout + 1000).unref();
   });
 }
+export function handleError() { console.error('Ring request failed', { code: 'ROUTE_OPERATION_FAILED' }); }

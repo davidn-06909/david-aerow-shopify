@@ -62,7 +62,12 @@ model WebhookReceipt {
   lastError String?
   processedAt DateTime?
   createdAt DateTime @default(now())
+  nextAttemptAt DateTime @default(now())
+  leaseUntil DateTime?
+  leaseToken String?
+  consecutiveFailures Int @default(0)
   @@index([status, createdAt])
+  @@index([shop, status, nextAttemptAt])
 }
 model OrderDesign {
   id String @id @default(uuid())
@@ -95,4 +100,97 @@ model CatalogRelease {
   restoredFrom String?
   createdAt DateTime @default(now())
   @@index([shop, createdAt])
+}
+
+// Mutable projection; the original designs and append-only audits are preserved.
+model ConfiguredOrder {
+  id String @id @default(uuid())
+  shop String
+  orderId String
+  name String
+  paymentState String
+  cancelled Boolean @default(false)
+  sourceUpdatedAt DateTime
+  synchronizedAt DateTime @default(now())
+  verification String
+  digest String
+  version Int @default(1)
+  facts Json
+  settingIds String[] @default([])
+  audits OrderAuditRun[]
+  actions MerchantOrderAction[]
+  @@unique([shop, orderId])
+  @@index([shop, synchronizedAt])
+  @@index([shop, verification, synchronizedAt])
+}
+
+model OrderAuditRun {
+  id String @id @default(uuid())
+  configuredOrderId String
+  configuredOrder ConfiguredOrder @relation(fields: [configuredOrderId], references: [id])
+  source String
+  version Int
+  digest String
+  verification String
+  evidence Json
+  createdAt DateTime @default(now())
+  @@index([configuredOrderId, createdAt])
+  @@unique([configuredOrderId, version])
+}
+
+model OperationAction {
+  id String @id @default(uuid())
+  shop String
+  requestId String
+  actor String
+  intent String
+  target String
+  createdAt DateTime @default(now())
+  @@unique([shop, requestId])
+  @@index([shop, createdAt])
+}
+
+model MerchantOrderAction {
+  id String @id @default(uuid())
+  shop String
+  requestId String
+  configuredOrderId String
+  configuredOrder ConfiguredOrder @relation(fields: [configuredOrderId], references: [id])
+  actor String
+  auditId String
+  decision String
+  reason String
+  createdAt DateTime @default(now())
+  @@unique([shop, requestId])
+  @@index([configuredOrderId, createdAt])
+}
+
+model JobCheckpoint {
+  shop String
+  kind String
+  checkpoint Json?
+  leaseUntil DateTime?
+  leaseToken String?
+  lastSuccessAt DateTime?
+  lastError String?
+  updatedAt DateTime @updatedAt
+  @@id([shop, kind])
+}
+
+// Historical membership survives catalog removal and removed line properties.
+model ManagedComponent {
+  shop String
+  kind String
+  referenceId String
+  @@id([shop, kind, referenceId])
+}
+
+model RequestBucket {
+  shop String
+  key String
+  window DateTime
+  count Int @default(1)
+  expiresAt DateTime
+  @@id([shop, key, window])
+  @@index([expiresAt])
 }

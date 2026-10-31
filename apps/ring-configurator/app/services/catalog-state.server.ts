@@ -3,6 +3,7 @@ import type { Prisma } from "@prisma/client";
 import prisma from "../db.server";
 import { assertMapping, manifestSchema, readManifest, type PilotManifest } from "./manifest.server";
 import { PilotError } from "./errors.server";
+import { registerComponents } from "./components.server";
 const json = (v: unknown) => JSON.parse(JSON.stringify(v)) as Prisma.InputJsonValue;
 export function parseManifest(input: unknown, shop: string): PilotManifest {
   const parsed = manifestSchema.safeParse(input);
@@ -26,6 +27,7 @@ export async function initializeCatalog(shop: string, actor = "setup") {
     const prior = await tx.catalogState.findUnique({ where: { shop } });
     if (prior) return prior;
     const release = await tx.catalogRelease.create({ data: { id: randomUUID(), shop, manifest: json(manifest), report: json({ errors: [], warnings: ["Imported existing pilot configuration; validate before making changes."] }), action: "initialize", actor } });
+    await registerComponents(tx, shop, manifest);
     return tx.catalogState.create({ data: { shop, draft: json(manifest), revision: 1, activeVersion: release.id } });
   });
 }
@@ -42,6 +44,7 @@ export async function activateCatalog(shop: string, revision: number, manifest: 
     const changed = await tx.catalogState.updateMany({ where: { shop, revision }, data: { activeVersion: version, draft: json(manifest), revision: { increment: 1 } } });
     if (changed.count !== 1) throw new PilotError("DRAFT_CONFLICT", "The draft changed during validation. Reload and validate its latest revision.", 409);
     await tx.catalogRelease.create({ data: { id: version, shop, manifest: json(manifest), report: json(report), actor, action: restoredFrom ? "restore" : "publish", restoredFrom } });
+    await registerComponents(tx, shop, manifest);
     return version;
   });
 }

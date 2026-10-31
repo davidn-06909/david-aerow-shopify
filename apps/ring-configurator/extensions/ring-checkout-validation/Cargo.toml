@@ -1,0 +1,18 @@
+[package]
+name = "ring-checkout-validation"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+shopify_function = "=2.2.0"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+base64 = "0.22"
+ed25519-dalek = { version = "2.2", default-features = false, features = ["std"] }
+
+[profile.release]
+opt-level = "z"
+lto = true
+codegen-units = 1
+strip = true
+panic = "abort"

@@ -5,6 +5,7 @@ import { createQuote, getDesign, saveDesign } from "../services/designs.server";
 import { apiError, PilotError, readJson } from "../services/errors.server";
 import { assertShopifyConfigured } from "../services/configured.server";
 import { searchDiamonds } from "../services/diamond-search";
+import { requestLimit } from "../services/limits.server";
 async function context(request: Request) {
   assertShopifyConfigured();
   const proxy = await authenticate.public.appProxy(request);
@@ -16,6 +17,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   try {
     const { admin, shop } = await context(request);
     const endpoint = params["*"] || "";
+    await requestLimit(shop, 'browse', 300);
     if (endpoint === "bootstrap") {
       const catalog = await loadCatalog(admin, shop, { cached: true });
       if (new URL(request.url).searchParams.get("paged") !== "1") return json(catalog); // Older extension releases remain compatible.
@@ -38,6 +40,8 @@ export async function action({ request, params }: ActionFunctionArgs) {
   try {
     if (request.method !== "POST") throw new PilotError("METHOD_NOT_ALLOWED", "Use POST for this endpoint.", 405);
     const { admin, shop } = await context(request);
+    await requestLimit(shop, 'write', 60);
+    if (params["*"] === "quotes") await requestLimit(shop, 'quote-day', 200, 86400);
     const input = await readJson(request);
     if (params["*"] === "quotes") return json(await createQuote(input, await loadCatalog(admin, shop)), 201);
     if (params["*"] === "designs") return json(await saveDesign(shop, input), 201);

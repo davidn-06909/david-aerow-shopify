@@ -47,7 +47,7 @@ export function mount(container: HTMLElement, initial: ViewerConfiguration, call
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, matchMedia('(max-width: 760px)').matches ? 1.5 : 2));
   renderer.domElement.setAttribute('aria-label', copy.viewerInteractionLabel);
   renderer.domElement.setAttribute('role', 'img');
-  renderer.domElement.style.cssText = 'display:block;width:100%;height:100%;touch-action:none;outline:none;';
+  renderer.domElement.style.cssText = 'display:block;width:100%;height:100%;touch-action:none;';
   renderer.domElement.tabIndex = 0;
   container.append(renderer.domElement);
 

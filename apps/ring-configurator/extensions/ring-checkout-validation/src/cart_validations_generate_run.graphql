@@ -1,0 +1,19 @@
+query Input {
+  buyerJourney { step }
+  validation { metafield(key: "aevow_checkout_config") { value } }
+  cart {
+    lines {
+      quantity
+      group: attribute(key: "_configuration_id") { value }
+      role: attribute(key: "_aevow_role") { value }
+      ticket: attribute(key: "_aevow_checkout") { value }
+      design: attribute(key: "_aevow_design_id") { value }
+      reference: attribute(key: "_aevow_reference") { value }
+      engraving: attribute(key: "Engraving") { value }
+      merchandise {
+        __typename
+        ... on ProductVariant { id product { id } }
+      }
+    }
+  }
+}

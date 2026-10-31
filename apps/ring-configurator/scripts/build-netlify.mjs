@@ -1,5 +1,5 @@
 import { spawnSync } from "node:child_process";
-import { readFile, writeFile } from "node:fs/promises";
+import { readFile, writeFile, copyFile } from "node:fs/promises";
 import { resolve } from "node:path";
 const result = spawnSync(process.execPath, [resolve("node_modules/@react-router/dev/bin.js"), "build"], {
   stdio: "inherit", env: { ...process.env, DEPLOY_TARGET: "netlify" }, windowsHide: true,
@@ -16,4 +16,5 @@ if (result.status === 0) {
     .replace("export default createRequestHandler({ build });", "export default createNodeHandler(build);");
   if (patched === generated || patched.includes("createRequestHandler({ build })")) throw new Error("Netlify handler format changed; inspect the Node adapter before deploying.");
   await writeFile(file, patched);
+  await copyFile('netlify/functions/ring-operations.mjs', '.netlify/v1/functions/ring-operations.mjs');
 }

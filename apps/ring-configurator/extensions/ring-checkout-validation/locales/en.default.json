@@ -1,0 +1,4 @@
+{
+  "name": "Aevow configured ring validation",
+  "description": "Verify complete, server-confirmed ring configurations before checkout."
+}

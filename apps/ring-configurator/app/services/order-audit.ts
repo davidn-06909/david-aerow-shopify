@@ -1,5 +1,5 @@
 import type { CartLineInput } from "../../shared/contract";
-export interface OrderLine { variant_id: string | number; product_id?: string | number; quantity: number; properties?: { name: string; value: unknown }[] }
+export interface OrderLine { variant_id: string | number; product_id?: string | number; quantity: number; currentQuantity?: number; properties?: { name: string; value: unknown }[]; unitPrice?: string; discountedTotal?: string }
 export function properties(line: OrderLine): Record<string, string> { return Object.fromEntries((line.properties || []).map(p => [p.name, String(p.value ?? "")])); }
 export function auditOrderGroup(expected: CartLineInput[], actual: OrderLine[]): string[] {
   const discrepancies: string[] = [];
@@ -11,6 +11,7 @@ export function auditOrderGroup(expected: CartLineInput[], actual: OrderLine[]):
     const line = matches[0]; const props = properties(line);
     if (String(line.variant_id) !== item.id) discrepancies.push(`variant:${role}`);
     if (line.quantity !== 1) discrepancies.push(`quantity:${role}`);
+    if (line.currentQuantity !== undefined && line.currentQuantity !== 1) discrepancies.push(`refunded_or_removed_quantity:${role}`);
     for (const [key, value] of Object.entries(item.properties)) if (props[key] !== value) discrepancies.push(`property:${role}:${key}`);
     for (const key of Object.keys(props)) if (!(key in item.properties)) discrepancies.push(`unexpected_property:${role}:${key}`);
   }
