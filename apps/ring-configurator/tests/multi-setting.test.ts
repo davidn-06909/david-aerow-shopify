@@ -1,5 +1,6 @@
 import { beforeEach, expect, test } from 'vitest';
 import { readFile } from 'node:fs/promises';
+import { resolve } from 'node:path';
 import { NodeIO } from '@gltf-transform/core';
 import { METALS, SHAPES, type Bootstrap, type Metal, type Selection } from '../shared/contract';
 import { settingCatalog, settingsOf } from '../shared/compatibility';
@@ -8,6 +9,7 @@ import { validateSelection } from '../app/services/validation';
 import { emptySelection, reconcileSelection, restoreSelection, selectionUrl, stepComplete } from '../storefront/state';
 import { searchDiamonds } from '../app/services/diamond-search';
 import { verifyAssets } from '../app/services/assets.server';
+import { loader as modelAssetLoader } from '../app/routes/model-assets.$filename';
 import { manifestSchema, settingMappings } from '../app/services/manifest.server';
 let catalog: Bootstrap;
 beforeEach(async () => {
@@ -65,6 +67,16 @@ test('legacy manifests adapt without changing the stored payload; ambiguous prod
 test('all approved files have exact build hashes; arbitrary versions are rejected', async () => {
   for (const version of ['lumen-visual-v1', 'lumen-visual-v2', 'lumen-visual-v3', 'solitaire-visual-v1']) expect(await verifyAssets(version)).toEqual([]);
   expect(await verifyAssets('../../.env')).not.toEqual([]);
+});
+test('model publication and delivery find packaged assets independently of the working directory', async () => {
+  const cwd = process.cwd();
+  try {
+    process.chdir(resolve(cwd, '../..'));
+    expect(await verifyAssets('lumen-visual-v3')).toEqual([]);
+    const response = await modelAssetLoader({ request: new Request('https://pilot.test/model-assets/manifest.json'), params: { filename: 'manifest.json' } } as unknown as Parameters<typeof modelAssetLoader>[0]);
+    expect(response.status).toBe(200);
+    expect(await response.json()).toHaveProperty('version', 'ring-assets-v3');
+  } finally { process.chdir(cwd); }
 });
 test.each(['round', 'oval'])('Solitaire %s has six prongs and no hidden halo; Lumen retains halo geometry', async shape => {
   const io = new NodeIO();

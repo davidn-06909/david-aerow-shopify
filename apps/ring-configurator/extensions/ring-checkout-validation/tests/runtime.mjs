@@ -39,7 +39,9 @@ const cases = [
 for (const [name, step, lines, shouldBlock] of cases) {
   const inputPath = resolve(outputDir, `${name}.json`);
   writeFileSync(inputPath, JSON.stringify({ buyerJourney: { step }, validation: { metafield: { value: JSON.stringify(config) } }, cart: { lines } }));
-  const raw = execFileSync(process.platform === 'win32' ? 'shopify.cmd' : 'shopify', ['app', 'function', 'run', '--path', root, '--input', inputPath, '--export', 'cart_validations_generate_run', '--json'], { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
+  const shopifyArgs = ['app', 'function', 'run', '--path', root, '--input', inputPath, '--export', 'cart_validations_generate_run', '--json'];
+  const cli = process.env.SHOPIFY_CLI_JS;
+  const raw = execFileSync(cli ? process.execPath : 'shopify', cli ? [cli, ...shopifyArgs] : shopifyArgs, { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
   const result = JSON.parse(raw);
   const blocked = Boolean(result.output?.operations?.some(op => op.validationAdd?.errors?.length));
   if (!result.success || blocked !== shouldBlock || result.instructions > 11_000_000) throw new Error(`CHECKOUT_RUNTIME_FAILED:${name}:${result.instructions}:${blocked}`);
