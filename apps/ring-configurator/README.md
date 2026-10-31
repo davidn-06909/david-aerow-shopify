@@ -1,6 +1,6 @@
 # Aevow ring configurator
 
-**Milestone 3 is implemented locally; hosted verification is pending.** The builder and merchant drafts support The Lumen and The Aevow Solitaire, with separate Shopify products, compatibility rules and immutable model versions. See [Milestone 3 setup, validation and pending acceptance](docs/milestone-3.md). The existing hosted release remains Milestone 2 until the deployment is verified.
+**Milestone 3 is deployed to the development pilot.** The builder and merchant drafts support The Lumen and The Aevow Solitaire, with separate Shopify products, compatibility rules and immutable model versions. Hosted publication/rollback and actual test orders #1004 and #1005 passed; both QA diamonds are disabled afterward. See [Milestone 3 setup and acceptance evidence](docs/milestone-3.md). Physical-phone performance, manufacturer fitting and merchant visual approval remain pending.
 
 **Milestone 2 is implemented on the development pilot.** Open [Manage catalog](https://admin.shopify.com/store/aerow-qdbfzxwi/apps/aevow-ring-pilot/app/catalog) for Shopify product search, diamond eligibility, supported-option rules, draft validation/preview, publication and rollback. The customer builder has server-side filtering, sorting and pagination, tested with 200 fixture records. [Merchant instructions and Milestone 2 acceptance evidence](docs/milestone-2.md) include actual test order #1003, published-version checks and preservation of the earlier designs.
 
