@@ -4,6 +4,19 @@ Status: implemented and verified locally. Hosted deployment, merchant publicatio
 and two real development-store checkout checks are pending. Do not call this
 milestone fully accepted until the pending checks below have evidence.
 
+On 31 October 2026, the approved temporary deployment token was created and the
+account was reconfirmed as Free. The audited package was uploaded to unpublished
+Netlify deployment `6ae591cf621f0fd9c2014c51`, with purchases disabled. Its protected
+preview requires the owner's Netlify browser login before hosted verification.
+Shopify app version `milestone-3-multi-setting-v1` / `1189143150593` is prepared
+but unreleased. The existing hosted pilot and published catalog remain Milestone 2.
+
+Two clearly labelled Round/Oval development-fixture product copies have been
+specified for checkout testing. Automatic approval review rejected duplication
+without explicit approval for those products; no copies have been created.
+Complete the pending login/fixture authorization, then finish hosted verification
+and revoke the temporary Netlify token.
+
 ## Scope and mappings
 
 The builder supports The Lumen / Hidden halo and The Aevow Solitaire, both with
