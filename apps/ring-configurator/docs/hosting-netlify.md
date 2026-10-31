@@ -1,7 +1,9 @@
 # Optional $0 hosting: Netlify Node Functions and PostgreSQL
 
-This path is prepared locally; it has not been deployed. No Netlify account,
-database, paid plan, or remote upload is created by these files. The existing
+This path is deployed at `https://aevow-ring-pilot.netlify.app`. Public runtime
+and Shopify cutover checks are recorded separately in the acceptance evidence.
+These configuration files alone create no account, database, paid plan, or
+remote upload. The existing
 local Node server remains the default. Render requested a card on the current
 account, so its free-service blueprint is not an available no-card deployment
 for this user.
@@ -32,7 +34,10 @@ and [no-card announcement](https://www.netlify.com/blog/introducing-netlify-free
    currently includes 1 GB/project and 100 CU-hours/month/project. See
    [Neon pricing](https://neon.com/pricing).
 3. Store secrets in the site's environment settings for the production build
-   and Functions. Use the pooled connection as `DATABASE_URL`; for Neon, retain
+   and Functions. Free-plan secret protection is enabled with `is_secret=true`,
+   production context, and the standard `builds`, `functions`, `runtime` scopes;
+   post-processing is excluded. Narrower scope customization requires a paid
+   plan, which this pilot does not activate. Use the pooled connection as `DATABASE_URL`; for Neon, retain
    `sslmode=require` and consider `connection_limit=1&connect_timeout=15` for the
    small serverless pilot. Keep a direct connection locally as
    `DATABASE_URL_UNPOOLED` for schema migrations. The app's `db:migrate` wrapper
@@ -72,10 +77,12 @@ fails the build if the expected generated format changes.
 
 The generated Node handler has been exercised locally against `/health`, a v2
 GLB, a retained v1 GLB, and an actual JPEG stored in PostgreSQL; all returned
-200 with the expected binary data. The opt-in build succeeds. A hosted Linux
-deployment, packaged query engine, real Netlify environment and free database
-connection still require verification. Local smoke checks do not prove those
-external integrations.
+200 with the expected binary data. The opt-in build succeeds. The deployed
+12 MB package contains the Linux x64 RHEL query engine and all four historical
+and current model files; its audit found no environment files, private
+configuration, backups, or secret literals. Actual hosted database/image and
+Shopify integration checks are recorded separately; local smoke checks alone
+do not prove those external integrations.
 
 Netlify documents a 60-second synchronous execution limit and a 6 MB buffered
 payload limit. This app's 800 KB JSON request limit and 500 KB image limit fit
@@ -86,19 +93,31 @@ Use separate database credentials and disabled purchasing for preview deploys.
 
 ## Moving this workspace's existing records
 
-Migration is feasible without rewriting saved configurations: both databases
-are PostgreSQL, including JSON snapshots and binary preview data. Use
-`pg_dump`/`pg_restore` with owner/ACL restoration disabled, and retain the Prisma
-migration history. Export into ignored storage outside `public/` and keep
-database passwords in process environment rather than command arguments.
-Restore into the approved empty destination, compare row counts and preview
-bytes, then switch the app's connection. Keep the original local database as a
-rollback source until the new deployment is verified. See
-[Neon's PostgreSQL import procedure](https://neon.com/docs/import/import-from-postgres).
+The approved selective transfer uses `scripts/transfer-pilot-records.ts` after
+the committed Prisma migrations create empty target tables. Netlify explicitly
+supports an [independent migration system](https://docs.netlify.com/build/data-and-storage/netlify-database/migrations/#manual-migrations);
+the existing `prisma/migrations` directory avoids automatic native-migration
+detection. Do not duplicate those migrations under Netlify's native directory.
+
+Supply source `DATABASE_URL` and destination `PILOT_EXPORT_DATABASE_URL` in the
+process environment. The script is read-only by default; applying requires
+`--apply` and `PILOT_DATABASE_EXPORT_APPROVED=true`. It refuses a populated
+target and never deletes or updates source data. It copies Quotes, Designs
+(including image bytes), WebhookReceipts and OrderDesign associations with
+their exact IDs, references, dates and values. Session records and Shopify
+access tokens are excluded. The cloud app obtains a fresh grant independently.
+
+Before writing, the script saves an ignored, binary-preserving JSON backup.
+The transaction verifies record and image hashes before committing and again
+afterward. The approved transfer copied six quotes/designs, one webhook receipt
+and one verified test-order association; all hashes matched, and the cloud
+Session table remained empty. The original local database is retained as the
+rollback source. No backup belongs in `public/` or a deployment artifact.
 
 Preserve the signing secret so existing order references remain verifiable.
 The saved-design API resolves database preview images through the current app
 hostname after the move. Original snapshot and cart/order properties remain
 unchanged; an old order-line image URL can still reference the former temporary
-tunnel. No data export or remote restore has been performed by this hosting
-preparation.
+tunnel. The selective transfer and hosted model/database image reads have been
+verified. Shopify callback/proxy cutover and a new hosted checkout remain
+separate checks before enabling customer purchasing.

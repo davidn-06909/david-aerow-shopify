@@ -1,7 +1,7 @@
 # Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 
 client_id = "fd867f1151e23097f5e6035fa50804c5"
-application_url = "https://fioricet-wellness-targeted-authorities.trycloudflare.com"
+application_url = "https://aevow-ring-pilot.netlify.app"
 embedded = true
 name = "Aevow Ring Pilot"
 
@@ -23,10 +23,10 @@ optional_scopes = [ ]
 use_legacy_install_flow = false
 
 [auth]
-redirect_urls = [ "https://fioricet-wellness-targeted-authorities.trycloudflare.com/auth/callback" ]
+redirect_urls = [ "https://aevow-ring-pilot.netlify.app/auth/callback" ]
 
 [build]
-automatically_update_urls_on_dev = true
+automatically_update_urls_on_dev = false
 
 [app_proxy]
 url = "/proxy"

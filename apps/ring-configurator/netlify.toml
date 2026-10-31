@@ -12,7 +12,16 @@ NPM_FLAGS = "--include=dev"
 [functions]
 node_bundler = "esbuild"
 external_node_modules = ["@prisma/client"]
-included_files = ["node_modules/.prisma/client/**", "public/models/**"]
+included_files = [
+  "node_modules/.prisma/client/**",
+  "public/models/**",
+  "!.env", "!.env.*", "!**/.env", "!**/.env.*",
+  "!.cache/**", "!**/.cache/**", "!.shopify/**", "!**/.shopify/**",
+  "!config/pilot.local.json", "!**/config/pilot.local.json",
+  "!**/*.dump", "!**/*.backup",
+  "!node_modules/.prisma/client/*windows*",
+  "!node_modules/.prisma/client/*.tmp*",
+]
 
 # Shopify embeds the authenticated admin app; do not add a site-wide
 # X-Frame-Options or frame-ancestors policy that overrides Shopify's response.

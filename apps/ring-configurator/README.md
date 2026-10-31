@@ -4,7 +4,7 @@ Isolated Shopify app built from Shopify's current React Router template architec
 
 **Integration status:** current account integration and acceptance evidence are recorded in `docs/acceptance.md`. The app includes a separate read-only local preview; it does not impersonate an installed integration.
 
-The app is now registered and installed in `aerow-qdbfzxwi.myshopify.com`, with a real offline server-side session and local PostgreSQL migration applied. Current setup details and remaining acceptance work are recorded in `docs/acceptance.md`; the source implementation alone is not a completed checkout demonstration.
+The app is installed in `aerow-qdbfzxwi.myshopify.com` and hosted on Netlify Free with managed PostgreSQL. Shopify test orders **#1001 and #1002** completed at USD 5,595 each; signed webhooks verified their components, engraving and saved previews. User visual review and a measured physical-phone FPS check remain. Open the review links and recorded evidence in [the acceptance record](docs/acceptance.md).
 
 ## Local visual review
 
@@ -38,8 +38,9 @@ The preview uses the reference store's actual catalog capture in `config/referen
 
 ### Optional free hosting
 
-The optional Netlify build is prepared and locally checked; it has not been
-deployed. Netlify's current Free plan includes 300 credits/month with a hard
+The Node app is deployed at `https://aevow-ring-pilot.netlify.app`; current public
+runtime and Shopify cutover evidence is tracked in `docs/acceptance.md`.
+Netlify's current Free plan includes 300 credits/month with a hard
 limit and no automatic recharge, including Netlify Database. Keep the account
 on Free and do not add a payment method. Quota exhaustion can pause the app.
 See [Netlify's Free plan](https://docs.netlify.com/manage/accounts-and-billing/billing/billing-for-credit-based-plans/credit-based-pricing-plans/).
@@ -60,15 +61,20 @@ allowed development shop and `PILOT_MANIFEST_JSON`. Use
 `npm run db:migrate`; `DATABASE_URL_UNPOOLED` can supply the direct migration
 connection while `DATABASE_URL` remains pooled for runtime use. This helper
 applies schema migrations only: it does **not** copy existing records. Preserve
-the local database and signing secret, and use PostgreSQL `pg_dump`/`pg_restore`
-to transfer saved designs, preview bytes, quotes, sessions, webhook receipts and
-order associations into the approved empty destination before switching over.
+the local database and signing secret. The reviewed
+`scripts/transfer-pilot-records.ts` transfers saved designs, preview bytes,
+quotes, webhook receipts and order associations into an empty destination only
+after explicit approval. It saves an ignored binary-preserving backup and
+verifies exact record and image hashes. **Shopify Session/access tokens are
+excluded**; the cloud app obtains its own short-lived client-credentials grant.
 Verify row counts and preview bytes, then recheck Shopify diagnostics, cart and
 webhooks before enabling purchases.
 
 The opt-in `npm run build:netlify` and generated Node handler passed local health,
-current/historical model and stored-image checks. Hosted Linux packaging,
-database connectivity and Shopify callbacks remain deployment acceptance work.
+current/historical model and stored-image checks. The deployed package includes
+the Linux RHEL engine and excludes environment files, private configuration,
+backups and secret literals. Hosted database reads and Shopify callbacks are
+recorded separately in the acceptance evidence.
 The default `npm run build` and local server remain available. Detailed setup,
 runtime constraints and migration handling are in
 [the Netlify hosting instructions](docs/hosting-netlify.md).
