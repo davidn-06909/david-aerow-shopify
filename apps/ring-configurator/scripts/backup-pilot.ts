@@ -11,7 +11,11 @@ let client: PrismaClient | undefined;
 try {
   if (mode === 'export') {
     // Exclusive create protects the previous known-good backup.
-    client = new PrismaClient();
+    const source = new URL(process.env.DATABASE_URL || '');
+    source.searchParams.set('connect_timeout', '30');
+    source.searchParams.set('pool_timeout', '30');
+    source.searchParams.set('connection_limit', '1');
+    client = new PrismaClient({ datasources: { db: { url: source.href } } });
     const backup = await captureBackup(client);
     await writeFile(file, encryptBackup(backup, key), { flag: 'wx' });
     console.log(JSON.stringify({ encrypted: true, counts: Object.fromEntries(backupTables.map(t => [t, backup.tables[t].length])), sessionTokensCopied: 0 }));
