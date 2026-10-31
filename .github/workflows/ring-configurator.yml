@@ -24,11 +24,11 @@ jobs:
           toolchain: stable
           targets: wasm32-unknown-unknown
       - run: cargo test
-      - run: cargo build --release --target wasm32-unknown-unknown
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 22
-      - run: npm install --global @shopify/cli@4.9.4
+      - run: npm install --global @shopify/cli@5.0.0
+      - run: shopify app function build --path . --no-input
       - run: node tests/runtime.mjs
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
