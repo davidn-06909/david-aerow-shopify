@@ -64,4 +64,6 @@ For rollback, first disable new purchases for the development pilot if checkout 
 | Packaging | 793 ZIP entries, 16 GLBs, Linux Prisma; no private files or credential matches |
 | Hosted operations | Seven configured orders; both new orders reflected their final Shopify lifecycle states; no failed/dead-letter receipts at verification |
 
+The [feature-branch CI run](https://github.com/davidn-06909/david-aerow-shopify/actions/runs/41218954743) passed its checkout-function, app and theme jobs. The temporary Netlify deployment token was revoked after verification: it disappeared from the account token list, a site API request returned HTTP 401, and its ignored local token file was removed.
+
 The checkout guard has only been installed on the partner development store. Before deploying to a live Shopify Plus store, verify its plan/capability, install and configure the app there, map real products and inventory, review storefront/checkout behavior and separately approve any live store changes. Manufacturer measurements and tolerances are still required before physical fitting can be claimed. A physical Android and iPhone touch/FPS check is still outstanding; browser emulation does not satisfy it. Free Netlify usage and database limits need ongoing monitoring.
