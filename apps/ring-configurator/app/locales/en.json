@@ -130,5 +130,9 @@
   "refundRecordedReviewRequired": "Refund recorded — review required",
   "paymentRequiresAttention": "Payment requires attention",
   "configurationRequiresReview": "Configuration requires review",
+  "checkoutGuardActive": "Shopify checkout guard active for configured rings. Older carts must be refreshed in the builder.",
+  "checkoutGuardNeedsAttention": "Shopify checkout guard requires attention. Stop new catalog publication until repaired.",
+  "checkoutGuardStatusUnavailable": "Shopify checkout guard status could not be verified.",
+  "checkoutGuardNotInstalled": "Checkout guard has not been installed on this development store.",
   "componentsVerifiedPhysicalFittingUnverified": "Components verified — physical fitting unverified"
 }

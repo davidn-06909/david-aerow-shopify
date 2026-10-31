@@ -31,7 +31,7 @@ const shopify = shopifyApp({
   apiKey: process.env.SHOPIFY_API_KEY || "configuration-required",
   apiSecretKey: process.env.SHOPIFY_API_SECRET || "configuration-required",
   apiVersion: ApiVersion.October26,
-  scopes: (process.env.SCOPES || "read_products,read_inventory,read_orders,write_app_proxy").split(","),
+  scopes: (process.env.SCOPES || "read_products,read_inventory,read_orders,read_validations,write_app_proxy,write_validations").split(","),
   appUrl: process.env.SHOPIFY_APP_URL || "http://localhost:3000",
   authPathPrefix: "/auth",
   sessionStorage: lazySessionStorage,

@@ -5,6 +5,7 @@ import { inspectMappedCatalog, type AdminClient } from "./catalog.server";
 import { PilotError } from "./errors.server";
 import { settingMappings } from './manifest.server';
 import { verifyAssets } from './assets.server';
+import { extendCheckoutGuard } from './checkout-guard.server';
 export async function validateDraft(admin: AdminClient, shop: string, revision: number) {
   const state = await initializeCatalog(shop);
   if (state.revision !== revision) throw new PilotError("DRAFT_CONFLICT", "The draft changed. Reload before validating or publishing.", 409);
@@ -27,6 +28,7 @@ export async function publishCatalog(admin: AdminClient, shop: string, revision:
   const { report } = await inspectMappedCatalog(admin, shop, manifest);
   for (const s of settingMappings(manifest).filter(s => s.enabled)) report.errors.push(...(await verifyAssets(s.assetVersion)).map(e => `${s.title}: ${e}`));
   if (report.errors.length) throw new PilotError("PUBLICATION_BLOCKED", "Resolve catalog validation errors before publishing.", 422, Object.fromEntries(report.errors.map((message, i) => [`validation.${i}`, message])));
+  await extendCheckoutGuard(admin, shop, manifest);
   return { version: await activateCatalog(shop, revision, manifest, report, actor, restoredFrom), report };
 }
 export async function searchShopifyVariants(admin: AdminClient, query: string, after?: string) {

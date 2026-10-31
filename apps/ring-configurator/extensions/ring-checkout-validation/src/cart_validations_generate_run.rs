@@ -107,12 +107,12 @@ fn cart_validations_generate_run(input: schema::run::Input) -> Result<schema::Ca
             _ => (String::new(), String::new()),
         };
         parsed.push(Line { variant, product, quantity: *line.quantity(),
-            group: line.group().as_ref().and_then(|a| a.value().clone()),
-            role: line.role().as_ref().and_then(|a| a.value().clone()),
-            ticket: line.ticket().as_ref().and_then(|a| a.value().clone()),
-            design: line.design().as_ref().and_then(|a| a.value().clone()),
-            reference: line.reference().as_ref().and_then(|a| a.value().clone()),
-            engraving: line.engraving().as_ref().and_then(|a| a.value().clone()) });
+            group: line.group().as_ref().and_then(|a| a.value().cloned()),
+            role: line.role().as_ref().and_then(|a| a.value().cloned()),
+            ticket: line.ticket().as_ref().and_then(|a| a.value().cloned()),
+            design: line.design().as_ref().and_then(|a| a.value().cloned()),
+            reference: line.reference().as_ref().and_then(|a| a.value().cloned()),
+            engraving: line.engraving().as_ref().and_then(|a| a.value().cloned()) });
     }
     for line in &parsed {
         let marked = line.group.is_some() || line.role.is_some() || line.ticket.is_some();
