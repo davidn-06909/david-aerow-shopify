@@ -14,4 +14,4 @@ description = "t:description"
 
   [extensions.build]
   command = "cargo build --target=wasm32-unknown-unknown --release"
-  path = "target/wasm32-unknown-unknown/release/ring_checkout_validation.wasm"
+  path = "target/wasm32-unknown-unknown/release/ring-checkout-validation.wasm"
