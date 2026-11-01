@@ -16,10 +16,20 @@ export interface GuardConfig {
   keys: { id: string; public_key: string }[];
   products: string[];
   variants: string[];
+  requireFitting?: boolean;
+  fittingReleaseId?: string | null;
+  exemptVariantIds?: string[];
 }
 
 function gid(kind: 'Product' | 'ProductVariant', id: string) { return `gid://shopify/${kind}/${numericId(id)}`; }
 function sorted(values: Iterable<string>) { return [...new Set(values)].sort(); }
+function standaloneExemptions(shop: string): string[] {
+  if (shop !== process.env.LIVE_ALLOWED_SHOP || process.env.LIVE_ALLOW_STANDALONE_COMPONENTS !== 'true') return [];
+  const values = (process.env.LIVE_GUARD_EXEMPT_VARIANT_IDS || '').split(',').map(v => v.trim()).filter(Boolean);
+  if (!values.length || values.some(v => !/^[1-9]\d{0,19}$/.test(v)))
+    throw new PilotError('GUARD_POLICY_REQUIRED', 'Enter exact standalone component variant IDs before configuring the live checkout guard.', 409);
+  return sorted(values);
+}
 
 export async function buildGuardConfig(shop: string, manifest?: PilotManifest, previous?: GuardConfig): Promise<GuardConfig> {
   const rows = await prisma.managedComponent.findMany({ where: { shop }, select: { kind: true, referenceId: true } });
@@ -32,7 +42,11 @@ export async function buildGuardConfig(shop: string, manifest?: PilotManifest, p
   const current = checkoutPublicKey();
   const keys = [...(previous?.keys || []).filter(k => k.id !== current.id), current];
   if (keys.length > 3) throw new PilotError('GUARD_KEYS', 'Retire an old checkout key before publishing.', 409);
-  return { version: 1, keys, products: sorted([...products, ...(previous?.products || [])]), variants: sorted([...variants, ...(previous?.variants || [])]) };
+  const exemptVariantIds = standaloneExemptions(shop);
+  const exempt = new Set(exemptVariantIds.map(id => gid('ProductVariant', id)));
+  return { version: 1, keys, products: sorted([...products, ...(previous?.products || [])]), variants: sorted([...variants, ...(previous?.variants || [])]).filter(id => !exempt.has(id)),
+    ...(exemptVariantIds.length ? { exemptVariantIds } : {}),
+    ...(previous?.requireFitting ? { requireFitting: true, fittingReleaseId: previous.fittingReleaseId || null } : process.env.REQUIRE_FITTING_APPROVAL === 'true' ? { requireFitting: true, fittingReleaseId: null } : {}) };
 }
 
 interface ValidationRecord { id: string; enabled: boolean; blockOnFailure: boolean; metafield: { id: string; value: string; namespace: string } | null }
@@ -46,7 +60,11 @@ async function readValidation(admin: AdminClient, id: string): Promise<Validatio
 function parseConfig(value: string): GuardConfig {
   let config: GuardConfig;
   try { config = JSON.parse(value); } catch { throw new PilotError('GUARD_CONFIG', 'Checkout guard configuration is invalid.', 503); }
-  if (config.version !== 1 || !Array.isArray(config.keys) || !Array.isArray(config.products) || !Array.isArray(config.variants)) throw new PilotError('GUARD_CONFIG', 'Checkout guard configuration is invalid.', 503);
+  if (config.version !== 1 || !Array.isArray(config.keys) || !Array.isArray(config.products) || !Array.isArray(config.variants)
+    || (config.requireFitting !== undefined && typeof config.requireFitting !== 'boolean')
+    || (config.exemptVariantIds !== undefined && (!Array.isArray(config.exemptVariantIds) || config.exemptVariantIds.some(v => !/^[1-9]\d{0,19}$/.test(v))))
+    || (config.fittingReleaseId != null && !/^[0-9a-f-]{36}$/i.test(config.fittingReleaseId)))
+    throw new PilotError('GUARD_CONFIG', 'Checkout guard configuration is invalid.', 503);
   return config;
 }
 
@@ -57,7 +75,20 @@ export async function checkoutGuardStatus(admin: AdminClient, shop: string) {
   const validation = await readValidation(admin, id);
   return { installed: true, enabled: validation.enabled, id, blockOnFailure: validation.blockOnFailure,
     products: parseConfig(validation.metafield?.value || '').products.length,
-    variants: parseConfig(validation.metafield?.value || '').variants.length };
+    variants: parseConfig(validation.metafield?.value || '').variants.length,
+    exemptVariantIds: parseConfig(validation.metafield?.value || '').exemptVariantIds || [],
+    requireFitting: parseConfig(validation.metafield?.value || '').requireFitting || false,
+    fittingReleaseId: parseConfig(validation.metafield?.value || '').fittingReleaseId || null };
+}
+
+async function updateValidationConfig(admin: AdminClient, id: string, metafieldId: string, config: GuardConfig) {
+  const response = await admin.graphql('mutation UpdateAevowValidation($id: ID!, $validation: ValidationUpdateInput!) { validationUpdate(id: $id, validation: $validation) { validation { id enabled metafield(key: "aevow_checkout_config") { value } } userErrors { field message } } }', { variables: {
+    id, validation: { metafields: [{ id: metafieldId, key: KEY, namespace: NAMESPACE, type: 'json', value: JSON.stringify(config) }] },
+  } });
+  const body = await response.json();
+  const result = body.data?.validationUpdate;
+  if (!response.ok || body.errors || result?.userErrors?.length || result?.validation?.id !== id || !result.validation.enabled || result.validation.metafield?.value !== JSON.stringify(config))
+    throw new PilotError('GUARD_UPDATE_FAILED', 'The checkout guard could not be updated. Publication was stopped.', 503);
 }
 
 /** Expand the protected registry before making a catalog release active. */
@@ -70,13 +101,20 @@ export async function extendCheckoutGuard(admin: AdminClient, shop: string, mani
   const current = parseConfig(validation.metafield.value);
   const next = await buildGuardConfig(shop, manifest, current);
   if (JSON.stringify(next) === JSON.stringify(current)) return;
-  const response = await admin.graphql('mutation UpdateAevowValidation($id: ID!, $validation: ValidationUpdateInput!) { validationUpdate(id: $id, validation: $validation) { validation { id enabled metafield(key: "aevow_checkout_config") { value } } userErrors { field message } } }', { variables: {
-    id, validation: { metafields: [{ id: validation.metafield.id, key: KEY, namespace: NAMESPACE, type: 'json', value: JSON.stringify(next) }] },
-  } });
-  const body = await response.json();
-  const result = body.data?.validationUpdate;
-  if (!response.ok || body.errors || result?.userErrors?.length || result?.validation?.id !== id || !result.validation.enabled || result.validation.metafield?.value !== JSON.stringify(next))
-    throw new PilotError('GUARD_UPDATE_FAILED', 'The checkout guard could not be expanded. Catalog publication was stopped.', 503);
+  await updateValidationConfig(admin, id, validation.metafield.id, next);
+}
+
+/** A manufacturer release is revocable at checkout without changing saved designs. */
+export async function setCheckoutFittingRelease(admin: AdminClient, shop: string, releaseId: string | null) {
+  const row = await prisma.jobCheckpoint.findUnique({ where: { shop_kind: { shop, kind: GUARD_KIND } } });
+  const id = (row?.checkpoint as { id?: string } | null)?.id;
+  if (!id) throw new PilotError('GUARD_MISSING', 'Install the checkout guard before publishing physical fitting.', 409);
+  const validation = await readValidation(admin, id);
+  if (!validation.enabled || !validation.blockOnFailure || !validation.metafield?.id)
+    throw new PilotError('GUARD_DISABLED', 'Enable and verify the checkout guard before publishing physical fitting.', 409);
+  const current = parseConfig(validation.metafield.value);
+  const next: GuardConfig = { ...current, requireFitting: true, fittingReleaseId: releaseId };
+  if (JSON.stringify(next) !== JSON.stringify(current)) await updateValidationConfig(admin, id, validation.metafield.id, next);
 }
 
 /** Only an explicit development-store setup script calls this. */

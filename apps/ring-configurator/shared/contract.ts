@@ -38,6 +38,9 @@ export interface Bootstrap {
   rules?: SettingRules;
   diamondPage?: DiamondPage;
   previewMode?: 'merchant-draft';
+  fittingRequired?: boolean;
+  fittingReleaseId?: string;
+  fittingApprovals?: { settingId: string; diamondId: string; shape: Shape; metals: Metal[]; sizes: string[] }[];
 }
 export interface DiamondPage { diamonds: PilotDiamond[]; total: number; page: number; pageSize: number; totalPages: number; catalogVersion: string; observedAt: string }
 export interface CartLineInput { id: string; quantity: number; properties: Record<string, string> }
@@ -46,8 +49,9 @@ export interface Quote {
   id: string; expiresAt: string; designId: string; configurationId: string; reference: string; selection: Selection;
   items: CartLineInput[]; prices: { setting: Money; diamond: Money; engraving: Money; total: Money };
   previewUrl?: string; shareUrl?: string; catalogVersion?: string;
+  fittingReleaseId?: string; fittingApprovalId?: string;
 }
-export interface SavedDesign { id: string; selection: Selection; previewUrl?: string; createdAt: string; pilotVersion: string; assetVersion: string; fittingStatus: 'visual-unverified'; priceContext?: Quote['prices']; catalogVersion?: string; diamond?: PilotDiamond; diamondTitle?: string; settingTitle?: string; ruleVersion?: string }
+export interface SavedDesign { id: string; selection: Selection; previewUrl?: string; createdAt: string; pilotVersion: string; assetVersion: string; fittingStatus: 'visual-unverified' | 'manufacturer-approved'; fittingReleaseId?: string; fittingApprovalId?: string; priceContext?: Quote['prices']; catalogVersion?: string; diamond?: PilotDiamond; diamondTitle?: string; settingTitle?: string; ruleVersion?: string }
 export interface ApiError { error: { code: string; message: string; fields?: Record<string, string> } }
 export interface ViewerConfiguration { shape: Shape; metal: string; size: string | number; engraving: string; diamondCarat?: number; assetBaseUrl?: string; assetVersion?: string }
 declare global {

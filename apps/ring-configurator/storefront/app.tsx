@@ -4,7 +4,7 @@ import { canNavigate, characterCount, emptySelection, firstIncomplete, reconcile
 import copy from './locales/en.json';
 import type { RingViewer } from './viewer';
 import { buyerAvailability } from './buyer-availability';
-import { settingCatalog, settingFor, settingsOf } from '../shared/compatibility';
+import { fittingAllows, settingCatalog, settingFor, settingsOf } from '../shared/compatibility';
 import { pricesChanged, type QuotePrices } from './price-confirmation';
 
 async function api<T>(base: string, path: string, options: RequestInit = {}): Promise<T> {
@@ -162,13 +162,13 @@ export function RingConfigurator({ apiBase, assetBase }: { apiBase: string; asse
   const complete = catalog ? stepComplete('review', selection, catalog) : false;
   const stepIndex = STEPS.indexOf(step);
   const filtered = results?.diamonds || [];
-  useEffect(() => { setPage(1); setResults(null); }, [selection.settingId, selection.shape, origin, minCarat, maxCarat, search, minPrice, maxPrice, color, clarity, sort]);
+  useEffect(() => { setPage(1); setResults(null); }, [selection.settingId, selection.metal, selection.shape, origin, minCarat, maxCarat, search, minPrice, maxPrice, color, clarity, sort]);
   useEffect(() => {
     if (loading || !catalog || step !== 'diamond') return;
     const abort = new AbortController();
     setSearchBusy(true); setSearchError('');
     const timer = setTimeout(() => {
-      const params = new URLSearchParams({ shape: selection.shape, origin, minCarat, maxCarat, q: search, minPrice, maxPrice, color, clarity, sort, page: String(page) });
+      const params = new URLSearchParams({ shape: selection.shape, metal: selection.metal, origin, minCarat, maxCarat, q: search, minPrice, maxPrice, color, clarity, sort, page: String(page) });
       if (selection.settingId) params.set('setting', selection.settingId);
       if (catalog.catalogVersion) params.set('version', catalog.catalogVersion);
       void api<DiamondPage>(apiBase, `diamonds?${params}`, { signal: abort.signal }).then(async response => {
@@ -366,7 +366,7 @@ export function RingConfigurator({ apiBase, assetBase }: { apiBase: string; asse
           <p className="arb-viewer-hint">{copy.rotate}</p>
         </div>
         <div className="arb-view-controls" role="group" aria-label={copy.ringViews}>{(['front', 'side', 'top', 'engraving', 'reset'] as const).map(view => <button key={view} type="button" onClick={() => viewer.current?.setView(view)} disabled={viewerStatus !== 'ready'}>{view === 'engraving' ? copy.engravingView : copy[view]}</button>)}</div>
-        <p className="arb-fitting-note">{copy.representative}</p>
+        <p className="arb-fitting-note">{catalog.fittingRequired && selection.diamondId && selection.size && fittingAllows(catalog, selection) ? copy.representativeApproved : copy.representative}</p>
         <dl className="arb-live-summary">{summary.slice(0, 4).map((value, i) => <div key={i}><dt>{copy.stepNames[i]}</dt><dd>{value}</dd></div>)}</dl>
         <div className="arb-studio-total"><span>{catalog.canPurchase ? copy.total : copy.estimate}</span><strong>{totalVisible ? price(displayedTotal) : '—'}</strong></div>
       </section>
@@ -398,7 +398,7 @@ export function RingConfigurator({ apiBase, assetBase }: { apiBase: string; asse
             {results && results.totalPages > 1 && <nav className="arb-pagination" aria-label={copy.resultsPages}><button type="button" disabled={searchBusy || page <= 1} onClick={() => setPage(p => p - 1)}>{copy.previousPage}</button><span>{page} / {results.totalPages}</span><button type="button" disabled={searchBusy || page >= results.totalPages} onClick={() => setPage(p => p + 1)}>{copy.nextPage}</button></nav>}
             <p className="arb-fine-print">{copy.unreserved}</p>
           </>}
-          {step === 'size' && <fieldset className="arb-size-grid"><legend className="arb-sr-only">{copy.ringSize}</legend>{activeCatalog!.setting.variants.filter(v => v.metal === selection.metal).map(v => <button type="button" key={v.id} disabled={!v.available || busy} aria-pressed={selection.size === v.size} className={selection.size === v.size ? 'is-selected' : ''} onClick={() => choose({ size: v.size }, 'engraving')}>{v.size}</button>)}</fieldset>}
+          {step === 'size' && <fieldset className="arb-size-grid"><legend className="arb-sr-only">{copy.ringSize}</legend>{activeCatalog!.setting.variants.filter(v => v.metal === selection.metal).map(v => <button type="button" key={v.id} disabled={!v.available || busy || !fittingAllows(catalog, { ...selection, size: v.size })} aria-pressed={selection.size === v.size} className={selection.size === v.size ? 'is-selected' : ''} onClick={() => choose({ size: v.size }, 'engraving')}>{v.size}</button>)}</fieldset>}
           {step === 'engraving' && <div className="arb-engraving"><label className="arb-radio"><input type="radio" name="arb-engraving" checked={!selection.engravingEnabled} disabled={busy} onChange={() => choose({ engravingEnabled: false, engraving: '' })} /><span>{copy.noEngraving}</span></label><label className="arb-radio"><input type="radio" name="arb-engraving" checked={selection.engravingEnabled} disabled={!activeCatalog!.engraving.available || busy} onChange={() => choose({ engravingEnabled: true })} /><span>{copy.addEngraving}</span><span>{activeCatalog!.engraving.variantId ? price(activeCatalog!.engraving.price.amount) : copy.soldOut}</span></label>{selection.engravingEnabled && <div className="arb-engraving-field"><label htmlFor="arb-inscription">{copy.inscription}</label><input id="arb-inscription" autoComplete="off" value={selection.engraving} disabled={busy} onChange={e => { if (characterCount(e.target.value) <= activeCatalog!.engraving.maxLength) choose({ engraving: e.target.value }); }} aria-describedby="arb-count arb-engraving-note" /><p id="arb-count" aria-live="polite">{activeCatalog!.engraving.maxLength - characterCount(selection.engraving)} {copy.charactersLeft}</p><p className="arb-inscription-preview" aria-hidden="true">{selection.engraving || '…'}</p><p className="arb-fine-print" id="arb-engraving-note">{copy.engravingNote}</p></div>}</div>}
           {step === 'review' && <>
             {savedDesign?.previewUrl && <figure style={{ margin: '0 0 20px' }}><img src={savedDesign.previewUrl} alt={copy.savedPreview} style={{ width: '100%', maxHeight: 240, objectFit: 'contain' }} /><figcaption className="arb-fine-print">{copy.savedPreview}</figcaption></figure>}

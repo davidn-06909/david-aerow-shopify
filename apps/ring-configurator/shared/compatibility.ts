@@ -15,6 +15,14 @@ export function diamondFits(setting: RingSetting, diamond: PilotDiamond) {
   const rules = setting.rules;
   return (!rules || (rules.shapes.includes(diamond.shape) && diamond.carat >= (rules.minCarat ?? 0) && diamond.carat <= (rules.maxCarat ?? Infinity) && (!rules.diamondIds?.length || rules.diamondIds.includes(diamond.id))));
 }
+export function fittingAllows(catalog: Bootstrap, selection: Pick<Selection, 'settingId' | 'style' | 'metal' | 'shape' | 'size' | 'diamondId'>): boolean {
+  if (!catalog.fittingRequired) return true;
+  const setting = settingFor(catalog, selection);
+  if (!setting || !selection.metal || !selection.shape || !selection.diamondId) return false;
+  return Boolean(catalog.fittingApprovals?.some(a => a.settingId === setting.id
+    && a.shape === selection.shape && a.diamondId === selection.diamondId
+    && a.metals.includes(selection.metal as Metal) && (!selection.size || a.sizes.includes(selection.size))));
+}
 export function settingCatalog(catalog: Bootstrap, selection: Pick<Selection, 'settingId' | 'style'>): Bootstrap {
   const setting = settingFor(catalog, selection);
   if (!setting) return { ...catalog, setting: { ...catalog.setting, variants: [] }, canPurchase: false };
@@ -31,6 +39,7 @@ export function compatibilityErrors(catalog: Bootstrap, selection: Selection): s
   if (!assembly(setting.assetVersion || catalog.assetVersion, selection.shape)) errors.push('ASSET_UNAVAILABLE');
   const diamond = catalog.diamonds.find(d => d.id === selection.diamondId || d.sourceVariantId === selection.diamondId);
   if (diamond && (!diamondFits(setting, diamond) || diamond.shape !== selection.shape)) errors.push('INCOMPATIBLE_DIAMOND');
+  if (diamond && !fittingAllows(catalog, { ...selection, diamondId: diamond.id })) errors.push('FITTING_UNVERIFIED');
   if (selection.engravingEnabled && rules?.engravingEnabled === false) errors.push('ENGRAVING_UNAVAILABLE');
   return errors;
 }

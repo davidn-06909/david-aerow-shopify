@@ -21,7 +21,7 @@ try {
     console.log(JSON.stringify({ encrypted: true, counts: Object.fromEntries(backupTables.map(t => [t, backup.tables[t].length])), sessionTokensCopied: 0 }));
   } else {
     const backup = decryptBackup(await readFile(file), key);
-    if (mode === 'inspect') console.log(JSON.stringify({ valid: true, createdAt: backup.createdAt, counts: Object.fromEntries(backupTables.map(t => [t, backup.tables[t].length])) }));
+    if (mode === 'inspect') console.log(JSON.stringify({ valid: true, createdAt: backup.createdAt, counts: Object.fromEntries(backupTables.filter(t => backup.tables[t]).map(t => [t, backup.tables[t].length])) }));
     else if (mode === 'restore' && process.argv.includes('--apply')) {
       const target = new URL(process.env.PILOT_RESTORE_DATABASE_URL || '');
       if (!['127.0.0.1', 'localhost', '[::1]'].includes(target.hostname) || !/^restore_[a-f0-9]{16}$/.test(target.searchParams.get('schema') || '')) throw new Error('RESTORE_REQUIRES_ISOLATED_LOCAL_SCHEMA');

@@ -1,10 +1,12 @@
 import { createCipheriv, createDecipheriv, createHash, randomBytes } from 'node:crypto';
 import { Prisma, type PrismaClient } from '@prisma/client';
 
-export const backupTables = ['quote', 'design', 'catalogRelease', 'catalogState', 'webhookReceipt', 'orderDesign', 'configuredOrder', 'orderAuditRun', 'merchantOrderAction', 'operationAction', 'jobCheckpoint', 'managedComponent', 'requestBucket'] as const;
+const legacyTables = ['quote', 'design', 'catalogRelease', 'catalogState', 'webhookReceipt', 'orderDesign', 'configuredOrder', 'orderAuditRun', 'merchantOrderAction', 'operationAction', 'jobCheckpoint', 'managedComponent', 'requestBucket'] as const;
+export const backupTables = [...legacyTables, 'fittingState', 'fittingRelease', 'manufacturingDecision'] as const;
 type Table = typeof backupTables[number];
-export interface PilotBackup { version: 1; createdAt: string; tables: Record<Table, Record<string, unknown>[]>; hashes: Record<Table, string> }
-const dates: Partial<Record<Table, string[]>> = { quote: ['expiresAt', 'createdAt'], design: ['createdAt'], catalogRelease: ['createdAt'], catalogState: ['updatedAt'], webhookReceipt: ['createdAt', 'nextAttemptAt', 'leaseUntil', 'processedAt'], orderDesign: ['createdAt'], configuredOrder: ['sourceUpdatedAt', 'synchronizedAt'], orderAuditRun: ['createdAt'], merchantOrderAction: ['createdAt'], operationAction: ['createdAt'], jobCheckpoint: ['leaseUntil', 'lastSuccessAt', 'updatedAt'], requestBucket: ['window', 'expiresAt'] };
+export interface PilotBackup { version: 1 | 2; createdAt: string; tables: Record<Table, Record<string, unknown>[]>; hashes: Record<Table, string> }
+const dates: Partial<Record<Table, string[]>> = { quote: ['expiresAt', 'createdAt'], design: ['createdAt'], catalogRelease: ['createdAt'], catalogState: ['updatedAt'], webhookReceipt: ['createdAt', 'nextAttemptAt', 'leaseUntil', 'processedAt'], orderDesign: ['createdAt'], configuredOrder: ['sourceUpdatedAt', 'synchronizedAt'], orderAuditRun: ['createdAt'], merchantOrderAction: ['createdAt'], operationAction: ['createdAt'], jobCheckpoint: ['leaseUntil', 'lastSuccessAt', 'updatedAt'], requestBucket: ['window', 'expiresAt'], fittingState: ['updatedAt'], fittingRelease: ['createdAt'], manufacturingDecision: ['createdAt'] };
+const tablesFor = (version: 1 | 2): readonly Table[] => version === 1 ? legacyTables : backupTables;
 function canonical(value: unknown): string {
   if (Array.isArray(value)) return `[${value.map(canonical).join(',')}]`;
   if (value && typeof value === 'object') return `{${Object.entries(value).sort(([a], [b]) => a.localeCompare(b)).map(([k, v]) => `${JSON.stringify(k)}:${canonical(v)}`).join(',')}}`;
@@ -31,7 +33,7 @@ export async function captureBackup(client: PrismaClient): Promise<PilotBackup> 
       tables[table] = encodedRows(rows); hashes[table] = hash(tables[table]);
     }
   }, { isolationLevel: 'RepeatableRead', timeout: 60_000 });
-  return { version: 1, createdAt: new Date().toISOString(), tables, hashes };
+  return { version: 2, createdAt: new Date().toISOString(), tables, hashes };
 }
 export function encryptBackup(backup: PilotBackup, key: string) {
   if (!/^[a-f0-9]{64}$/i.test(key)) throw new Error('BACKUP_KEY_REQUIRED');
@@ -47,7 +49,7 @@ export function decryptBackup(bytes: Uint8Array, key: string): PilotBackup {
   const decipher = createDecipheriv('aes-256-gcm', Buffer.from(key, 'hex'), buffer.subarray(8, 20));
   decipher.setAAD(buffer.subarray(0, 8)); decipher.setAuthTag(buffer.subarray(20, 36));
   const result = JSON.parse(Buffer.concat([decipher.update(buffer.subarray(36)), decipher.final()]).toString()) as PilotBackup;
-  if (result.version !== 1 || backupTables.some(t => !Array.isArray(result.tables?.[t]) || result.tables[t].length > 10000 || hash(result.tables[t]) !== result.hashes?.[t])) throw new Error('BACKUP_HASH_MISMATCH');
+  if (![1, 2].includes(result.version) || tablesFor(result.version).some(t => !Array.isArray(result.tables?.[t]) || result.tables[t].length > 10000 || hash(result.tables[t]) !== result.hashes?.[t])) throw new Error('BACKUP_HASH_MISMATCH');
   return result;
 }
 export async function restoreBackup(client: PrismaClient, backup: PilotBackup) {
@@ -56,7 +58,7 @@ export async function restoreBackup(client: PrismaClient, backup: PilotBackup) {
   await client.$transaction(async tx => {
     if (await tx.session.count()) throw new Error('RESTORE_TARGET_NOT_EMPTY');
     for (const table of backupTables) if (await (tx[table] as any).count()) throw new Error('RESTORE_TARGET_NOT_EMPTY');
-    for (const table of backupTables) {
+    for (const table of tablesFor(backup.version)) {
       const rows = backup.tables[table].map(value => {
         const row = { ...value };
         for (const key of dates[table] || []) if (typeof row[key] === 'string') row[key] = new Date(row[key] as string);
@@ -68,6 +70,6 @@ export async function restoreBackup(client: PrismaClient, backup: PilotBackup) {
     }
   }, { timeout: 60_000 });
   const actual = await captureBackup(client);
-  for (const table of backupTables) if (actual.hashes[table] !== backup.hashes[table]) throw new Error(`RESTORE_VERIFICATION_FAILED:${table}`);
-  return { verified: true, counts: Object.fromEntries(backupTables.map(t => [t, backup.tables[t].length])), sessionTokensCopied: 0 };
+  for (const table of tablesFor(backup.version)) if (actual.hashes[table] !== backup.hashes[table]) throw new Error(`RESTORE_VERIFICATION_FAILED:${table}`);
+  return { verified: true, counts: Object.fromEntries(tablesFor(backup.version).map(t => [t, backup.tables[t].length])), sessionTokensCopied: 0 };
 }

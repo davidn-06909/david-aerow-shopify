@@ -356,6 +356,28 @@ try {
   assert.equal((await runOperations(targetShop, reconciliationAdmin)).skipped, true);
   await prisma.jobCheckpoint.update({ where: { shop_kind: { shop: targetShop, kind: 'operations' } }, data: { leaseUntil: null, leaseToken: null } });
   check('an active operations lease prevents overlapping scheduled runs');
+  const { initializeFitting, saveFittingDraft, fittingForSelection, publishFitting } = await import('../app/services/fitting-state.server');
+  const fitState = await initializeFitting(targetShop);
+  const emptyFit = { schemaVersion: 1, shop: targetShop, assemblies: [], stones: [], approvals: [] };
+  assert.equal(await saveFittingDraft(targetShop, fitState.revision, emptyFit), fitState.revision + 1);
+  await assert.rejects(saveFittingDraft(targetShop, fitState.revision, emptyFit), /draft changed/);
+  process.env.REQUIRE_FITTING_APPROVAL = 'true';
+  try {
+    await assert.rejects(fittingForSelection(targetShop, { settingId: 'lumen', assetVersion: 'lumen-visual-v3', shape: 'Round', metal: 'Platinum', size: '4.5', diamondVariantId: '900010', certificateNumber: 'TEST' }), /not published/);
+    await assert.rejects(publishFitting(admin, targetShop, fitState.revision + 1, 'verified-test-operator'), /Resolve fitting evidence errors/);
+    assert.equal((await prisma.fittingState.findUniqueOrThrow({ where: { shop: targetShop } })).activeVersion, null);
+  } finally { process.env.REQUIRE_FITTING_APPROVAL = 'false'; }
+  check('manufacturer fitting drafts use revision checks and cannot publish without documented approval');
+  const { recordManufacturingDecision } = await import('../app/services/manufacturing.server');
+  const manufacturingOrder = await prisma.configuredOrder.findUniqueOrThrow({ where: { shop_orderId: { shop: targetShop, orderId: paid.id } }, include: { audits: { orderBy: { version: 'desc' }, take: 1 } } });
+  const manufacturingAssociation = await prisma.orderDesign.findFirstOrThrow({ where: { shop: targetShop, orderId: paid.id } });
+  const manufacturingInput = { requestId: randomUUID(), auditId: manufacturingOrder.audits[0].id,
+    configurationId: manufacturingAssociation.configurationId, version: manufacturingOrder.version, decision: 'hold', reason: 'QA order is refunded.' };
+  const manufacturingHold = await recordManufacturingDecision(targetShop, paid.id, 'verified-test-operator', manufacturingInput);
+  assert.equal((await recordManufacturingDecision(targetShop, paid.id, 'verified-test-operator', manufacturingInput)).id, manufacturingHold.id);
+  await assert.rejects(recordManufacturingDecision(targetShop, paid.id, 'verified-test-operator', { ...manufacturingInput, decision: 'approved', requestId: randomUUID() }), /refund|cancelled|approval/i);
+  await assert.rejects(recordManufacturingDecision(targetShop, paid.id, 'verified-test-operator', { ...manufacturingInput, reason: 'changed' }), /another manufacturing decision/);
+  check('manufacturing decisions are idempotent and refunded rings cannot be approved');
   const { captureBackup, encryptBackup, decryptBackup, restoreBackup } = await import('../scripts/pilot-backup');
   const backup = await captureBackup(prisma), key = randomBytes(32).toString('hex');
   const encrypted = encryptBackup(backup, key), decoded = decryptBackup(encrypted, key);
@@ -375,6 +397,19 @@ try {
     assert.deepEqual((await captureBackup(prisma)).hashes, backup.hashes);
   } finally { if (/^restore_[a-f0-9]{16}$/.test(restoreSchema)) await restoredClient.$executeRawUnsafe(`DROP SCHEMA "${restoreSchema}" CASCADE`); await restoredClient.$disconnect(); }
   check('authenticated encrypted backup restores every table and preview into an empty isolated database schema with matching hashes');
+  const legacySchema = `restore_${randomBytes(8).toString('hex')}`;
+  const legacyUrl = new URL(process.env.DATABASE_URL!); legacyUrl.searchParams.set('schema', legacySchema);
+  execFileSync(process.execPath, [resolve('node_modules/prisma/build/index.js'), 'migrate', 'deploy'], { env: { ...process.env, DATABASE_URL: legacyUrl.href }, stdio: 'pipe' });
+  const legacyClient = new PrismaClient({ datasources: { db: { url: legacyUrl.href } } });
+  try {
+    const oldTables = (await import('../scripts/pilot-backup')).backupTables.slice(0, 13);
+    const legacy = { ...backup, version: 1 as const, tables: Object.fromEntries(oldTables.map(t => [t, backup.tables[t]])),
+      hashes: Object.fromEntries(oldTables.map(t => [t, backup.hashes[t]])) } as typeof backup;
+    assert.equal((await restoreBackup(legacyClient, decryptBackup(encryptBackup(legacy, key), key))).verified, true);
+    assert.equal(await legacyClient.fittingState.count(), 0);
+    assert.equal(await legacyClient.manufacturingDecision.count(), 0);
+  } finally { if (/^restore_[a-f0-9]{16}$/.test(legacySchema)) await legacyClient.$executeRawUnsafe(`DROP SCHEMA "${legacySchema}" CASCADE`); await legacyClient.$disconnect(); }
+  check('Milestone 4 backup format remains restorable after the fitting migration');
   assert.equal(JSON.stringify((await prisma.design.findUniqueOrThrow({ where: { id: familyQuote.designId } })).snapshot), snapshotBefore);
   check('all lifecycle, recovery and review operations preserve the original immutable ring design');
   console.log(`PostgreSQL integration complete: ${passed} checks passed. No external Shopify order was placed.`);

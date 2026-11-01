@@ -9,6 +9,8 @@ query Input {
       ticket: attribute(key: "_aevow_checkout") { value }
       design: attribute(key: "_aevow_design_id") { value }
       reference: attribute(key: "_aevow_reference") { value }
+      fit_release: attribute(key: "_aevow_fit_release") { value }
+      fit_approval: attribute(key: "_aevow_fit_approval") { value }
       engraving: attribute(key: "Engraving") { value }
       merchandise {
         __typename

@@ -3,6 +3,7 @@ import { resolve } from "node:path";
 import { z } from "zod";
 import { PilotError } from "./errors.server";
 import { METALS, SHAPES } from "../../shared/contract";
+import { LEGACY_ASSET_VERSION } from '../../shared/assets';
 const id = z.string().max(100).transform(v => v.trim().replace(/^gid:\/\/shopify\/(?:Product|ProductVariant|Location)\//, "")).refine(v => /^\d+$/.test(v), "Enter a Shopify ID");
 const rulesSchema = z.object({ metals: z.array(z.enum(METALS)).min(1).max(4), shapes: z.array(z.enum(SHAPES)).min(1).max(2), engravingEnabled: z.boolean(), engravingMaxLength: z.number().int().min(1).max(20), minCarat: z.number().min(0).max(20).optional(), maxCarat: z.number().positive().max(20).optional(), diamondIds: z.array(id).max(200).optional(), sizes: z.array(z.string().min(1).max(20)).max(100).optional() }).superRefine((r, ctx) => {
   if ((r.minCarat || 0) > (r.maxCarat ?? 20)) ctx.addIssue({ code: 'custom', path: ['minCarat'], message: 'Minimum carat exceeds maximum.' });
@@ -51,7 +52,7 @@ export function settingMappings(m: PilotManifest): SettingMapping[] {
   return m.settings || [{ id: 'lumen', title: 'The Lumen', style: 'Hidden halo', family: 'hidden-halo', bandId: 'high-polish', enabled: true, productId: m.settingProductId, assetVersion: ASSET_VERSION, rules: m.rules }];
 }
 export const PILOT_VERSION = "lumen-pilot-v1";
-export const ASSET_VERSION = "lumen-visual-v2";
+export const ASSET_VERSION = LEGACY_ASSET_VERSION;
 export async function readManifest(): Promise<PilotManifest> {
   try { return manifestSchema.parse(JSON.parse(process.env.PILOT_MANIFEST_JSON || await readFile(resolve(process.env.PILOT_MANIFEST_PATH || "config/pilot.local.json"), "utf8"))); }
   catch { throw new PilotError("MAPPING_REQUIRED", "Configure the development-store product and variant mappings in PILOT_MANIFEST_PATH.", 503); }

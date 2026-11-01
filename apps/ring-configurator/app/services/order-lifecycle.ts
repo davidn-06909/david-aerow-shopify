@@ -35,5 +35,5 @@ export function reviewGate(facts: Pick<OrderFacts, 'paymentState' | 'cancelled' 
   if (facts.refunded && Number(facts.refunded) > 0) return copy.refundRecordedReviewRequired;
   if (facts.paymentState !== 'PAID') return copy.paymentRequiresAttention;
   if (verification !== 'verified') return copy.configurationRequiresReview;
-  return copy.componentsVerifiedPhysicalFittingUnverified;
+  return copy.componentsVerified;
 }

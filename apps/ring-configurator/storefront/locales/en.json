@@ -4,6 +4,7 @@
   "intro": "Choose a setting. Make every detail yours.",
   "pilot": "Visual 3D pilot",
   "representative": "Representative 3D preview. Physical stone fitting is unverified.",
+  "representativeApproved": "Representative 3D preview. The exact selected stone and setting have manufacturer fitting approval for this size and metal.",
   "readOnly": "Preview only — connect the Shopify development app to save designs and test checkout.",
   "draftPreview": "You are reviewing the saved merchant draft. Publish it to offer these options to customers. Purchasing is disabled in this preview.",
   "purchaseDisabled": "The Shopify app is connected. Purchasing is disabled while the pilot setup is reviewed.",

@@ -22,11 +22,14 @@ export interface CheckoutTicketInput {
   diamondVariant: string;
   engravingVariant?: string;
   engraving?: string;
+  fitReleaseId?: string;
+  fitApprovalId?: string;
 }
 
 export function signCheckoutTicket(input: CheckoutTicketInput): string {
+  if (Boolean(input.fitReleaseId) !== Boolean(input.fitApprovalId)) throw new Error('Both manufacturer fitting identifiers are required.');
   const payload = {
-    v: 1,
+    v: input.fitReleaseId ? 2 : 1,
     k: checkoutPublicKey().id,
     g: input.group,
     d: input.design,
@@ -35,6 +38,7 @@ export function signCheckoutTicket(input: CheckoutTicketInput): string {
     diamond: `gid://shopify/ProductVariant/${input.diamondVariant}`,
     engraving_variant: input.engravingVariant ? `gid://shopify/ProductVariant/${input.engravingVariant}` : null,
     engraving: input.engraving || null,
+    ...(input.fitReleaseId ? { fit_release: input.fitReleaseId, fit_approval: input.fitApprovalId || null } : {}),
   };
   const bytes = Buffer.from(JSON.stringify(payload));
   return `${bytes.toString('base64url')}.${sign(null, bytes, privateKey()).toString('base64url')}`;

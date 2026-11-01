@@ -7,6 +7,7 @@ import { PilotError } from './errors.server';
 import { refreshOrder } from './orders.server';
 import { requestLimit } from './limits.server';
 import { orderId } from './order-lifecycle';
+import { recordManufacturingDecision } from './manufacturing.server';
 
 export const orderFilters = z.object({
   page: z.coerce.number().int().min(1).max(1000).default(1),
@@ -68,6 +69,10 @@ export async function orderAction({ request, params }: ActionFunctionArgs) {
     if (form.intent === 'review') {
       await recordReview(session.shop, id, actor, form);
       return { ok: true, message: copy.reviewDecisionRecordedVerificationEvidenceAndManufacturing };
+    }
+    if (form.intent === 'manufacturing') {
+      await recordManufacturingDecision(session.shop, id, actor, form);
+      return { ok: true, message: 'Manufacturing decision recorded. This does not fulfill the Shopify order.' };
     }
     throw new PilotError('INVALID_ACTION', copy.chooseAnOrderAction, 400);
   } catch (error) {

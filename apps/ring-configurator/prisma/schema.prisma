@@ -102,6 +102,27 @@ model CatalogRelease {
   @@index([shop, createdAt])
 }
 
+// Manufacturer evidence is versioned independently of visual catalog releases.
+// A null activeVersion means that no physical-fit claim can be made.
+model FittingState {
+  shop String @id
+  draft Json
+  revision Int @default(1)
+  activeVersion String?
+  updatedAt DateTime @updatedAt
+}
+
+model FittingRelease {
+  id String @id @default(uuid())
+  shop String
+  manifest Json
+  report Json
+  actor String
+  action String
+  createdAt DateTime @default(now())
+  @@index([shop, createdAt])
+}
+
 // Mutable projection; the original designs and append-only audits are preserved.
 model ConfiguredOrder {
   id String @id @default(uuid())
@@ -119,6 +140,7 @@ model ConfiguredOrder {
   settingIds String[] @default([])
   audits OrderAuditRun[]
   actions MerchantOrderAction[]
+  manufacturingDecisions ManufacturingDecision[]
   @@unique([shop, orderId])
   @@index([shop, synchronizedAt])
   @@index([shop, verification, synchronizedAt])
@@ -163,6 +185,25 @@ model MerchantOrderAction {
   createdAt DateTime @default(now())
   @@unique([shop, requestId])
   @@index([configuredOrderId, createdAt])
+}
+
+// A manufacturing decision is tied to the exact order audit and cart group.
+// A newer audit automatically makes a prior approval stale.
+model ManufacturingDecision {
+  id String @id @default(uuid())
+  shop String
+  requestId String
+  configuredOrderId String
+  configuredOrder ConfiguredOrder @relation(fields: [configuredOrderId], references: [id])
+  configurationId String
+  auditId String
+  fitReleaseId String
+  actor String
+  decision String
+  reason String
+  createdAt DateTime @default(now())
+  @@unique([shop, requestId])
+  @@index([configuredOrderId, configurationId, createdAt])
 }
 
 model JobCheckpoint {

@@ -16,7 +16,7 @@ const ORDER_QUERY = `query ConfiguredOrder($id: ID!, $after: String) {
     }
   }
 }`;
-const manufacturingKeys = new Set(['_configuration_id', '_aevow_design_id', '_aevow_reference', '_aevow_checkout', '_aevow_asset_version', '_aevow_catalog_version', '_aevow_setting_id', '_aevow_band_id', '_aevow_rule_version', '_aevow_role', '_aevow_preview', 'Setting', 'Band', 'Metal', 'Shape', 'Ring size', '3D fitting', 'Engraving', 'Diamond', 'Certificate']);
+const manufacturingKeys = new Set(['_configuration_id', '_aevow_design_id', '_aevow_reference', '_aevow_checkout', '_aevow_asset_version', '_aevow_catalog_version', '_aevow_setting_id', '_aevow_band_id', '_aevow_rule_version', '_aevow_fit_release', '_aevow_fit_approval', '_aevow_role', '_aevow_preview', 'Setting', 'Band', 'Metal', 'Shape', 'Ring size', '3D fitting', 'Engraving', 'Diamond', 'Certificate']);
 export async function readOrder(admin: AdminClient, id: string): Promise<OrderFacts> {
   const lines: OrderFacts['lines'] = [];
   let after: string | undefined;

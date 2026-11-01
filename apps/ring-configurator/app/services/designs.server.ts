@@ -8,13 +8,18 @@ import { savePreview } from "./storage.server";
 import { signReference, verifyReference } from "./signing.server";
 import { RULE_VERSION } from '../../shared/assets';
 import { signCheckoutTicket } from './checkout-ticket.server';
+import { fittingForSelection } from './fitting-state.server';
 const json = (value: unknown) => JSON.parse(JSON.stringify(value)) as Prisma.InputJsonValue;
 export async function createQuote(input: unknown, catalog: Bootstrap): Promise<Quote> {
   const validated = validateSelection(input, catalog);
   const { selection, setting, family, diamond, prices, request } = validated;
   const assetVersion = family.assetVersion || catalog.assetVersion;
+  const fitting = await fittingForSelection(catalog.shop, {
+    settingId: family.id || 'lumen', assetVersion, shape: diamond.shape, metal: selection.metal as typeof setting.metal,
+    size: selection.size, diamondVariantId: diamond.id, certificateNumber: diamond.certificateNumber,
+  });
   const requestId = (request as typeof request & { requestId?: string }).requestId;
-  const requestHash = createHash("sha256").update(JSON.stringify({ selection, cartGroupId: request.cartGroupId || "" })).digest("hex");
+  const requestHash = createHash("sha256").update(JSON.stringify({ selection, cartGroupId: request.cartGroupId || "", fittingReleaseId: fitting?.releaseId || null })).digest("hex");
   const existingQuote = async () => {
     if (!requestId) return null;
     const prior = await prisma.quote.findUnique({ where: { shop_requestId: { shop: catalog.shop, requestId } } });
@@ -22,6 +27,7 @@ export async function createQuote(input: unknown, catalog: Bootstrap): Promise<Q
     if (prior.requestHash !== requestHash) throw new PilotError("REQUEST_CONFLICT", "This request ID was already used for a different configuration.", 409);
     if (prior.expiresAt <= new Date()) throw new PilotError("QUOTE_EXPIRED", "Refresh the quote using a new request ID.", 409);
     if ((prior.snapshot as unknown as Quote).catalogVersion !== catalog.catalogVersion) throw new PilotError("CATALOG_CHANGED", "The collection changed since this quote. Refresh the studio and try again.", 409);
+    if ((prior.snapshot as unknown as Quote).fittingReleaseId !== fitting?.releaseId) throw new PilotError('FITTING_CHANGED', 'Manufacturer approval changed. Request a fresh quote.', 409);
     const previousPrices = (prior.snapshot as unknown as Quote).prices;
     if ((["setting", "diamond", "engraving", "total"] as const).some(role => previousPrices[role].amount !== prices[role].amount || previousPrices[role].currency !== prices[role].currency)) throw new PilotError("QUOTE_EXPIRED", "Shopify prices changed. Request a fresh quote before purchasing.", 409);
     return prior.snapshot as unknown as Quote;
@@ -34,10 +40,14 @@ export async function createQuote(input: unknown, catalog: Bootstrap): Promise<Q
   const checkoutTicket = signCheckoutTicket({ group: configurationId, design: designId, reference,
     settingVariant: setting.id, diamondVariant: diamond.id,
     engravingVariant: selection.engravingEnabled ? catalog.engraving.variantId : undefined,
-    engraving: selection.engravingEnabled ? selection.engraving : undefined });
+    engraving: selection.engravingEnabled ? selection.engraving : undefined,
+    fitReleaseId: fitting?.releaseId, fitApprovalId: fitting?.approval.id });
   const preview = await savePreview(catalog.shop, designId, request.previewDataUrl);
   const previewUrl = preview.url;
-  const common = { _configuration_id: configurationId, _aevow_design_id: designId, _aevow_reference: reference, _aevow_checkout: checkoutTicket, _aevow_asset_version: assetVersion, _aevow_setting_id: family.id || 'lumen', _aevow_band_id: 'high-polish', _aevow_rule_version: RULE_VERSION, ...(catalog.catalogVersion ? { _aevow_catalog_version: catalog.catalogVersion } : {}), Setting: family.title, Band: selection.shank, Metal: selection.metal, Shape: selection.shape, "Ring size": selection.size, "3D fitting": "Representative — physical fitting unverified" };
+  const common = { _configuration_id: configurationId, _aevow_design_id: designId, _aevow_reference: reference, _aevow_checkout: checkoutTicket, _aevow_asset_version: assetVersion, _aevow_setting_id: family.id || 'lumen', _aevow_band_id: 'high-polish', _aevow_rule_version: RULE_VERSION, ...(catalog.catalogVersion ? { _aevow_catalog_version: catalog.catalogVersion } : {}),
+    ...(fitting ? { _aevow_fit_release: fitting.releaseId, _aevow_fit_approval: fitting.approval.id } : {}),
+    Setting: family.title, Band: selection.shank, Metal: selection.metal, Shape: selection.shape, "Ring size": selection.size,
+    "3D fitting": fitting ? 'Manufacturer fit approved; 3D preview representative' : 'Representative — physical fitting unverified' };
   const items: CartLineInput[] = [
     { id: setting.id, quantity: 1, properties: { ...common, _aevow_role: "setting", ...(selection.engravingEnabled ? { Engraving: selection.engraving } : {}) } },
     { id: diamond.id, quantity: 1, properties: { ...common, _aevow_role: "diamond", Diamond: diamond.title, ...(diamond.certificateNumber ? { Certificate: `${diamond.certificateLab} ${diamond.certificateNumber}` } : {}) } },
@@ -45,8 +55,14 @@ export async function createQuote(input: unknown, catalog: Bootstrap): Promise<Q
   if (selection.engravingEnabled) items.push({ id: catalog.engraving.variantId, quantity: 1, properties: { ...common, _aevow_role: "engraving", Engraving: selection.engraving } });
   if (previewUrl) for (const item of items) item.properties._aevow_preview = previewUrl;
   const shareUrl = `https://${catalog.shop}/pages/design-your-ring?design=${designId}&step=review`;
-  const quote: Quote = { id, designId, configurationId, reference, expiresAt: expiresAt.toISOString(), selection, items, prices, previewUrl, shareUrl, catalogVersion: catalog.catalogVersion };
-  const snapshot = { schemaVersion: 2, selection, settingTitle: family.title, ruleVersion: RULE_VERSION, items, prices, diamond, catalogVersion: catalog.catalogVersion, pilotVersion: catalog.pilotVersion, assetVersion, fittingStatus: "visual-unverified", previewUrl, source: { shop: catalog.shop, quotedAt: new Date().toISOString() } };
+  const quote: Quote = { id, designId, configurationId, reference, expiresAt: expiresAt.toISOString(), selection, items, prices, previewUrl, shareUrl, catalogVersion: catalog.catalogVersion,
+    ...(fitting ? { fittingReleaseId: fitting.releaseId, fittingApprovalId: fitting.approval.id } : {}) };
+  const snapshot = { schemaVersion: fitting ? 3 : 2, selection, settingTitle: family.title, ruleVersion: RULE_VERSION, items, prices, diamond, catalogVersion: catalog.catalogVersion, pilotVersion: catalog.pilotVersion, assetVersion,
+    fittingStatus: fitting ? 'manufacturer-approved' : 'visual-unverified', ...(fitting ? { fittingReleaseId: fitting.releaseId, fittingApprovalId: fitting.approval.id,
+      fittingEvidence: { assemblyId: fitting.assembly.id, headRevision: fitting.assembly.headRevision, drawingDigest: fitting.assembly.drawingDigest,
+        stoneMeasurements: { lengthMm: fitting.stone.lengthMm, widthMm: fitting.stone.widthMm, depthMm: fitting.stone.depthMm },
+        measurementDigest: fitting.stone.measurementDigest, approvalDigest: fitting.approval.evidenceDigest, approvedBy: fitting.approval.approvedBy,
+        approvedAt: fitting.approval.approvedAt } } : {}), previewUrl, source: { shop: catalog.shop, quotedAt: new Date().toISOString() } };
   try { await prisma.$transaction(async tx => {
     if (preview.data) {
       await tx.$queryRaw`SELECT 1 AS locked FROM pg_advisory_xact_lock(hashtext(${`${catalog.shop}:preview-budget`}))`;
@@ -56,6 +72,10 @@ export async function createQuote(input: unknown, catalog: Bootstrap): Promise<Q
     if (catalog.catalogVersion && catalog.catalogVersion !== "legacy-pilot") {
       const active = await tx.$queryRaw<{ activeVersion: string }[]>`SELECT "activeVersion" FROM "CatalogState" WHERE "shop" = ${catalog.shop} FOR SHARE`;
       if (active[0]?.activeVersion !== catalog.catalogVersion) throw new PilotError("CATALOG_CHANGED", "The collection changed while checking your ring. Reload the studio and try again.", 409);
+    }
+    if (fitting) {
+      const active = await tx.$queryRaw<{ activeVersion: string | null }[]>`SELECT "activeVersion" FROM "FittingState" WHERE "shop" = ${catalog.shop} FOR SHARE`;
+      if (active[0]?.activeVersion !== fitting.releaseId) throw new PilotError('FITTING_CHANGED', 'Manufacturer approval changed while checking this ring. Reload and try again.', 409);
     }
     await tx.quote.create({ data: { id, shop: catalog.shop, snapshot: json(quote), signature: reference, expiresAt, requestId, requestHash } });
     await tx.design.create({ data: { id: designId, shop: catalog.shop, quoteId: id, snapshot: json(snapshot), previewUrl, previewData: preview.data, previewMime: preview.mime } });
@@ -69,14 +89,15 @@ export async function getDesign(shop: string, id: string): Promise<SavedDesign> 
   if (!/^[0-9a-f-]{36}$/i.test(id)) throw new PilotError("DESIGN_NOT_FOUND", "This saved design could not be found.", 404);
   const row = await prisma.design.findFirst({ where: { id, shop }, select: { id: true, snapshot: true, previewUrl: true, createdAt: true } });
   if (!row) throw new PilotError("DESIGN_NOT_FOUND", "This saved design could not be found.", 404);
-  const data = row.snapshot as unknown as { selection: Selection; pilotVersion: string; assetVersion: string; settingTitle?: string; ruleVersion?: string; prices?: Quote["prices"]; catalogVersion?: string; diamond?: SavedDesign["diamond"]; items?: CartLineInput[] };
+  const data = row.snapshot as unknown as { selection: Selection; pilotVersion: string; assetVersion: string; settingTitle?: string; ruleVersion?: string; prices?: Quote["prices"]; catalogVersion?: string; diamond?: SavedDesign["diamond"]; items?: CartLineInput[]; fittingStatus?: SavedDesign['fittingStatus']; fittingReleaseId?: string; fittingApprovalId?: string };
   // Database previews are addressed by immutable design ID. Restore them through
   // the current host after moving the same database from a development tunnel;
   // the original quote, cart properties and stored snapshot remain untouched.
   const previewUrl = row.previewUrl?.endsWith(`/previews/${row.id}`) && process.env.SHOPIFY_APP_URL
     ? `${process.env.SHOPIFY_APP_URL.replace(/\/$/, "")}/previews/${row.id}`
     : row.previewUrl || undefined;
-  return { id: row.id, selection: data.selection, settingTitle: data.settingTitle || data.items?.[0]?.properties.Setting, ruleVersion: data.ruleVersion, previewUrl, createdAt: row.createdAt.toISOString(), pilotVersion: data.pilotVersion, assetVersion: data.assetVersion, fittingStatus: "visual-unverified", priceContext: data.prices, catalogVersion: data.catalogVersion, diamond: data.diamond, diamondTitle: data.diamond?.title || data.items?.find(i => i.properties._aevow_role === "diamond")?.properties.Diamond };
+  return { id: row.id, selection: data.selection, settingTitle: data.settingTitle || data.items?.[0]?.properties.Setting, ruleVersion: data.ruleVersion, previewUrl, createdAt: row.createdAt.toISOString(), pilotVersion: data.pilotVersion, assetVersion: data.assetVersion, fittingStatus: data.fittingStatus || 'visual-unverified', fittingReleaseId: data.fittingReleaseId, fittingApprovalId: data.fittingApprovalId,
+    priceContext: data.prices, catalogVersion: data.catalogVersion, diamond: data.diamond, diamondTitle: data.diamond?.title || data.items?.find(i => i.properties._aevow_role === "diamond")?.properties.Diamond };
 }
 export async function saveDesign(shop: string, input: unknown): Promise<SavedDesign> {
   if (!input || typeof input !== "object") throw new PilotError("INVALID_DESIGN", "Provide a current quote reference.");

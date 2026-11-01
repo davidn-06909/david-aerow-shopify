@@ -20,11 +20,22 @@ const reference = 'test-signed-quote-reference';
 const payload = Buffer.from(JSON.stringify({ v: 1, k: keyId, g: group, d: design, r: reference, setting, diamond, engraving_variant: service, engraving: '3ertyui' }));
 const ticket = `${payload.toString('base64url')}.${sign(null, payload, key).toString('base64url')}`;
 const config = { version: 1, keys: [{ id: keyId, public_key: publicBytes.toString('base64url') }], products: [product], variants: [diamond, service] };
+const fitRelease = 'dd1dc769-362d-4f8a-a013-232526073031';
+const fitApproval = 'f777d045-f37c-44be-bc32-2c3e131f1414';
+const fitPayload = Buffer.from(JSON.stringify({ v: 2, k: keyId, g: group, d: design, r: reference, setting, diamond,
+  engraving_variant: service, engraving: '3ertyui', fit_release: fitRelease, fit_approval: fitApproval }));
+const fitTicket = `${fitPayload.toString('base64url')}.${sign(null, fitPayload, key).toString('base64url')}`;
+const fitConfig = { ...config, requireFitting: true, fittingReleaseId: fitRelease };
 const attr = value => value === null || value === undefined ? null : { value };
 function line(variant, productId, role, engraving) {
-  return { quantity: 1, group: attr(group), role: attr(role), ticket: attr(ticket), design: attr(design), reference: attr(reference), engraving: attr(engraving), merchandise: { __typename: 'ProductVariant', id: variant, product: { id: productId } } };
+  return { quantity: 1, group: attr(group), role: attr(role), ticket: attr(ticket), design: attr(design), reference: attr(reference),
+    engraving: attr(engraving), fit_release: null, fit_approval: null,
+    merchandise: { __typename: 'ProductVariant', id: variant, product: { id: productId } } };
 }
 const valid = [line(setting, product, 'setting', '3ertyui'), line(diamond, 'gid://shopify/Product/15465670541560', 'diamond', null), line(service, 'gid://shopify/Product/15464833057016', 'engraving', '3ertyui')];
+const fitValid = valid.map(item => ({ ...item, ticket: attr(fitTicket), fit_release: attr(fitRelease), fit_approval: attr(fitApproval) }));
+const ordinary = { quantity: 1, group: null, role: null, ticket: null, design: null, reference: null, engraving: null,
+  fit_release: null, fit_approval: null, merchandise: { __typename: 'ProductVariant', id: 'gid://shopify/ProductVariant/999', product: { id: 'gid://shopify/Product/999' } } };
 const changed = (index, changes) => valid.map((item, i) => i === index ? { ...item, ...changes } : item);
 const cases = [
   ['valid_three_components', 'CHECKOUT_COMPLETION', valid, false],
@@ -33,12 +44,22 @@ const cases = [
   ['engraving_tamper', 'CHECKOUT_COMPLETION', changed(2, { engraving: attr('changed') }), true],
   ['ticket_tamper', 'CHECKOUT_COMPLETION', changed(1, { ticket: attr(`${ticket.slice(0, -2)}AA`) }), true],
   ['stripped_properties', 'CHECKOUT_COMPLETION', [{ ...valid[0], group: null, role: null, ticket: null, design: null, reference: null }], true],
-  ['ordinary_product', 'CHECKOUT_COMPLETION', [{ quantity: 1, group: null, role: null, ticket: null, design: null, reference: null, engraving: null, merchandise: { __typename: 'ProductVariant', id: 'gid://shopify/ProductVariant/999', product: { id: 'gid://shopify/Product/999' } } }], false],
+  ['ordinary_product', 'CHECKOUT_COMPLETION', [ordinary], false],
   ['cart_edit', 'CART_INTERACTION', [valid[0]], false],
+  ['fitting_approved', 'CHECKOUT_COMPLETION', fitValid, false, fitConfig],
+  ['fitting_release_revoked', 'CHECKOUT_COMPLETION', fitValid, true, { ...fitConfig, fittingReleaseId: '00000000-0000-4000-8000-000000000000' }],
+  ['fitting_approval_missing', 'CHECKOUT_COMPLETION', valid, true, fitConfig],
+  ['fitting_property_tampered', 'CHECKOUT_COMPLETION', fitValid.map((item, i) => i === 1 ? { ...item, fit_approval: attr('wrong') } : item), true, fitConfig],
+  ['missing_config_ordinary', 'CHECKOUT_COMPLETION', [ordinary], false, null],
+  ['missing_config_marked_ring', 'CHECKOUT_COMPLETION', [valid[0]], true, null],
+  ['bad_config_ordinary', 'CHECKOUT_COMPLETION', [ordinary], false, '{bad json'],
+  ['bad_config_marked_ring', 'CHECKOUT_COMPLETION', [valid[0]], true, '{bad json'],
+  ['bad_key_managed_ring', 'CHECKOUT_COMPLETION', [valid[0]], true, { ...config, keys: [] }],
 ];
-for (const [name, step, lines, shouldBlock] of cases) {
+for (const [name, step, lines, shouldBlock, override] of cases) {
   const inputPath = resolve(outputDir, `${name}.json`);
-  writeFileSync(inputPath, JSON.stringify({ buyerJourney: { step }, validation: { metafield: { value: JSON.stringify(config) } }, cart: { lines } }));
+  const value = override === undefined ? JSON.stringify(config) : override === null ? null : typeof override === 'string' ? override : JSON.stringify(override);
+  writeFileSync(inputPath, JSON.stringify({ buyerJourney: { step }, validation: { metafield: value === null ? null : { value } }, cart: { lines } }));
   const shopifyArgs = ['app', 'function', 'run', '--path', root, '--input', inputPath, '--export', 'cart_validations_generate_run', '--json'];
   const cli = process.env.SHOPIFY_CLI_JS;
   const raw = execFileSync(cli ? process.execPath : 'shopify', cli ? [cli, ...shopifyArgs] : shopifyArgs, { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });

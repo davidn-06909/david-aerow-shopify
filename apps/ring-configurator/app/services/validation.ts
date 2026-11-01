@@ -16,7 +16,10 @@ export function validateSelection(input: unknown, catalog: Bootstrap) {
   const selection: Selection = { ...request.selection, engraving: request.selection.engravingEnabled ? request.selection.engraving : "" };
   if (!catalog.canPurchase || catalog.mode !== "connected") throw new PilotError("INSTALLATION_REQUIRED", "Connect the Shopify app before requesting a purchase quote.", 503);
   const issues = compatibilityErrors(catalog, selection);
-  if (issues.length) throw new PilotError(issues[0], issues[0] === 'INCOMPATIBLE_DIAMOND' ? 'Choose a diamond matching the selected shape and setting rules.' : 'This combination is not supported by the selected setting. Review your selections.', 422);
+  if (issues.length) throw new PilotError(issues[0], issues[0] === 'INCOMPATIBLE_DIAMOND'
+    ? 'Choose a diamond matching the selected shape and setting rules.'
+    : issues[0] === 'FITTING_UNVERIFIED' ? 'The manufacturer has not approved this exact ring and diamond combination.'
+    : 'This combination is not supported by the selected setting. Review your selections.', 422);
   const family = settingFor(catalog, selection)!;
   catalog = settingCatalog(catalog, selection);
   if (catalog.rules && (!catalog.rules.metals.includes(selection.metal as typeof METALS[number]) || !catalog.rules.shapes.includes(selection.shape as typeof SHAPES[number]))) throw new PilotError("OPTION_DISABLED", "This option is no longer offered. Choose from the current collection.");

@@ -6,6 +6,8 @@ import { apiError, PilotError, readJson } from "../services/errors.server";
 import { assertShopifyConfigured } from "../services/configured.server";
 import { searchDiamonds } from "../services/diamond-search";
 import { requestLimit } from "../services/limits.server";
+import { fittingRequired } from '../services/fitting-state.server';
+import { checkoutGuardStatus } from '../services/checkout-guard.server';
 async function context(request: Request) {
   assertShopifyConfigured();
   const proxy = await authenticate.public.appProxy(request);
@@ -43,7 +45,15 @@ export async function action({ request, params }: ActionFunctionArgs) {
     await requestLimit(shop, 'write', 60);
     if (params["*"] === "quotes") await requestLimit(shop, 'quote-day', 200, 86400);
     const input = await readJson(request);
-    if (params["*"] === "quotes") return json(await createQuote(input, await loadCatalog(admin, shop)), 201);
+    if (params["*"] === "quotes") {
+      const catalog = await loadCatalog(admin, shop);
+      if (fittingRequired(shop)) {
+        const guard = await checkoutGuardStatus(admin, shop);
+        if (!guard.enabled || !guard.blockOnFailure || !guard.requireFitting || guard.fittingReleaseId !== catalog.fittingReleaseId)
+          throw new PilotError('GUARD_NOT_READY', 'Checkout protection is not ready. Please try again later.', 503);
+      }
+      return json(await createQuote(input, catalog), 201);
+    }
     if (params["*"] === "designs") return json(await saveDesign(shop, input), 201);
     throw new PilotError("NOT_FOUND", "Ring service endpoint not found.", 404);
   } catch (error) { return apiError(error); }

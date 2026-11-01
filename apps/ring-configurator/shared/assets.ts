@@ -12,3 +12,4 @@ export function assembly(version: string | undefined, shape?: Shape | '') {
   return (!shape || shape === 'Round' || shape === 'Oval') ? ASSEMBLIES.find(a => a.version === version) : undefined;
 }
 export const RULE_VERSION = 'multi-setting-v1';
+export const LEGACY_ASSET_VERSION = 'lumen-visual-v2';

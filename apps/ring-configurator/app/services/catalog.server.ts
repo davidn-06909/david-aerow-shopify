@@ -5,6 +5,7 @@ import { PilotError } from "./errors.server";
 import { ASSET_VERSION, PILOT_VERSION, assertMapping, gid, numericId, settingMappings, type PilotManifest } from "./manifest.server";
 import { assembly } from '../../shared/assets';
 import { activeManifest } from "./catalog-state.server";
+import { activeFitting, fittingRequired } from './fitting-state.server';
 export type AdminClient = { graphql: (query: string, options?: { variables?: Record<string, unknown> }) => Promise<Response> };
 type VariantNode = { id: string; title: string; price: string; availableForSale: boolean; sellableOnlineQuantity: number; inventoryQuantity: number | null; inventoryPolicy: string; inventoryItem: { tracked: boolean; inventoryLevel?: { quantities: { name: string; quantity: number }[] } | null }; selectedOptions: { name: string; value: string }[]; product: { id: string; title: string; handle: string; status: string; publishedAt: string | null; onlineStoreUrl: string | null; featuredImage: { url: string } | null } };
 export function minorUnits(decimal: string, currency: string): number {
@@ -35,14 +36,14 @@ async function inspectSingleSetting(admin: AdminClient, shop: string, manifest: 
   if (!fulfillmentLocation) throw new PilotError("FULFILLMENT_LOCATION_REQUIRED", "Map the pilot's online fulfillment location before checking diamond stock.", 503);
   const componentIds = [manifest.engravingVariantId, ...manifest.diamonds.map(d => d.variantId)].map(id => gid("ProductVariant", id));
   const response = await shopifyRead(admin, `query PilotCatalog($setting: ID!, $components: [ID!]!, $fulfillmentLocation: ID!) {
-    shop { currencyCode plan { partnerDevelopment } }
+    shop { currencyCode plan { partnerDevelopment shopifyPlus } }
     setting: product(id: $setting) { id title handle status publishedAt onlineStoreUrl featuredImage { url } variants(first: 50) { nodes { ...Variant } pageInfo { hasNextPage endCursor } } }
     components: nodes(ids: $components) { ... on ProductVariant { ...Variant } }
   }
   ${variantFragment}`, { variables: { setting: gid("Product", manifest.settingProductId), components: componentIds.slice(0, 25), fulfillmentLocation: gid("Location", fulfillmentLocation) } });
   const body = await response.json();
   if (!response.ok || body.errors || !body.data?.setting) throw new PilotError("SHOPIFY_CATALOG", "Shopify could not provide the mapped pilot catalog. Check access scopes and product IDs.", 503);
-  const data = body.data as { shop: { currencyCode: string; plan: { partnerDevelopment: boolean } }; setting: { title: string; handle: string; featuredImage?: { url: string }; variants: { nodes: VariantNode[]; pageInfo: { hasNextPage: boolean; endCursor?: string } } }; components: (VariantNode | null)[] };
+  const data = body.data as { shop: { currencyCode: string; plan: { partnerDevelopment: boolean; shopifyPlus: boolean } }; setting: { title: string; handle: string; featuredImage?: { url: string }; variants: { nodes: VariantNode[]; pageInfo: { hasNextPage: boolean; endCursor?: string } } }; components: (VariantNode | null)[] };
   const cursors = new Set<string>();
   while (data.setting.variants.pageInfo.hasNextPage) {
     const cursor = data.setting.variants.pageInfo.endCursor;
@@ -82,8 +83,11 @@ async function inspectSingleSetting(admin: AdminClient, shop: string, manifest: 
     if (!available) report.warnings.push(`Diamond ${d.variantId} is unavailable: require exactly one online sellable unit at the configured fulfillment location.`);
     return [{ ...d, id: numericId(v.id), handle: v.product.handle, title: v.product.title, price: { amount: minorUnits(v.price, currency), currency }, available, imageUrl: v.product.featuredImage?.url || "" } satisfies PilotDiamond];
   });
-  const purchaseEnabled = process.env.ENABLE_PURCHASES === "true" && process.env.PILOT_ALLOWED_SHOP === shop && data.shop.plan.partnerDevelopment;
-  return { report, mappings: data.components.filter((v): v is VariantNode => Boolean(v)).map(v => ({ id: numericId(v.id), title: v.product.title, available: canPurchase(v) && v.inventoryItem.tracked && v.inventoryPolicy === "DENY" && v.sellableOnlineQuantity === 1 && v.inventoryItem.inventoryLevel?.quantities.find(q => q.name === "available")?.quantity === 1 })), catalog: { mode: "connected", canPurchase: purchaseEnabled, shop, currency, pilotVersion: PILOT_VERSION, catalogVersion: version, catalogObservedAt: report.checkedAt, rules: manifest.rules, assetVersion: ASSET_VERSION, assetBaseUrl: process.env.ASSET_BASE_URL || `${process.env.SHOPIFY_APP_URL || "http://localhost:3000"}/models`, notices: [...(!engravingNode ? ["Engraving is unavailable."] : []), ...(purchaseEnabled ? [] : ["Purchasing is disabled. Enable the explicitly allowed Shopify development store after reviewing diagnostics."]), "Representative 3D preview. Physical gemstone fitting is unverified.", "Selecting a diamond does not reserve it.", "Pilot pricing uses the development store's base currency."], setting: { handle: data.setting.handle, title: data.setting.title, style: "Hidden halo", shank: "High polish", imageUrl: data.setting.featuredImage?.url || "", variants }, engraving: { variantId: engravingNode ? numericId(engravingNode.id) : "", price: { amount: engravingNode ? minorUnits(engravingNode.price, currency) : 0, currency }, available: manifest.rules.engravingEnabled && (engravingNode ? canPurchase(engravingNode) : false), maxLength: manifest.rules.engravingMaxLength }, diamonds } };
+  const developmentPurchase = data.shop.plan.partnerDevelopment;
+  const livePurchase = !developmentPurchase && data.shop.plan.shopifyPlus === true && process.env.ENABLE_LIVE_PURCHASES === 'true'
+    && process.env.LIVE_ALLOWED_SHOP === shop && process.env.REQUIRE_FITTING_APPROVAL === 'true';
+  const purchaseEnabled = process.env.ENABLE_PURCHASES === "true" && process.env.PILOT_ALLOWED_SHOP === shop && (developmentPurchase || livePurchase);
+  return { report, mappings: data.components.filter((v): v is VariantNode => Boolean(v)).map(v => ({ id: numericId(v.id), title: v.product.title, available: canPurchase(v) && v.inventoryItem.tracked && v.inventoryPolicy === "DENY" && v.sellableOnlineQuantity === 1 && v.inventoryItem.inventoryLevel?.quantities.find(q => q.name === "available")?.quantity === 1 })), catalog: { mode: "connected", canPurchase: purchaseEnabled, shop, currency, pilotVersion: PILOT_VERSION, catalogVersion: version, catalogObservedAt: report.checkedAt, rules: manifest.rules, assetVersion: ASSET_VERSION, assetBaseUrl: process.env.ASSET_BASE_URL || `${process.env.SHOPIFY_APP_URL || "http://localhost:3000"}/models`, notices: [...(!engravingNode ? ["Engraving is unavailable."] : []), ...(purchaseEnabled ? [] : ["Purchasing is disabled until this store passes its configured launch gates."]), "Representative 3D preview. Physical gemstone fitting is unverified unless an exact manufacturer approval is shown.", "Selecting a diamond does not reserve it.", "Prices use the connected store's base currency."], setting: { handle: data.setting.handle, title: data.setting.title, style: "Hidden halo", shank: "High polish", imageUrl: data.setting.featuredImage?.url || "", variants }, engraving: { variantId: engravingNode ? numericId(engravingNode.id) : "", price: { amount: engravingNode ? minorUnits(engravingNode.price, currency) : 0, currency }, available: manifest.rules.engravingEnabled && (engravingNode ? canPurchase(engravingNode) : false), maxLength: manifest.rules.engravingMaxLength }, diamonds } };
 }
 export async function inspectMappedCatalog(admin: AdminClient, shop: string, manifest: PilotManifest, version = 'draft') {
   const families = settingMappings(manifest).filter(s => s.enabled);
@@ -111,11 +115,34 @@ export async function inspectMappedCatalog(admin: AdminClient, shop: string, man
 const cache = new Map<string, { expires: number; catalog: Bootstrap }>();
 export async function loadCatalog(admin: AdminClient, shop: string, options: { cached?: boolean } = {}): Promise<Bootstrap> {
   const active = await activeManifest(shop);
-  const key = `${shop}/${active.version}`;
+  const fitting = fittingRequired(shop) ? await activeFitting(shop) : null;
+  const key = `${shop}/${active.version}/${fitting?.version || 'no-fit'}`;
   const hit = cache.get(key);
   if (options.cached && hit && hit.expires > Date.now()) return hit.catalog;
   const { catalog, report } = await inspectMappedCatalog(admin, shop, active.manifest, active.version);
   if (report.errors.length) throw new PilotError('CATALOG_INVALID', report.errors[0], 503);
+  if (fittingRequired(shop)) {
+    catalog.fittingRequired = true;
+    catalog.fittingReleaseId = fitting?.version;
+    catalog.canPurchase = catalog.canPurchase && Boolean(fitting);
+    catalog.fittingApprovals = fitting?.manifest.approvals.flatMap(approval => {
+      const assembly = fitting.manifest.assemblies.find(a => a.id === approval.assemblyId);
+      return assembly ? [{ settingId: assembly.settingId, diamondId: approval.stoneVariantId, shape: assembly.shape,
+        metals: approval.metals, sizes: approval.sizes }] : [];
+    }) || [];
+    if (!fitting) catalog.notices.push('Manufacturer fitting approval is not published. Purchasing is unavailable.');
+    if (catalog.canPurchase) {
+      try {
+        const { checkoutGuardStatus } = await import('./checkout-guard.server');
+        const guard = await checkoutGuardStatus(admin, shop);
+        if (!guard.enabled || !guard.blockOnFailure || !guard.requireFitting || guard.fittingReleaseId !== fitting?.version)
+          throw new Error('Checkout guard release mismatch.');
+      } catch {
+        catalog.canPurchase = false;
+        catalog.notices.push('Checkout protection needs operator attention. Purchasing is unavailable.');
+      }
+    }
+  }
   if (options.cached) { cache.clear(); cache.set(key, { catalog, expires: Date.now() + 20_000 }); }
   return catalog;
 }

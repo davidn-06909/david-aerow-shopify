@@ -14,7 +14,7 @@ describe('order lifecycle boundaries', () => {
     expect(retryDelay(99, 1)).toBe(3605000);
   });
   it.each([
-    ['PAID', false, '0', 'verified', 'Components verified — physical fitting unverified'],
+    ['PAID', false, '0', 'verified', 'Components verified'],
     ['PENDING', false, '0', 'verified', 'Payment requires attention'],
     ['PAID', true, '0', 'verified', 'Cancelled'],
     ['PAID', false, '45', 'verified', 'Refund recorded — review required'],

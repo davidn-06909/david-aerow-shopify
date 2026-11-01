@@ -1,5 +1,5 @@
 import { METALS, SHAPES, STEPS, type Bootstrap, type SavedDesign, type Selection, type Step } from '../shared/contract';
-import { diamondFits, settingCatalog, settingFor, settingsOf } from '../shared/compatibility';
+import { diamondFits, fittingAllows, settingCatalog, settingFor, settingsOf } from '../shared/compatibility';
 
 export const emptySelection = (): Selection => ({ style: 'Hidden halo', shank: 'High polish', metal: '', shape: '', diamondId: '', size: '', engraving: '', engravingEnabled: false });
 export const characterCount = (text: string) => Array.from(text).length;
@@ -35,8 +35,9 @@ export function stepComplete(step: Step, s: Selection, b: Bootstrap): boolean {
     case 'shank': return Boolean(family && s.shank === family.shank);
     case 'metal': return Boolean(s.metal && b.setting.variants.some(v => v.metal === s.metal && v.available));
     case 'shape': return Boolean(s.shape && (!b.rules || b.rules.shapes.includes(s.shape)));
-    case 'diamond': return Boolean(family && b.diamonds.some(d => d.id === s.diamondId && d.shape === s.shape && d.available && diamondFits(family, d)));
-    case 'size': return b.setting.variants.some(v => v.metal === s.metal && v.size === s.size && v.available);
+    case 'diamond': return Boolean(family && b.diamonds.some(d => d.id === s.diamondId && d.shape === s.shape && d.available && diamondFits(family, d))
+      && fittingAllows(b, { ...s, size: '' }));
+    case 'size': return b.setting.variants.some(v => v.metal === s.metal && v.size === s.size && v.available) && fittingAllows(b, s);
     case 'engraving': return !s.engravingEnabled || Boolean(s.engraving.trim() && characterCount(s.engraving) <= b.engraving.maxLength && b.engraving.available && !/[\u0000-\u001f\u007f]/.test(s.engraving));
     case 'review': return STEPS.slice(0, -1).every(k => stepComplete(k, s, b));
   }
@@ -65,8 +66,10 @@ export function reconcileSelection(s: Selection, b: Bootstrap): Selection {
   b = settingCatalog(b, next);
   if (next.metal && b.rules && !b.rules.metals.includes(next.metal)) next.metal = '';
   if (next.shape && b.rules && !b.rules.shapes.includes(next.shape)) next.shape = '';
-  if (!family || !b.diamonds.some(d => d.id === next.diamondId && d.shape === next.shape && d.available && diamondFits(family, d))) next.diamondId = '';
-  if (!b.setting.variants.some(v => v.metal === next.metal && v.size === next.size && v.available)) next.size = '';
+  if (!family || !b.diamonds.some(d => d.id === next.diamondId && d.shape === next.shape && d.available && diamondFits(family, d))
+    || (next.diamondId && !fittingAllows(b, { ...next, size: '' }))) next.diamondId = '';
+  if (!b.setting.variants.some(v => v.metal === next.metal && v.size === next.size && v.available)
+    || (next.size && next.diamondId && !fittingAllows(b, next))) next.size = '';
   if (!b.engraving.available || characterCount(next.engraving) > b.engraving.maxLength) { next.engraving = ''; next.engravingEnabled = false; }
   return next;
 }
