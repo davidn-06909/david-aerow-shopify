@@ -1,3 +1,4 @@
+import type { Prisma } from '@prisma/client';
 import prisma from '../db.server';
 import type { PilotManifest } from './manifest.server';
 import { numericId, settingMappings } from './manifest.server';
@@ -31,8 +32,8 @@ function standaloneExemptions(shop: string): string[] {
   return sorted(values);
 }
 
-export async function buildGuardConfig(shop: string, manifest?: PilotManifest, previous?: GuardConfig): Promise<GuardConfig> {
-  const rows = await prisma.managedComponent.findMany({ where: { shop }, select: { kind: true, referenceId: true } });
+export async function buildGuardConfig(shop: string, manifest?: PilotManifest, previous?: GuardConfig, db: Prisma.TransactionClient = prisma): Promise<GuardConfig> {
+  const rows = await db.managedComponent.findMany({ where: { shop }, select: { kind: true, referenceId: true } });
   const products = rows.filter(r => r.kind === 'product').map(r => gid('Product', r.referenceId));
   const variants = rows.filter(r => r.kind === 'variant').map(r => gid('ProductVariant', r.referenceId));
   if (manifest) {
@@ -93,28 +94,39 @@ async function updateValidationConfig(admin: AdminClient, id: string, metafieldI
 
 /** Expand the protected registry before making a catalog release active. */
 export async function extendCheckoutGuard(admin: AdminClient, shop: string, manifest: PilotManifest) {
-  const row = await prisma.jobCheckpoint.findUnique({ where: { shop_kind: { shop, kind: GUARD_KIND } } });
-  const id = (row?.checkpoint as { id?: string } | null)?.id;
-  if (!id) return;
-  const validation = await readValidation(admin, id);
-  if (!validation.enabled || !validation.blockOnFailure || !validation.metafield?.id) throw new PilotError('GUARD_DISABLED', 'Enable and verify the checkout guard before publishing.', 409);
-  const current = parseConfig(validation.metafield.value);
-  const next = await buildGuardConfig(shop, manifest, current);
-  if (JSON.stringify(next) === JSON.stringify(current)) return;
-  await updateValidationConfig(admin, id, validation.metafield.id, next);
+  return prisma.$transaction(async tx => {
+    await lockGuardConfig(tx, shop);
+    const row = await tx.jobCheckpoint.findUnique({ where: { shop_kind: { shop, kind: GUARD_KIND } } });
+    const id = (row?.checkpoint as { id?: string } | null)?.id;
+    if (!id) return;
+    const validation = await readValidation(admin, id);
+    if (!validation.enabled || !validation.blockOnFailure || !validation.metafield?.id) throw new PilotError('GUARD_DISABLED', 'Enable and verify the checkout guard before publishing.', 409);
+    const current = parseConfig(validation.metafield.value);
+    const next = await buildGuardConfig(shop, manifest, current, tx);
+    if (JSON.stringify(next) === JSON.stringify(current)) return;
+    await updateValidationConfig(admin, id, validation.metafield.id, next);
+  }, { timeout: 60_000 });
 }
 
 /** A manufacturer release is revocable at checkout without changing saved designs. */
-export async function setCheckoutFittingRelease(admin: AdminClient, shop: string, releaseId: string | null) {
-  const row = await prisma.jobCheckpoint.findUnique({ where: { shop_kind: { shop, kind: GUARD_KIND } } });
-  const id = (row?.checkpoint as { id?: string } | null)?.id;
-  if (!id) throw new PilotError('GUARD_MISSING', 'Install the checkout guard before publishing physical fitting.', 409);
-  const validation = await readValidation(admin, id);
-  if (!validation.enabled || !validation.blockOnFailure || !validation.metafield?.id)
-    throw new PilotError('GUARD_DISABLED', 'Enable and verify the checkout guard before publishing physical fitting.', 409);
-  const current = parseConfig(validation.metafield.value);
-  const next: GuardConfig = { ...current, requireFitting: true, fittingReleaseId: releaseId };
-  if (JSON.stringify(next) !== JSON.stringify(current)) await updateValidationConfig(admin, id, validation.metafield.id, next);
+export async function lockGuardConfig(tx: Prisma.TransactionClient, shop: string) {
+  await tx.$queryRaw`SELECT 1 AS locked FROM pg_advisory_xact_lock(hashtext(${`${shop}:fitting-release`}))`;
+}
+
+export async function setCheckoutFittingRelease(admin: AdminClient, shop: string, releaseId: string | null, transaction?: Prisma.TransactionClient) {
+  const update = async (db: Prisma.TransactionClient) => {
+    const row = await db.jobCheckpoint.findUnique({ where: { shop_kind: { shop, kind: GUARD_KIND } } });
+    const id = (row?.checkpoint as { id?: string } | null)?.id;
+    if (!id) throw new PilotError('GUARD_MISSING', 'Install the checkout guard before publishing physical fitting.', 409);
+    const validation = await readValidation(admin, id);
+    if (!validation.enabled || !validation.blockOnFailure || !validation.metafield?.id)
+      throw new PilotError('GUARD_DISABLED', 'Enable and verify the checkout guard before publishing physical fitting.', 409);
+    const current = parseConfig(validation.metafield.value);
+    const next: GuardConfig = { ...current, requireFitting: true, fittingReleaseId: releaseId };
+    if (JSON.stringify(next) !== JSON.stringify(current)) await updateValidationConfig(admin, id, validation.metafield.id, next);
+  };
+  if (transaction) return update(transaction);
+  return prisma.$transaction(async tx => { await lockGuardConfig(tx, shop); await update(tx); }, { timeout: 60_000 });
 }
 
 /** Only an explicit development-store setup script calls this. */

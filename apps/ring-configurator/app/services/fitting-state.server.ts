@@ -6,7 +6,7 @@ import { activeManifest } from './catalog-state.server';
 import type { AdminClient } from './catalog.server';
 import { PilotError } from './errors.server';
 import { emptyFittingManifest, findFittingApproval, fittingManifestSchema, inspectFitting, type FittingManifest } from './fitting';
-import { setCheckoutFittingRelease } from './checkout-guard.server';
+import { lockGuardConfig, setCheckoutFittingRelease } from './checkout-guard.server';
 
 const json = (value: unknown) => JSON.parse(JSON.stringify(value)) as Prisma.InputJsonValue;
 
@@ -81,29 +81,41 @@ export async function publishFitting(admin: AdminClient, shop: string, revision:
   const { report, manifest, catalogVersion } = await validateFittingDraft(admin, shop, revision);
   if (report.errors.length) throw new PilotError('FITTING_PUBLICATION_BLOCKED', 'Resolve fitting evidence errors before publishing.', 422,
     Object.fromEntries(report.errors.map((message, i) => [`validation.${i}`, message])));
-  const state = await prisma.fittingState.findUniqueOrThrow({ where: { shop } });
-  const version = randomUUID();
-  // Shopify must know the new release before the database can mint tickets for it.
-  await setCheckoutFittingRelease(admin, shop, version);
-  try {
-    await prisma.$transaction(async tx => {
+  return prisma.$transaction(async tx => {
+    // Serialize Shopify guard writes with the database transition for this shop.
+    await lockGuardConfig(tx, shop);
+    const state = await tx.fittingState.findUniqueOrThrow({ where: { shop } });
+    if (state.revision !== revision) throw new PilotError('FITTING_CONFLICT', 'The fitting draft changed during publication.', 409);
+    const version = randomUUID();
+    try {
+      // Shopify must know the new release before the database can mint tickets for it.
+      await setCheckoutFittingRelease(admin, shop, version, tx);
       const changed = await tx.fittingState.updateMany({ where: { shop, revision }, data: { activeVersion: version, revision: { increment: 1 } } });
       if (changed.count !== 1) throw new PilotError('FITTING_CONFLICT', 'The fitting draft changed during publication.', 409);
       await tx.fittingRelease.create({ data: { id: version, shop, manifest: json(manifest), report: json({ ...report, catalogVersion }), actor, action: 'publish' } });
-    });
-  } catch (error) {
-    await setCheckoutFittingRelease(admin, shop, state.activeVersion).catch(() => undefined);
-    throw error;
-  }
-  return { version, report };
+    } catch (error) {
+      await setCheckoutFittingRelease(admin, shop, state.activeVersion, tx).catch(() => undefined);
+      throw error;
+    }
+    return { version, report };
+  }, { timeout: 60_000 });
 }
 
 export async function suspendFitting(admin: AdminClient, shop: string, revision: number, actor: string) {
   if (!actor || actor === 'merchant') throw new PilotError('OPERATOR_REQUIRED', 'A verified Shopify operator must suspend fitting approval.', 403);
-  const state = await initializeFitting(shop);
-  if (state.revision !== revision) throw new PilotError('FITTING_CONFLICT', 'The fitting draft changed. Reload before suspending.', 409);
-  if (fittingRequired(shop)) await setCheckoutFittingRelease(admin, shop, null);
-  const changed = await prisma.fittingState.updateMany({ where: { shop, revision }, data: { activeVersion: null, revision: { increment: 1 } } });
-  if (changed.count !== 1) throw new PilotError('FITTING_CONFLICT', 'The fitting draft changed during suspension.', 409);
-  await prisma.fittingRelease.create({ data: { shop, manifest: json(state.draft), report: json({ suspendedVersion: state.activeVersion }), actor, action: 'suspend' } });
+  await initializeFitting(shop);
+  return prisma.$transaction(async tx => {
+    await lockGuardConfig(tx, shop);
+    const state = await tx.fittingState.findUniqueOrThrow({ where: { shop } });
+    if (state.revision !== revision) throw new PilotError('FITTING_CONFLICT', 'The fitting draft changed. Reload before suspending.', 409);
+    try {
+      if (fittingRequired(shop)) await setCheckoutFittingRelease(admin, shop, null, tx);
+      const changed = await tx.fittingState.updateMany({ where: { shop, revision }, data: { activeVersion: null, revision: { increment: 1 } } });
+      if (changed.count !== 1) throw new PilotError('FITTING_CONFLICT', 'The fitting draft changed during suspension.', 409);
+      await tx.fittingRelease.create({ data: { shop, manifest: json(state.draft), report: json({ suspendedVersion: state.activeVersion }), actor, action: 'suspend' } });
+    } catch (error) {
+      if (fittingRequired(shop)) await setCheckoutFittingRelease(admin, shop, state.activeVersion, tx).catch(() => undefined);
+      throw error;
+    }
+  }, { timeout: 60_000 });
 }

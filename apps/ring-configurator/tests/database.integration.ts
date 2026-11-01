@@ -356,7 +356,7 @@ try {
   assert.equal((await runOperations(targetShop, reconciliationAdmin)).skipped, true);
   await prisma.jobCheckpoint.update({ where: { shop_kind: { shop: targetShop, kind: 'operations' } }, data: { leaseUntil: null, leaseToken: null } });
   check('an active operations lease prevents overlapping scheduled runs');
-  const { initializeFitting, saveFittingDraft, fittingForSelection, publishFitting } = await import('../app/services/fitting-state.server');
+  const { initializeFitting, saveFittingDraft, fittingForSelection, publishFitting, suspendFitting } = await import('../app/services/fitting-state.server');
   const fitState = await initializeFitting(targetShop);
   const emptyFit = { schemaVersion: 1, shop: targetShop, assemblies: [], stones: [], approvals: [] };
   assert.equal(await saveFittingDraft(targetShop, fitState.revision, emptyFit), fitState.revision + 1);
@@ -368,6 +368,48 @@ try {
     assert.equal((await prisma.fittingState.findUniqueOrThrow({ where: { shop: targetShop } })).activeVersion, null);
   } finally { process.env.REQUIRE_FITTING_APPROVAL = 'false'; }
   check('manufacturer fitting drafts use revision checks and cannot publish without documented approval');
+  const { extendCheckoutGuard, setCheckoutFittingRelease, GUARD_KIND } = await import('../app/services/checkout-guard.server');
+  const validationId = 'gid://shopify/Validation/900099';
+  const metafieldId = 'gid://shopify/Metafield/900098';
+  let guardValue = JSON.stringify({ version: 1, keys: [], products: [], variants: [], requireFitting: true, fittingReleaseId: null });
+  const guardAdmin = { async graphql(query: string, options?: { variables?: Record<string, unknown> }) {
+    if (query.includes('query AevowValidation')) {
+      const value = guardValue;
+      await new Promise(resolve => setTimeout(resolve, 15));
+      return Response.json({ data: { validation: { id: validationId, enabled: true, blockOnFailure: true,
+        metafield: { id: metafieldId, namespace: '$app', value } } } });
+    }
+    if (query.includes('mutation UpdateAevowValidation')) {
+      const input = options?.variables?.validation as { metafields: { value: string }[] };
+      guardValue = input.metafields[0].value;
+      return Response.json({ data: { validationUpdate: { validation: { id: validationId, enabled: true,
+        metafield: { value: guardValue } }, userErrors: [] } } });
+    }
+    throw new Error('Unexpected checkout guard query');
+  } };
+  await prisma.jobCheckpoint.create({ data: { shop: targetShop, kind: GUARD_KIND, checkpoint: { id: validationId } } });
+  const fittingRelease = randomUUID();
+  await Promise.all([extendCheckoutGuard(guardAdmin, targetShop, manifest), setCheckoutFittingRelease(guardAdmin, targetShop, fittingRelease)]);
+  const guardAfterPublish = JSON.parse(guardValue);
+  assert.equal(guardAfterPublish.fittingReleaseId, fittingRelease);
+  assert.ok(guardAfterPublish.products.includes('gid://shopify/Product/900000'));
+  assert.ok(guardAfterPublish.variants.includes('gid://shopify/ProductVariant/900010'));
+  check('concurrent catalog and fitting guard writes preserve both the release and protected components');
+  const beforeSuspend = await prisma.fittingState.update({ where: { shop: targetShop }, data: { activeVersion: fittingRelease } });
+  await prisma.fittingRelease.create({ data: { id: fittingRelease, shop: targetShop, manifest: emptyFit, report: {}, actor: 'verified-test-operator', action: 'publish' } });
+  process.env.REQUIRE_FITTING_APPROVAL = 'true';
+  try {
+    const suspensions = await Promise.allSettled([
+      suspendFitting(guardAdmin, targetShop, beforeSuspend.revision, 'verified-test-operator'),
+      suspendFitting(guardAdmin, targetShop, beforeSuspend.revision, 'verified-test-operator'),
+    ]);
+    assert.equal(suspensions.filter(result => result.status === 'fulfilled').length, 1);
+    assert.equal(suspensions.filter(result => result.status === 'rejected').length, 1);
+    assert.equal((await prisma.fittingState.findUniqueOrThrow({ where: { shop: targetShop } })).activeVersion, null);
+    assert.equal(JSON.parse(guardValue).fittingReleaseId, null);
+    assert.equal(await prisma.fittingRelease.count({ where: { shop: targetShop, action: 'suspend' } }), 1);
+  } finally { process.env.REQUIRE_FITTING_APPROVAL = 'false'; }
+  check('concurrent fitting suspensions revoke checkout and record exactly one atomic audit');
   const { recordManufacturingDecision } = await import('../app/services/manufacturing.server');
   const manufacturingOrder = await prisma.configuredOrder.findUniqueOrThrow({ where: { shop_orderId: { shop: targetShop, orderId: paid.id } }, include: { audits: { orderBy: { version: 'desc' }, take: 1 } } });
   const manufacturingAssociation = await prisma.orderDesign.findFirstOrThrow({ where: { shop: targetShop, orderId: paid.id } });
