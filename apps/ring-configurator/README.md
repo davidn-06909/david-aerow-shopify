@@ -1,6 +1,6 @@
 # Aevow ring configurator
 
-**Milestone 5 software is implemented locally and awaiting release checks.** Manufacturer fitting evidence, exact approval gates, live-store controls, and separate manufacturing decisions are described in the [Milestone 5 implementation and launch record](docs/milestone-5.md). There is no live store or manufacturer-approved fitting data yet, so no physical approval or live launch is claimed.
+**Milestone 5 software is implemented and feature-branch CI passed; deployment awaits release review.** Manufacturer fitting evidence, exact approval gates, live-store controls, and separate manufacturing decisions are described in the [Milestone 5 implementation and launch record](docs/milestone-5.md). There is no live store or manufacturer-approved fitting data yet, so no physical approval or live launch is claimed.
 
 **Milestone 4 is deployed to the Aerow development pilot.** Shopify Plus checkout validation protects configured-ring components, and durable order operations track payment, component verification, merchant review, refunds and cancellations. Actual test orders [#1006](https://admin.shopify.com/store/aerow-qdbfzxwi/orders/18981432099064) and [#1007](https://admin.shopify.com/store/aerow-qdbfzxwi/orders/18981476860152) completed and were subsequently refunded/cancelled with restocking off. The two QA diamonds are disabled again. See the [Milestone 4 implementation and acceptance record](docs/milestone-4.md). The live Aevow store has not been changed; physical fitting and physical-device checks remain open.
 

@@ -1,6 +1,6 @@
 # Milestone 5: Manufacturer fitting and controlled live launch
 
-Status: **software implemented locally; physical approval and live launch pending**. The customer has no live Shopify store yet and no manufacturer-approved drawings, tolerances, or measured diamond files. The Aerow development pilot remains a visual pilot. No manufacturer fitting release has been fabricated or published, and no live checkout has been enabled.
+Status: **software implemented and CI verified; hosted release, physical approval and live launch pending**. The customer has no live Shopify store yet and no manufacturer-approved drawings, tolerances, or measured diamond files. The Aerow development pilot remains a visual pilot. No manufacturer fitting release has been fabricated or published, and no live checkout has been enabled.
 
 ## Implemented
 
@@ -20,6 +20,8 @@ Status: **software implemented locally; physical approval and live launch pendin
 
 ## Current verification and blockers
 
-The 101 app unit tests, 51 disposable PostgreSQL integration checks, 18 cart-adapter tests, type check, app/storefront/Netlify builds, model validation, package audit and theme CSS build pass locally. The integration suite creates and drops its own local PostgreSQL schema; it places no Shopify order. A Milestone 4 encrypted backup was successfully read and restored using the v1-compatible reader. The Rust checkout function could not be compiled or run locally because `cargo` is unavailable; its 17 runtime fixtures require CI or a Rust-equipped host before any release. Theme Check completed with zero errors and 185 existing warnings. The package audit found no private files or credential matches.
+The 101 app unit tests, 51 disposable PostgreSQL integration checks, 18 cart-adapter tests, type check, app/storefront/Netlify builds, model validation, package audit and theme CSS build pass locally. The integration suite creates and drops its own local PostgreSQL schema; it places no Shopify order. A Milestone 4 encrypted backup was successfully read and restored using the v1-compatible reader. Theme Check completed with zero errors and 185 existing warnings. The package audit found no private files or credential matches.
+
+[Feature-branch CI run #8](https://github.com/davidn-06909/david-aerow-shopify/actions/runs/41255103841) passed all three jobs: app, theme and checkout function. CI compiled the Rust Shopify Function, ran its Rust tests, built the WASM and passed all 17 runtime fixtures. The hosted Netlify app and Shopify app extension have **not** been updated to this commit; a release requires a separate deployment and migration review. No physical phone result or new Shopify test checkout is claimed.
 
 Physical fitting, manufacturer evidence authenticity, live Shopify installation/plan and checkout, and physical-device results are **not verified**. Do not label this milestone launched or manufacturer-approved until those inputs and acceptance checks exist.
